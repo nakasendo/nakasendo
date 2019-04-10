@@ -1,0 +1,31 @@
+CC=g++
+PATH_TO_SSL = /home/oboxes/secLibFroWasm
+CFLAGS =-I. -I. -l:libssl.a -l:libcrypto.a -ldl -fpic -std=c++17 -g -pthread
+OBJBIGNUM = BigNumbersImpl.o BigNumbers.o BigNumAPI.o
+OBJBIGNUMCLIENT = BigNumbersClient.o
+OBJBIGNUMRANDCLIENT = BigNumbersRandTest.o
+%.o : %.cpp
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+
+BigNumTest:$(OBJBIGNUM) $(OBJBIGNUMCLIENT)
+	$(CC) -o $@ $^ $(CFLAGS)
+
+BigNumRandTest:$(OBJBIGNUM) $(OBJBIGNUMRANDCLIENT)
+	$(CC) -o $@ $^ $(CFLAGS)
+
+BigNumShared:$(OBJBIGNUM)
+	$(CC) -shared -o  $@.so $^ $(CFLAGS)
+
+BigNumPyModule:BigNumPythonAPI.cpp
+	python BigNumSetup.py build
+
+BigNumPyInstall:
+	python BigNumSetup.py install
+
+clean:
+	rm -rf BigNumbers.o BigNumbersImpl.o BigNumbersRandTest.o BigNumbersClient.o BigNumAPI.o BigNumTest BigNumShared.so BigNumRandTest BigNumbers.wasm BigNumbers.wasm.map BigNumbers.wast BigNumbers.js
+	rm -rf build
+
+all: BigNumTest BigNumShared BigNumRandTest BigNumPyModule
+install: BigNumPyInstall

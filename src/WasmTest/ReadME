@@ -1,0 +1,4 @@
+#To execute in webpage -> copy the required .js & .wasm files to this location & run
+	python webserver.py
+
+This will open a port on 8081
