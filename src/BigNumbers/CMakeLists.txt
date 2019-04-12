@@ -18,8 +18,12 @@ set(BIG_NUMBERS_CPP_FILES # Keep alphabet order
 )
 
 set(BIG_NUMBERS_SOURCE_FILES ${BIG_NUMBERS_HPP_FILES} ${BIG_NUMBERS_CPP_FILES})
-add_library(BigNumbers SHARED ${BIG_NUMBERS_SOURCE_FILES})
-target_link_libraries(BigNumbers OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS})
+add_library(BigNumbers ${LIBS_BUILD_TYPE} ${BIG_NUMBERS_SOURCE_FILES})
+if(WIN32) #https://github.com/openssl/openssl/pull/1062
+  target_link_libraries(BigNumbers crypt32 ws2_32)
+endif()
+target_link_libraries(BigNumbers OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_compile_definitions(BigNumbers PRIVATE EXPORT_BigNumbers)
 set_property(TARGET BigNumbers PROPERTY FOLDER "core")
 
 ## Add tests. TODO separate to tests directory

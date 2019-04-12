@@ -20,7 +20,7 @@ set(FindOpenSSLHelper_Include TRUE)
 #### Preset some variable to find and import OpenSSL
 function(presetOpenSSLVariable)##########################################################################
   set(OPENSSL_USE_STATIC_LIBS ON CACHE BOOL "Preset variable to find OpenSSL" FORCE)## Force to use static version
-  set(OPENSSL_MSVC_STATIC_RT ON CACHE BOOL "Preset variable to find OpenSSL" FORCE)##
+  set(OPENSSL_MSVC_STATIC_RT ON CACHE BOOL "Preset variable to find OpenSSL" FORCE)## If turn it ON, should change the windows compiler flag to build the solution in MT mode
 endfunction()
 
 #### Help to find OpenSSL. Need to define the env variable OPENSSL_ROOT_DIR pointing to the root of installed directory

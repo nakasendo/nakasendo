@@ -1,6 +1,8 @@
 #ifndef __BIGNUMBERS_IMPL_H__
 #define __BIGNUMBERS_IMPL_H__
 
+#include <BigNumAPI.h>
+
 #include <memory>
 #include <iostream>
 #include <string>
@@ -10,7 +12,7 @@
 using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)> ; 
 using CTX_ptr = std::unique_ptr<BN_CTX, decltype(&::BN_CTX_free)>;
 
-class BigNumberImpl
+class BigNumbers_API BigNumberImpl
 {
     friend std::unique_ptr<BigNumberImpl> Add (const BigNumberImpl*  obj1, const BigNumberImpl*  obj2);  
     friend std::unique_ptr<BigNumberImpl> Sub (const BigNumberImpl* obj1, const BigNumberImpl* obj2);

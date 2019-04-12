@@ -3,18 +3,17 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "BigNumAPI.h"
 #include "BigNumbers.h"
 
-extern "C" {
-
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_KEEPALIVE
-    const char * 
+#ifdef WIN32
+#define strdup_func _strdup
 #else
-    std::unique_ptr<char> 
+#define strdup_func strdup
 #endif
-addFromHex (char * argA, char * argB)
+
+BIGNUM_RETURN_TYPE addFromHex (char * argA, char * argB)
 {
     BigNumber BNValA, BNValB; 
     BNValA.FromHex (argA);
@@ -24,17 +23,12 @@ addFromHex (char * argA, char * argB)
     return Sum.ToHex().c_str(); 
 #else    
     std::unique_ptr<char> returnPtr ; 
-    returnPtr.reset (strndup (Sum.ToHex().c_str(),Sum.ToHex().size()));
+    returnPtr.reset (strdup_func(Sum.ToHex().c_str()));
     return (std::move(returnPtr)); 
 #endif    
 }
 
-#ifdef __EMSCRIPTEN__
-EMSCRIPTEN_KEEPALIVE const char *
-#else
-std::unique_ptr<char> 
-#endif
-addFromDec (char * argA, char * argB)
+BIGNUM_RETURN_TYPE addFromDec (char * argA, char * argB)
 {
     BigNumber BNValA, BNValB; 
     BNValA.FromDec (argA);
@@ -44,18 +38,12 @@ addFromDec (char * argA, char * argB)
     return Sum.ToDec().c_str(); 
 #else        
     std::unique_ptr<char> returnPtr ; 
-    returnPtr.reset (strndup (Sum.ToDec().c_str(),Sum.ToDec().size()));
+    returnPtr.reset (strdup_func(Sum.ToDec().c_str()));
     return (std::move(returnPtr)); 
 #endif    
 }
 
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_KEEPALIVE
-    const char * 
-#else
-    std::unique_ptr<char> 
-#endif
-subFromHex (char * argA, char * argB)
+BIGNUM_RETURN_TYPE subFromHex (char * argA, char * argB)
 {
     BigNumber BNValA, BNValB; 
     BNValA.FromHex (argA);
@@ -65,17 +53,12 @@ subFromHex (char * argA, char * argB)
     return Diff.ToHex().c_str(); 
 #else    
     std::unique_ptr<char> returnPtr ; 
-    returnPtr.reset (strndup (Diff.ToHex().c_str(),Diff.ToHex().size()));
+    returnPtr.reset (strdup_func(Diff.ToHex().c_str()));
     return (std::move(returnPtr)); 
 #endif    
 }
 
-#ifdef __EMSCRIPTEN__
-EMSCRIPTEN_KEEPALIVE const char *
-#else
-std::unique_ptr<char> 
-#endif
-subFromDec (char * argA, char * argB)
+BIGNUM_RETURN_TYPE subFromDec (char * argA, char * argB)
 {
     BigNumber BNValA, BNValB; 
     BNValA.FromDec (argA);
@@ -85,51 +68,36 @@ subFromDec (char * argA, char * argB)
     return Diff.ToDec().c_str(); 
 #else        
     std::unique_ptr<char> returnPtr ; 
-    returnPtr.reset (strndup (Diff.ToDec().c_str(),Diff.ToDec().size()));
+    returnPtr.reset (strdup_func(Diff.ToDec().c_str()));
     return (std::move(returnPtr)); 
 #endif    
 }
 
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_KEEPALIVE const char *
-#else
-std::unique_ptr<char>
-#endif   
-BNRandomHex (const int size)
+BIGNUM_RETURN_TYPE BNRandomHex (const int size)
 {    
     BigNumber BNVal = GenerateRand (size); 
 #ifdef __EMSCRIPTEN__
     return BNVal.ToHex().c_str();
 #else
     std::unique_ptr<char> returnPtr;
-    returnPtr.reset(strndup(BNVal.ToHex().c_str(),BNVal.ToHex().size()));
+    returnPtr.reset(strdup_func(BNVal.ToHex().c_str()));
     return (std::move(returnPtr)); 
 #endif    
 }
 
-#ifdef __EMSCRIPTEN__
-EMSCRIPTEN_KEEPALIVE const char *
-#else
-std::unique_ptr<char>  
-#endif 
-BNRandomDec (const int size)
+BIGNUM_RETURN_TYPE BNRandomDec (const int size)
 {
     BigNumber BNVal = GenerateRand (size); 
 #ifdef __EMSCRIPTEN__
     return BNVal.ToDec().c_str();     
 #else    
     std::unique_ptr<char> returnPtr;
-    returnPtr.reset(strndup(BNVal.ToDec().c_str(),BNVal.ToDec().size()));
+    returnPtr.reset(strdup_func(BNVal.ToDec().c_str()));
     return (std::move(returnPtr)); 
 #endif    
 }
 
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_KEEPALIVE const char *
-#else
-    std::unique_ptr<char>
-#endif
-    BNRandomHexWithSeed(const char * seed, const int size)
+BIGNUM_RETURN_TYPE BNRandomHexWithSeed(const char * seed, const int size)
 {
     BigNumber BNVal;     
     BNVal.generateRandHexWithSeed(seed, size);
@@ -137,17 +105,12 @@ BNRandomDec (const int size)
     return BNVal.ToHex().c_str();
 #else
     std::unique_ptr<char> returnPtr;
-    returnPtr.reset(strndup(BNVal.ToHex().c_str(),BNVal.ToHex().size()));
+    returnPtr.reset(strdup_func(BNVal.ToHex().c_str()));
     return (std::move(returnPtr));
 #endif    
 }
 
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_KEEPALIVE const char *
-#else
-    std::unique_ptr<char>
-#endif
-    BNRandomDecWithSeed(const char * seed, const int size)
+BIGNUM_RETURN_TYPE BNRandomDecWithSeed(const char * seed, const int size)
 {
     BigNumber BNVal;     
     BNVal.generateRandDecWithSeed(seed, size);
@@ -155,9 +118,7 @@ BNRandomDec (const int size)
     return BNVal.ToDec().c_str(); 
 #else    
     std::unique_ptr<char> returnPtr;
-    returnPtr.reset(strndup(BNVal.ToDec().c_str(),BNVal.ToDec().size()));
+    returnPtr.reset(strdup_func(BNVal.ToDec().c_str()));
     return (std::move(returnPtr));
 #endif    
 }
-};
-

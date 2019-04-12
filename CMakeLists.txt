@@ -46,6 +46,6 @@ sdkInitCMake()
 # Separate source into core, tests
 # From tests, separate functional test, unit tests, then separate cpp tests, python tests, js tests
 
-#add_subdirectory(src/BigNumbers)
+add_subdirectory(src/BigNumbers)
 #add_subdirectory(src/MessageHash)
 #add_subdirectory(src/WasmTest)

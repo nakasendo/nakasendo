@@ -1,24 +1,24 @@
 #ifndef __BIG_NUMBERS_H__
 #define __BIG_NUMBERS_H__
 
-#include <iostream>
+#include <BigNumAPI.h>
+
 #include <memory>
+#include <string>
 
 class BigNumberImpl; 
 
-class BigNumber
+class BigNumbers_API BigNumber
 {
-    friend BigNumber operator+ ( const BigNumber&, const BigNumber&);  
-    friend BigNumber operator+ ( const BigNumber&, const int&);  
-    friend BigNumber operator- (const BigNumber&, const BigNumber&);
-    friend BigNumber operator- (const BigNumber&, const int&);
+    friend BigNumber BigNumbers_API operator+ ( const BigNumber&, const BigNumber&);
+    friend BigNumber BigNumbers_API operator+ ( const BigNumber&, const int&);
+    friend BigNumber BigNumbers_API operator- (const BigNumber&, const BigNumber&);
+    friend BigNumber BigNumbers_API operator- (const BigNumber&, const int&);
 
-
-    friend BigNumber operator% (const BigNumber&, const BigNumber&);
-    friend bool operator> (const BigNumber&, const BigNumber& );
-    friend bool operator< (const BigNumber&, const BigNumber& );
-    friend bool operator== (const BigNumber&, const BigNumber& );
-    
+    friend BigNumber BigNumbers_API operator% (const BigNumber&, const BigNumber&);
+    friend bool BigNumbers_API operator> (const BigNumber&, const BigNumber& );
+    friend bool BigNumbers_API operator< (const BigNumber&, const BigNumber& );
+    friend bool BigNumbers_API operator== (const BigNumber&, const BigNumber& );
 
     public:
         explicit BigNumber() ; 
@@ -29,8 +29,6 @@ class BigNumber
         //copyable
         BigNumber(const BigNumber& obj);
         BigNumber& operator=(const BigNumber& obj);
-
-
 
         // Set the value to one/zero/negative/positive
         void One(); 
@@ -76,14 +74,14 @@ class BigNumber
         std::unique_ptr<BigNumberImpl> m_pImpl ; 
 };
 
-BigNumber GenerateOne ();
-BigNumber GnerateZero () ; 
+BigNumber BigNumbers_API GenerateOne ();
+BigNumber BigNumbers_API GnerateZero () ;
 
-BigNumber GenerateRand ( const int& )  ;
-BigNumber GenerateRandNegative (const int&);
-BigNumber GenerateRandWithSeed(const std::string&, const int&);
+BigNumber BigNumbers_API GenerateRand ( const int& )  ;
+BigNumber BigNumbers_API GenerateRandNegative (const int&);
+BigNumber BigNumbers_API GenerateRandWithSeed(const std::string&, const int&);
 // Generate in a range 
-BigNumber GenerateRandRange(const BigNumber& min, const BigNumber& max,const int& nsize=512);
+BigNumber BigNumbers_API GenerateRandRange(const BigNumber& min, const BigNumber& max,const int& nsize=512);
 
 
 
