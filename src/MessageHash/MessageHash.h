@@ -2,12 +2,11 @@
 #define __MESSAGE_HASH_H__
 
 #include <memory>
-
-//using MsgHashPtr = std::unique_ptr<unsigned char> ; 
+#include <MessageHashAPI.h>
 
 class MessageHashImpl;
 
-class MessageHash
+class MessageHash_API MessageHash
 {
     public:
         explicit MessageHash () ; 

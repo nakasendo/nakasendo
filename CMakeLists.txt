@@ -47,5 +47,6 @@ sdkInitCMake()
 # From tests, separate functional test, unit tests, then separate cpp tests, python tests, js tests
 
 add_subdirectory(src/BigNumbers)
-#add_subdirectory(src/MessageHash)
+add_subdirectory(src/MessageHash)
+# TODO https://stackoverflow.com/questions/45260216/emscripten-cmake-pass-emscripten-options-in-cmakelist-file
 #add_subdirectory(src/WasmTest)

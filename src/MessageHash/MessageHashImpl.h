@@ -3,12 +3,12 @@
 
 #include <string>
 #include <memory>
-
+#include <MessageHashAPI.h>
 
 using messagePtr = std::unique_ptr<unsigned char> ; 
 using charPtr = std::unique_ptr<char>;
 
-class MessageHashImpl
+class MessageHash_API MessageHashImpl
 {
     public:        
         explicit MessageHashImpl();
