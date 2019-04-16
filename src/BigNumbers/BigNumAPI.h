@@ -25,6 +25,7 @@ BigNumbers_API BIGNUM_RETURN_TYPE subFromHex (char*, char*);
 BigNumbers_API BIGNUM_RETURN_TYPE subFromDec(char*, char*);
 BigNumbers_API BIGNUM_RETURN_TYPE BNRandomHex(const int size);
 BigNumbers_API BIGNUM_RETURN_TYPE BNRandomDec(const int size);
+BigNumbers_API BIGNUM_RETURN_TYPE BNRandomDecWithSeed(const char * seed, const int size);
 BigNumbers_API BIGNUM_RETURN_TYPE BNRandomHexWithSeed(const char *, const int size );
 
 

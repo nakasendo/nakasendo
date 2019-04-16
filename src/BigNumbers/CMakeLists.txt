@@ -25,13 +25,27 @@ endif()
 target_link_libraries(BigNumbers OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(BigNumbers PRIVATE EXPORT_BigNumbers)
 set_property(TARGET BigNumbers PROPERTY FOLDER "core")
+#########################################################################################
+#########################################################################################
 
-## Add tests. TODO separate to tests directory
+## Build python module  #########################################################################################
+if(Python_FOUND)
+  set(_PY_VERSION_POSTFIX "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
+  set(_PYTHON_MODULE_NAME BigNumPython${_PY_VERSION_POSTFIX}API)
+  add_library(${_PYTHON_MODULE_NAME} SHARED BigNumPythonAPI.cpp)## Python module should be shared library
+  target_link_libraries(${_PYTHON_MODULE_NAME} BigNumbers Python::Python)
+  set_property(TARGET ${_PYTHON_MODULE_NAME} PROPERTY FOLDER "modules")
+else()
+  message(STATUS "SDK WARNS : Python was not found on your system, module BigNumbers for python will not be built")
+endif()
+
+
+## Add tests. TODO separate to tests directory #########################################################################################
 add_executable(BigNumbersClient BigNumbersClient.cpp)
 target_link_libraries(BigNumbersClient BigNumbers)
 set_property(TARGET BigNumbersClient PROPERTY FOLDER "tests")
 
-## Add tests. TODO separate to tests directory
+## Add tests. TODO separate to tests directory #########################################################################################
 add_executable(BigNumbersRandTest BigNumbersRandTest.cpp)
 target_link_libraries(BigNumbersRandTest BigNumbers)
 set_property(TARGET BigNumbersRandTest PROPERTY FOLDER "tests")
