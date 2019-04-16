@@ -4,6 +4,10 @@ pipeline {
             label 'linux' && 'slave'
         }
     }
+    triggers {
+        bitbucketPush()
+    }
+
     stages {
         stage('Clean workspace') {
             steps {
