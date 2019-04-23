@@ -4,7 +4,6 @@
 #include <string>
 #include <memory>
 
-
 using messagePtr = std::unique_ptr<unsigned char> ; 
 using charPtr = std::unique_ptr<char>;
 

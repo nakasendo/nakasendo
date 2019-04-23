@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include "MessageHashImpl.h"
+#include <MessageHashImpl.h>
 
 using md_ptr = std::unique_ptr<EVP_MD_CTX,decltype(&::EVP_MD_CTX_free)> ;
 

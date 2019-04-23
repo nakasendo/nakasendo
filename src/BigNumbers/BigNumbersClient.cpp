@@ -1,5 +1,5 @@
-#include "BigNumbers.h"
-#include "BigNumAPI.h"
+#include <BigNumbers.h>
+#include <BigNumAPI.h>
 #include <iostream>
 #include <memory>
 
@@ -23,10 +23,10 @@ int main (int argc, char**argv)
     BNValB.FromHex (BVal);
 
 
-    std::cout << BNValA.ToHex () << "\n" << BNValB.ToHex () << std::endl ; 
+    std::cout << BNValA.ToHex() << "\n" << BNValB.ToHex() << std::endl ;
 
-    BigNumber Sum = BNValA + BNValB; 
-    std::cout << Sum.ToHex () << std::endl; 
+    BigNumber Sum = BNValA + BNValB;
+    std::cout << Sum.ToHex() << std::endl;
 
     std::unique_ptr<char> Res = addFromHex(const_cast<char *> (AVal.c_str()), const_cast<char *>(BVal.c_str()));
     std::cout << "Added using the API\n" << Res.get () << std::endl ;
