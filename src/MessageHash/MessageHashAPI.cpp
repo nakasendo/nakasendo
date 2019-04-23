@@ -1,16 +1,10 @@
 #include <iostream>
-#include "MessageHashAPI.h"
-#include "MessageHash.h"
+#include <MessageHashAPI.h>
+#include <MessageHash.h>
 
 #include <memory>
 
-extern "C"{
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_KEEPALIVE const char *
-#else        
-    std::string 
-#endif    
-    HashMsgSHA256 (const std::string& msg)
+MESSAGE_HASH_RETURN_TYPE HashMsgSHA256 (const std::string& msg)
     {
          MessageHash hashMess;
          hashMess.HashSha256 (msg);
@@ -20,12 +14,8 @@ extern "C"{
          return hashMess.HashHex ();
 #endif         
     }
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_KEEPALIVE const char *
-#else    
-    std::string 
-#endif
-    HashMsg (const std::string& msg, const std::string& hashContext)
+
+MESSAGE_HASH_RETURN_TYPE HashMsg (const std::string& msg, const std::string& hashContext)
     {
          MessageHash hashMess;
          hashMess.Hash(msg,hashContext);
@@ -36,12 +26,7 @@ extern "C"{
 #endif        
     }
 
-#ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_KEEPALIVE const char *
-#else    
-    std::string 
-#endif
-    ListHashFunc ()
+MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
     {
         MessageHash hashMess;
 #ifdef __EMSCRIPTEN__
@@ -50,4 +35,3 @@ extern "C"{
         return hashMess.ListAvailableHash () ; 
 #endif        
     }
-};
