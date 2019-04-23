@@ -1,7 +1,13 @@
 #ifndef __BIG_NUMBERS_H__
 #define __BIG_NUMBERS_H__
 
-#include <BigNumAPI.h>
+#include <DYNAMIC_LIBRARY_API.hpp>
+
+#ifdef EXPORT_BigNumbers
+#    define BigNumbers_API EXPORT_DYNAMIC_LIBRARY
+#else
+#    define BigNumbers_API IMPORT_DYNAMIC_LIBRARY
+#endif
 
 #include <memory>
 #include <string>

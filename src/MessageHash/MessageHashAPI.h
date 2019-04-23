@@ -1,15 +1,8 @@
 #ifndef __MESSAGE_HASH_API__
 #define __MESSAGE_HASH_API__
 
+#include <MessageHash.h>
 #include <string>
-
-#include <DYNAMIC_LIBRARY_API.hpp>
-#ifdef EXPORT_MessageHash
-#    define MessageHash_API EXPORT_DYNAMIC_LIBRARY
-#else
-#    define MessageHash_API IMPORT_DYNAMIC_LIBRARY
-#endif
-
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>

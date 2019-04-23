@@ -2,14 +2,21 @@
 #define __MESSAGE_HASH_H__
 
 #include <memory>
-#include <MessageHashAPI.h>
+#include <string>
+
+#include <DYNAMIC_LIBRARY_API.hpp>
+#ifdef EXPORT_MessageHash
+#    define MessageHash_API EXPORT_DYNAMIC_LIBRARY
+#else
+#    define MessageHash_API IMPORT_DYNAMIC_LIBRARY
+#endif
 
 class MessageHashImpl;
 
 class MessageHash_API MessageHash
 {
     public:
-        explicit MessageHash () ; 
+        explicit MessageHash () ;
         ~MessageHash ();
 
         void HashSha256(const std::string&);
