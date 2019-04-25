@@ -25,22 +25,3 @@ endif()
 target_link_libraries(MessageHash OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(MessageHash PRIVATE EXPORT_MessageHash)
 set_property(TARGET MessageHash PROPERTY FOLDER "core")
-#########################################################################################
-#########################################################################################
-
-## Build python module  #########################################################################################
-if(Python_FOUND)
-  set(_PY_VERSION_POSTFIX "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
-  set(_PYTHON_MODULE_NAME MessageHashPython${_PY_VERSION_POSTFIX}API)
-  add_library(${_PYTHON_MODULE_NAME} SHARED MessageHashPythonAPI.cpp)## Python module should be shared library
-  target_link_libraries(${_PYTHON_MODULE_NAME} MessageHash Python::Python)
-  set_property(TARGET ${_PYTHON_MODULE_NAME} PROPERTY FOLDER "modules")
-else()
-  message(STATUS "SDK WARNS : Python was not found on your system, module MessageHash for python will not be built")
-endif()
-
-
-## Add tests. TODO separate to tests directory #########################################################################################
-add_executable(MessageHashClient MessageHashClient.cpp)
-target_link_libraries(MessageHashClient MessageHash)
-set_property(TARGET MessageHashClient PROPERTY FOLDER "tests")

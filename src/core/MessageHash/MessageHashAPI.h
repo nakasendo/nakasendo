@@ -1,7 +1,7 @@
 #ifndef __MESSAGE_HASH_API__
 #define __MESSAGE_HASH_API__
 
-#include <MessageHash.h>
+#include <MessageHash/MessageHash.h>
 #include <string>
 
 #ifdef __EMSCRIPTEN__

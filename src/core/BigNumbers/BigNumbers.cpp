@@ -8,11 +8,9 @@
 #include <cassert>
 #define ASSERT assert
 
-BigNumber::BigNumber() : m_pImpl(new BigNumberImpl)
-{ return ; }
+BigNumber::BigNumber() : m_pImpl(new BigNumberImpl){}
 
-BigNumber::~BigNumber() = default ; 
-
+BigNumber::~BigNumber()=default;
 
 BigNumber::BigNumber(BigNumber&& obj) noexcept = default;
 BigNumber& BigNumber::operator=(BigNumber&& obj) noexcept = default;

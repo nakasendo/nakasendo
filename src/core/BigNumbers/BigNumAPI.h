@@ -1,7 +1,7 @@
 #ifndef __BIGNUM_API__
 #define __BIGNUM_API__
 
-#include <BigNumbers.h>
+#include <BigNumbers/BigNumbers.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
