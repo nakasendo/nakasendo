@@ -1,6 +1,6 @@
 #include <iostream>
-#include <MessageHashAPI.h>
-#include <MessageHash.h>
+#include <MessageHash/MessageHashAPI.h>
+#include <MessageHash/MessageHash.h>
 
 #include <memory>
 

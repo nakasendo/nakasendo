@@ -42,11 +42,8 @@ endif()
 include(cmake/SDKInit.cmake)
 sdkInitCMake()
 
-##TODO
-# Separate source into core, tests
-# From tests, separate functional test, unit tests, then separate cpp tests, python tests, js tests
+## Everything in core should be includable from everywhere
+include_directories(${CMAKE_SOURCE_DIR}/src/core)
 
-add_subdirectory(src/BigNumbers)
-add_subdirectory(src/MessageHash)
-# TODO https://stackoverflow.com/questions/45260216/emscripten-cmake-pass-emscripten-options-in-cmakelist-file
-#add_subdirectory(src/WasmTest)
+add_subdirectory(src)
+add_subdirectory(tests)

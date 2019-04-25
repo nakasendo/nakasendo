@@ -10,7 +10,7 @@ std::unique_ptr<BigNumberImpl> Add (const BigNumberImpl* obj1, const BigNumberIm
         std::cout << "error" << std::endl; 
     }
     std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ; 
-    return (ResImpl);
+    return std::move(ResImpl);
 }
 
 std::unique_ptr<BigNumberImpl> Sub (const BigNumberImpl* obj1, const BigNumberImpl* obj2){
@@ -19,7 +19,7 @@ std::unique_ptr<BigNumberImpl> Sub (const BigNumberImpl* obj1, const BigNumberIm
         std::cout << "error" << std::endl ; 
     }
     std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl(res));
-    return ResImpl; 
+    return std::move(ResImpl);
 }
 
 std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberImpl* obj2)
@@ -32,7 +32,7 @@ std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberIm
     }
     std::unique_ptr<BigNumberImpl> ResImpl(new BigNumberImpl(res));
     BN_CTX_free(ctxptr);
-    return ResImpl ; 
+    return std::move(ResImpl);
 }
 
 // BN_cmp() returns -1 if a < b, 0 if a==b, 1 if a > b

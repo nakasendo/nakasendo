@@ -27,10 +27,10 @@ class BigNumbers_API BigNumber
     friend bool BigNumbers_API operator== (const BigNumber&, const BigNumber& );
 
     public:
-        explicit BigNumber() ; 
+        explicit BigNumber();
         ~BigNumber();
         //moveable
-        BigNumber(BigNumber&& obj) noexcept; 
+        BigNumber(BigNumber&& obj) noexcept;
         BigNumber& operator=(BigNumber&& obj) noexcept;
         //copyable
         BigNumber(const BigNumber& obj);

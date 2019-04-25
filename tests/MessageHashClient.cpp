@@ -2,8 +2,8 @@
 #include <iostream>
 #include <memory>
 
-#include <MessageHash.h>
-#include <MessageHashAPI.h>
+#include <MessageHash/MessageHash.h>
+#include <MessageHash/MessageHashAPI.h>
 
 int main(int argc,char** argv)
 {
