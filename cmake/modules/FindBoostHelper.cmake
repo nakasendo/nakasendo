@@ -99,9 +99,9 @@ function(_CopyAndInstallSharedBoostComp _Boost_Comp)############################
       if(CMAKE_CONFIGURATION_TYPES)#config-like system
         string(REGEX REPLACE "IMPORTED_LOCATION_" "" _BUILD_TYPE "${_IMPORTED_LOCATION_PROPERTY}")
         sdkGetBuildTypeFromBUILDTYPE(_BuildType "${_BUILD_TYPE}")
-        sdkCopyInstallSharedLib("${_dll_File}" ${_BuildType} ".")
+        sdkCopyFileToBuildDir("${_dll_File}" ${_BuildType} ".")
       else()
-        sdkCopyInstallSharedLib("${_dll_File}" "" ".")
+        sdkCopyFileToBuildDir("${_dll_File}" "" ".")
       endif()
     else()
       message(FATAL_ERROR "Boost::${_Boost_Comp}::${_IMPORTED_LOCATION_PROPERTY}[${_lib_File}] is supposed to be imported dynamically")

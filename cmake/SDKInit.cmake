@@ -98,6 +98,7 @@ function(sdkDefineDynamicAPI)
   message(STATUS "API definitions file created [${DYNAMIC_LIBRARY_API_HPP}]")
   message(STATUS "  Use \${LIBS_BUILD_TYPE} instead of SHARED or STATIC in add_library for general propose")
   message(STATUS "  Run cmake with option -DBUILD_ALL_STATIC_LIBS=ON to build all libraries in STATIC. Otherwise all libraries will be built in SHARED")
+  install(FILES "${DYNAMIC_LIBRARY_API_HPP}" DESTINATION "include" COMPONENT Files)
 endfunction()
 
 #### Initialize all setting for using CMake
