@@ -17,10 +17,10 @@ else: # POSIX
 module1 = Extension('MessageHashAPI',
                     define_macros = [('MAJOR_VERSION', '1'),
                                      ('MINOR_VERSION', '0')],
-                    include_dirs = ['/usr/local/include'],
+                    include_dirs = ['core','../../build/generated_hpp'],
                     libraries = libraries,
-                    library_dirs = ['/usr/local/lib'],
-                    sources = ['MessageHashPythonAPI.cpp','MessageHash.cpp','MessageHashImpl.cpp','MessageHashAPI.cpp','Base64EncDec.cpp','Base64EncDecImpl.cpp'],
+                    library_dirs = [],
+                    sources = ['modules/PyMessageHash/MessageHashPythonAPI.cpp','core/MessageHash/MessageHash.cpp','core/MessageHash/MessageHashImpl.cpp','core/MessageHash/MessageHashAPI.cpp','core/MessageHash/Base64EncDec.cpp','core/MessageHash/Base64EncDecImpl.cpp'],
                     extra_objects=extra_objects)
 
 setup (name = 'MessageHashAPI',
