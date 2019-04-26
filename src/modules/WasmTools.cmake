@@ -11,17 +11,20 @@
 ##   - To install openssl build in wasm, download from https://bitbucket.org/nch-atlassian/sdklibraries/downloads/openssl-1.1.1b_wasm.tar.gz
 ##     Extract it somewhere, and set the environment variable OPENSSL_WASM_ROOT_DIR to this directory
 ##
-
+## Example of linking with WASM-BigNumbers
+##  emcc BigNumbersClient.cpp -lWASM-BigNumbers -L /path/to/INSTALLATION/lib -I /path/to/INSTALLATION/include -std=c++11 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s WASM=1 -o index.html
+##
 #### Main function helping to find emcc compiler
 macro(sdkHelpFindEMCC)########################################################################################
   find_program(emcc_EXECUTABLE NAMES emcc PATH_SUFFIXES bin)
+  find_program(emar_EXECUTABLE NAMES emar PATH_SUFFIXES bin)
 
   # handle the QUIETLY and REQUIRED arguments and set emcc_FOUND to TRUE if
   # all listed variables are TRUE
   include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args (emcc FOUND_VAR emcc_FOUND REQUIRED_VARS emcc_EXECUTABLE)
+  find_package_handle_standard_args (emcc FOUND_VAR emcc_FOUND REQUIRED_VARS emcc_EXECUTABLE emar_EXECUTABLE)
 
-  mark_as_advanced(emcc_FOUND emcc_EXECUTABLE)
+  mark_as_advanced(emcc_FOUND emcc_EXECUTABLE emar_EXECUTABLE)
 endmacro()
 
 function(_wasm_check_list_cpp_file ModuleBaseName)
@@ -31,23 +34,49 @@ function(_wasm_check_list_cpp_file ModuleBaseName)
   endif()
 endfunction()
 
-function(_wasm_get_output_file OutputFile ModuleBaseName)
-  if(WIN32)
-    set(EmscriptExt lib)
-  else()
-    set(EmscriptExt a)
-  endif()
+function(_wasm_get_output_file_dir OutputFileDir ModuleBaseName)
   if(CMAKE_CONFIGURATION_TYPES)
-    set(OutputFileDir "\$<TARGET_FILE_DIR:${ModuleBaseName}>")
-    set(OutputFileName "WASM-${ModuleBaseName}\$<IF:\$<CONFIG:Debug>,d,>.${EmscriptExt}")
+    set(_outputfiledir "\$<TARGET_FILE_DIR:${ModuleBaseName}>")
+  else()
+    set(_outputfiledir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+  endif()
+  set(${OutputFileDir} "${_outputfiledir}" PARENT_SCOPE)
+endfunction()
+
+function(_wasm_get_output_file_name OutputFileName ModuleBaseName)
+  if(CMAKE_CONFIGURATION_TYPES)
+    set(_outputfilename "libWASM-${ModuleBaseName}\$<IF:\$<CONFIG:Debug>,d,>.a")
   else()
     if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
       set(_wasm_debug_postfix ${CMAKE_DEBUG_POSTFIX})
     endif()
-    set(OutputFileDir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    set(OutputFileName "WASM-${ModuleBaseName}${_wasm_debug_postfix}.${EmscriptExt}")
+    set(_outputfilename "libWASM-${ModuleBaseName}${_wasm_debug_postfix}.a")
   endif()
-  ## TODO add debug post fix to the lib name
+  set(${OutputFileName} "${_outputfilename}" PARENT_SCOPE)
+endfunction()
+
+function(_wasm_get_bitcode_file_name BitcodeFileName ModuleBaseName)
+  if(CMAKE_CONFIGURATION_TYPES)
+    set(_bitcodefilename "WASM-${ModuleBaseName}\$<IF:\$<CONFIG:Debug>,d,>.bc")
+  else()
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+      set(_wasm_debug_postfix ${CMAKE_DEBUG_POSTFIX})
+    endif()
+    set(_bitcodefilename "WASM-${ModuleBaseName}${_wasm_debug_postfix}.bc")
+  endif()
+  set(${BitcodeFileName} "${_bitcodefilename}" PARENT_SCOPE)
+endfunction()
+
+function(_wasm_get_bitcode_file BitCodeFile ModuleBaseName)
+  _wasm_get_output_file_dir(OutputFileDir ${ModuleBaseName})
+  _wasm_get_bitcode_file_name(BitcodeFileName ${ModuleBaseName})
+  set(_bitcodefile "${OutputFileDir}/${BitcodeFileName}")
+  set(${BitCodeFile} "${_bitcodefile}" PARENT_SCOPE)
+endfunction()
+
+function(_wasm_get_output_file OutputFile ModuleBaseName)
+  _wasm_get_output_file_dir(OutputFileDir ${ModuleBaseName})
+  _wasm_get_output_file_name(OutputFileName ${ModuleBaseName})
   set(_outputfile "${OutputFileDir}/${OutputFileName}")
   set(${OutputFile} "${_outputfile}" PARENT_SCOPE)
 endfunction()
@@ -80,29 +109,26 @@ macro(build_wasm_modules)##################################################
     add_dependencies(${WASM_TARGET_NAME} ${_module})
     set_property(TARGET ${WASM_TARGET_NAME} PROPERTY FOLDER "modules") ## Set Folder for MSVC
 
+    _wasm_get_bitcode_file(WASM_BITCODE_FILE ${_module})
     _wasm_get_output_file(WASM_OUTPUT_FILE ${_module})
     string(REPLACE ";" " " WASM_LIST_CPP_FILES "${${_module}_CPP_FILES}")
     file(TO_CMAKE_PATH "$ENV{OPENSSL_WASM_ROOT_DIR}" OPENSSL_WASM_ROOT_CMAKE_DIR)
 
     if(WIN32)
-      set(WASM_SCRIPT_ARG_GETTER_CMD "set WASM_OUTPUT_FILE_SCRIPT_VAR=%1")
-      set(WASM_OUTPUT_ARG "%WASM_OUTPUT_FILE_SCRIPT_VAR%")
       set(builderextension bat)
     else()
-      set(WASM_SCRIPT_ARG_GETTER_CMD "WASM_OUTPUT_FILE_SCRIPT_VAR=$1")
-      set(WASM_OUTPUT_ARG "$WASM_OUTPUT_FILE_SCRIPT_VAR")
       set(builderextension sh)
     endif()
     set(BuilderScriptName WASM-${_module}-Builder.${builderextension})
     if(CMAKE_CONFIGURATION_TYPES)
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm_module_builder.in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BuilderScriptName})
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm_module_builder.in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/${BuilderScriptName})
+      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm_module_builder.bat.in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BuilderScriptName})
+      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm_module_builder.bat.in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/${BuilderScriptName})
       file(TO_NATIVE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BuilderScriptName} _BUILDER_DEBUG)
       file(TO_NATIVE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/${BuilderScriptName} _BUILDER_RELEASE)
-      add_custom_command(TARGET ${WASM_TARGET_NAME} POST_BUILD COMMAND cmd /c "$<IF:$<CONFIG:Debug>,${_BUILDER_DEBUG},${_BUILDER_RELEASE}> ${WASM_OUTPUT_FILE}")
+      add_custom_command(TARGET ${WASM_TARGET_NAME} POST_BUILD COMMAND cmd /c "$<IF:$<CONFIG:Debug>,${_BUILDER_DEBUG},${_BUILDER_RELEASE}> ${WASM_BITCODE_FILE} ${WASM_OUTPUT_FILE}")
     else()
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm_module_builder.in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BuilderScriptName})
-      add_custom_command(TARGET ${WASM_TARGET_NAME} POST_BUILD COMMAND /bin/sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BuilderScriptName} ${WASM_OUTPUT_FILE})
+      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm_module_builder.sh.in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BuilderScriptName})
+      add_custom_command(TARGET ${WASM_TARGET_NAME} POST_BUILD COMMAND /bin/sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BuilderScriptName} ${WASM_BITCODE_FILE} ${WASM_OUTPUT_FILE})
     endif()
     install(FILES "${WASM_OUTPUT_FILE}" DESTINATION "lib" COMPONENT WASM)
   endforeach()
