@@ -1,5 +1,5 @@
-#include "BigNumbers.h"
-#include "BigNumAPI.h"
+#include <BigNumbers/BigNumbers.h>
+#include <BigNumbers/BigNumAPI.h>
 #include <iostream>
 #include <memory>
 
@@ -23,20 +23,20 @@ int main (int argc, char**argv)
     BNValB.FromHex (BVal);
 
 
-    std::cout << BNValA.ToHex () << "\n" << BNValB.ToHex () << std::endl ; 
+    std::cout << BNValA.ToHex() << "\n" << BNValB.ToHex() << std::endl ;
 
-    BigNumber Sum = BNValA + BNValB; 
-    std::cout << Sum.ToHex () << std::endl; 
+    BigNumber Sum = BNValA + BNValB;
+    std::cout << Sum.ToHex() << std::endl;
 
-    std::unique_ptr<char> Res = addFromHex(const_cast<char *> (AVal.c_str()), const_cast<char *>(BVal.c_str()));
+    BIGNUM_RETURN_TYPE Res = addFromHex(const_cast<char *> (AVal.c_str()), const_cast<char *>(BVal.c_str()));
     std::cout << "Added using the API\n" << Res.get () << std::endl ;
 
 
 
-    std::unique_ptr<char>  randomRes1 = BNRandomDec (256);
-    std::unique_ptr<char>  randomRes2 = BNRandomDec (512);
-    std::unique_ptr<char>  randomRes3 = BNRandomDec (1024);
-    std::unique_ptr<char>  randomRes4 = BNRandomDec (2048);
+    BIGNUM_RETURN_TYPE  randomRes1 = BNRandomDec (256);
+    BIGNUM_RETURN_TYPE  randomRes2 = BNRandomDec (512);
+    BIGNUM_RETURN_TYPE  randomRes3 = BNRandomDec (1024);
+    BIGNUM_RETURN_TYPE  randomRes4 = BNRandomDec (2048);
 
     std::cout << "256-bit dec\n" << randomRes1.get() << "\n"
                 << "512-bit dec\n" << randomRes2.get () << "\n"
@@ -46,10 +46,10 @@ int main (int argc, char**argv)
     
 
 
-    std::unique_ptr<char>  randomRes5 = BNRandomHex (256);
-    std::unique_ptr<char>  randomRes6 = BNRandomHex (512);
-    std::unique_ptr<char>  randomRes7 = BNRandomHex (1024);
-    std::unique_ptr<char>  randomRes8 = BNRandomHex (2048);
+    BIGNUM_RETURN_TYPE  randomRes5 = BNRandomHex (256);
+    BIGNUM_RETURN_TYPE  randomRes6 = BNRandomHex (512);
+    BIGNUM_RETURN_TYPE  randomRes7 = BNRandomHex (1024);
+    BIGNUM_RETURN_TYPE  randomRes8 = BNRandomHex (2048);
 
     std::cout << "256-bit hex\n" << randomRes5.get() << "\n"
             << "512-bit hex\n" << randomRes6.get () << "\n"
@@ -60,7 +60,7 @@ int main (int argc, char**argv)
     
 
 
-    std::unique_ptr<char> SubRes = subFromHex(BNRandomHex (2048).get(), BNRandomHex (2048).get () );
+    BIGNUM_RETURN_TYPE SubRes = subFromHex(BNRandomHex (2048).get(), BNRandomHex (2048).get () );
     std::cout << "Result of 2048-bit subtraction " << SubRes.get() << std::endl ; 
 
 

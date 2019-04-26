@@ -1,5 +1,5 @@
-#include "BigNumbers.h"
-#include "BigNumAPI.h"
+#include <BigNumbers/BigNumbers.h>
+#include <BigNumbers/BigNumAPI.h>
 #include <iostream>
 #include <memory>
 
@@ -32,7 +32,7 @@ int main (int argc, char**argv)
 	for (int i=0; i<nNumberOfRand; ++i)
 	{
 		BigNumber randRange = GenerateRandRange (valLower, valUpper);
-        std::cout << i << "," << randRange.ToDec () << std::endl;
+        std::cout << i << "," << randRange.ToDec() << std::endl;
 
 
         // check 

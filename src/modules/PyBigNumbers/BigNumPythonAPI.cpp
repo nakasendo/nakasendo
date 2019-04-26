@@ -1,7 +1,7 @@
-#include <python3.6/Python.h>
+#include <Python.h>
 #include <string>
 #include <iostream>
-#include "BigNumAPI.h"
+#include <BigNumbers/BigNumAPI.h>
 
 
 struct module_state {
