@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <MessageHash/MessageHashAPI.h>
+#include "MessageHash/Base64EncDec.h"
 
 
 struct module_state {
@@ -42,13 +43,39 @@ static PyObject* wrap_HashMsg(PyObject* self, PyObject *args)
     return Py_BuildValue("s",result.c_str());
 }
 
+static PyObject* wrap_ListHash(PyObject* self, PyObject *args)
+{
+	std::string result = ListHashFunc();
+	std::cout << result << std::endl;
+	return Py_BuildValue("s", result.c_str());
+}
 
+static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
+    char * argA;
+    if (!PyArg_ParseTuple(args, "s", &argA))
+        return NULL;
+
+    std::string result = EncodeBase64(argA);
+    return Py_BuildValue("s",result.c_str());
+}
+
+static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
+    char * argA;
+    if (!PyArg_ParseTuple(args, "s", &argA))
+        return NULL;
+
+    std::string result = DecodeBase64(argA);
+    return Py_BuildValue("s",result.c_str());
+}
 
 
 static PyMethodDef ModuleMethods[] =
 {
     {"HashMsgSHA256",wrap_HashMsgSHA256,METH_VARARGS,"Generate SHA256 hash on a given input"},
     {"HashMsg",wrap_HashMsg,METH_VARARGS,"Generate a HASH on a given input using the hashing algorithim specified"},
+    {"ListHash",wrap_ListHash, METH_VARARGS,"Return a list of available hash functions"},
+    {"EncodeBase64",wrap_EncodeBase64,METH_VARARGS,"Encode given string in base64"},
+    {"DecodeBase64",wrap_DecodeBase64,METH_VARARGS,"Decode given string in base64"},
     {NULL, NULL, 0, NULL},
 };
  
