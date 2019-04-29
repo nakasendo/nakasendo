@@ -1,12 +1,7 @@
 #include <iostream>
-<<<<<<< Updated upstream:src/core/MessageHash/MessageHashAPI.cpp
 #include <MessageHash/MessageHashAPI.h>
 #include <MessageHash/MessageHash.h>
-=======
-#include "MessageHashAPI.h"
-#include "MessageHash.h"
-#include "Base64EncDec.h"
->>>>>>> Stashed changes:src/MessageHash/MessageHashAPI.cpp
+#include "MessageHash/Base64EncDec.h"
 
 #include <memory>
 
@@ -89,4 +84,3 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
         return retVal ; 
 #endif        
     }
-};
