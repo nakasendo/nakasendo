@@ -18,4 +18,8 @@ MessageHash_API MESSAGE_HASH_RETURN_TYPE HashMsg (const std::string&, const std:
 
 MessageHash_API MESSAGE_HASH_RETURN_TYPE ListHashFunc();
 
+MessageHash_API MESSAGE_HASH_RETURN_TYPE EncodeBase64(const std::string&);
+
+MessageHash_API MESSAGE_HASH_RETURN_TYPE DecodeBase64(const std::string&);
+
 #endif //ifndef __MESSAGE_HASH_API__

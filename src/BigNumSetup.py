@@ -14,16 +14,16 @@ else: # POSIX
     extra_objects = ['-l:lib{}.a'.format(l) for l in static_libraries]
 
 
-module1 = Extension('MessageHashAPI',
+module1 = Extension('BigNumAPI',
                     define_macros = [('MAJOR_VERSION', '1'),
                                      ('MINOR_VERSION', '0')],
-                    include_dirs = ['/usr/local/include'],
+                    include_dirs = ['core','../../build/generated_hpp'],
                     libraries = libraries,
-                    library_dirs = ['/usr/local/lib'],
-                    sources = ['MessageHashPythonAPI.cpp','MessageHash.cpp','MessageHashImpl.cpp','MessageHashAPI.cpp'],
+                    library_dirs = [],
+                    sources = ['modules/PyBigNumbers/BigNumPythonAPI.cpp','core/BigNumbers/BigNumAPI.cpp','core/BigNumbers/BigNumbers.cpp','core/BigNumbers/BigNumbersImpl.cpp'],
                     extra_objects=extra_objects)
 
-setup (name = 'MessageHashAPI',
+setup (name = 'BigNumberAPI',
        version = '1.0',
        description = 'This is a demo package',
        author = 'Murphy',
