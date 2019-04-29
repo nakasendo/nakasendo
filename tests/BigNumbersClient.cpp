@@ -120,5 +120,59 @@ int main (int argc, char**argv)
 	seedVal2.generateRandHexWithSeed(seedVal, 512);
 	std::cout << seedVal1.ToHex () << std::endl ; 
 	std::cout << seedVal2.ToHex () << std::endl ; 
+
+std::cout << "\n======================1 <<4================================\n";
+    BigNumber bnValue; 
+    bnValue.FromDec("1");
+    BigNumber res = bnValue << 4;
+    std::cout << "1 << 4 :" << res.ToDec () <<  std::endl;
+std::cout << "\n======================================================\n";
+
+std::cout << "\n======================1 << 65536================================\n";
+        bnValue.FromDec("1");
+        res = bnValue << 65536;
+        std::cout << "1 <<" << 65536 << " :" << res.ToDec () <<  std::endl;
+	//sleep(1);
+std::cout << "\n======================================================\n";
+std::cout << "\n======================(1 << 65536) >> 65536================================\n";
+       res = res >> 65536;
+        std::cout << "(1 << 65536) >>" << 65536 << " :" << res.ToDec () <<  std::endl;
+std::cout << "\n======================================================\n";
+
+std::cout << "\n======================1 << 65536================================\n";
+    BigNumber bnValueShift; 
+        bnValue.FromDec("1");
+        bnValueShift.FromDec("65536");
+        res = bnValue << bnValueShift;
+        std::cout << "1 <<" << 65536 << " :" << res.ToDec () <<  std::endl;
+	//sleep(1);
+std::cout << "\n======================================================\n";
+
+std::cout << "\n======================(1 << 65536) >> 65536================================\n";
+       res = res >> bnValueShift;
+        std::cout << "(1 << 65536) >>" << 65536 << " :" << res.ToDec () <<  std::endl;
+std::cout << "\n======================================================\n";
+
+    std::string  AvalMul("1000");
+    std::string  BValMul ("100000000000000000000");
+
+    BigNumber aValMul, bValMul; 
+    aValMul.FromDec(AvalMul);
+    bValMul.FromDec(BValMul);
+
+    BigNumber resMul = aValMul * bValMul;
+    std::cout << aValMul.ToDec() << " * " << bValMul.ToDec() << " = " << resMul.ToDec() << std::endl;
+
+    BigNumber resDiv = bValMul/aValMul;
+    std::cout << bValMul.ToDec() << " / " << aValMul.ToDec() << " = " << resDiv.ToDec() << std::endl;
+
+    resDiv = aValMul/bValMul;
+    std::cout << aValMul.ToDec() << " / " << bValMul.ToDec() << " = " << resDiv.ToDec() << std::endl;
+
+    aValMul.FromDec("100");
+    bValMul.FromDec("0");
+    resMul = aValMul / bValMul;
+    std::cout << resMul.ToDec() << std::endl;
+
     return 0; 
 }

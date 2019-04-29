@@ -21,5 +21,10 @@ BigNumbers_API BIGNUM_RETURN_TYPE BNRandomDec(const int size);
 BigNumbers_API BIGNUM_RETURN_TYPE BNRandomDecWithSeed(const char * seed, const int size);
 BigNumbers_API BIGNUM_RETURN_TYPE BNRandomHexWithSeed(const char *, const int size );
 
+BigNumbers_API BIGNUM_RETURN_TYPE leftShift(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE rightShift(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE multiply(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE divide(const char*, const char*);
+
 
 #endif //ifndef __BIGNUM_API__

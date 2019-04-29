@@ -19,3 +19,30 @@ function addFromHex (arga, argb)
   return res; 
 }
 
+function leftShift (arga, argb)
+{
+  const leftShiftFunc = Module.cwrap('leftShift','string',['string','string']);
+  var res = leftShiftFunc(arga, argb);
+  return res; 
+}
+
+function rightShift (arga, argb)
+{
+  const rightShiftFunc = Module.cwrap('rightShift','string',['string','string']);
+  var res = rightShiftFunc(arga, argb);
+  return res; 
+}
+
+function multiply(arga, argb)
+{
+  const multiplyFunc = Module.cwrap('multiply','string',['string','string']);
+  var res = multiplyFunc(arga, argb);
+  return res; 
+}
+
+function divide (arga, argb)
+{
+  const divideFunc = Module.cwrap('divide','string',['string','string']);
+  var res = divideFunc(arga, argb);
+  return res; 
+}
