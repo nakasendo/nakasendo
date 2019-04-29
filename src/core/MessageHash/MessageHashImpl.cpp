@@ -48,9 +48,7 @@ void MessageHashImpl::printHash()
 
 void MessageHashImpl::Hash(const std::string& msg, const std::string& hashfunc)
 {
-  // check for available hashfunc
-
-    //OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS| OPENSSL_INIT_ADD_ALL_DIGESTS, NULL);
+  // check for available hashfunc    
     md_ptr mdctx (EVP_MD_CTX_create(),::EVP_MD_CTX_free); 
     const EVP_MD* md = nullptr;
     md = EVP_get_digestbyname (hashfunc.c_str());
@@ -60,7 +58,6 @@ void MessageHashImpl::Hash(const std::string& msg, const std::string& hashfunc)
     EVP_DigestInit_ex (mdctx.get(),md,NULL);
     EVP_DigestUpdate(mdctx.get(), msg.c_str(), msg.size());
     EVP_DigestFinal_ex(mdctx.get(), m_mPtr.get(), &m_MessageHashLength);
-    //OPENSSL_cleanup ();
 }
 
 messagePtr MessageHashImpl::HashVal ()
@@ -82,8 +79,8 @@ std::string MessageHashImpl::ListAvailableHash()
     void *my_arg = nullptr; 
     if ( !g_PtrHashFuncList.empty ()){
         g_PtrHashFuncList.clear (); 
-    }
-    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS| OPENSSL_INIT_ADD_ALL_DIGESTS, NULL);    
+    }      
+    OpenSSL_add_all_digests();
     OBJ_NAME_do_all (OBJ_NAME_TYPE_MD_METH,ListHashCallback, my_arg);
 
     std::stringstream strOp; 
@@ -91,7 +88,7 @@ std::string MessageHashImpl::ListAvailableHash()
     {
         strOp << *iter << "\n";
     }
-     OPENSSL_cleanup ();
+    EVP_cleanup();
     return std::string (strOp.str());
 }
 
