@@ -34,5 +34,5 @@ target_link_libraries(MessageHash OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} 
 target_compile_definitions(MessageHash PRIVATE EXPORT_MessageHash)
 set_property(TARGET MessageHash PROPERTY FOLDER "core")
 
-install(FILES ${MESSAGE_HASH_HPP_FILES} DESTINATION "include/MessageHash" COMPONENT CPP)
+install(FILES ${MESSAGE_HASH_HPP_FILES_PUBLIC} DESTINATION "include/MessageHash" COMPONENT CPP)
 install(TARGETS MessageHash DESTINATION "lib" COMPONENT CPP)

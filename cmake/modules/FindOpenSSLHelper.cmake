@@ -70,6 +70,7 @@ function(sdkPrintOpenSSLInfo)
   sdkPrintProperties(OpenSSL::SSL)
 
   message(" --")
+  message(" ---------- OPENSSL_FOUND [${OPENSSL_FOUND}]")
   message(" ---------- OPENSSL_INCLUDE_DIR [${OPENSSL_INCLUDE_DIR}]")
   message(" ---------- OPENSSL_CRYPTO_LIBRARY [${OPENSSL_CRYPTO_LIBRARY}]")
   message(" ---------- OPENSSL_SSL_LIBRARY [${OPENSSL_SSL_LIBRARY}]")
