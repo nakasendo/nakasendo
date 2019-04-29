@@ -14,80 +14,80 @@ namespace unitTests
     void TestAdditionDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberAdditionDecData)
+        for (const auto & entry : testLargeNumberAdditionDecData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromDec({std::get<0>(addEntry)});
+            lhs.FromDec({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromDec({std::get<1>(addEntry)});
+            rhs.FromDec({std::get<1>(entry)});
 
             // perform addition operation on LHS and RHS
             BigNumber result = lhs + rhs;
 
             // check if the result is equal to the expected result.
-            BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
+            BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
         }
     }
 
     void TestAdditionHexaDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberAdditionHexData)
+        for (const auto & entry : testLargeNumberAdditionHexData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromHex({std::get<0>(addEntry)});
+            lhs.FromHex({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromHex({std::get<1>(addEntry)});
+            rhs.FromHex({std::get<1>(entry)});
 
             // perform LHS + RHS
             BigNumber result = lhs + rhs;
 
             // check if the result is equal to the expected result.
-            BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
+            BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
         }
     }
 
     void TestSubtractionDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberSubtractionData)
+        for (const auto & entry : testLargeNumberSubtractionData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromDec({std::get<0>(addEntry)});
+            lhs.FromDec({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromDec({std::get<1>(addEntry)});
+            rhs.FromDec({std::get<1>(entry)});
 
             // perform  LHS - RHS
             BigNumber result = lhs - rhs;
 
             // check if the result is equal to the expected result.
-            BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
+            BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
         }
     }
 
     void TestSubtractionHexaDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberSubtractionHexaData)
+        for (const auto & entry : testLargeNumberSubtractionHexaData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromHex({std::get<0>(addEntry)});
+            lhs.FromHex({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromHex({std::get<1>(addEntry)});
+            rhs.FromHex({std::get<1>(entry)});
 
             // perform LHS - RHS
             BigNumber result = lhs - rhs;
 
             // check if the result is equal to the expected result.
-            BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
+            BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
         }
     }
 
@@ -95,211 +95,228 @@ namespace unitTests
     void TestMultipleDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberMultipleData)
+        for (const auto & entry : testLargeNumberMultipleData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromDec({std::get<0>(addEntry)});
+            lhs.FromDec({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromDec({std::get<1>(addEntry)});
+            rhs.FromDec({std::get<1>(entry)});
 
             // perform LHS * RHS
             BigNumber result = lhs * rhs;
 
             // check if the result is equal to the expected result.
-            BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
+            BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
         }
     }
 
     void TestMultipleHexaDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberMultipleDataHexa )
+        for (const auto & entry : testLargeNumberMultipleDataHexa )
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromHex({std::get<0>(addEntry)});
+            lhs.FromHex({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromHex({std::get<1>(addEntry)});
+            rhs.FromHex({std::get<1>(entry)});
 
             // perform LHS * RHS
             BigNumber result = lhs * rhs;
 
             // check if the result is equal to the expected result.
-            BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
+            BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
         }
     }
 
     void TestDivisionDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberDivisionDecimalData)
+        for (const auto & entry : testLargeNumberDivisionDecimalData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromDec({std::get<0>(addEntry)});
+            lhs.FromDec({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromDec({std::get<1>(addEntry)});
+            rhs.FromDec({std::get<1>(entry)});
 
             // perform LHS / RHS, expect an exception if the RHS is 0
-	    if (rhs.ToDec() == "0")
-	    {
+            if (rhs.ToDec() == "0")
+            {
                 BOOST_CHECK_THROW(lhs / rhs, std::exception);
-	    }
-	    else
-	    {
+            }
+            else
+            {
                 BigNumber result = lhs / rhs;
 
                 // check if the result is equal to the expected result.
-                BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
-	    }
+                BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
+            }
         }
     }
 
     void TestDivisionHexaDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberDivisionHexaDecimalData)
+        for (const auto & entry : testLargeNumberDivisionHexaDecimalData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromHex({std::get<0>(addEntry)});
+            lhs.FromHex({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromHex({std::get<1>(addEntry)});
+            rhs.FromHex({std::get<1>(entry)});
 
             // perform LHS / RHS, expect an exception if the RHS is 0
-	    if (rhs.ToDec() == "0")
-	    {
+            if (rhs.ToDec() == "0")
+            {
                 BOOST_CHECK_THROW(lhs / rhs, std::exception);
-	    }
-	    else
-	    {
+            }
+            else
+            {
                 BigNumber result = lhs / rhs;
 
                 // check if the result is equal to the expected result.
-                BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
-	    }
+                BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
+            }
         }
     }
 
     void TestLeftShiftDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberLeftShiftData)
+        for (const auto & entry : testLargeNumberLeftShiftData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromDec({std::get<0>(addEntry)});
+            lhs.FromDec({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromDec({std::get<1>(addEntry)});
+            rhs.FromDec({std::get<1>(entry)});
 
             // perform  LHS << RHS, where expect a exception if the RHS is -ve
-	    if (rhs.ToDec().length() > 0 && rhs.ToDec()[0] == '-')
-	    {
+            if (rhs.ToDec().length() > 0 && rhs.ToDec()[0] == '-')
+            {
                 BOOST_CHECK_THROW(lhs << rhs, std::exception);
-	    }
-	    else
-	    {
+            }
+            else
+            {
                 BigNumber result = lhs << rhs;
 
                 // check if the result is equal to the expected result.
-                BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
-	    }
+                BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
+            }
         }
     }
 
     void TestLeftShiftHexaDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberLeftShiftHexaData)
+        for (const auto & entry : testLargeNumberLeftShiftHexaData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromHex({std::get<0>(addEntry)});
+            lhs.FromHex({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromHex({std::get<1>(addEntry)});
+            rhs.FromHex({std::get<1>(entry)});
 
             // perform  LHS << RHS, where expect a exception if the RHS is -ve
-	    if (rhs.ToDec().length() > 0 && rhs.ToDec()[0] == '-')
-	    {
+            if (rhs.ToDec().length() > 0 && rhs.ToDec()[0] == '-')
+            {
                 BOOST_CHECK_THROW(lhs << rhs, std::exception);
-	    }
-	    else
-	    {
+            }
+            else
+            {
                 BigNumber result = lhs << rhs;
 
                 // check if the result is equal to the expected result.
-                BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
-	    }
+                BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
+            }
         }
     }
 
     void TestRightShiftDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberRightShiftData)
+        for (const auto & entry : testLargeNumberRightShiftData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromDec({std::get<0>(addEntry)});
+            lhs.FromDec({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromDec({std::get<1>(addEntry)});
+            rhs.FromDec({std::get<1>(entry)});
 
             // perform  LHS >> RHS, where expect a exception if the RHS is -ve
-	    if (rhs.ToDec().length() > 0 && rhs.ToDec()[0] == '-')
-	    {
+            if (rhs.ToDec().length() > 0 && rhs.ToDec()[0] == '-')
+            {
                 BOOST_CHECK_THROW(lhs >> rhs, std::exception);
-	    }
-	    else
-	    {
+            }
+            else
+            {
                 BigNumber result = lhs >> rhs;
 
                 // check if the result is equal to the expected result.
-                BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
-	    }
+                BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
+            }
         }
     }
 
     void TestRightShiftHexaDecimal()
     {
         // Iterate over Data for large number addition
-        for (const auto & addEntry : testLargeNumberRightShiftHexaData)
+        for (const auto & entry : testLargeNumberRightShiftHexaData)
         {
             BigNumber lhs, rhs;
             // get "LefthandSide(LHS)"
-            lhs.FromHex({std::get<0>(addEntry)});
+            lhs.FromHex({std::get<0>(entry)});
 				
             // get "RightHandSide(RHS)"
-            rhs.FromHex({std::get<1>(addEntry)});
+            rhs.FromHex({std::get<1>(entry)});
 
             // perform  LHS >> RHS, where expect a exception if the RHS is -ve
-	    if (rhs.ToDec().length() > 0 && rhs.ToDec()[0] == '-')
-	    {
+            if (rhs.ToDec().length() > 0 && rhs.ToDec()[0] == '-')
+            {
                 BOOST_CHECK_THROW(lhs >> rhs, std::exception);
-	    }
-	    else
-	    {
+            }
+            else
+            {
                 BigNumber result = lhs >> rhs;
 
                 // check if the result is equal to the expected result.
-                BOOST_CHECK_EQUAL(std::get<2>(addEntry), result.ToDec());
-	    }
+                BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
+            }
+        }
+    }
+
+    void TestPreIncrement()
+    {
+        for(const auto & entry : testPreIncrementData)
+        {
+            BigNumber val;
+            val.FromDec({std::get<0>(entry)});
+            BigNumber result = ++val;
+            BOOST_CHECK_EQUAL(std::get<1>(entry), result.ToDec());
+        }
+    }
+
+    void TestPostIncrement()
+    {
+        for(const auto & entry : testPostIncrementData)
+        {
+            BigNumber val;
+            val.FromDec(entry);
+            BigNumber result = val++;
+            BOOST_CHECK_EQUAL(entry, result.ToDec());
         }
     }
 
     BOOST_AUTO_TEST_SUITE(test_suite_BigNumbers)
-
-    BOOST_AUTO_TEST_CASE(bar_case)
-    {
-        BOOST_CHECK(true);
-    }
 
     BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalAddition)
     {
@@ -369,7 +386,7 @@ namespace unitTests
 
     BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalLeftShift)
     {
-        // Verify if division  can be performed on the large number in decimals.
+        // Verify if left shift  can be performed on the large number in decimals.
         NCHAIN_TEST_TIME_START(testLargeNumbersDecimalLeftShift);
         TestLeftShiftDecimal();
         NCHAIN_TEST_TIME_STOP;
@@ -377,7 +394,7 @@ namespace unitTests
 
     BOOST_AUTO_TEST_CASE(testLargeNumbersHexDecimalLeftShift)
     {
-        // Verify if division  can be performed on the large number in decimals.
+        // Verify if left shift  can be performed on the large number in decimals.
         NCHAIN_TEST_TIME_START(testLargeNumbersHexDecimalLeftShift);
         TestLeftShiftHexaDecimal();
         NCHAIN_TEST_TIME_STOP;
@@ -385,7 +402,7 @@ namespace unitTests
 
     BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalRightShift)
     {
-        // Verify if division  can be performed on the large number in decimals.
+        // Verify if right shift  can be performed on the large number in decimals.
         NCHAIN_TEST_TIME_START(testLargeNumbersDecimalRightShift);
         TestRightShiftDecimal();
         NCHAIN_TEST_TIME_STOP;
@@ -393,9 +410,25 @@ namespace unitTests
 
     BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalRightShift)
     {
-        // Verify if division  can be performed on the large number in decimals.
+        // Verify if right shift  can be performed on the large number in decimals.
         NCHAIN_TEST_TIME_START(testLargeNumbersHexaDecimalRightShift);
         TestRightShiftHexaDecimal();
+        NCHAIN_TEST_TIME_STOP;
+    }
+
+    BOOST_AUTO_TEST_CASE(testLargeNumbersPreIncrementData)
+    {
+        // Verify if pre increment can be performed on the large number in decimals.
+        NCHAIN_TEST_TIME_START(testLargeNumbersPreIncrementData);
+        TestPreIncrement();
+        NCHAIN_TEST_TIME_STOP;
+    }
+
+    BOOST_AUTO_TEST_CASE(testLargeNumbersPostIncrementData)
+    {
+        // Verify if post increment can be performed on the large number in decimals.
+        NCHAIN_TEST_TIME_START(testLargeNumbersPostIncrementData);
+        TestPostIncrement();
         NCHAIN_TEST_TIME_STOP;
     }
 
