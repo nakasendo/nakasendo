@@ -5,23 +5,23 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 set(MESSAGE_HASH_HPP_FILES_PUBLIC # Keep alphabet order
+  ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashAPI.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHash.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.h
 )
 set(MESSAGE_HASH_HPP_FILES_PRIVATE # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDecImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashImpl.h
 )
 
 set(MESSAGE_HASH_HPP_FILES ${MESSAGE_HASH_HPP_FILES_PUBLIC} ${MESSAGE_HASH_HPP_FILES_PRIVATE})
 
 set(MESSAGE_HASH_CPP_FILES # Keep alphabet order
+  ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDecImpl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashAPI.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHash.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashImpl.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDecImpl.cpp
 )
 set(MessageHash_CPP_FILES "${MESSAGE_HASH_CPP_FILES}" CACHE INTERNAL "Cache list of MessageHash cpp files")
 
