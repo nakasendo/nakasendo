@@ -64,7 +64,7 @@ RUN cd /home && wget -O keyutils-1.5.10.tar.bz2  http://people.redhat.com/~dhowe
 
 # Run app.py when the container launches
 #CMD ["bash"]
-RUN mkdir build
+RUN mkdir -p build
 
 COPY ./entrypoint.sh .
 RUN chmod +x /entrypoint.sh
