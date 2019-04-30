@@ -51,7 +51,6 @@ static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
     char * argA;
     if (!PyArg_ParseTuple(args, "s", &argA))
         return NULL;
-
     std::string result = EncodeBase64(argA);
     return Py_BuildValue("s",result.c_str());
 }
