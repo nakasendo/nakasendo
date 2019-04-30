@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM ubuntu:18.04
+FROM ubuntu:19.04
 
 RUN apt-get update \
   && apt-get install -y git \
