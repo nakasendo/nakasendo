@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+import sys
+from distutils.core import setup, Extension
+
+module1 = Extension('${PY_MODULE_NAME}',
+                    define_macros = [('SDK_MAJOR_VERSION', '${SDK_VERSION_MAJOR}'), ('SDK_VERSION_MINOR', '${SDK_VERSION_MINOR}'), ('SDK_VERSION_PATCH', '${SDK_VERSION_PATCH}'), ('Python_VERSION_MAJOR', '${Python_VERSION_MAJOR}'), ('Python_VERSION_MINOR', '${Python_VERSION_MINOR}')],
+                    include_dirs  = [${PY_LIST_INCLUDE_DIRS}]      , # Python list, single quoted, comma separation
+                    libraries     = [${PY_LIST_NATIVE_LIBRARIES}]  , # Python list, single quoted, comma separation
+                    extra_objects = [${PY_LIST_LIBRARIES}]         , # Python list, single quoted, comma separation
+                    sources       = [${PY_LIST_SOURCE_FILES}]      , # Python list, single quoted, comma separation
+)
+
+setup(name = '${PY_MODULE_NAME}',
+      version = '${SDK_VERSION_MAJOR}.${SDK_VERSION_MINOR}.${SDK_VERSION_PATCH}',
+      description = 'Python demo',
+      author = 'Murphy',
+      author_email = 'j.murphy@nchain.com',
+      url = 'https://docs.python.org/extending/building',
+      long_description = 'This is really just a demo package',
+     ext_modules = [module1]
+)
+
+## https://docs.python.org/3.7/install/
+## import sys
+## sys.path.append('/path/to/the/PyBigNumbers')
+## import PyBigNumbers
+## print('import is ok')
+#  AVal = "c590e57ee64fced18aff6e2f0c6ac05625b1e94f394f42470cae14d12cadea4f5ab6b9d77225fe3b4903825966c78752ae51b6a0a2caca555fd0ffcbd9704b01"
+#  BVal = "219639ed8afc21e052422fff0ae5583231ebca2999404b099628093e6540b1dbc20b9c495aa7229b5965b19a5fcd653b3fa0eccab567c5b5e8"
+#  ret = PyBigNumbers.addFromHex(AVal,BVal)
+#  print(ret)

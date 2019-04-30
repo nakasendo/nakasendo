@@ -122,12 +122,12 @@ static PyMethodDef ModuleMethods[] =
  
 #if PY_MAJOR_VERSION >= 3
 
-static int BigNumberAPI_traverse(PyObject *m, visitproc visit, void *arg) {
+static int PyBigNumbers_traverse(PyObject *m, visitproc visit, void *arg) {
     Py_VISIT(GETSTATE(m)->error);
     return 0;
 }
 
-static int BigNumberAPI_clear(PyObject *m) {
+static int PyBigNumbers_clear(PyObject *m) {
     Py_CLEAR(GETSTATE(m)->error);
     return 0;
 }
@@ -135,20 +135,20 @@ static int BigNumberAPI_clear(PyObject *m) {
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
-        "BigNumberAPI",
+        "PyBigNumbers",
         NULL,
         sizeof(struct module_state),
         ModuleMethods,
         NULL,
-        BigNumberAPI_traverse,
-        BigNumberAPI_clear,
+        PyBigNumbers_traverse,
+        PyBigNumbers_clear,
         NULL
 };
 
 #define INITERROR return NULL
 
 PyMODINIT_FUNC
-PyInit_BigNumberAPI(void)
+PyInit_PyBigNumbers(void)
 
 #else
 #define INITERROR return
@@ -167,7 +167,7 @@ initmyextension(void)
         INITERROR;
     struct module_state *st = GETSTATE(module);
 
-    st->error = PyErr_NewException("BigNumberAPIextension.Error", NULL, NULL);
+    st->error = PyErr_NewException("PyBigNumbersextension.Error", NULL, NULL);
     if (st->error == NULL) {
         Py_DECREF(module);
         INITERROR;

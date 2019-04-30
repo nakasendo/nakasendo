@@ -43,9 +43,9 @@ emconfigure ./Configure --openssldir=/path/to/some/tmp/build/dir --prefix=$OPENS
 emmake make ; emmake make install                          # Build and install openssl wasm
 ## To test the linking, create some test file using openssl, then
 cd /path/to/some/tmp/directory/
-emcc test_link_openssl_wasm.c -lssl -lcrypto -L $OPENSSL_WASM_ROOT_DIR/lib -I $OPENSSL_WASM_ROOT_DIR/include -s WASM=1 -o index.html
+emcc test_link_openssl_wasm.c -lssl -lcrypto -L $OPENSSL_WASM_ROOT_DIR/lib -I $OPENSSL_WASM_ROOT_DIR/include -std=c++11 -s WASM=1 -o index.html
 python3 -m http.server
-## open your browser and open https://locallhost.com/
+## open your browser and open https://localhost:8000
 ############################ Build openssl wasm  ############################
 ]]
 
@@ -70,6 +70,7 @@ function(sdkPrintOpenSSLInfo)
   sdkPrintProperties(OpenSSL::SSL)
 
   message(" --")
+  message(" ---------- OPENSSL_FOUND [${OPENSSL_FOUND}]")
   message(" ---------- OPENSSL_INCLUDE_DIR [${OPENSSL_INCLUDE_DIR}]")
   message(" ---------- OPENSSL_CRYPTO_LIBRARY [${OPENSSL_CRYPTO_LIBRARY}]")
   message(" ---------- OPENSSL_SSL_LIBRARY [${OPENSSL_SSL_LIBRARY}]")

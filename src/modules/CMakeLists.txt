@@ -5,6 +5,7 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
+include(PyTools.cmake)
 add_subdirectory(PyBigNumbers)
 add_subdirectory(PyMessageHash)
 
