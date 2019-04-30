@@ -63,7 +63,7 @@ RUN cd /home && wget -O keyutils-1.5.10.tar.bz2  http://people.redhat.com/~dhowe
 #RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # Run app.py when the container launches
-CMD ["bash"]
+#CMD ["bash"]
 COPY ./entrypoint.sh .
 RUN chmod +x /entrypoint.sh
 RUN useradd -G users Jenkins
