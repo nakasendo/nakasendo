@@ -19,30 +19,61 @@ function addFromHex (arga, argb)
   return res; 
 }
 
-function leftShift (arga, argb)
+
+function leftShiftFromHex (arga, argb)
 {
-  const leftShiftFunc = Module.cwrap('leftShift','string',['string','string']);
-  var res = leftShiftFunc(arga, argb);
+  const leftShiftFromHexFunc = Module.cwrap('leftShiftFromHex','string',['string','string']);
+  var res = leftShiftFromHexFunc(arga, argb);
   return res; 
 }
 
-function rightShift (arga, argb)
+function leftShiftFromDec (arga, argb)
 {
-  const rightShiftFunc = Module.cwrap('rightShift','string',['string','string']);
-  var res = rightShiftFunc(arga, argb);
+  const leftShiftFromDecFunc = Module.cwrap('leftShiftFromDec','string',['string','string']);
+  var res = leftShiftFromDecFunc(arga, argb);
   return res; 
 }
 
-function multiply(arga, argb)
+
+function rightShiftFromHex (arga, argb)
 {
-  const multiplyFunc = Module.cwrap('multiply','string',['string','string']);
-  var res = multiplyFunc(arga, argb);
+  const rightShiftFromHexFunc = Module.cwrap('rightShiftFromHex','string',['string','string']);
+  var res = rightShiftFromHexFunc(arga, argb);
   return res; 
 }
 
-function divide (arga, argb)
+function rightShiftFromDec (arga, argb)
 {
-  const divideFunc = Module.cwrap('divide','string',['string','string']);
-  var res = divideFunc(arga, argb);
+  const rightShiftFromDecFunc = Module.cwrap('rightShiftFromDec','string',['string','string']);
+  var res = rightShiftFromDecFunc(arga, argb);
+  return res; 
+}
+
+function multiplyFromHex(arga, argb)
+{
+  const multiplyFromHexFunc = Module.cwrap('multiplyFromHex','string',['string','string']);
+  var res = multiplyFromHexFunc(arga, argb);
+  return res; 
+}
+
+function multiplyFromDec(arga, argb)
+{
+  const multiplyFromDecFunc = Module.cwrap('multiplyFromDec','string',['string','string']);
+  var res = multiplyFromDecFunc(arga, argb);
+  return res; 
+}
+
+
+function divideFromHex (arga, argb)
+{
+  const divideFromHexFunc = Module.cwrap('divideFromHex','string',['string','string']);
+  var res = divideFromHexFunc(arga, argb);
+  return res; 
+}
+
+function divideFromDec (arga, argb)
+{
+  const divideFromDecFunc = Module.cwrap('divideFromDec','string',['string','string']);
+  var res = divideFromDecFunc(arga, argb);
   return res; 
 }

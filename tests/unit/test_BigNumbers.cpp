@@ -6,13 +6,16 @@
 #include <iostream>
 #include <memory>
 #include "test_BigNumbers.h"
-#include "TestUtils.h"
 
 namespace unitTests
 {
 
-    void TestAdditionDecimal()
+    BOOST_AUTO_TEST_SUITE(test_suite_BigNumbers)
+
+    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalAddition)
     {
+        // Verify if Additions can be performed on the large number in decimals.
+
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberAdditionDecData)
         {
@@ -31,8 +34,10 @@ namespace unitTests
         }
     }
 
-    void TestAdditionHexaDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaAddition)
     {
+        // Verify if Additions can be performed on the large number in hexadecimals.
+        
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberAdditionHexData)
         {
@@ -51,8 +56,10 @@ namespace unitTests
         }
     }
 
-    void TestSubtractionDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalSubtraction)
     {
+        // Verify if Additions can be performed on the large number in decimals.
+	
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberSubtractionData)
         {
@@ -71,8 +78,10 @@ namespace unitTests
         }
     }
 
-    void TestSubtractionHexaDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaSubtraction)
     {
+        // Verify if Additions can be performed on the large number in hexadecimals.
+	
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberSubtractionHexaData)
         {
@@ -91,9 +100,10 @@ namespace unitTests
         }
     }
 
-
-    void TestMultipleDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalMultiple)
     {
+        // Verify if multiple  can be performed on the large number in decimals.
+    
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberMultipleData)
         {
@@ -112,8 +122,11 @@ namespace unitTests
         }
     }
 
-    void TestMultipleHexaDecimal()
+    
+    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalMultiple)
     {
+        // Verify if multiple  can be performed on the large number in decimals.
+	
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberMultipleDataHexa )
         {
@@ -131,9 +144,12 @@ namespace unitTests
             BOOST_CHECK_EQUAL(std::get<2>(entry), result.ToDec());
         }
     }
+    
 
-    void TestDivisionDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalDivision)
     {
+        // Verify if division  can be performed on the large number in decimals.
+    
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberDivisionDecimalData)
         {
@@ -159,8 +175,10 @@ namespace unitTests
         }
     }
 
-    void TestDivisionHexaDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalDivision)
     {
+        // Verify if division  can be performed on the large number in hexa decimals.
+    
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberDivisionHexaDecimalData)
         {
@@ -186,8 +204,10 @@ namespace unitTests
         }
     }
 
-    void TestLeftShiftDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalLeftShift)
     {
+        // Verify if left shift  can be performed on the large number in decimals.
+    
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberLeftShiftData)
         {
@@ -213,8 +233,10 @@ namespace unitTests
         }
     }
 
-    void TestLeftShiftHexaDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersHexDecimalLeftShift)
     {
+        // Verify if left shift  can be performed on the large number in decimals.
+    
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberLeftShiftHexaData)
         {
@@ -240,8 +262,10 @@ namespace unitTests
         }
     }
 
-    void TestRightShiftDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalRightShift)
     {
+        // Verify if right shift  can be performed on the large number in decimals.
+    
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberRightShiftData)
         {
@@ -267,8 +291,10 @@ namespace unitTests
         }
     }
 
-    void TestRightShiftHexaDecimal()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalRightShift)
     {
+        // Verify if right shift  can be performed on the large number in decimals.
+    
         // Iterate over Data for large number addition
         for (const auto & entry : testLargeNumberRightShiftHexaData)
         {
@@ -294,8 +320,10 @@ namespace unitTests
         }
     }
 
-    void TestPreIncrement()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersPreIncrementData)
     {
+        // Verify if pre increment can be performed on the large number in decimals.
+    
         for(const auto & entry : testPreIncrementData)
         {
             BigNumber val;
@@ -303,10 +331,13 @@ namespace unitTests
             BigNumber result = ++val;
             BOOST_CHECK_EQUAL(std::get<1>(entry), result.ToDec());
         }
+   
     }
 
-    void TestPostIncrement()
+    BOOST_AUTO_TEST_CASE(testLargeNumbersPostIncrementData)
     {
+        // Verify if post increment can be performed on the large number in decimals.
+    
         for(const auto & entry : testPostIncrementData)
         {
             BigNumber val;
@@ -314,122 +345,36 @@ namespace unitTests
             BigNumber result = val++;
             BOOST_CHECK_EQUAL(entry, result.ToDec());
         }
+   
     }
 
-    BOOST_AUTO_TEST_SUITE(test_suite_BigNumbers)
 
-    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalAddition)
+    BOOST_AUTO_TEST_CASE(testLargeNumbersPreDecrementData)
     {
-        // Verify if Additions can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersDecimalAddition);
-        TestAdditionDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaAddition)
-    {
-        // Verify if Additions can be performed on the large number in hexadecimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersHexaAddition);
-        TestAdditionHexaDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalSubtraction)
-    {
-        // Verify if Additions can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersDecimalSubtraction);
-        TestSubtractionDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaSubtraction)
-    {
-        // Verify if Additions can be performed on the large number in hexadecimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersHexaSubtraction);
-        TestSubtractionHexaDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalMultiple)
-    {
-        // Verify if multiple  can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersDecimalMultiple);
-        TestMultipleDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
+        // Verify if pre decrement can be performed on the large number in decimals.
     
-    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalMultiple)
-    {
-        // Verify if multiple  can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersHexaDecimalMultiple);
-        TestMultipleHexaDecimal();
-        NCHAIN_TEST_TIME_STOP;
+        for(const auto & entry : testPreDecrementData)
+        {
+            BigNumber val;
+            val.FromDec({std::get<0>(entry)});
+            BigNumber result = --val;
+            BOOST_CHECK_EQUAL(std::get<1>(entry), result.ToDec());
+        }
+   
     }
+
+    BOOST_AUTO_TEST_CASE(testLargeNumbersPostDecrementData)
+    {
+        // Verify if post decrement can be performed on the large number in decimals.
     
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalDivision)
-    {
-        // Verify if division  can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersDecimalDivision);
-        TestDivisionDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalDivision)
-    {
-        // Verify if division  can be performed on the large number in hexa decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersHexaDecimalDivision);
-        TestDivisionHexaDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalLeftShift)
-    {
-        // Verify if left shift  can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersDecimalLeftShift);
-        TestLeftShiftDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersHexDecimalLeftShift)
-    {
-        // Verify if left shift  can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersHexDecimalLeftShift);
-        TestLeftShiftHexaDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersDecimalRightShift)
-    {
-        // Verify if right shift  can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersDecimalRightShift);
-        TestRightShiftDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalRightShift)
-    {
-        // Verify if right shift  can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersHexaDecimalRightShift);
-        TestRightShiftHexaDecimal();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersPreIncrementData)
-    {
-        // Verify if pre increment can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersPreIncrementData);
-        TestPreIncrement();
-        NCHAIN_TEST_TIME_STOP;
-    }
-
-    BOOST_AUTO_TEST_CASE(testLargeNumbersPostIncrementData)
-    {
-        // Verify if post increment can be performed on the large number in decimals.
-        NCHAIN_TEST_TIME_START(testLargeNumbersPostIncrementData);
-        TestPostIncrement();
-        NCHAIN_TEST_TIME_STOP;
+        for(const auto & entry : testPostDecrementData)
+        {
+            BigNumber val;
+            val.FromDec(entry);
+            BigNumber result = val--;
+            BOOST_CHECK_EQUAL(entry, result.ToDec());
+        }
+   
     }
 
     BOOST_AUTO_TEST_SUITE_END();
