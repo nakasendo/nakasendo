@@ -29,8 +29,8 @@ class MessageHashImpl
         
 
         messagePtr m_mPtr ; 
-        unsigned int m_MessageHashLength; 
-
+        unsigned int m_MessageHashLength;         
+        
         charPtr m_Hashes ; 
 
 };
