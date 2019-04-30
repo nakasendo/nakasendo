@@ -1,4 +1,4 @@
-#include "BigNumbersImpl.h"
+#include <BigNumbers/BigNumbersImpl.h>
 #include <openssl/rand.h>
 
 //using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)> ; 
@@ -218,6 +218,28 @@ void BigNumberImpl::generateNeg (const int& nsize)
     }      
     return ; 
  }
+
+void BigNumberImpl::generatePrime(const int& nsize)
+{
+    if (!BN_generate_prime_ex(m_bn.get(), nsize, 0, nullptr, nullptr, nullptr))
+        throw std::runtime_error("error generating prime number");
+}
+
+bool BigNumberImpl::isPrime() const
+{
+    BN_CTX* ctxptr = BN_CTX_new();
+    if (!BN_is_prime_ex(m_bn.get(), BN_prime_checks, ctxptr, nullptr))
+        throw std::runtime_error("error checking prime number");
+    BN_CTX_free(ctxptr);
+}
+
+bool BigNumberImpl::isPrimeFasttest() const
+{
+    BN_CTX* ctxptr = BN_CTX_new();
+    if (!BN_is_prime_fasttest_ex(m_bn.get(), BN_prime_checks, ctxptr, 0, nullptr))
+        throw std::runtime_error("error fast checking prime number");
+    BN_CTX_free(ctxptr);
+}
 
  void BigNumberImpl::seedRNG (const std::string& seed)
  {
