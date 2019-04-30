@@ -17,9 +17,6 @@ static struct module_state _state;
 #endif
 
 
-
-
-
 static PyObject* wrap_HashMsgSHA256(PyObject* self, PyObject *args)
 {
     char * argA; 
@@ -81,12 +78,12 @@ static PyMethodDef ModuleMethods[] =
  
 #if PY_MAJOR_VERSION >= 3
 
-static int MessageHashAPI_traverse(PyObject *m, visitproc visit, void *arg) {
+static int PyMessageHash_traverse(PyObject *m, visitproc visit, void *arg) {
     Py_VISIT(GETSTATE(m)->error);
     return 0;
 }
 
-static int MessageHashAPI_clear(PyObject *m) {
+static int PyMessageHash_clear(PyObject *m) {
     Py_CLEAR(GETSTATE(m)->error);
     return 0;
 }
@@ -94,20 +91,20 @@ static int MessageHashAPI_clear(PyObject *m) {
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
-        "MessageHashAPI",
+        "PyMessageHash",
         NULL,
         sizeof(struct module_state),
         ModuleMethods,
         NULL,
-        MessageHashAPI_traverse,
-        MessageHashAPI_clear,
+        PyMessageHash_traverse,
+        PyMessageHash_clear,
         NULL
 };
 
 #define INITERROR return NULL
 
 PyMODINIT_FUNC
-PyInit_MessageHashAPI(void)
+PyInit_PyMessageHash(void)
 
 #else
 #define INITERROR return
@@ -119,14 +116,14 @@ initmyextension(void)
 #if PY_MAJOR_VERSION >= 3
     PyObject *module = PyModule_Create(&moduledef);
 #else
-    PyObject *module = Py_InitModule("MessageHashAPI", myextension_methods);
+    PyObject *module = Py_InitModule("PyMessageHash", myextension_methods);
 #endif
 
     if (module == NULL)
         INITERROR;
     struct module_state *st = GETSTATE(module);
 
-    st->error = PyErr_NewException("MessageHashAPI.Error", NULL, NULL);
+    st->error = PyErr_NewException("PyMessageHash.Error", NULL, NULL);
     if (st->error == NULL) {
         Py_DECREF(module);
         INITERROR;

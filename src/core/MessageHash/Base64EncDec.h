@@ -1,14 +1,14 @@
 #ifndef __BASE64ENCDEC_H__
 #define __BASE64ENCDEC_H__
 
-
+#include <MessageHash/MessageHash.h>
 #include <memory>
 
 class Base64EncDecImpl ; 
 using messagePtr = std::unique_ptr<unsigned char> ;
 
 
-class Base64EncDec
+class MessageHash_API Base64EncDec
 {
     public: 
 
