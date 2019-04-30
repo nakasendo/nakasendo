@@ -5,13 +5,5 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
-if(NOT Python_FOUND)
-  message(STATUS "SDK WARNS : Python was not found on your system, module BigNumbers for python will not be built")
-  return()  
-endif()
-
-set(_PY_VERSION_POSTFIX "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
-set(_PYTHON_MODULE_NAME BigNumPython${_PY_VERSION_POSTFIX}API)
-add_library(${_PYTHON_MODULE_NAME} SHARED BigNumPythonAPI.cpp)## Python module should be shared library
-target_link_libraries(${_PYTHON_MODULE_NAME} BigNumbers Python::Python)
-set_property(TARGET ${_PYTHON_MODULE_NAME} PROPERTY FOLDER "modules")
+set(_ADDITIONAL_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/PyBigNumbers.cpp)
+build_py_module(BigNumbers "${_ADDITIONAL_CPP_FILE}")

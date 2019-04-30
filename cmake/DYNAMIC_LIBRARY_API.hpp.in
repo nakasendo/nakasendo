@@ -2,10 +2,10 @@
 #define DYNAMIC_LIBRARY_API_H
 
 //// Do not modify this file
-//// This file is generated from ${DYNAMIC_LIBRARY_API_HPP_IN}
+//// This file is generated from DYNAMIC_LIBRARY_API.hpp.in
 ////
 
-#if !defined WIN32 || defined BUILD_ALL_STATIC_LIBS
+#if !defined WIN32  || defined __EMSCRIPTEN__ || defined BUILD_ALL_STATIC_LIBS
 #  define EXPORT_DYNAMIC_LIBRARY
 #  define IMPORT_DYNAMIC_LIBRARY
 #else
