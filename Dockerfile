@@ -8,6 +8,7 @@ RUN apt-get update \
                         make \
                         wget \
 			cmake \
+            build-essential\
 			maven \
             ca-certificates \
             gosu \
