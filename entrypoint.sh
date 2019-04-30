@@ -1,4 +1,4 @@
 #!/bin/sh
 cd build
-cmake ../sdklibraries/
+cmake ..
 make
