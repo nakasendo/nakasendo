@@ -154,26 +154,7 @@ std::string BigNumberImpl::ToDec () const
 int BigNumberImpl::FromHex (const std::string& val)
 {
     BIGNUM * ptr = m_bn.get () ; 
-    std::string _val;
-    unsigned int pos = 0;
-     
-    // strip off '0x' if the val has it
-    if ((val.length() > 0) && (val[pos] == '-' || val[pos] == '+'))
-    {
-        
-        if (val[pos] == '-')
-            _val.push_back(val[pos]);
-        pos++;
-    }
-
-    if ((val.length() >= (pos + 2)) && (val[pos] == '0') && (val[pos+1] == 'x' || val[pos+1] == 'X'))
-    {
-        pos = pos + 2;
-    }
-
-   _val.append(val, pos); 
-
-    return(BN_hex2bn(&ptr, _val.c_str()));
+    return(BN_hex2bn(&ptr, val.c_str()));
 }
 
 int BigNumberImpl::FromDec (const std::string& val)
