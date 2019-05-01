@@ -73,6 +73,127 @@ BIGNUM_RETURN_TYPE subFromDec (char * argA, char * argB)
 #endif    
 }
 
+
+BIGNUM_RETURN_TYPE multiplyFromDec(const char *argA, const char *argB)
+{
+    BigNumber BNValA, BNValB; 
+    BNValA.FromDec (argA);
+    BNValB.FromDec (argB);
+    BigNumber res = BNValA * BNValB;
+#ifdef __EMSCRIPTEN__
+    return res.ToDec().c_str(); 
+#else        
+    std::unique_ptr<char> returnPtr ; 
+    returnPtr.reset(strdup_func(res.ToDec().c_str()));
+    return (std::move(returnPtr)); 
+#endif    
+}
+
+BIGNUM_RETURN_TYPE multiplyFromHex(const char *argA, const char *argB)
+{
+    BigNumber BNValA, BNValB; 
+    BNValA.FromHex (argA);
+    BNValB.FromHex (argB);
+    BigNumber res = BNValA * BNValB;
+#ifdef __EMSCRIPTEN__
+    return res.ToDec().c_str(); 
+#else        
+    std::unique_ptr<char> returnPtr ; 
+    returnPtr.reset(strdup_func(res.ToDec().c_str()));
+    return (std::move(returnPtr)); 
+#endif    
+}
+
+BIGNUM_RETURN_TYPE divideFromDec(const char *argA, const char *argB)
+{
+    BigNumber BNValA, BNValB; 
+    BNValA.FromDec (argA);
+    BNValB.FromDec (argB);
+    BigNumber res = BNValA / BNValB;
+#ifdef __EMSCRIPTEN__
+    return res.ToDec().c_str(); 
+#else        
+    std::unique_ptr<char> returnPtr ; 
+    returnPtr.reset(strdup_func(res.ToDec().c_str()));
+    return (std::move(returnPtr)); 
+#endif    
+}
+
+BIGNUM_RETURN_TYPE divideFromHex(const char *argA, const char *argB)
+{
+    BigNumber BNValA, BNValB; 
+    BNValA.FromHex (argA);
+    BNValB.FromHex (argB);
+    BigNumber res = BNValA / BNValB;
+#ifdef __EMSCRIPTEN__
+    return res.ToDec().c_str(); 
+#else        
+    std::unique_ptr<char> returnPtr ; 
+    returnPtr.reset(strdup_func(res.ToDec().c_str()));
+    return (std::move(returnPtr)); 
+#endif    
+}
+
+BIGNUM_RETURN_TYPE leftShiftFromDec(const char *argA, const char *argB)
+{
+    BigNumber BNValA, BNValB; 
+    BNValA.FromDec (argA);
+    BNValB.FromDec (argB);
+    BigNumber res = BNValA << BNValB;
+#ifdef __EMSCRIPTEN__
+    return res.ToDec().c_str(); 
+#else        
+    std::unique_ptr<char> returnPtr ; 
+    returnPtr.reset(strdup_func(res.ToDec().c_str()));
+    return (std::move(returnPtr)); 
+#endif    
+}
+
+BIGNUM_RETURN_TYPE leftShiftFromHex(const char *argA, const char *argB)
+{
+    BigNumber BNValA, BNValB; 
+    BNValA.FromHex (argA);
+    BNValB.FromHex (argB);
+    BigNumber res = BNValA << BNValB;
+#ifdef __EMSCRIPTEN__
+    return res.ToDec().c_str(); 
+#else        
+    std::unique_ptr<char> returnPtr ; 
+    returnPtr.reset(strdup_func(res.ToDec().c_str()));
+    return (std::move(returnPtr)); 
+#endif    
+}
+
+BIGNUM_RETURN_TYPE rightShiftFromDec(const char *argA, const char *argB)
+{
+    BigNumber BNValA, BNValB; 
+    BNValA.FromDec (argA);
+    BNValB.FromDec (argB);
+    BigNumber res = BNValA >> BNValB;
+#ifdef __EMSCRIPTEN__
+    return res.ToDec().c_str(); 
+#else        
+    std::unique_ptr<char> returnPtr ; 
+    returnPtr.reset(strdup_func(res.ToDec().c_str()));
+    return (std::move(returnPtr)); 
+#endif    
+}
+
+BIGNUM_RETURN_TYPE rightShiftFromHex(const char *argA, const char *argB)
+{
+    BigNumber BNValA, BNValB; 
+    BNValA.FromHex (argA);
+    BNValB.FromHex (argB);
+    BigNumber res = BNValA >> BNValB;
+#ifdef __EMSCRIPTEN__
+    return res.ToDec().c_str(); 
+#else        
+    std::unique_ptr<char> returnPtr ; 
+    returnPtr.reset(strdup_func(res.ToDec().c_str()));
+    return (std::move(returnPtr)); 
+#endif    
+}
+
 BIGNUM_RETURN_TYPE BNRandomHex (const int size)
 {    
     BigNumber BNVal = GenerateRand (size); 

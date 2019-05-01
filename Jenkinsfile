@@ -1,29 +1,37 @@
 pipeline {
-    agent { 
-        dockerfile {
-            label 'linux' && 'slave'
+    agent none
+
+        triggers {
+            bitbucketPush()
         }
-    }
-    triggers {
-        bitbucketPush()
-    }
 
     stages {
-        stage('Clean workspace') {
+
+        stage ('Build') {
+
+            agent { 
+                dockerfile  true 
+            }
+
             steps {
-                deleteDir()
+                sh '/entrypoint.sh'
+                    archiveArtifacts '**/*.so'
             }
         }
-        stage('Checkout') {
-            steps {
-                checkout([$class: 'GitSCM' \
-                        , branches: [[name: '*/master']] \
-                        , doGenerateSubmoduleConfigurations: false \
-                        , extensions: [] \
-                        , submoduleCfg: [] \
-                        , userRemoteConfigs: [[credentialsId: 'c6291d6c-0a47-4c3f-8cc1-83e9a9da2f0b' \
-                        , url: 'https://bitbucket.org/nch-atlassian/sdklibraries/src/master/']]])
-            }
+    }
+
+    post {
+        success {
+                script: emailext (
+                body: '$DEFAULT_CONTENT', 
+                to: '$DEFAULT_RECIPIENTS',  
+                subject: '$DEFAULT_SUBJECT')
+        }
+        failure {
+                script: emailext (
+                body: '$DEFAULT_CONTENT', 
+                to: '$DEFAULT_RECIPIENTS',  
+                subject: '$DEFAULT_SUBJECT')
         }
     }
 }

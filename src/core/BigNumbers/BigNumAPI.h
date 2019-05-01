@@ -22,5 +22,14 @@ BigNumbers_C_API BIGNUM_RETURN_TYPE BNRandomDec(const int size);
 BigNumbers_C_API BIGNUM_RETURN_TYPE BNRandomDecWithSeed(const char * seed, const int size);
 BigNumbers_C_API BIGNUM_RETURN_TYPE BNRandomHexWithSeed(const char *, const int size );
 
+BigNumbers_API BIGNUM_RETURN_TYPE leftShiftFromHex(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE leftShiftFromDec(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE rightShiftFromHex(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE rightShiftFromDec(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE multiplyFromHex(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE multiplyFromDec(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE divideFromHex(const char*, const char*);
+BigNumbers_API BIGNUM_RETURN_TYPE divideFromDec(const char*, const char*);
+
 
 #endif //ifndef __BIGNUM_API__

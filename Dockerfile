@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM ubuntu:18.04
+FROM ubuntu:19.04
 
 RUN apt-get update \
   && apt-get install -y git \
@@ -8,6 +8,7 @@ RUN apt-get update \
                         make \
                         wget \
 			cmake \
+            build-essential\
 			maven \
             ca-certificates \
             gosu \
@@ -32,18 +33,6 @@ RUN sed -i.bak '/# End of file/i root\t\thard\tmemlock\t\tunlimited\nroot\t\tsof
 	&& sed -i.bak '$a kernel.keys.maxkeys = 25000\nkernal.keys.maxbytes = 2500000' /etc/sysctl.conf
 # To solve add-apt-repository
 RUN apt-get -y install software-properties-common
-
-# Install Java
-RUN \
-  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-  add-apt-repository -y ppa:webupd8team/java && \
-  apt-get update && \
-  apt-get install -y oracle-java8-installer --allow-unauthenticated && \
-  rm -rf /var/cache/oracle-jdk8-installer
-
-
-# Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # install key utils
 RUN cd /home && wget -O keyutils-1.5.10.tar.bz2  http://people.redhat.com/~dhowells/keyutils/keyutils-1.5.10.tar.bz2 \
@@ -75,4 +64,9 @@ RUN cd /home && wget -O keyutils-1.5.10.tar.bz2  http://people.redhat.com/~dhowe
 #RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # Run app.py when the container launches
-CMD ["bash"]
+#CMD ["bash"]
+COPY ./entrypoint.sh .
+RUN chmod +x /entrypoint.sh
+RUN useradd -G users Jenkins
+USER Jenkins
+

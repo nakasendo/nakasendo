@@ -187,6 +187,26 @@ BigNumber operator- (const BigNumber& obj1, const int& val)
     return res; 
 }
 
+BigNumber operator* (const BigNumber& obj1, const BigNumber& obj2)
+{
+    std::unique_ptr<BigNumberImpl> res = Mul(obj1.pImpl(), obj2.pImpl());
+    BigNumber bnMul; 
+    bnMul.m_pImpl.reset(new BigNumberImpl(*res));
+    return bnMul; 
+}
+
+BigNumber operator/ (const BigNumber& obj1, const BigNumber& obj2)
+{
+    if (obj2.ToDec() == "0")
+    {
+        throw  std::runtime_error("Divide by zero exception");
+    }
+    std::unique_ptr<BigNumberImpl> res = Div(obj1.pImpl(), obj2.pImpl());
+    BigNumber bnDiv; 
+    bnDiv.m_pImpl.reset(new BigNumberImpl(*res));
+    return bnDiv; 
+}
+
 BigNumber operator% (const BigNumber& obj1, const BigNumber& obj2)
 {
     std::unique_ptr<BigNumberImpl> res = Mod(obj1.pImpl(), obj2.pImpl());
@@ -208,6 +228,83 @@ bool operator< (const BigNumber& obj1, const BigNumber& obj2)
 bool operator== (const BigNumber& obj1,  const BigNumber& obj2)
 {
     return CMPEqual (obj1.m_pImpl.get(), obj2.m_pImpl.get());
+}
+
+BigNumber operator>> (const BigNumber& obj1, const BigNumber& obj2)
+{
+    if (obj2.ToDec().length() > 0 && obj2.ToDec()[0] == '-')
+    {
+        throw  std::runtime_error("negative shift count");
+    }
+
+    BigNumber _obj2 = obj2, _obj1 = obj1; 
+    BigNumber intValBn; 
+    const int intVal = 2147483647;
+    std::stringstream numStr ; 
+    numStr << intVal ; 
+    intValBn.FromDec(numStr.str());
+
+    while(_obj2 > intValBn)
+    {
+        _obj2 = _obj2 - intValBn;   
+        _obj1 = _obj1 >> intVal;
+
+    }
+
+    _obj1 = _obj1 >> std::stoi(_obj2.ToDec());
+    return _obj1;
+}
+
+BigNumber operator>> (const BigNumber& obj, const int& val)
+{
+
+    if (val < 0)
+    {
+        throw  std::runtime_error("negative shift count");
+    }
+
+    BigNumber obj2; 
+    std::unique_ptr<BigNumberImpl> resImpl = RShift (obj.pImpl(), val);
+    BigNumber res; 
+    res.m_pImpl.reset (new BigNumberImpl(*resImpl));
+    return res; 
+}
+
+BigNumber operator<< (const BigNumber& obj1, const BigNumber& obj2)
+{
+    if (obj2.ToDec().length() > 0 && obj2.ToDec()[0] == '-')
+    {
+        throw  std::runtime_error("negative shift count");
+    }
+
+    BigNumber _obj2 = obj2, _obj1 = obj1; 
+    BigNumber intValBn; 
+    const int intVal = 2147483647;
+    std::stringstream numStr ; 
+    numStr << intVal; 
+    intValBn.FromDec(numStr.str());
+
+    while(_obj2 > intValBn)
+    {
+        _obj2 = _obj2 - intValBn;   
+        _obj1 = _obj1 << intVal;
+    }
+    _obj1 = _obj1 << std::stoi(_obj2.ToDec());
+    return _obj1;
+
+}
+
+BigNumber operator<< (const BigNumber& obj, const int& val)
+{
+    if (val < 0)
+    {
+        throw  std::runtime_error("negative shift count");
+    }
+    BigNumber obj2; 
+    std::unique_ptr<BigNumberImpl> resImpl = LShift (obj.pImpl(), val);
+    BigNumber res; 
+    res.m_pImpl.reset (new BigNumberImpl(*resImpl));
+    return res; 
 }
 
 
