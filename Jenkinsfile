@@ -2,9 +2,9 @@ pipeline {
     agent none
 
     environment {
-        EMAILto = ${DEFAULT_CONTENT}
-        EMAILsubj = ${DEFAULT_SUBJECT}
-        EMAILbody = ${DEFAULT_RECIPIENTS}
+        EMAILto = $DEFAULT_CONTENT
+        EMAILsubj = $DEFAULT_SUBJECT
+        EMAILbody = $DEFAULT_RECIPIENTS
     }
 
     triggers {
@@ -26,7 +26,7 @@ pipeline {
         }
     }
 
-    postBuild {
+    post {
         failure {
             emailext to: EMAILto
             subject: EMAILsubj
