@@ -1,9 +1,9 @@
 pipeline {
     agent none
 
-    triggers {
-        bitbucketPush()
-    }
+        triggers {
+            bitbucketPush()
+        }
 
     stages {
 
@@ -22,9 +22,12 @@ pipeline {
 
     post {
         failure {
-            emailext body: "$DEFAULT_CONTENT"
-            to: "$DEFAULT_RECIPIENTS"
-            subject: "$DEFAULT_SUBJECT"
+            script {
+                emailext(
+                        body: "$DEFAULT_CONTENT"
+                        to: "$DEFAULT_RECIPIENTS"
+                        subject: "$DEFAULT_SUBJECT")
+            }
         }
     }
 }
