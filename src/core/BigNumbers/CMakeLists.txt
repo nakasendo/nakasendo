@@ -6,8 +6,8 @@
 #################################################################
 
 set(BIG_NUMBERS_HPP_FILES_PUBLIC # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/BigNumAPI.h
   ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbers.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersAPI.h
 )
 set(BIG_NUMBERS_HPP_FILES_PRIVATE # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersImpl.h
@@ -15,8 +15,8 @@ set(BIG_NUMBERS_HPP_FILES_PRIVATE # Keep alphabet order
 set(BIG_NUMBERS_HPP_FILES ${BIG_NUMBERS_HPP_FILES_PUBLIC} ${BIG_NUMBERS_HPP_FILES_PRIVATE})
 
 set(BIG_NUMBERS_CPP_FILES # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/BigNumAPI.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbers.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersAPI.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersImpl.cpp
 )
 set(BigNumbers_CPP_FILES "${BIG_NUMBERS_CPP_FILES}" CACHE INTERNAL "Cache list of BigNumbers cpp files")
