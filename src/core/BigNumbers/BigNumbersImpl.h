@@ -47,7 +47,6 @@ class BigNumberImpl
             return *this;
         }
 
-
         void One(); 
         void Zero(); 
         void Negative() ; 
@@ -66,6 +65,11 @@ class BigNumberImpl
         void generate (const int& nsize); 
         void generateNeg (const int& nsize);
         void generateRange (const BigNumberImpl*);
+
+        void generatePrime(const int& nsize);
+
+        bool isPrime() const;
+        bool isPrimeFasttest() const;
 
         void seedRNG (const std::string& );
 

@@ -18,7 +18,7 @@ macro(sdk_add_unit_test _targetName)
   add_test(NAME ${_targetName} COMMAND $<TARGET_FILE:${_targetName}> --log_level=error)
 endmacro()
 
-add_executable(test_BigNumbers test_BigNumbers.cpp)
+add_executable(test_BigNumbers test_BigNumbers.cpp test_BigNumbersRandom.cpp)
 target_link_libraries(test_BigNumbers BigNumbers)
 set_property(TARGET test_BigNumbers PROPERTY FOLDER "tests/unit")
 sdk_add_unit_test(test_BigNumbers)
