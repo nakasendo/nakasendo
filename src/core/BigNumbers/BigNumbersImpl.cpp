@@ -228,17 +228,17 @@ void BigNumberImpl::generatePrime(const int& nsize)
 bool BigNumberImpl::isPrime() const
 {
     BN_CTX* ctxptr = BN_CTX_new();
-    if (!BN_is_prime_ex(m_bn.get(), BN_prime_checks, ctxptr, nullptr))
-        throw std::runtime_error("error checking prime number");
+    const bool res = (bool) BN_is_prime_ex(m_bn.get(), BN_prime_checks, ctxptr, nullptr);
     BN_CTX_free(ctxptr);
+    return res;
 }
 
 bool BigNumberImpl::isPrimeFasttest() const
 {
     BN_CTX* ctxptr = BN_CTX_new();
-    if (!BN_is_prime_fasttest_ex(m_bn.get(), BN_prime_checks, ctxptr, 0, nullptr))
-        throw std::runtime_error("error fast checking prime number");
+    const bool res = (bool)BN_is_prime_fasttest_ex(m_bn.get(), BN_prime_checks, ctxptr, 0, nullptr);
     BN_CTX_free(ctxptr);
+    return res;
 }
 
  void BigNumberImpl::seedRNG (const std::string& seed)
