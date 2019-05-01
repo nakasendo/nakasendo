@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <BigNumbers/BigNumAPI.h>
+#include <BigNumbers/BigNumbersAPI.h>
 #include <BigNumbers/BigNumbers.h>
 
 #ifdef WIN32

@@ -1,5 +1,5 @@
-#ifndef __BIGNUM_API__
-#define __BIGNUM_API__
+#ifndef __BIGNUMBERS_API__
+#define __BIGNUMBERS_API__
 
 #include <BigNumbers/BigNumbers.h>
 
@@ -42,4 +42,4 @@ BigNumbers_C_API bool isPrimeFasttestHex(const char* pBNHex);
 BigNumbers_C_API bool isPrimeDec(const char* pBNDec);
 BigNumbers_C_API bool isPrimeFasttestDec(const char* pBNDec);
 
-#endif //ifndef __BIGNUM_API__
+#endif //ifndef __BIGNUMBERS_API__
