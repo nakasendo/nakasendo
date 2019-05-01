@@ -21,10 +21,19 @@ class BigNumbers_API BigNumber
     friend BigNumber BigNumbers_API operator- (const BigNumber&, const BigNumber&);
     friend BigNumber BigNumbers_API operator- (const BigNumber&, const int&);
 
+    friend BigNumber BigNumbers_API operator* (const BigNumber&, const BigNumber&);
+    friend BigNumber BigNumbers_API operator/ (const BigNumber&, const BigNumber&);
+
     friend BigNumber BigNumbers_API operator% (const BigNumber&, const BigNumber&);
     friend bool BigNumbers_API operator> (const BigNumber&, const BigNumber& );
     friend bool BigNumbers_API operator< (const BigNumber&, const BigNumber& );
     friend bool BigNumbers_API operator== (const BigNumber&, const BigNumber& );
+
+    friend BigNumber BigNumbers_API  operator>> (const BigNumber&, const BigNumber& );
+    friend BigNumber BigNumbers_API  operator>> (const BigNumber&, const int& );
+    friend BigNumber BigNumbers_API  operator<< (const BigNumber&, const BigNumber& );
+    friend BigNumber BigNumbers_API  operator<< (const BigNumber&, const int& );
+
 
     public:
         explicit BigNumber();
@@ -71,7 +80,14 @@ class BigNumbers_API BigNumber
         std::string generateRangRandHexWithSeed (const std::string&, const BigNumber&);
         std::string generateRangRandDecWithSeed (const std::string&, const BigNumber&);
 
+        // Generate random prime & return string Representation
+        std::string generateRandPrimeHex(const int& nsize = 512);
+        std::string generateRandPrimeDec(const int& nsize = 512);
+        std::string generateRandPrimeHexWithSeed(const std::string& seed, const int& nsize = 512);
+        std::string generateRandPrimeDecWithSeed(const std::string& seed, const int& nsize = 512);
 
+        bool isPrime() const;
+        bool isPrimeFasttest() const;
         
     private:
         const BigNumberImpl* pImpl() const { return m_pImpl.get(); }
@@ -86,10 +102,9 @@ BigNumber BigNumbers_API GnerateZero () ;
 BigNumber BigNumbers_API GenerateRand ( const int& )  ;
 BigNumber BigNumbers_API GenerateRandNegative (const int&);
 BigNumber BigNumbers_API GenerateRandWithSeed(const std::string&, const int&);
-// Generate in a range 
 BigNumber BigNumbers_API GenerateRandRange(const BigNumber& min, const BigNumber& max,const int& nsize=512);
 
-
+BigNumber BigNumbers_API GenerateRandPrime(const int& nsize = 512);
 
 #endif //ifndef __BIG_NUMBERS_H__
 

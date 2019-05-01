@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM ubuntu:18.04
+FROM ubuntu:19.04
 
 RUN apt-get update \
   && apt-get install -y git \
@@ -8,6 +8,7 @@ RUN apt-get update \
                         make \
                         wget \
 			cmake \
+            build-essential\
 			maven \
             ca-certificates \
             gosu \
@@ -64,7 +65,6 @@ RUN cd /home && wget -O keyutils-1.5.10.tar.bz2  http://people.redhat.com/~dhowe
 
 # Run app.py when the container launches
 #CMD ["bash"]
-
 COPY ./entrypoint.sh .
 RUN chmod +x /entrypoint.sh
 RUN useradd -G users Jenkins

@@ -1,4 +1,4 @@
-#include "BigNumbersImpl.h"
+#include <BigNumbers/BigNumbersImpl.h>
 #include <openssl/rand.h>
 
 //using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)> ; 
@@ -32,6 +32,53 @@ std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberIm
     }
     std::unique_ptr<BigNumberImpl> ResImpl(new BigNumberImpl(res));
     BN_CTX_free(ctxptr);
+    return std::move(ResImpl);
+}
+
+std::unique_ptr<BigNumberImpl> Mul (const BigNumberImpl* obj1, const BigNumberImpl* obj2)
+{
+    BN_CTX* ctxptr = BN_CTX_new(); 
+    BN_ptr res (BN_new(),::BN_free);
+    if (!BN_mul(res.get(), obj1->m_bn.get(), obj2->m_bn.get(), ctxptr)){
+        std::cout << "error" << std::endl; 
+    }
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ; 
+    return std::move(ResImpl);
+}
+
+std::unique_ptr<BigNumberImpl> Div (const BigNumberImpl* obj1, const BigNumberImpl* obj2) 
+{
+    BN_CTX* ctxptr = BN_CTX_new(); 
+    BN_ptr res (BN_new(),::BN_free);
+    if (!BN_div(res.get(), NULL, obj1->m_bn.get(), obj2->m_bn.get(), ctxptr)){
+        std::cout << "error" << std::endl; 
+    }
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ; 
+    return std::move(ResImpl);
+
+}
+
+std::unique_ptr<BigNumberImpl>  LShift(const BigNumberImpl* obj, const int& val)
+{
+    BN_ptr res(BN_new(), ::BN_free);
+
+    if(!BN_lshift(res.get(), obj->m_bn.get(), val))
+    {
+        std::cout << "Unable to left-shift by " << val << std::endl ; 
+    }
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ;
+    return std::move(ResImpl);
+}
+
+std::unique_ptr<BigNumberImpl> RShift(const BigNumberImpl* obj, const int& val)
+{
+    BN_ptr res(BN_new(), ::BN_free);
+
+    if(!BN_rshift(res.get(), obj->m_bn.get(), val))
+    {
+        std::cout << "Unable to right-shift by " << val << std::endl ; 
+    }
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ;
     return std::move(ResImpl);
 }
 
@@ -119,7 +166,26 @@ std::string BigNumberImpl::ToDec () const
 int BigNumberImpl::FromHex (const std::string& val)
 {
     BIGNUM * ptr = m_bn.get () ; 
-    return(BN_hex2bn(&ptr, val.c_str()));
+    std::string _val;
+    unsigned int pos = 0;
+     
+    // strip off '0x' if the val has it
+    if ((val.length() > 0) && (val[pos] == '-' || val[pos] == '+'))
+    {
+        
+        if (val[pos] == '-')
+            _val.push_back(val[pos]);
+        pos++;
+    }
+
+    if ((val.length() >= (pos + 2)) && (val[pos] == '0') && (val[pos+1] == 'x' || val[pos+1] == 'X'))
+    {
+        pos = pos + 2;
+    }
+
+   _val.append(val, pos); 
+
+    return(BN_hex2bn(&ptr, _val.c_str()));
 }
 
 int BigNumberImpl::FromDec (const std::string& val)
@@ -152,6 +218,28 @@ void BigNumberImpl::generateNeg (const int& nsize)
     }      
     return ; 
  }
+
+void BigNumberImpl::generatePrime(const int& nsize)
+{
+    if (!BN_generate_prime_ex(m_bn.get(), nsize, 0, nullptr, nullptr, nullptr))
+        throw std::runtime_error("error generating prime number");
+}
+
+bool BigNumberImpl::isPrime() const
+{
+    BN_CTX* ctxptr = BN_CTX_new();
+    if (!BN_is_prime_ex(m_bn.get(), BN_prime_checks, ctxptr, nullptr))
+        throw std::runtime_error("error checking prime number");
+    BN_CTX_free(ctxptr);
+}
+
+bool BigNumberImpl::isPrimeFasttest() const
+{
+    BN_CTX* ctxptr = BN_CTX_new();
+    if (!BN_is_prime_fasttest_ex(m_bn.get(), BN_prime_checks, ctxptr, 0, nullptr))
+        throw std::runtime_error("error fast checking prime number");
+    BN_CTX_free(ctxptr);
+}
 
  void BigNumberImpl::seedRNG (const std::string& seed)
  {
