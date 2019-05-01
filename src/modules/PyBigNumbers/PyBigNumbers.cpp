@@ -77,7 +77,7 @@ static PyObject* wrap_divideFromHex(PyObject* self, PyObject *args)
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ZeroDivisionError, "division or modulo by zero");
-	return NULL;
+        return NULL;
     }
     return Py_BuildValue("s", result.get());
 }
@@ -96,7 +96,7 @@ static PyObject* wrap_divideFromDec(PyObject* self, PyObject *args)
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ZeroDivisionError, "division or modulo by zero");
-	return NULL;
+        return NULL;
     }
     return Py_BuildValue("s", result.get());
 }
@@ -115,7 +115,7 @@ static PyObject* wrap_leftShiftFromHex(PyObject* self, PyObject *args)
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ValueError, "negative shift count");
-	return NULL;
+        return NULL;
     }
     return Py_BuildValue("s",result.get());
 }
@@ -134,7 +134,7 @@ static PyObject* wrap_leftShiftFromDec(PyObject* self, PyObject *args)
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ValueError, "negative shift count");
-	return NULL;
+        return NULL;
     }
     return Py_BuildValue("s",result.get());
 }
@@ -153,7 +153,7 @@ static PyObject* wrap_rightShiftFromHex(PyObject* self, PyObject *args)
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ValueError, "negative shift count");
-	return NULL;
+        return NULL;
     }
     return Py_BuildValue("s",result.get());
 }
@@ -172,7 +172,7 @@ static PyObject* wrap_rightShiftFromDec(PyObject* self, PyObject *args)
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ValueError, "negative shift count");
-	return NULL;
+        return NULL;
     }
     return Py_BuildValue("s",result.get());
 }
@@ -244,6 +244,88 @@ static PyObject* wrap_BNRandomDecWithSeed(PyObject* self, PyObject *args)
 }
 
 
+static PyObject* wrap_BNRandomPrimeHex(PyObject* self, PyObject *pyargs)
+{
+    int nSize;
+    if (!PyArg_ParseTuple(pyargs, "i", &nSize))
+        return NULL;
+
+    std::unique_ptr<char> result = BNRandomPrimeHex(nSize);
+    return Py_BuildValue("s", result.get());
+}
+
+static PyObject* wrap_BNRandomPrimeDec(PyObject* self, PyObject *pyargs)
+{
+    int nSize;
+    if (!PyArg_ParseTuple(pyargs, "i", &nSize))
+        return NULL;
+
+    std::unique_ptr<char> result = BNRandomPrimeDec(nSize);
+    return Py_BuildValue("s", result.get());
+}
+
+static PyObject* wrap_BNRandomPrimeHexWithSeed(PyObject* self, PyObject *pyargs)
+{
+    char * argSeed;
+    int nSize;
+
+    if (!PyArg_ParseTuple(pyargs, "si", &argSeed, &nSize))
+        return NULL;
+    std::unique_ptr<char> result = BNRandomPrimeHexWithSeed(argSeed, nSize);
+    return Py_BuildValue("s", result.get());
+}
+
+static PyObject* wrap_BNRandomPrimeDecWithSeed(PyObject* self, PyObject *pyargs)
+{
+    char * argSeed;
+    int nSize;
+
+    if (!PyArg_ParseTuple(pyargs, "si", &argSeed, &nSize))
+        return NULL;
+    std::unique_ptr<char> result = BNRandomPrimeDecWithSeed(argSeed, nSize);
+    return Py_BuildValue("s", result.get());
+}
+
+static PyObject* wrap_isPrimeHex(PyObject* self, PyObject *pyargs)
+{
+    char * carg;
+    if (!PyArg_ParseTuple(pyargs, "s", &carg))
+        return NULL;
+
+    const int isPrime = (int) isPrimeHex(carg);
+    return Py_BuildValue("i", isPrime);
+}
+
+static PyObject* wrap_isPrimeFasttestHex(PyObject* self, PyObject *pyargs)
+{
+    char * carg;
+    if (!PyArg_ParseTuple(pyargs, "s", &carg))
+        return NULL;
+
+    const int isPrime = (int)isPrimeFasttestHex(carg);
+    return Py_BuildValue("i", isPrime);
+}
+
+static PyObject* wrap_isPrimeDec(PyObject* self, PyObject *pyargs)
+{
+    char * carg;
+    if (!PyArg_ParseTuple(pyargs, "s", &carg))
+        return NULL;
+
+    const int isPrime = (int)isPrimeDec(carg);
+    return Py_BuildValue("i", isPrime);
+}
+
+static PyObject* wrap_isPrimeFasttestDec(PyObject* self, PyObject *pyargs)
+{
+    char * carg;
+    if (!PyArg_ParseTuple(pyargs, "s", &carg))
+        return NULL;
+
+    const int isPrime = (int)isPrimeFasttestDec(carg);
+    return Py_BuildValue("i", isPrime);
+}
+
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
@@ -263,6 +345,14 @@ static PyMethodDef ModuleMethods[] =
     {"multiplyFromDec", wrap_multiplyFromDec, METH_VARARGS, "Multiply two big numbers of arbitrary precision in dec"},
     {"divideFromHex", wrap_divideFromHex, METH_VARARGS,"Divide two big numbers of arbitrary precision in hex"},
     {"divideFromDec", wrap_divideFromDec, METH_VARARGS,"Divide two big numbers of arbitrary precision in dec "},
+    {"GenerateRandPrimeHex",wrap_BNRandomPrimeHex,METH_VARARGS,"Generate Random Prime Number of arbitrary precision in hex"},
+    {"GenerateRandPrimeDec",wrap_BNRandomPrimeDec,METH_VARARGS,"Generate Random Prime Number of arbitrary precision in dec"},
+    {"GenerateRandPrimeHexWithSeed",wrap_BNRandomPrimeHexWithSeed,METH_VARARGS,"Generate Random Prime Number of arbitrary precision in hex with seed (specified as a string)"},
+    {"GenerateRandPrimeDecWithSeed",wrap_BNRandomPrimeDecWithSeed,METH_VARARGS,"Generate Random Prime Number of arbitrary precision in dec with seed (specified as a string)"},
+    {"isPrimeHex",wrap_isPrimeHex,METH_VARARGS,"Check if hex big number is prime"},
+    {"isPrimeFasttestHex",wrap_isPrimeFasttestHex,METH_VARARGS,"Check if hex big number is prime (fasttest)"},
+    {"isPrimeDec",wrap_isPrimeDec,METH_VARARGS,"Check if dec big number is prime"},
+    {"isPrimeFasttestDec",wrap_isPrimeFasttestDec,METH_VARARGS,"Check if dec big number is prime (fasttest)"},
     {NULL, NULL, 0, NULL},
 };
  
