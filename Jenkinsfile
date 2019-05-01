@@ -1,9 +1,15 @@
 pipeline {
     agent none
 
-        triggers {
-            bitbucketPush()
-        }
+    environment {
+        EMAILto = ${DEFAULT_CONTENT}
+        EMAILsubj = ${DEFAULT_SUBJECT}
+        EMAILbody = ${DEFAULT_RECIPIENTS}
+    }
+
+    triggers {
+        bitbucketPush()
+    }
 
     stages {
 
@@ -15,8 +21,16 @@ pipeline {
 
             steps {
                 sh '/entrypoint.sh'
-                archiveArtifacts '**/*.so'
+                    archiveArtifacts '**/*.so'
             }
+        }
+    }
+
+    postBuild {
+        failure {
+            emailext to: EMAILto
+            subject: EMAILsubj
+            body: EMAILbody
         }
     }
 }
