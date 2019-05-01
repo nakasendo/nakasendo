@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <string>
 #include <iostream>
-#include <BigNumbers/BigNumAPI.h>
+#include <BigNumbers/BigNumbersAPI.h>
 
 
 struct module_state {

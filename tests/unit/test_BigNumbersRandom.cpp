@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <BigNumbers/BigNumbers.h>
-#include <BigNumbers/BigNumAPI.h>
+#include <BigNumbers/BigNumbersAPI.h>
 #include <iostream>
 #include <memory>
 

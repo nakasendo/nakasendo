@@ -382,11 +382,8 @@ BigNumber GenerateRandRange(const BigNumber& min, const BigNumber& max ,const in
     BigNumber RandomRange;     
     RandomRange.generateRandRange(Range);
     BigNumber Val = min + (RandomRange % Range);
-    if ( Val < min || Val > max)
-    {
-        std::cout << "RANGE VIOLATION" << "MIN VALUE " << min.ToDec() << "\t" << "MAX VALUE " << max.ToDec ()<< std::endl ; 
-        return BigNumber (); 
-    }
+    if (Val < min || Val > max)
+        throw std::out_of_range("RANGE VIOLATION MIN VALUE" + min.ToDec() + "\t MAX VALUE " + max.ToDec());
     return Val;
 }
 
