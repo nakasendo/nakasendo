@@ -1,0 +1,9 @@
+#################################################################
+#  Date             24/04/2019                                  #
+#  Author           nChain's employees                          #
+#                                                               #
+#  Copyright (c) 2019 nChain Limited. All rights reserved       #
+#################################################################
+
+add_subdirectory(BigNumbers)
+add_subdirectory(MessageHash)
