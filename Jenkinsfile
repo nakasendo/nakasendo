@@ -22,7 +22,7 @@ pipeline {
 
     post {
         failure {
-                emailext (
+                script: emailext (
                 body: '$DEFAULT_CONTENT', 
                 to: '$DEFAULT_RECIPIENTS'.  
                 subject: '$DEFAULT_SUBJECT')
