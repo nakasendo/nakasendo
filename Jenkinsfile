@@ -22,9 +22,9 @@ pipeline {
 
     post {
         failure {
-            emailext to: "$DEFAULT_RECIPIENTS"
+            emailext body: "$DEFAULT_CONTENT"
+            to: "$DEFAULT_RECIPIENTS"
             subject: "$DEFAULT_SUBJECT"
-            body: "$DEFAULT_CONTENT"
         }
     }
 }
