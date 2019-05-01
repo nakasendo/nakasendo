@@ -52,9 +52,8 @@ void MessageHashImpl::Hash(const std::string& msg, const std::string& hashfunc)
     md_ptr mdctx (EVP_MD_CTX_create(),::EVP_MD_CTX_free); 
     const EVP_MD* md = nullptr;
     md = EVP_get_digestbyname (hashfunc.c_str());
-    if (md == nullptr){
-        std::cout << "Unknown message digest: " << hashfunc << std::endl ; 
-    }    
+    if (md == nullptr)
+        throw std::invalid_argument("Unknown message digest: " + hashfunc);
     EVP_DigestInit_ex (mdctx.get(),md,NULL);
     EVP_DigestUpdate(mdctx.get(), msg.c_str(), msg.size());
     EVP_DigestFinal_ex(mdctx.get(), m_mPtr.get(), &m_MessageHashLength);
