@@ -24,8 +24,8 @@ pipeline {
         failure {
             script {
                 emailext(
-                        body: '$DEFAULT_CONTENT'
-                        to: '$DEFAULT_RECIPIENTS'
+                        body: '$DEFAULT_CONTENT',
+                        to: '$DEFAULT_RECIPIENTS'.
                         subject: '$DEFAULT_SUBJECT')
             }
         }
