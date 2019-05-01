@@ -1,12 +1,6 @@
 pipeline {
     agent none
 
-    environment {
-        EMAILto = "$DEFAULT_CONTENT"
-        EMAILsubj = "$DEFAULT_SUBJECT"
-        EMAILbody = "$DEFAULT_RECIPIENTS"
-    }
-
     triggers {
         bitbucketPush()
     }
@@ -28,9 +22,9 @@ pipeline {
 
     post {
         failure {
-            emailext to: $EMAILto
-            subject: $EMAILsubj
-            body: $EMAILbody
+            emailext to: "$DEFAULT_RECIPIENTS"
+            subject: "$DEFAULT_SUBJECT"
+            body: "$DEFAULT_CONTENT"
         }
     }
 }
