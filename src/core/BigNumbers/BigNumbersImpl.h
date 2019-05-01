@@ -16,6 +16,12 @@ class BigNumberImpl
     friend std::unique_ptr<BigNumberImpl> Sub (const BigNumberImpl* obj1, const BigNumberImpl* obj2);
     friend std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberImpl* obj2); 
 
+    friend std::unique_ptr<BigNumberImpl> Mul (const BigNumberImpl* obj1, const BigNumberImpl* obj2); 
+    friend std::unique_ptr<BigNumberImpl> Div (const BigNumberImpl* obj1, const BigNumberImpl* obj2); 
+
+    friend std::unique_ptr<BigNumberImpl>  LShift(const BigNumberImpl* obj, const int& val);
+    friend std::unique_ptr<BigNumberImpl> RShift(const BigNumberImpl* obj, const int& val);
+
     friend bool CMPGreater (const BigNumberImpl* obj1, const BigNumberImpl* obj2);
     friend bool CMPLess (const BigNumberImpl* obj1, const BigNumberImpl* obj2);
     friend bool CMPEqual ( const BigNumberImpl* obj1, const BigNumberImpl* obj2);

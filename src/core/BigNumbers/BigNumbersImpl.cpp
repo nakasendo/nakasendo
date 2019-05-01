@@ -35,6 +35,53 @@ std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberIm
     return std::move(ResImpl);
 }
 
+std::unique_ptr<BigNumberImpl> Mul (const BigNumberImpl* obj1, const BigNumberImpl* obj2)
+{
+    BN_CTX* ctxptr = BN_CTX_new(); 
+    BN_ptr res (BN_new(),::BN_free);
+    if (!BN_mul(res.get(), obj1->m_bn.get(), obj2->m_bn.get(), ctxptr)){
+        std::cout << "error" << std::endl; 
+    }
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ; 
+    return std::move(ResImpl);
+}
+
+std::unique_ptr<BigNumberImpl> Div (const BigNumberImpl* obj1, const BigNumberImpl* obj2) 
+{
+    BN_CTX* ctxptr = BN_CTX_new(); 
+    BN_ptr res (BN_new(),::BN_free);
+    if (!BN_div(res.get(), NULL, obj1->m_bn.get(), obj2->m_bn.get(), ctxptr)){
+        std::cout << "error" << std::endl; 
+    }
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ; 
+    return std::move(ResImpl);
+
+}
+
+std::unique_ptr<BigNumberImpl>  LShift(const BigNumberImpl* obj, const int& val)
+{
+    BN_ptr res(BN_new(), ::BN_free);
+
+    if(!BN_lshift(res.get(), obj->m_bn.get(), val))
+    {
+        std::cout << "Unable to left-shift by " << val << std::endl ; 
+    }
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ;
+    return std::move(ResImpl);
+}
+
+std::unique_ptr<BigNumberImpl> RShift(const BigNumberImpl* obj, const int& val)
+{
+    BN_ptr res(BN_new(), ::BN_free);
+
+    if(!BN_rshift(res.get(), obj->m_bn.get(), val))
+    {
+        std::cout << "Unable to right-shift by " << val << std::endl ; 
+    }
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ;
+    return std::move(ResImpl);
+}
+
 // BN_cmp() returns -1 if a < b, 0 if a==b, 1 if a > b
 bool CMPGreater (const BigNumberImpl* obj1, const BigNumberImpl* obj2){
     if (BN_cmp(obj1->m_bn.get(), obj2->m_bn.get()) == 1 ){
@@ -119,7 +166,26 @@ std::string BigNumberImpl::ToDec () const
 int BigNumberImpl::FromHex (const std::string& val)
 {
     BIGNUM * ptr = m_bn.get () ; 
-    return(BN_hex2bn(&ptr, val.c_str()));
+    std::string _val;
+    unsigned int pos = 0;
+     
+    // strip off '0x' if the val has it
+    if ((val.length() > 0) && (val[pos] == '-' || val[pos] == '+'))
+    {
+        
+        if (val[pos] == '-')
+            _val.push_back(val[pos]);
+        pos++;
+    }
+
+    if ((val.length() >= (pos + 2)) && (val[pos] == '0') && (val[pos+1] == 'x' || val[pos+1] == 'X'))
+    {
+        pos = pos + 2;
+    }
+
+   _val.append(val, pos); 
+
+    return(BN_hex2bn(&ptr, _val.c_str()));
 }
 
 int BigNumberImpl::FromDec (const std::string& val)

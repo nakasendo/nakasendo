@@ -39,6 +39,144 @@ static PyObject* wrap_addFromDec(PyObject* self, PyObject *args)
     return Py_BuildValue("s",result.get());
 }
 
+static PyObject* wrap_multiplyFromHex(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    std::unique_ptr<char> result = multiplyFromHex(argA,argB);
+    return Py_BuildValue("s",result.get());
+}
+
+static PyObject* wrap_multiplyFromDec(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    std::unique_ptr<char> result = multiplyFromDec(argA,argB);
+    return Py_BuildValue("s",result.get());
+}
+
+static PyObject* wrap_divideFromHex(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    std::unique_ptr<char> result;
+    try{
+       result = divideFromHex(argA,argB);
+    }
+    catch(std::runtime_error & re){
+        PyErr_SetString(PyExc_ZeroDivisionError, "division or modulo by zero");
+	return NULL;
+    }
+    return Py_BuildValue("s", result.get());
+}
+
+static PyObject* wrap_divideFromDec(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    std::unique_ptr<char> result;
+    try{
+       result = divideFromDec(argA,argB);
+    }
+    catch(std::runtime_error & re){
+        PyErr_SetString(PyExc_ZeroDivisionError, "division or modulo by zero");
+	return NULL;
+    }
+    return Py_BuildValue("s", result.get());
+}
+
+static PyObject* wrap_leftShiftFromHex(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    std::unique_ptr<char> result;
+    try{
+        result = leftShiftFromHex(argA,argB);
+    }
+    catch(std::runtime_error & re){
+        PyErr_SetString(PyExc_ValueError, "negative shift count");
+	return NULL;
+    }
+    return Py_BuildValue("s",result.get());
+}
+
+static PyObject* wrap_leftShiftFromDec(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    std::unique_ptr<char> result;
+    try{
+        result = leftShiftFromDec(argA,argB);
+    }
+    catch(std::runtime_error & re){
+        PyErr_SetString(PyExc_ValueError, "negative shift count");
+	return NULL;
+    }
+    return Py_BuildValue("s",result.get());
+}
+
+static PyObject* wrap_rightShiftFromHex(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    std::unique_ptr<char> result;
+    try{
+        result = rightShiftFromHex(argA,argB);
+    }
+    catch(std::runtime_error & re){
+        PyErr_SetString(PyExc_ValueError, "negative shift count");
+	return NULL;
+    }
+    return Py_BuildValue("s",result.get());
+}
+
+static PyObject* wrap_rightShiftFromDec(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    std::unique_ptr<char> result;
+    try{
+        result = rightShiftFromDec(argA,argB);
+    }
+    catch(std::runtime_error & re){
+        PyErr_SetString(PyExc_ValueError, "negative shift count");
+	return NULL;
+    }
+    return Py_BuildValue("s",result.get());
+}
+
 static PyObject* wrap_subFromHex(PyObject* self, PyObject *args)
 {
     char * argA; 
@@ -115,8 +253,16 @@ static PyMethodDef ModuleMethods[] =
     {"subFromDec",wrap_subFromDec,METH_VARARGS,"Sub too big numbers of arbitrary precision in dec"},
     {"GenerateRandHex",wrap_BNRandomHex,METH_VARARGS,"Generate Random Number of arbitrary precision in hex"},
     {"GenerateRandDec",wrap_BNRandomDec,METH_VARARGS,"Generate Random Number of arbitrary precision in dec"},
-    { "GenerateRandHexWithSeed", wrap_BNRandomHexWithSeed, METH_VARARGS,"Generate Random Number of arbitrary precision in hex with seed (specified as a string)"},
-    { "GenerateRandDecWithSeed", wrap_BNRandomDecWithSeed, METH_VARARGS,"Generate Random Number of arbitrary precision in hex with seed (specified as a string)"},
+    {"GenerateRandHexWithSeed", wrap_BNRandomHexWithSeed, METH_VARARGS,"Generate Random Number of arbitrary precision in hex with seed (specified as a string)"},
+    {"GenerateRandDecWithSeed", wrap_BNRandomDecWithSeed, METH_VARARGS,"Generate Random Number of arbitrary precision in hex with seed (specified as a string)"},
+    {"leftShiftFromHex", wrap_leftShiftFromHex, METH_VARARGS, "leftshit bitwise operation that moves bits of right big number to the left by left big number value in hex"},
+    {"leftShiftFromDec", wrap_leftShiftFromDec, METH_VARARGS, "leftshit bitwise operation that moves bits of right big number to the left by left big number value in dec"},
+    {"rightShiftFromHex", wrap_rightShiftFromHex, METH_VARARGS," rightshift bitwise operation that moves bits of right big number to the right by left big number value in hex"},
+    {"rightShiftFromDec", wrap_rightShiftFromDec, METH_VARARGS," rightshift bitwise operation that moves bits of right big number to the right by left big number value in dec"},
+    {"multiplyFromHex", wrap_multiplyFromHex, METH_VARARGS, "Multiply two big numbers of arbitrary precision in hex"},
+    {"multiplyFromDec", wrap_multiplyFromDec, METH_VARARGS, "Multiply two big numbers of arbitrary precision in dec"},
+    {"divideFromHex", wrap_divideFromHex, METH_VARARGS,"Divide two big numbers of arbitrary precision in hex"},
+    {"divideFromDec", wrap_divideFromDec, METH_VARARGS,"Divide two big numbers of arbitrary precision in dec "},
     {NULL, NULL, 0, NULL},
 };
  

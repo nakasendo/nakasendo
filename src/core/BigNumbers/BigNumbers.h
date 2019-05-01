@@ -21,10 +21,19 @@ class BigNumbers_API BigNumber
     friend BigNumber BigNumbers_API operator- (const BigNumber&, const BigNumber&);
     friend BigNumber BigNumbers_API operator- (const BigNumber&, const int&);
 
+    friend BigNumber BigNumbers_API operator* (const BigNumber&, const BigNumber&);
+    friend BigNumber BigNumbers_API operator/ (const BigNumber&, const BigNumber&);
+
     friend BigNumber BigNumbers_API operator% (const BigNumber&, const BigNumber&);
     friend bool BigNumbers_API operator> (const BigNumber&, const BigNumber& );
     friend bool BigNumbers_API operator< (const BigNumber&, const BigNumber& );
     friend bool BigNumbers_API operator== (const BigNumber&, const BigNumber& );
+
+    friend BigNumber BigNumbers_API  operator>> (const BigNumber&, const BigNumber& );
+    friend BigNumber BigNumbers_API  operator>> (const BigNumber&, const int& );
+    friend BigNumber BigNumbers_API  operator<< (const BigNumber&, const BigNumber& );
+    friend BigNumber BigNumbers_API  operator<< (const BigNumber&, const int& );
+
 
     public:
         explicit BigNumber();
