@@ -101,6 +101,159 @@ static PyObject* wrap_divideFromDec(PyObject* self, PyObject *args)
     return Py_BuildValue("s", result.get());
 }
 
+static PyObject* wrap_Mod_Hex(PyObject* self, PyObject *args)
+{
+    char* pARG;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Mod_Hex(pARG,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Inv_mod_Hex(PyObject* self, PyObject *args)
+{
+    char* pARG;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Inv_mod_Hex(pARG,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Add_mod_Hex(PyObject* self, PyObject *args)
+{
+    char* pLHS;
+    char* pRHS;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Add_mod_Hex(pLHS,pRHS,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Sub_mod_Hex(PyObject* self, PyObject *args)
+{
+    char* pLHS;
+    char* pRHS;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Sub_mod_Hex(pLHS,pRHS,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Mul_mod_Hex(PyObject* self, PyObject *args)
+{
+    char* pLHS;
+    char* pRHS;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Mul_mod_Hex(pLHS,pRHS,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Div_mod_Hex(PyObject* self, PyObject *args)
+{
+    char* pLHS;
+    char* pRHS;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Div_mod_Hex(pLHS,pRHS,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Mod_Dec(PyObject* self, PyObject *args)
+{
+    char* pARG;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Mod_Dec(pARG,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Inv_mod_Dec(PyObject* self, PyObject *args)
+{
+    char* pARG;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Inv_mod_Dec(pARG,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Add_mod_Dec(PyObject* self, PyObject *args)
+{
+    char* pLHS;
+    char* pRHS;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Add_mod_Dec(pLHS,pRHS,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Sub_mod_Dec(PyObject* self, PyObject *args)
+{
+    char* pLHS;
+    char* pRHS;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Sub_mod_Dec(pLHS,pRHS,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Mul_mod_Dec(PyObject* self, PyObject *args)
+{
+    char* pLHS;
+    char* pRHS;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Mul_mod_Dec(pLHS,pRHS,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+static PyObject* wrap_Div_mod_Dec(PyObject* self, PyObject *args)
+{
+    char* pLHS;
+    char* pRHS;
+    char* pMOD;
+
+    if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
+        return NULL;
+
+    std::unique_ptr<char> ret = Div_mod_Dec(pLHS,pRHS,pMOD);
+    return Py_BuildValue("s", ret.get());
+}
+
+
 static PyObject* wrap_leftShiftFromHex(PyObject* self, PyObject *args)
 {
     char * argA; 
@@ -329,10 +482,26 @@ static PyObject* wrap_isPrimeFasttestDec(PyObject* self, PyObject *pyargs)
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
-    {"addFromHex",wrap_addFromHex,METH_VARARGS,"Add too big numbers of arbitrary precision in hex"},
-    {"addFromDec",wrap_addFromDec,METH_VARARGS,"Add too big numbers of arbitrary precision in dec"},
-    {"subFromHex",wrap_subFromHex,METH_VARARGS,"Sub too big numbers of arbitrary precision in hex"},
-    {"subFromDec",wrap_subFromDec,METH_VARARGS,"Sub too big numbers of arbitrary precision in dec"},
+    {"addFromHex",wrap_addFromHex,METH_VARARGS,"Add two big numbers of arbitrary precision in hex"},
+    {"addFromDec",wrap_addFromDec,METH_VARARGS,"Add two big numbers of arbitrary precision in dec"},
+    {"subFromHex",wrap_subFromHex,METH_VARARGS,"Sub two big numbers of arbitrary precision in hex"},
+    {"subFromDec",wrap_subFromDec,METH_VARARGS,"Sub two big numbers of arbitrary precision in dec"},
+    {"multiplyFromHex", wrap_multiplyFromHex, METH_VARARGS, "Multiply two big numbers of arbitrary precision in hex"},
+    {"multiplyFromDec", wrap_multiplyFromDec, METH_VARARGS, "Multiply two big numbers of arbitrary precision in dec"},
+    {"divideFromHex", wrap_divideFromHex, METH_VARARGS,"Divide two big numbers of arbitrary precision in hex"},
+    {"divideFromDec", wrap_divideFromDec, METH_VARARGS,"Divide two big numbers of arbitrary precision in dec "},
+    {"Mod_Hex",wrap_Mod_Hex,METH_VARARGS,"Modulo of big numbers of arbitrary precision in hex"},
+    {"Inv_mod_Hex",wrap_Inv_mod_Hex,METH_VARARGS,"Inverse modulo of big numbers of arbitrary precision in hex"},
+    {"Add_mod_Hex",wrap_Add_mod_Hex,METH_VARARGS,"Add modulo of big numbers of arbitrary precision in hex"},
+    {"Sub_mod_Hex",wrap_Sub_mod_Hex,METH_VARARGS,"Sub modulo of big numbers of arbitrary precision in hex"},
+    {"Mul_mod_Hex",wrap_Mul_mod_Hex,METH_VARARGS,"Mul modulo of big numbers of arbitrary precision in hex"},
+    {"Div_mod_Hex",wrap_Div_mod_Hex,METH_VARARGS,"Div modulo of big numbers of arbitrary precision in hex"},
+    {"Mod_Dec",wrap_Mod_Dec,METH_VARARGS,"Modulo of big numbers of arbitrary precision in dec"},
+    {"Inv_mod_Dec",wrap_Inv_mod_Dec,METH_VARARGS,"Inverse modulo of big numbers of arbitrary precision in dec"},
+    {"Add_mod_Dec",wrap_Add_mod_Dec,METH_VARARGS,"Add modulo of big numbers of arbitrary precision in dec"},
+    {"Sub_mod_Dec",wrap_Sub_mod_Dec,METH_VARARGS,"Sub modulo of big numbers of arbitrary precision in dec"},
+    {"Mul_mod_Dec",wrap_Mul_mod_Dec,METH_VARARGS,"Mul modulo of big numbers of arbitrary precision in dec"},
+    {"Div_mod_Dec",wrap_Div_mod_Dec,METH_VARARGS,"Div modulo of big numbers of arbitrary precision in dec"},
     {"GenerateRandHex",wrap_BNRandomHex,METH_VARARGS,"Generate Random Number of arbitrary precision in hex"},
     {"GenerateRandDec",wrap_BNRandomDec,METH_VARARGS,"Generate Random Number of arbitrary precision in dec"},
     {"GenerateRandHexWithSeed", wrap_BNRandomHexWithSeed, METH_VARARGS,"Generate Random Number of arbitrary precision in hex with seed (specified as a string)"},
@@ -341,10 +510,6 @@ static PyMethodDef ModuleMethods[] =
     {"leftShiftFromDec", wrap_leftShiftFromDec, METH_VARARGS, "leftshit bitwise operation that moves bits of right big number to the left by left big number value in dec"},
     {"rightShiftFromHex", wrap_rightShiftFromHex, METH_VARARGS," rightshift bitwise operation that moves bits of right big number to the right by left big number value in hex"},
     {"rightShiftFromDec", wrap_rightShiftFromDec, METH_VARARGS," rightshift bitwise operation that moves bits of right big number to the right by left big number value in dec"},
-    {"multiplyFromHex", wrap_multiplyFromHex, METH_VARARGS, "Multiply two big numbers of arbitrary precision in hex"},
-    {"multiplyFromDec", wrap_multiplyFromDec, METH_VARARGS, "Multiply two big numbers of arbitrary precision in dec"},
-    {"divideFromHex", wrap_divideFromHex, METH_VARARGS,"Divide two big numbers of arbitrary precision in hex"},
-    {"divideFromDec", wrap_divideFromDec, METH_VARARGS,"Divide two big numbers of arbitrary precision in dec "},
     {"GenerateRandPrimeHex",wrap_BNRandomPrimeHex,METH_VARARGS,"Generate Random Prime Number of arbitrary precision in hex"},
     {"GenerateRandPrimeDec",wrap_BNRandomPrimeDec,METH_VARARGS,"Generate Random Prime Number of arbitrary precision in dec"},
     {"GenerateRandPrimeHexWithSeed",wrap_BNRandomPrimeHexWithSeed,METH_VARARGS,"Generate Random Prime Number of arbitrary precision in hex with seed (specified as a string)"},
