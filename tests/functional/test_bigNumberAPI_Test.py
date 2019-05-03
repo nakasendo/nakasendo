@@ -1,5 +1,4 @@
-import pytest
-import bigNumlib
+import PyBigNumbers
 
 def test_AddFromDecWithBigNumApi():
 
@@ -8,19 +7,12 @@ def test_AddFromDecWithBigNumApi():
         for x in addDec_txt:
 
             decNumber = x.split()
-            actual_Value = bigNumlib.addFromDecWithBigNumApi(decNumber[0], decNumber[1])
+            # Add too big numbers of arbitrary precision in dec
+            actual_Value = PyBigNumbers.addFromDec(decNumber[0], decNumber[1])
 
             #Verifying the actual value with expected value
             assert actual_Value == decNumber[2], "Test failed"
-            '''
-            if (actual_Value == decNumber[2]):
-                #print(actual_value)
-                print("Pass")
 
-            else:
-                print(actual_Value)
-                print("False")
-            '''
     addDec_txt.close()
 
 def test_AddFromHexWithBigNumApi():
@@ -30,18 +22,12 @@ def test_AddFromHexWithBigNumApi():
         for x in addHex_txt:
 
             hexNumber = x.split()
-            actual_Value = bigNumlib.addFromHexWithBigNumApi(hexNumber[0], hexNumber[1])
+            # Add too big numbers of arbitrary precision in Hex
+            actual_Value = PyBigNumbers.addFromHex(hexNumber[0], hexNumber[1])
+
             #Verifying the actual value with expected value
             assert actual_Value.upper() == hexNumber[2].upper(), "Test failed"
-            '''
-            if (actual_Value.upper() == hexNumber[2].upper()):
-                # print(actual_value)
-                print("Pass")
 
-            else:
-                print(actual_Value)
-                print("False")
-            '''
     addHex_txt.close()
 
 def test_SubFromDecWithBigNumApi():
@@ -51,19 +37,12 @@ def test_SubFromDecWithBigNumApi():
         for x in subDec_txt:
 
             decNumber = x.split()
-            actual_Value = bigNumlib.subFromDecWithBigNumApi(decNumber[0], decNumber[1])
+            # Subtract too big numbers of arbitrary precision in dec
+            actual_Value = PyBigNumbers.subFromDec(decNumber[0], decNumber[1])
 
             #Verifying the actual value with expected value
             assert actual_Value == decNumber[2], "Test failed"
-            '''
-            if (actual_Value == decNumber[2]):
-                # print(actual_value)
-                print("Pass")
 
-            else:
-                print(actual_Value)
-                print("False")
-            '''
     subDec_txt.close()
 
 def test_SubFromHexWithBigNumApi():
@@ -73,18 +52,12 @@ def test_SubFromHexWithBigNumApi():
         for x in subHex_txt:
 
             hexNumber = x.split()
-            actual_Value = bigNumlib.subFromHexWithBigNumApi(hexNumber[0], hexNumber[1])
+            # Subtract too big numbers of arbitrary precision in hex
+            actual_Value = PyBigNumbers.subFromHex(hexNumber[0], hexNumber[1])
+
             #Verifying the actual value with expected value
             assert actual_Value.upper() == hexNumber[2].upper(), "Test failed"
-            '''
-            if (actual_Value == hexNumber[2]):
-                # print(actual_value)
-                print("Pass")
 
-            else:
-                print(actual_Value)
-                print("False")
-            '''
     subHex_txt.close()
 
 def test_GenRandDec():
@@ -94,20 +67,12 @@ def test_GenRandDec():
         for x in genDec_txt.readlines():
 
             decNumber = int(x)
-            actual_Value = bigNumlib.genRandDec(decNumber)
+            # Generate Random Number of arbitrary precision in dec
+            actual_Value = PyBigNumbers.GenerateRandDec(decNumber)
 
             #Verifying the actual value with expected value
             assert type(actual_Value) is str and actual_Value != "-1", "Test failed"
-            '''
-            if (type(actual_Value) is str and actual_Value != "-1"):
 
-                #print(actual_Value)
-                print("Pass")
-
-            else:
-                print(actual_Value)
-                print("False")
-            '''
     genDec_txt.close()
 
 def test_GenRandHex():
@@ -117,19 +82,12 @@ def test_GenRandHex():
         for x in genHex_txt.readlines():
 
             decNumber = int(x)
-            actual_Value = bigNumlib.genRandHex(decNumber)
+            # Generate Random Number of arbitrary precision in dec
+            actual_Value = PyBigNumbers.GenerateRandHex(decNumber)
 
             #Verifying the actual value with expected value
             assert type(actual_Value) is str and actual_Value != "-1", "Test failed"
-            '''
-            if (type(actual_Value) is str and actual_Value != "-1"):
-                # print(actual_value)
-                print("Pass")
 
-            else:
-                print(actual_Value)
-                print("False")
-            '''
     genHex_txt.close()
 
 def test_genRandDecWithSeed():
@@ -139,19 +97,12 @@ def test_genRandDecWithSeed():
         for x in seedDec_txt:
 
             decNumber = x.split()
-            actual_Value = bigNumlib.genRandDecWithSeed(decNumber[0], int(decNumber[1]))
+            # Generate Random Number of arbitrary precision in Dec with seed (specified as a string)
+            actual_Value = PyBigNumbers.GenerateRandDecWithSeed(decNumber[0], int(decNumber[1]))
 
             #Verifying the actual value with expected value
             assert type(actual_Value) is str and actual_Value != "-1", "Test failed"
-            '''
-            if (type(actual_Value) is str and actual_Value != "-1"):
-                # print(actual_value)
-                print("Pass")
 
-            else:
-                print(actual_Value)
-                print("False")
-            '''
     seedDec_txt.close()
 
 def test_genRandHexWithSeed():
@@ -160,19 +111,11 @@ def test_genRandHexWithSeed():
         for x in seedHex_txt:
 
             decNumber = x.split()
-            actual_Value = bigNumlib.genRandHexWithSeed(decNumber[0], int(decNumber[1]))
+            # Generate Random Number of arbitrary precision in Dec with seed (specified as a string)
+            actual_Value = PyBigNumbers.GenerateRandHexWithSeed(decNumber[0], int(decNumber[1]))
 
             #Verifying the actual value with expected value
             assert type(actual_Value) is str and actual_Value != "-1", "Test failed"
-            '''
-            if (type(actual_Value) is str and actual_Value != "-1"):
-                # print(actual_value)
-                print("Pass")
-
-            else:
-                print(actual_Value)
-                print("False")
-            '''
 
     seedHex_txt.close()
 
