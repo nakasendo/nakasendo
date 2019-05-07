@@ -1,11 +1,9 @@
 #################################################################
-#  Date             24/04/2019                                  #
+#  Date             10/05/2019                                  #
 #  Author           nChain's employees                          #
 #                                                               #
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
-add_subdirectory(AsymKey)
-add_subdirectory(BigNumbers)
-add_subdirectory(MessageHash)
-add_subdirectory(SymEncDec)
+set(_ADDITIONAL_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/PyAsymKey.cpp)
+build_py_module(AsymKey "${_ADDITIONAL_CPP_FILE}")
