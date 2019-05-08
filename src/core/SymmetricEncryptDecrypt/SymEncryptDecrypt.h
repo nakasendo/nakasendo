@@ -3,7 +3,7 @@
 
 
 #include <DYNAMIC_LIBRARY_API.hpp>
-#ifdef EXPORT_MessageHash
+#ifdef EXPORT_SymEncDec
 #    define SymEncDec_API EXPORT_DYNAMIC_LIBRARY
 #else
 #    define SymEncDec_API IMPORT_DYNAMIC_LIBRARY
@@ -13,7 +13,7 @@
 
 class SymEncryptionDecryptImpl;
 
-class SymEncryptDecrypt
+class SymEncDec_API SymEncryptDecrypt
 {
     public:
         explicit SymEncryptDecrypt();

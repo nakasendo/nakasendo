@@ -6,7 +6,7 @@
 
 
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,const std::string& iv){
+SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,const std::string& iv){
 
     std::cout << "Encoding" << std::endl; 
     std::unique_ptr<unsigned char> myKey (new unsigned char [key.length() + 1 ]);
@@ -46,7 +46,7 @@ SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std:
 #endif      
 }
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, const std::string& iv ){ 
+SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, const std::string& iv ){ 
     std::unique_ptr<unsigned char> myKey (new unsigned char [key.length() + 1 ]);
     std::fill_n(myKey.get(), key.length()+1, 0x00);
     int index(0);
@@ -82,7 +82,7 @@ SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std:
 #endif
 }
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& iv){
+SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& iv){
 
     std::unique_ptr<unsigned char> myKey (new unsigned char [key.length() + 1 ]);
     std::fill_n(myKey.get(), key.length()+1, 0x00);

@@ -17,9 +17,9 @@ add_executable(MessageHashClient MessageHashClient.cpp)
 target_link_libraries(MessageHashClient MessageHash)
 set_property(TARGET MessageHashClient PROPERTY FOLDER "tests")
 
-add_executable(SymEncDecTest SymEncDecTest.cpp)
-target_link_libraries(SymEncDecTest SymEncDec)
-set_property(TARGET MessageHashClient PROPERTY FOLDER "tests")
+add_executable(SymEncDecClient SymEncDecTest.cpp)
+target_link_libraries(SymEncDecClient SymEncDec)
+set_property(TARGET SymEncDecClient PROPERTY FOLDER "tests")
 
 
 ## Add unit testing. TODO : remove all the above test cases into subdirectory and make it a real tests (with CHECKING results)
