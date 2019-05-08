@@ -34,6 +34,12 @@ class BigNumbers_API BigNumber
     friend BigNumber BigNumbers_API  operator<< (const BigNumber&, const BigNumber& );
     friend BigNumber BigNumbers_API  operator<< (const BigNumber&, const int& );
 
+    // TODO implement operators with template expression allowing to write BigNumber r = (a+b)%n
+    friend BigNumber BigNumbers_API Inv_mod (const BigNumber&  crARG, const BigNumber&  crMod);
+    friend BigNumber BigNumbers_API Add_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
+    friend BigNumber BigNumbers_API Sub_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
+    friend BigNumber BigNumbers_API Mul_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
+    friend BigNumber BigNumbers_API Div_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
 
     public:
         explicit BigNumber();

@@ -66,7 +66,6 @@ BIGNUM_RETURN_TYPE subFromDec (char * argA, char * argB)
     _HELP_RETURN_DEC(Diff);
 }
 
-
 BIGNUM_RETURN_TYPE multiplyFromDec(const char *argA, const char *argB)
 {
     BigNumber BNValA, BNValB; 
@@ -102,6 +101,124 @@ BIGNUM_RETURN_TYPE divideFromHex(const char *argA, const char *argB)
     BigNumber res = BNValA / BNValB;
     _HELP_RETURN_HEX(res);
 }
+
+
+BIGNUM_RETURN_TYPE Mod_Hex (const char* pARG, const char* pMod)
+{
+    BigNumber BNValArg, BNValMod;
+    BNValArg.FromHex(pARG);
+    BNValMod.FromHex(pMod);
+    BigNumber ret = BNValArg % BNValMod;
+    _HELP_RETURN_HEX(ret);
+}
+
+BIGNUM_RETURN_TYPE Inv_mod_Hex (const char* pARG, const char* pMod)
+{
+    BigNumber BNValArg, BNValMod;
+    BNValArg.FromHex(pARG);
+    BNValMod.FromHex(pMod);
+    BigNumber ret = Inv_mod(BNValArg, BNValMod);
+    _HELP_RETURN_HEX(ret);
+}
+
+BIGNUM_RETURN_TYPE Add_mod_Hex (const char* pLHS, const char* pRHS, const char* pMod)
+{
+    BigNumber BNValLHS, BNValRHS, BNValMOD;
+    BNValLHS.FromHex(pLHS);
+    BNValRHS.FromHex(pRHS);
+    BNValMOD.FromHex(pMod);
+    BigNumber ret = Add_mod(BNValLHS, BNValRHS, BNValMOD);
+    _HELP_RETURN_HEX(ret);
+}
+
+BIGNUM_RETURN_TYPE Sub_mod_Hex (const char* pLHS, const char* pRHS, const char* pMod)
+{
+    BigNumber BNValLHS, BNValRHS, BNValMOD;
+    BNValLHS.FromHex(pLHS);
+    BNValRHS.FromHex(pRHS);
+    BNValMOD.FromHex(pMod);
+    BigNumber ret = Sub_mod(BNValLHS, BNValRHS, BNValMOD);
+    _HELP_RETURN_HEX(ret);
+}
+
+BIGNUM_RETURN_TYPE Mul_mod_Hex (const char* pLHS, const char* pRHS, const char* pMod)
+{
+    BigNumber BNValLHS, BNValRHS, BNValMOD;
+    BNValLHS.FromHex(pLHS);
+    BNValRHS.FromHex(pRHS);
+    BNValMOD.FromHex(pMod);
+    BigNumber ret = Mul_mod(BNValLHS, BNValRHS, BNValMOD);
+    _HELP_RETURN_HEX(ret);
+}
+
+BIGNUM_RETURN_TYPE Div_mod_Hex (const char* pLHS, const char* pRHS, const char* pMod)
+{
+    BigNumber BNValLHS, BNValRHS, BNValMOD;
+    BNValLHS.FromHex(pLHS);
+    BNValRHS.FromHex(pRHS);
+    BNValMOD.FromHex(pMod);
+    BigNumber ret = Div_mod(BNValLHS, BNValRHS, BNValMOD);
+    _HELP_RETURN_HEX(ret);
+}
+
+BIGNUM_RETURN_TYPE Mod_Dec (const char* pARG, const char* pMod)
+{
+    BigNumber BNValArg, BNValMod;
+    BNValArg.FromDec(pARG);
+    BNValMod.FromDec(pMod);
+    BigNumber ret = BNValArg % BNValMod;
+    _HELP_RETURN_DEC(ret);
+}
+
+BIGNUM_RETURN_TYPE Inv_mod_Dec (const char* pARG, const char* pMod)
+{
+    BigNumber BNValArg, BNValMod;
+    BNValArg.FromDec(pARG);
+    BNValMod.FromDec(pMod);
+    BigNumber ret = Inv_mod(BNValArg, BNValMod);
+    _HELP_RETURN_DEC(ret);
+}
+
+BIGNUM_RETURN_TYPE Add_mod_Dec (const char* pLHS, const char* pRHS, const char* pMod)
+{
+    BigNumber BNValLHS, BNValRHS, BNValMOD;
+    BNValLHS.FromDec(pLHS);
+    BNValRHS.FromDec(pRHS);
+    BNValMOD.FromDec(pMod);
+    BigNumber ret = Add_mod(BNValLHS, BNValRHS, BNValMOD);
+    _HELP_RETURN_DEC(ret);
+}
+
+BIGNUM_RETURN_TYPE Sub_mod_Dec (const char* pLHS, const char* pRHS, const char* pMod)
+{
+    BigNumber BNValLHS, BNValRHS, BNValMOD;
+    BNValLHS.FromDec(pLHS);
+    BNValRHS.FromDec(pRHS);
+    BNValMOD.FromDec(pMod);
+    BigNumber ret = Sub_mod(BNValLHS, BNValRHS, BNValMOD);
+    _HELP_RETURN_DEC(ret);
+}
+
+BIGNUM_RETURN_TYPE Mul_mod_Dec (const char* pLHS, const char* pRHS, const char* pMod)
+{
+    BigNumber BNValLHS, BNValRHS, BNValMOD;
+    BNValLHS.FromDec(pLHS);
+    BNValRHS.FromDec(pRHS);
+    BNValMOD.FromDec(pMod);
+    BigNumber ret = Mul_mod(BNValLHS, BNValRHS, BNValMOD);
+    _HELP_RETURN_DEC(ret);
+}
+
+BIGNUM_RETURN_TYPE Div_mod_Dec (const char* pLHS, const char* pRHS, const char* pMod)
+{
+    BigNumber BNValLHS, BNValRHS, BNValMOD;
+    BNValLHS.FromDec(pLHS);
+    BNValRHS.FromDec(pRHS);
+    BNValMOD.FromDec(pMod);
+    BigNumber ret = Div_mod(BNValLHS, BNValRHS, BNValMOD);
+    _HELP_RETURN_DEC(ret);
+}
+
 
 BIGNUM_RETURN_TYPE leftShiftFromDec(const char *argA, const char *argB)
 {
