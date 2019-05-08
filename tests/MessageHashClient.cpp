@@ -5,6 +5,7 @@
 #include <MessageHash/MessageHash.h>
 #include <MessageHash/MessageHashAPI.h>
 #include "MessageHash/Base64EncDec.h"
+#include "MessageHash/Base58EncDec.h"
 
 int main(int argc,char** argv)
 {
@@ -134,6 +135,131 @@ int main(int argc,char** argv)
         std::cout << decoded << std::endl ; 
     }
   
+
+    {
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("the quick brown fox jumped over the lazy dog"); 
+
+        std::string encoded = EncodeBase64(msgVal);
+        std::cout << encoded << std::endl ;
+
+
+        std::cout << "And decoding via the client" << std::endl; 
+        std::string decoded = DecodeBase64(encoded);
+        std::cout << decoded << std::endl ; 
+    }
+
+    {
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("list"); 
+
+        std::string encoded = EncodeBase64(msgVal);
+        std::cout << encoded << std::endl ;
+
+
+        std::cout << "And decoding via the client" << std::endl; 
+        std::string decoded = DecodeBase64(encoded);
+        std::cout << decoded << std::endl ; 
+    }
+
+    {
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("Programmer"); 
+
+        std::string encoded = EncodeBase64(msgVal);
+        std::cout << encoded << std::endl ;
+
+
+        std::cout << "And decoding via the client" << std::endl; 
+        std::string decoded = DecodeBase64(encoded);
+        std::cout << decoded << std::endl ; 
+    }
+
+    std::cout << "And now for base-58" << std::endl ; 
+    {
+        std::string msgVal ("Murphy the monkey and bradley the kinkajou are friends"); 
+        std::unique_ptr<unsigned char> msgPtr ( new unsigned char [msgVal.size() + 1 ]);
+        std::vector<uint8_t> vec; 
+        int index(0);
+        for (std::string::const_iterator iter = msgVal.begin(); iter != msgVal.end(); ++ iter){
+            msgPtr.get()[index] = *iter ; 
+            vec.push_back(*iter);
+            ++ index; 
+        }        
+        Base58EncDec encdec ; 
+        std::string retValPtr =  encdec.encode (vec);
+        std::cout << "Output (base58): " <<  retValPtr << std::endl ;
+        std::cout << "And now decoding..." << std::endl ; 
+        std::vector<uint8_t> decodedVec = encdec.decode(retValPtr);
+        std::string decodedRes;
+        for(std::vector<uint8_t>::const_iterator iter = decodedVec.begin(); iter!=decodedVec.end(); ++iter){
+            decodedRes.push_back(*iter); 
+        }
+        std::cout << decodedRes << std::endl ; 
+    }
+
+    {
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("Programmer"); 
+
+        std::string encoded = EncodeBase58(msgVal);
+        std::cout << encoded << std::endl ;
+
+
+        std::cout << "And decoding via the client" << std::endl; 
+        std::string decoded = DecodeBase58(encoded);
+        std::cout << decoded << std::endl ; 
+    }
+
+    std::cout << "Base-58 encodingcheck" << std::endl ; 
+    {
+        std::string msgVal ("Programmer"); 
+        std::unique_ptr<unsigned char> msgPtr ( new unsigned char [msgVal.size() + 1 ]);
+        std::vector<uint8_t> vec; 
+        int index(0);
+        for (std::string::const_iterator iter = msgVal.begin(); iter != msgVal.end(); ++ iter){
+            msgPtr.get()[index] = *iter ; 
+            vec.push_back(*iter);
+            ++ index; 
+        }        
+        Base58EncDec encdec ; 
+        std::string retValPtr =  encdec.encodeCheck(vec);
+        std::cout << "Encoded Output (base58-checked): " <<  retValPtr << std::endl ;
+
+        std::vector<uint8_t> decodedVec = encdec.decodeCheck(retValPtr);
+        std::string decodedRes;
+        for(std::vector<uint8_t>::const_iterator iter = decodedVec.begin(); iter!=decodedVec.end(); ++iter){
+            decodedRes.push_back(*iter); 
+        }
+        std::cout << "Decoded Output (base58-checked): "<< decodedRes << std::endl ;
+
+
+    }
+
+       std::cout << "Base-58 encodingcheck" << std::endl ; 
+    {
+        std::string msgVal ("The quick brown fox jumped over the lazy dog"); 
+        std::unique_ptr<unsigned char> msgPtr ( new unsigned char [msgVal.size() + 1 ]);
+        std::vector<uint8_t> vec; 
+        int index(0);
+        for (std::string::const_iterator iter = msgVal.begin(); iter != msgVal.end(); ++ iter){
+            msgPtr.get()[index] = *iter ; 
+            vec.push_back(*iter);
+            ++ index; 
+        }        
+        Base58EncDec encdec ; 
+        std::string retValPtr =  encdec.encodeCheck(vec);
+        std::cout << "Encoded Output (base58-checked): " <<  retValPtr << std::endl ;
+
+        std::vector<uint8_t> decodedVec = encdec.decodeCheck(retValPtr);
+        std::string decodedRes;
+        for(std::vector<uint8_t>::const_iterator iter = decodedVec.begin(); iter!=decodedVec.end(); ++iter){
+            decodedRes.push_back(*iter); 
+        }
+        std::cout << "Decoded Output (base58-checked): "<< decodedRes << std::endl ;
+
+
+    }
     return 0 ; 
     
 }

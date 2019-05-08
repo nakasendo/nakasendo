@@ -21,6 +21,10 @@ void MessageHash::Hash(const std::string& msg, const std::string& hashfunc)
     m_pImpl->Hash (msg, hashfunc);
 }
 
+std::unique_ptr<unsigned char> MessageHash::Value(){
+    return m_pImpl->HashVal();
+}
+
 std::string MessageHash::HashHex ()
 {
     return (m_pImpl->hashValHex());

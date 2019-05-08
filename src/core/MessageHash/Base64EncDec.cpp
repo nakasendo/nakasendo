@@ -1,5 +1,5 @@
-#include "Base64EncDec.h"
-#include "Base64EncDecImpl.h"
+#include "MessageHash/Base64EncDec.h"
+#include "MessageHash/Base64EncDecImpl.h"
 
 Base64EncDec::Base64EncDec() : m_pImpl(new Base64EncDecImpl){
     return ; 
