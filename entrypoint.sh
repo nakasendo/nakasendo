@@ -1,8 +1,7 @@
 #!/bin/sh
-
-cd src/core/MessageHash
-make all
-python MessageHashAPISetup.py build
-cd ../BigNumbers
-make all
-python BigNumSetup.py build
+ls -alrt
+pwd
+mkdir -p build
+cd build
+cmake ..
+make

@@ -1,5 +1,4 @@
 pipeline {
-
     agent none
 
         triggers {
@@ -16,8 +15,23 @@ pipeline {
 
             steps {
                 sh '/entrypoint.sh'
-                archiveArtifacts '**/*.so'
+                    archiveArtifacts '**/*.so'
             }
+        }
+    }
+
+    post {
+        success {
+                script: emailext (
+                body: '$DEFAULT_CONTENT', 
+                to: '$DEFAULT_RECIPIENTS',  
+                subject: '$DEFAULT_SUBJECT')
+        }
+        failure {
+                script: emailext (
+                body: '$DEFAULT_CONTENT', 
+                to: '$DEFAULT_RECIPIENTS',  
+                subject: '$DEFAULT_SUBJECT')
         }
     }
 }
