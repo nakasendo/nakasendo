@@ -346,6 +346,46 @@ BigNumber operator<< (const BigNumber& obj, const int& val)
 }
 
 
+BigNumber Inv_mod (const BigNumber& crARG, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Inv_mod(crARG.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
+
+BigNumber Add_mod (const BigNumber& crLHS, const BigNumber& crRHS, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Add_mod(crLHS.pImpl(), crRHS.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
+
+BigNumber Sub_mod (const BigNumber& crLHS, const BigNumber& crRHS, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Sub_mod(crLHS.pImpl(), crRHS.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
+
+BigNumber Mul_mod (const BigNumber& crLHS, const BigNumber& crRHS, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Mul_mod(crLHS.pImpl(), crRHS.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
+
+BigNumber Div_mod (const BigNumber& crLHS, const BigNumber& crRHS, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Div_mod(crLHS.pImpl(), crRHS.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
+
 // free functions
 BigNumber GenerateRand (const int& size )
 {
