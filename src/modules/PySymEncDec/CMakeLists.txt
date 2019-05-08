@@ -5,6 +5,5 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
-add_subdirectory(BigNumbers)
-add_subdirectory(MessageHash)
-add_subdirectory(SymmetricEncryptDecrypt)
+set(_ADDITIONAL_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/PySymEncDec.cpp)
+build_py_module(SymEncDec "${_ADDITIONAL_CPP_FILE}")

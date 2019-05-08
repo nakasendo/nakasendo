@@ -8,6 +8,7 @@
 include(PyTools.cmake)
 add_subdirectory(PyBigNumbers)
 add_subdirectory(PyMessageHash)
+add_subdirectory(PySymEncDec)
 
 ## build wasm modules
 ## See ${CMAKE_CURRENT_SOURCE_DIR}/WasmTools.cmake header to see how to install/setup for WASM

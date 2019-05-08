@@ -1,9 +1,3 @@
-#if 0 
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,7 +5,7 @@
 #include <string>
 
 
-#include "Base64EncDecImpl.h"
+#include "MessageHash/Base64EncDecImpl.h"
 
 
 namespace Base64{
@@ -72,7 +66,7 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
     }
     else{
         *p++ = Base64::b64table[input[i++] >> 2];
-        *p++ = Base64::b64table[((input[i-1] >> 4) | (input[i] >> 4)) & 0x3f];
+        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4)) & 0x3f];
         if(mod == 1){
             *p++ = '=';
             *p++ = '=';
