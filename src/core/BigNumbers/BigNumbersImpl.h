@@ -12,12 +12,17 @@ using CTX_ptr = std::unique_ptr<BN_CTX, decltype(&::BN_CTX_free)>;
 
 class BigNumberImpl
 {
-    friend std::unique_ptr<BigNumberImpl> Add (const BigNumberImpl*  obj1, const BigNumberImpl*  obj2);  
+    friend std::unique_ptr<BigNumberImpl> Add (const BigNumberImpl*  obj1, const BigNumberImpl*  obj2);
     friend std::unique_ptr<BigNumberImpl> Sub (const BigNumberImpl* obj1, const BigNumberImpl* obj2);
-    friend std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberImpl* obj2); 
+    friend std::unique_ptr<BigNumberImpl> Mul (const BigNumberImpl* obj1, const BigNumberImpl* obj2);
+    friend std::unique_ptr<BigNumberImpl> Div (const BigNumberImpl* obj1, const BigNumberImpl* obj2);
 
-    friend std::unique_ptr<BigNumberImpl> Mul (const BigNumberImpl* obj1, const BigNumberImpl* obj2); 
-    friend std::unique_ptr<BigNumberImpl> Div (const BigNumberImpl* obj1, const BigNumberImpl* obj2); 
+    friend std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberImpl* obj2);
+    friend std::unique_ptr<BigNumberImpl> Inv_mod (const BigNumberImpl* pARG, const BigNumberImpl* pMOD);
+    friend std::unique_ptr<BigNumberImpl> Add_mod (const BigNumberImpl* pLHS, const BigNumberImpl* pRHS, const BigNumberImpl* pMOD);
+    friend std::unique_ptr<BigNumberImpl> Sub_mod (const BigNumberImpl* pLHS, const BigNumberImpl* pRHS, const BigNumberImpl* pMOD);
+    friend std::unique_ptr<BigNumberImpl> Mul_mod (const BigNumberImpl* pLHS, const BigNumberImpl* pRHS, const BigNumberImpl* pMOD);
+    friend std::unique_ptr<BigNumberImpl> Div_mod (const BigNumberImpl* pLHS, const BigNumberImpl* pRHS, const BigNumberImpl* pMOD);
 
     friend std::unique_ptr<BigNumberImpl>  LShift(const BigNumberImpl* obj, const int& val);
     friend std::unique_ptr<BigNumberImpl> RShift(const BigNumberImpl* obj, const int& val);
@@ -47,7 +52,6 @@ class BigNumberImpl
             return *this;
         }
 
-
         void One(); 
         void Zero(); 
         void Negative() ; 
@@ -66,6 +70,11 @@ class BigNumberImpl
         void generate (const int& nsize); 
         void generateNeg (const int& nsize);
         void generateRange (const BigNumberImpl*);
+
+        void generatePrime(const int& nsize);
+
+        bool isPrime() const;
+        bool isPrimeFasttest() const;
 
         void seedRNG (const std::string& );
 

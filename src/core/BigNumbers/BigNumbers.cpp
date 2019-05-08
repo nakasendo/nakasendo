@@ -1,5 +1,5 @@
-#include "BigNumbers.h"
-#include "BigNumbersImpl.h"
+#include <BigNumbers/BigNumbers.h>
+#include <BigNumbers/BigNumbersImpl.h>
 
 #include <iostream>
 #include <sstream>
@@ -33,6 +33,7 @@ BigNumber& BigNumber::operator=(const BigNumber& obj)
 void BigNumber::One(){
     this->pImpl()->One () ; 
 }
+
 void BigNumber::Zero(){
     this->pImpl()->Zero();
 }   
@@ -67,7 +68,6 @@ BigNumber& BigNumber::operator-- ()
     return (*this);
 }
 
-
 std::string BigNumber::ToHex () const {
     return (this->pImpl()->ToHex ());
 }
@@ -89,6 +89,7 @@ std::string BigNumber::generateRandHex(const int& nsize){
     this->pImpl()->generate (nsize) ; 
     return (this->pImpl()->ToHex ());
 } 
+
 std::string BigNumber::generateRandDec(const int& nsize){
     this->pImpl()->generate(nsize); 
     return (this->pImpl()->ToDec());
@@ -123,25 +124,63 @@ std::string BigNumber::generateRandDecWithSeed(const std::string& seed, const in
     this->pImpl()->seedRNG(seed);    
     return generateRandDec (nsize);
 }
+
 std::string BigNumber::generateNegRandHexWithSeed (const std::string& seed, const int& nsize){
     this->pImpl()->seedRNG(seed);    
     return generateNegRandHex(nsize);
 }
+
 std::string BigNumber::generateNegRandDecWithSeed (const std::string& seed, const int& nsize){
     this->pImpl()->seedRNG(seed);
     return generateNegRandDec(nsize);
 }
+
 std::string BigNumber::generateRangRandHexWithSeed (const std::string& seed, const BigNumber& upperLimit){
     this->pImpl()->seedRNG(seed);
     generateRandRange(upperLimit);
     return ToHex(); 
 }
+
 std::string BigNumber::generateRangRandDecWithSeed (const std::string& seed, const BigNumber& upperLimit){
     this->pImpl()->seedRNG(seed);
     generateRandRange(upperLimit);
     return ToHex(); 
 }
 
+// Generate random prime & return string Representation
+std::string BigNumber::generateRandPrimeHex(const int& nsize)
+{
+    this->pImpl()->generatePrime(nsize);
+    return (this->pImpl()->ToHex());
+}
+
+std::string BigNumber::generateRandPrimeDec(const int& nsize)
+{
+    this->pImpl()->generatePrime(nsize);
+    return (this->pImpl()->ToDec());
+}
+
+std::string BigNumber::generateRandPrimeHexWithSeed(const std::string& seed, const int& nsize)
+{
+    this->pImpl()->seedRNG(seed);
+    return generateRandPrimeHex(nsize);
+}
+
+std::string BigNumber::generateRandPrimeDecWithSeed(const std::string& seed, const int& nsize)
+{
+    this->pImpl()->seedRNG(seed);
+    return generateRandPrimeDec(nsize);
+}
+
+bool BigNumber::isPrime() const
+{
+    return this->pImpl()->isPrime();
+}
+
+bool BigNumber::isPrimeFasttest() const
+{
+    return this->pImpl()->isPrimeFasttest();
+}
 
 // friend free functions
 BigNumber operator+ (const BigNumber& obj1, const BigNumber& obj2) 
@@ -164,7 +203,6 @@ BigNumber operator+ ( const BigNumber& obj1, const int& nVal)
     res.m_pImpl.reset (new BigNumberImpl(*resImpl));
     return res;
 }
-
 
 BigNumber operator- (const BigNumber& obj1, const BigNumber& obj2)
 {
@@ -308,7 +346,45 @@ BigNumber operator<< (const BigNumber& obj, const int& val)
 }
 
 
+BigNumber Inv_mod (const BigNumber& crARG, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Inv_mod(crARG.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
 
+BigNumber Add_mod (const BigNumber& crLHS, const BigNumber& crRHS, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Add_mod(crLHS.pImpl(), crRHS.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
+
+BigNumber Sub_mod (const BigNumber& crLHS, const BigNumber& crRHS, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Sub_mod(crLHS.pImpl(), crRHS.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
+
+BigNumber Mul_mod (const BigNumber& crLHS, const BigNumber& crRHS, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Mul_mod(crLHS.pImpl(), crRHS.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
+
+BigNumber Div_mod (const BigNumber& crLHS, const BigNumber& crRHS, const BigNumber& crMOD)
+{
+    std::unique_ptr<BigNumberImpl> impl_ret = Div_mod(crLHS.pImpl(), crRHS.pImpl(),crMOD.pImpl());
+    BigNumber res;
+    res.m_pImpl.reset (new BigNumberImpl (*impl_ret));
+    return res;
+}
 
 // free functions
 BigNumber GenerateRand (const int& size )
@@ -346,11 +422,14 @@ BigNumber GenerateRandRange(const BigNumber& min, const BigNumber& max ,const in
     BigNumber RandomRange;     
     RandomRange.generateRandRange(Range);
     BigNumber Val = min + (RandomRange % Range);
-    if ( Val < min || Val > max)
-    {
-        std::cout << "RANGE VIOLATION" << "MIN VALUE " << min.ToDec() << "\t" << "MAX VALUE " << max.ToDec ()<< std::endl ; 
-        return BigNumber (); 
-    }
+    if (Val < min || Val > max)
+        throw std::out_of_range("RANGE VIOLATION MIN VALUE" + min.ToDec() + "\t MAX VALUE " + max.ToDec());
     return Val;
 }
 
+BigNumber GenerateRandPrime(const int& size)
+{
+    BigNumber res;
+    res.generateRandPrimeHex(size);
+    return res;
+}
