@@ -51,7 +51,6 @@ static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
     char * argA;
     if (!PyArg_ParseTuple(args, "s", &argA))
         return NULL;
-
     std::string result = EncodeBase64(argA);
     return Py_BuildValue("s",result.c_str());
 }
@@ -65,6 +64,39 @@ static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
     return Py_BuildValue("s",result.c_str());
 }
 
+static PyObject* wrap_EncodeBase58(PyObject* self, PyObject *args){
+    char * argA;
+    if (!PyArg_ParseTuple(args, "s", &argA))
+        return NULL;
+    std::string result = EncodeBase58(argA);
+    return Py_BuildValue("s",result.c_str());
+}
+
+static PyObject* wrap_DecodeBase58(PyObject* self, PyObject *args){
+    char * argA;
+    if (!PyArg_ParseTuple(args, "s", &argA))
+        return NULL;
+
+    std::string result = DecodeBase58(argA);
+    return Py_BuildValue("s",result.c_str());
+}
+
+static PyObject* wrap_EncodeBase58Checked(PyObject* self, PyObject *args){
+    char * argA;
+    if (!PyArg_ParseTuple(args, "s", &argA))
+        return NULL;
+    std::string result = EncodeBase58Checked(argA);
+    return Py_BuildValue("s",result.c_str());
+}
+
+static PyObject* wrap_DecodeBase58Checked(PyObject* self, PyObject *args){
+    char * argA;
+    if (!PyArg_ParseTuple(args, "s", &argA))
+        return NULL;
+
+    std::string result = DecodeBase58Checked(argA);
+    return Py_BuildValue("s",result.c_str());
+}
 
 static PyMethodDef ModuleMethods[] =
 {
@@ -73,6 +105,10 @@ static PyMethodDef ModuleMethods[] =
     {"ListHash",wrap_ListHash, METH_VARARGS,"Return a list of available hash functions"},
     {"EncodeBase64",wrap_EncodeBase64,METH_VARARGS,"Encode given string in base64"},
     {"DecodeBase64",wrap_DecodeBase64,METH_VARARGS,"Decode given string in base64"},
+    {"EncodeBase58",wrap_EncodeBase58,METH_VARARGS,"Encode given string in base58"},
+    {"DecodeBase58",wrap_DecodeBase58,METH_VARARGS,"Decode given string in base58"},
+    {"EncodeBase58Checked",wrap_EncodeBase58Checked,METH_VARARGS,"Encode given string in base58"},
+    {"DecodeBase58Checked",wrap_DecodeBase58Checked,METH_VARARGS,"Decode given string in base58"},
     {NULL, NULL, 0, NULL},
 };
  
