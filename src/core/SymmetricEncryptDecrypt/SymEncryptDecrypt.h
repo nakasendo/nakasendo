@@ -10,6 +10,7 @@
 #endif
 
 #include <memory>
+#include <string>
 
 class SymEncryptionDecryptImpl;
 
@@ -45,6 +46,6 @@ class SymEncDec_API SymEncryptDecrypt
 };
 
 // free function interface
-std::unique_ptr<unsigned char> KeyGen(std::unique_ptr<unsigned char>&, const unsigned int&, const std::unique_ptr<unsigned char>& , const uint64_t& , const unsigned int& , uint64_t&) ; 
+std::unique_ptr<unsigned char> SymEncDec_API KeyGen(std::unique_ptr<unsigned char>&, const unsigned int&, const std::unique_ptr<unsigned char>& , const uint64_t& , const unsigned int& , uint64_t&) ;
 
 #endif //ifndef __SYMENCRYPTDECRYPT_H__

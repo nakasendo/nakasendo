@@ -29,6 +29,7 @@ endif()
 target_link_libraries(SymEncDec OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(SymEncDec PRIVATE EXPORT_SymEncDec)
 set_property(TARGET SymEncDec PROPERTY FOLDER "core")
+sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST SymEncDec)
 
 install(FILES ${SYM_ENC_DEC_HPP_FILES_PUBLIC} DESTINATION "include/SymmetricEncryptDecrypt" COMPONENT CPP)
 install(TARGETS SymEncDec DESTINATION "lib" COMPONENT CPP)

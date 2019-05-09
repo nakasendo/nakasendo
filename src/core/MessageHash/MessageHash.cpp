@@ -1,5 +1,5 @@
-#include "MessageHash.h"
-#include "MessageHashImpl.h"
+#include <MessageHash/MessageHash.h>
+#include <MessageHash/MessageHashImpl.h>
 
 MessageHash::MessageHash(): m_pImpl(new MessageHashImpl)
 {
