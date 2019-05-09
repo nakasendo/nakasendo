@@ -7,4 +7,4 @@
 
 add_subdirectory(BigNumbers)
 add_subdirectory(MessageHash)
-add_subdirectory(SymmetricEncryptDecrypt)
+add_subdirectory(SymEncDec)

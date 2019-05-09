@@ -1,6 +1,8 @@
 #ifndef __BASE58ENCDEC_H__
 #define __BASE58ENCDEC_H__
 
+#include <MessageHash/MessageHash.h>
+
 #include <memory>
 #include <vector>
 
@@ -9,7 +11,7 @@ class Base58EncDecImpl;
 using messagePtr = std::unique_ptr<unsigned char> ;
 using messageVec = std::vector<uint8_t> ; 
 
-class Base58EncDec
+class MessageHash_API Base58EncDec
 {
     public:
         explicit Base58EncDec();

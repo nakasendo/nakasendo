@@ -3,8 +3,8 @@
 #include <string>
 
 #include <sstream>
-#include "SymmetricEncryptDecrypt/SymEncryptDecrypt.h"
-#include "SymmetricEncryptDecrypt/SymEncryptDecryptAPI.h"
+#include <SymEncDec/SymEncDec.h>
+#include <SymEncDec/SymEncDecAPI.h>
 
 int main (int argc, char** argv)
 {
@@ -40,7 +40,7 @@ int main (int argc, char** argv)
     {
  #if 1
       std::cout << "Set the paramerters:" << std::endl; 
-      SymEncryptDecrypt symencdec;
+      SymEncDec symencdec;
       if (mykey != nullptr){
           for ( int i = 0; i < 32; ++i){
             //p += snprintf(p, 3, "%02x", *h);
