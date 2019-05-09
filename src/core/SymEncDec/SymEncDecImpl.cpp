@@ -11,27 +11,27 @@
 #include <openssl/sha.h>
 #include <openssl/rand.h>
 
-#include "SymEncryptDecryptImpl.h"
+#include <SymEncDec/SymEncDecImpl.h>
 
 using EVP_CIPHER_CTX_free_ptr = std::unique_ptr<EVP_CIPHER_CTX, decltype(&::EVP_CIPHER_CTX_free)>;
 using HMAC_ptr = std::unique_ptr<HMAC_CTX , decltype(&::HMAC_CTX_free)> ; 
 
-SymEncryptionDecryptImpl::~SymEncryptionDecryptImpl(){
-  OPENSSL_cleanse(m_key.get(), m_KeySize);
-  OPENSSL_cleanse(m_iv.get(), m_BlockSize);
+SymEncDecImpl::~SymEncDecImpl(){
+    OPENSSL_cleanse(m_key.get(), m_KeySize);
+    OPENSSL_cleanse(m_iv.get(), m_BlockSize);
 }
 
 
 
-void SymEncryptionDecryptImpl::SetKeySize (const int& size){
-  m_KeySize = size ; 
+void SymEncDecImpl::SetKeySize (const int& size){
+    m_KeySize = size ; 
 }
 
-void SymEncryptionDecryptImpl::SetBlockSize (const int& size){
-  m_BlockSize = size ; 
+void SymEncDecImpl::SetBlockSize (const int& size){
+    m_BlockSize = size ; 
 }
 
-void SymEncryptionDecryptImpl::SetParams(const std::unique_ptr<unsigned char>& key, const std::unique_ptr<unsigned char>& iv, const unsigned int& keysize, const unsigned int& blocksize){
+void SymEncDecImpl::SetParams(const std::unique_ptr<unsigned char>& key, const std::unique_ptr<unsigned char>& iv, const unsigned int& keysize, const unsigned int& blocksize){
 
 
 
@@ -53,7 +53,7 @@ void SymEncryptionDecryptImpl::SetParams(const std::unique_ptr<unsigned char>& k
   }
 }
 
-void SymEncryptionDecryptImpl::GetParams(std::unique_ptr<unsigned char>& key, std::unique_ptr<unsigned char>& iv, unsigned int& keysize, unsigned int& blocksize)
+void SymEncDecImpl::GetParams(std::unique_ptr<unsigned char>& key, std::unique_ptr<unsigned char>& iv, unsigned int& keysize, unsigned int& blocksize)
 {
   // reset to the correct size
   key.reset (new unsigned char[m_KeySize] );
@@ -71,7 +71,7 @@ void SymEncryptionDecryptImpl::GetParams(std::unique_ptr<unsigned char>& key, st
   return ; 
 }
 
-int  SymEncryptionDecryptImpl::aes_encrypt (const std::string& pText, std::unique_ptr<unsigned char>& ctext){
+int  SymEncDecImpl::aes_encrypt (const std::string& pText, std::unique_ptr<unsigned char>& ctext){
   EVP_CIPHER_CTX_free_ptr ctx(EVP_CIPHER_CTX_new(), ::EVP_CIPHER_CTX_free);
   int rc = EVP_EncryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, m_key.get(), m_iv.get());
   if (rc != 1)
@@ -102,7 +102,7 @@ int  SymEncryptionDecryptImpl::aes_encrypt (const std::string& pText, std::uniqu
   return cypherlen; 
 }
 
-int SymEncryptionDecryptImpl::aes_decrypt( const std::string& ctext, std::unique_ptr<unsigned char>& text ){
+int SymEncDecImpl::aes_decrypt( const std::string& ctext, std::unique_ptr<unsigned char>& text ){
   EVP_CIPHER_CTX_free_ptr ctx(EVP_CIPHER_CTX_new(), ::EVP_CIPHER_CTX_free);
   int rc = EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, m_key.get(), m_iv.get());
   if (rc != 1)
@@ -139,7 +139,7 @@ int SymEncryptionDecryptImpl::aes_decrypt( const std::string& ctext, std::unique
 
 
 // Private parameter-generatiom
-void SymEncryptionDecryptImpl::generateParams (){
+void SymEncDecImpl::generateParams (){
   int rc = RAND_bytes(m_key.get(), m_KeySize);
   if (rc != 1)
       throw std::runtime_error("RAND_bytes key failed");
@@ -182,7 +182,7 @@ void pkc5InitialPRF(unsigned char *p, size_t plen, unsigned char *salt,size_t sa
   size_t swapped_i;
 
   HMAC_ptr ctx ( HMAC_CTX_new(),::HMAC_CTX_free); 
-  HMAC_Init_ex(ctx.get(), p, plen, EVP_sha256(), 0);                                  
+  HMAC_Init_ex(ctx.get(), p, plen, EVP_sha256(), 0);
   HMAC_Update(ctx.get(),salt,saltlen) ; 
   swapped_i = htonl(i); 
   HMAC_Update(ctx.get(), (unsigned char *)&swapped_i, 4); 
@@ -191,7 +191,7 @@ void pkc5InitialPRF(unsigned char *p, size_t plen, unsigned char *salt,size_t sa
 
 void pkc5SubsequentPRF(unsigned char *p, size_t plen, unsigned char *v,size_t vlen, unsigned char *out, size_t *outlen){
   HMAC_ptr ctx ( HMAC_CTX_new(),::HMAC_CTX_free); 
-  HMAC_Init_ex(ctx.get(), p, plen, EVP_sha256(), 0);                                  
+  HMAC_Init_ex(ctx.get(), p, plen, EVP_sha256(), 0);
   HMAC_Update(ctx.get(),v,vlen) ; 
   HMAC_Final(ctx.get(), out, (unsigned int *)outlen); 
 }

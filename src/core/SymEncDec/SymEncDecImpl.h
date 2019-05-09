@@ -1,5 +1,5 @@
-#ifndef __SYMENCRYPTDECRYPTIMPL_H__
-#define __SYMENCRYPTDECRYPTIMPL_H__
+#ifndef SYM_ENC_DEC_IMPL_H
+#define SYM_ENC_DEC_IMPL_H
 
 #include <memory>
 #include <iostream>
@@ -7,11 +7,11 @@
 
 
 
-class SymEncryptionDecryptImpl
+class SymEncDecImpl
 {
     public:
 
-        SymEncryptionDecryptImpl() : m_KeySize(32), m_BlockSize(16)
+        SymEncDecImpl() : m_KeySize(32), m_BlockSize(16)
         { 
             m_key.reset (new unsigned char[m_KeySize]);
             m_iv.reset (new unsigned char[m_BlockSize]);
@@ -19,7 +19,7 @@ class SymEncryptionDecryptImpl
             return ;
         }
 
-        SymEncryptionDecryptImpl(const int& keysize, const int& blocksize) : m_KeySize(keysize), m_BlockSize(blocksize)
+        SymEncDecImpl(const int& keysize, const int& blocksize) : m_KeySize(keysize), m_BlockSize(blocksize)
         { 
             m_key.reset (new unsigned char[m_KeySize]);
             m_iv.reset (new unsigned char[m_BlockSize]);
@@ -27,11 +27,11 @@ class SymEncryptionDecryptImpl
             return ;
         }
 
-        ~SymEncryptionDecryptImpl();
+        ~SymEncDecImpl();
 
 
  //
-        SymEncryptionDecryptImpl (const SymEncryptionDecryptImpl& obj) 
+        SymEncDecImpl (const SymEncDecImpl& obj) 
             : m_KeySize(obj.m_KeySize), m_BlockSize(obj.m_BlockSize)
         { 
             m_key.reset (new unsigned char(*obj.m_key)); 
@@ -39,7 +39,7 @@ class SymEncryptionDecryptImpl
         }
         
 
-        SymEncryptionDecryptImpl& operator= (const SymEncryptionDecryptImpl& obj)
+        SymEncDecImpl& operator= (const SymEncDecImpl& obj)
         { 
             if (this != &obj){
                 m_KeySize = obj.m_KeySize; 
@@ -51,8 +51,8 @@ class SymEncryptionDecryptImpl
         }
 
         //moveable
-        SymEncryptionDecryptImpl (SymEncryptionDecryptImpl&& obj) noexcept = default;
-        SymEncryptionDecryptImpl& operator=(SymEncryptionDecryptImpl&& obj) noexcept = default;
+        SymEncDecImpl (SymEncDecImpl&& obj) noexcept = default;
+        SymEncDecImpl& operator=(SymEncDecImpl&& obj) noexcept = default;
 
         void SetKeySize(const int&) ; 
         void SetBlockSize(const int&);
@@ -62,8 +62,7 @@ class SymEncryptionDecryptImpl
 
         int aes_encrypt (const std::string&, std::unique_ptr<unsigned char>& ) ; 
         int aes_decrypt (const std::string&, std::unique_ptr<unsigned char>&) ; 
-        
-        
+
 
     private:
         unsigned int m_KeySize ; 
@@ -82,4 +81,4 @@ void pkc5InitialPRF(unsigned char *p, size_t plen, unsigned char *salt,size_t sa
 void pkc5SubsequentPRF(unsigned char *p, size_t plen, unsigned char *v,size_t vlen, unsigned char *out, size_t *outlen);
 void pkcs5F(unsigned char *p, size_t plen, unsigned char *salt, size_t saltlen, size_t ic, size_t bix, unsigned char * out);
 
-#endif //ifndef __SYMENCRYPTDECRYPT_H__
+#endif /* SYM_ENC_DEC_IMPL_H */

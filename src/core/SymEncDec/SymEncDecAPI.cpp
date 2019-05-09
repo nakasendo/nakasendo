@@ -1,10 +1,9 @@
-#include "SymmetricEncryptDecrypt/SymEncryptDecryptAPI.h"
+#include <SymEncDec/SymEncDecAPI.h>
 #include <MessageHash/MessageHashAPI.h>
+
 #include <string.h>
 #include <memory>
 #include <iostream>
-
-
 
 SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,const std::string& iv){
 
@@ -29,7 +28,7 @@ SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,con
     std::unique_ptr<unsigned char> encodingKey = KeyGen(myKey,key.size(),mySalt, iv.length(),iterCount, keylen);    
 
 
-    SymEncryptDecrypt encdec;
+    SymEncDec encdec;
    
     encdec.SetParams(encodingKey, mySalt, keylen,16);
     std::unique_ptr<unsigned char> encMsg;
@@ -43,7 +42,7 @@ SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,con
     return retval.c_str(); 
 #else
     return retval;
-#endif      
+#endif
 }
 
 SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, const std::string& iv ){ 
@@ -66,7 +65,7 @@ SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, co
     int iterCount(10000);
     std::unique_ptr<unsigned char> encodingKey = KeyGen(myKey,key.size(),mySalt, iv.length(),iterCount, keylen); 
 
-    SymEncryptDecrypt encdec;
+    SymEncDec encdec;
     encdec.SetParams(encodingKey, mySalt, keylen, 16);
     std::unique_ptr<unsigned char> decMsg;
     int decMsgLen = encdec.aes_decrypt(msg, decMsg);
@@ -114,5 +113,4 @@ SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& 
 #else
     return retval;
 #endif
-
 }

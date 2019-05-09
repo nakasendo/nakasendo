@@ -5,19 +5,19 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 set(SYM_ENC_DEC_HPP_FILES_PUBLIC # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncryptDecrypt.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncryptDecryptAPI.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDec.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecAPI.h
 )
 set(SYM_ENC_DEC__HPP_FILES_PRIVATE # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncryptDecryptImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecImpl.h
 )
 
 set(SYM_ENC_DEC_HPP_FILES ${MESSAGE_HASH_HPP_FILES_PUBLIC} ${MESSAGE_HASH_HPP_FILES_PRIVATE})
 
 set(SYM_ENC_DEC_CPP_FILES # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncryptDecrypt.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncryptDecryptAPI.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncryptDecryptImpl.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDec.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecAPI.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecImpl.cpp
 )
 set(SymEncDec_CPP_FILES "${SYM_ENC_DEC_CPP_FILES}" CACHE INTERNAL "Cache list of Sym Encrypt Decrypt cpp files")
 
