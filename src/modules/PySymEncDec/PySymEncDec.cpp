@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <string>
 #include <iostream>
-#include "SymmetricEncryptDecrypt/SymEncryptDecryptAPI.h"
+#include <SymEncDec/SymEncDecAPI.h>
 #include <MessageHash/MessageHashAPI.h>
 
 struct module_state {
