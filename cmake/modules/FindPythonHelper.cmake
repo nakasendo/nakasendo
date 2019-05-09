@@ -17,7 +17,7 @@ set(FindPythonHelper_Include TRUE)
 #### Help to find Python. It will prefer python3
 macro(HelpFindPython)########################################################################################
   # find python interpreter and python dev libs
-  find_package(Python COMPONENTS Interpreter Development)
+  find_package(Python3 COMPONENTS Interpreter Development)
 endmacro()
 
 function(sdkPrintPythonInfo)
