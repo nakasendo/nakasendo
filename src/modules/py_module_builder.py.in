@@ -34,9 +34,11 @@ else:
 print('Argument to setup Python ${PYMODULE_NAME} module :')
 sys.argv = [sys.argv[0]]
 sys.argv.append('build')
-sys.argv.append(r'--build-base=${PYMODULE_BUILD_DIR}') # NEED to be native path, populated by cmake
+sys.argv.append(r'--build-base=${PYMODULE_BUILD_DIR}')          # NEED to be native path, populated by cmake
 sys.argv.append('install')
-sys.argv.append(r'--prefix=${PYMODULE_INSTALL_DIR}')   # NEED to be native path, populated by cmake
+sys.argv.append(r'--install-lib=${PYMODULE_INSTALL_DIR}')       # NEED to be native path, populated by cmake
+sys.argv.append(r'--install-purelib=${PYMODULE_INSTALL_DIR}')   # NEED to be native path, populated by cmake
+sys.argv.append(r'--install-platlib=${PYMODULE_INSTALL_DIR}')   # NEED to be native path, populated by cmake
 for eachArg in sys.argv:
     print('setup ${PYMODULE_NAME} : ' + eachArg)
 
