@@ -31,5 +31,5 @@ target_compile_definitions(SymEncDec PRIVATE EXPORT_SymEncDec)
 set_property(TARGET SymEncDec PROPERTY FOLDER "core")
 sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST SymEncDec)
 
-install(FILES ${SYM_ENC_DEC_HPP_FILES_PUBLIC} DESTINATION "include/SymmetricEncryptDecrypt" COMPONENT CPP)
+install(FILES ${SYM_ENC_DEC_HPP_FILES_PUBLIC} DESTINATION "include/SymEncDec" COMPONENT CPP)
 install(TARGETS SymEncDec DESTINATION "lib" COMPONENT CPP)

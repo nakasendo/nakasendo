@@ -22,12 +22,17 @@ AsymKey::AsymKey() : m_pImpl(new AsymKeyImpl())
 {
 }
 
-std::string AsymKey::getPublicKey()  const
+std::string AsymKey::getPublicKeyPEM()  const
 {
-    return m_pImpl->getPublicKeyStr();
+    return m_pImpl->getPublicKeyPEMStr();
 }
 
-std::string AsymKey::getPrivateKey() const
+std::string AsymKey::getPrivateKeyPEM() const
 {
-    return m_pImpl->getPrivateKeyStr();
+    return m_pImpl->getPrivateKeyPEMStr();
+}
+
+void AsymKey::setPEMPrivateKey(const std::string& crPEMKey)
+{
+    m_pImpl->setPEMPrivateKey(crPEMKey);
 }
