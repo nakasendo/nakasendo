@@ -1,5 +1,5 @@
 #ifndef __BASE58ENCDECIMPL_H__
-#define __BASe58ENCDECIMPL_H__
+#define __BASE58ENCDECIMPL_H__
 
 #include <string>
 #include <memory>

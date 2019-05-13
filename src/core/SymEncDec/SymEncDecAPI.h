@@ -1,7 +1,7 @@
-#ifndef __SYMENCDECAPI_H__
-#define __SYMENCDECAPI_H__
+#ifndef SYM_ENC_DEC_API_H
+#define SYM_ENC_DEC_API_H
 
-#include "SymmetricEncryptDecrypt/SymEncryptDecrypt.h"
+#include <SymEncDec/SymEncDec.h>
 #include <string>
 
 #ifdef __EMSCRIPTEN__
@@ -20,4 +20,4 @@ SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string&, const s
 
 
 
-#endif //#ifndef __SYMENCDECAPI_H__
+#endif /* SYM_ENC_DEC_API_H */

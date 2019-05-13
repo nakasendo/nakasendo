@@ -6,6 +6,7 @@
 #################################################################
 
 include(PyTools.cmake)
+add_subdirectory(PyAsymKey)
 add_subdirectory(PyBigNumbers)
 add_subdirectory(PyMessageHash)
 add_subdirectory(PySymEncDec)
@@ -20,6 +21,6 @@ else()
   if(NOT emcc_FOUND)
     message(STATUS "SDK WARNS : emcc not found, modules for WASM will not be built. Try to add the location of emcc to environment variable PATH")
   else()
-    build_wasm_modules(BigNumbers MessageHash)
+    build_wasm_modules(${SDK_CORE_COMPONENT_LIST})
   endif()
 endif()
