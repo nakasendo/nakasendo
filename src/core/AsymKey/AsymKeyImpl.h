@@ -20,8 +20,9 @@ public:
     AsymKeyImpl(const AsymKeyImpl& crOther);
     AsymKeyImpl& operator= (const AsymKeyImpl&  crOther);
 
-    std::string getPublicKeyStr()  const;
-    std::string getPrivateKeyStr() const;
+    std::string getPublicKeyPEMStr()  const;
+    std::string getPrivateKeyPEMStr() const;
+    void setPEMPrivateKey(const std::string&);// Import PEM private key
 
 private:
 
@@ -30,9 +31,9 @@ private:
     using PriKey_ptr = std::unique_ptr< EVP_PKEY, decltype(&EVP_PKEY_free) >;
 
     PriKey_ptr m_prikey;
-    EC_KEY* pPubKey;// Do not need to free pPubKey since all are own by m_prikey
+    EC_KEY* p_eckey;// Do not need to free p_eckey since all are own by m_prikey
 
-    void genPrivKeyFromPubKey();
+    void _assign_privat_key();// transfer all ownership to m_prikey
 };
 
 #endif /* ASYM_KEY_IMPL_H */

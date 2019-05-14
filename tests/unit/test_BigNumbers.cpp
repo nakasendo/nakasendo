@@ -864,84 +864,84 @@ BOOST_AUTO_TEST_CASE(test_BN_Div_mod_5)
 
 BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Mod_5)
 {
-    char *mod="5", *arg="12", *test_ret="2";
+    const char *mod="5", *arg="12", *test_ret="2";
     const auto ret = Mod_Dec(arg , mod);
     BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element());// 2 == 12 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Inv_mod_5)
 {
-    char *mod="5", *arg="2", *test_ret="3";
+    const char *mod="5", *arg="2", *test_ret="3";
     const auto ret = Inv_mod_Dec(arg, mod);
     BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element());// 2 == 1/3 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Add_mod_5)
 {
-    char *mod="5", *lhs="3", *rhs="4", *test_ret="2";
+    const char *mod="5", *lhs="3", *rhs="4", *test_ret="2";
     const auto ret = Add_mod_Dec(lhs, rhs, mod);
     BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element());// 3+4 == 2 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Sub_mod_5)
 {
-    char *mod = "5", *lhs = "2", *rhs = "4", *test_ret = "3";
+    const char *mod = "5", *lhs = "2", *rhs = "4", *test_ret = "3";
     const auto ret = Sub_mod_Dec(lhs, rhs, mod);
     BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element()); // 2-4 == 3 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Mul_mod_5)
 {
-    char *mod = "5", *lhs = "2", *rhs = "3", *test_ret = "1";
+    const char *mod = "5", *lhs = "2", *rhs = "3", *test_ret = "1";
     const auto ret = Mul_mod_Dec(lhs, rhs, mod);
     BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element()); // 2*3 == 1 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Div_mod_5)
 {
-    char *mod = "5", *lhs = "2", *rhs = "3", *test_ret = "4";
+    const char *mod = "5", *lhs = "2", *rhs = "3", *test_ret = "4";
     const auto ret = Div_mod_Dec(lhs, rhs, mod);
     BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element()); // 2/3 == 4 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Mod_5)
 {
-    char *mod = "5", *arg = "c", *test_ret_hex = "02";
+    const char *mod = "5", *arg = "c", *test_ret_hex = "02";
     const auto ret = Mod_Hex(arg, mod);
     BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element());// 2 == 12 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Inv_mod_5)
 {
-    char *mod = "5", *arg = "c", *test_ret_hex = "03";
+    const char *mod = "5", *arg = "c", *test_ret_hex = "03";
     const auto ret = Inv_mod_Hex(arg, mod);
     BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element());// 12 == 1/3 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Add_mod_5)
 {
-    char *mod = "5", *lhs = "d", *rhs = "e", *test_ret_hex = "02";
+    const char *mod = "5", *lhs = "d", *rhs = "e", *test_ret_hex = "02";
     const auto ret = Add_mod_Hex(lhs, rhs, mod);
     BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element());// 13+14 == 2 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Sub_mod_5)
 {
-    char *mod = "5", *lhs = "c", *rhs = "e", *test_ret_hex = "03";
+    const char *mod = "5", *lhs = "c", *rhs = "e", *test_ret_hex = "03";
     const auto ret = Sub_mod_Hex(lhs, rhs, mod);
     BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element()); // 12-14 == 3 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Mul_mod_5)
 {
-    char *mod = "5", *lhs = "c", *rhs = "d", *test_ret_hex = "01";
+    const char *mod = "5", *lhs = "c", *rhs = "d", *test_ret_hex = "01";
     const auto ret = Mul_mod_Hex(lhs, rhs, mod);
     BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element()); // 12*13 == 1 mod 5
 }
 
 BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Div_mod_5)
 {
-    char *mod = "5", *lhs = "c", *rhs = "d", *test_ret_hex = "04";
+    const char *mod = "5", *lhs = "c", *rhs = "d", *test_ret_hex = "04";
     const auto ret = Div_mod_Hex(lhs, rhs, mod);
     BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element()); // 12/13 == 4 mod 5
 }
