@@ -164,7 +164,7 @@ unsigned char * Base64EncDecImpl::dec (unsigned char *buf, size_t& len, int stri
 }
 
 
-messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, const int& wrap){    
+messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, const int& wrap, int& sizeEncoded){    
     int sizeAllocated=0;
     unsigned char * retValPtr =  enc (buf.get(), len, wrap, sizeAllocated);
     if (sizeAllocated>0){
@@ -173,8 +173,10 @@ messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, c
             msgPtr.get()[i]=retValPtr[i];
         }        
         delete [] retValPtr;
+        sizeEncoded = sizeAllocated; 
         return std::move(msgPtr);
     }else{
+        sizeEncoded = sizeAllocated; 
         delete [] retValPtr;
         return nullptr;
     }     

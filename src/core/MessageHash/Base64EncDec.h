@@ -15,7 +15,7 @@ class MessageHash_API Base64EncDec
         explicit Base64EncDec();
         ~Base64EncDec();     
 
-        messagePtr encode (messagePtr&, const size_t&, const int& ); 
+        messagePtr encode (messagePtr&, const size_t&, const int&,int& ); 
         messagePtr decode (messagePtr&, size_t&, int&, int* ) ;
     private:
 

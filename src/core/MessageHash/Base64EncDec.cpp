@@ -9,8 +9,8 @@ Base64EncDec::~Base64EncDec(){
     return ; 
 }
 
-messagePtr Base64EncDec::encode (messagePtr& msg, const size_t& len, const int& wrap){  
-    std::unique_ptr<unsigned char>  tmpBuffer (m_pImpl->encode (msg, len, wrap)); 
+messagePtr Base64EncDec::encode (messagePtr& msg, const size_t& len, const int& wrap, int& sizeEncoded){  
+    std::unique_ptr<unsigned char>  tmpBuffer (m_pImpl->encode (msg, len, wrap,sizeEncoded)); 
     return std::move(tmpBuffer);      
 }
 messagePtr Base64EncDec::decode (messagePtr& msg, size_t& len, int& strict, int* err ){
