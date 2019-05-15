@@ -64,14 +64,14 @@ static PyObject* wrap_encodeAES(PyObject* self, PyObject *args){
     std::cout << "Did I make it here" << std::endl; 
 
     //PyObject* obj = PyBytes_FromStringAndSize(msgPtrChar.get(),encMsg.size());
-    Py_buffer* obj = (Py_buffer)malloc(sizeof(unsigned char) * encMsg.size()); 
-    memcpy (msgPtr.get(),obj->buf, obj->len);
+    //Py_buffer* obj = (Py_buffer)malloc(sizeof(unsigned char) * encMsg.size()); 
+    //memcpy (msgPtr.get(),obj->buf, obj->len);
     //return Py_BuildValue("s#", encMsg.c_str(), encMsg.length());
     std::cout << "\nEncoded length: " << encMsg.size() << std::endl; 
     //return Py_BuildValue("y#",encMsg.c_str(), encMsg.length());
     //return Py_BuildValue("S",encMsg.c_str());
-    //return Py_BuildValue("y#",msgPtr.get(),encMsg.size() );
-    return Py_BuildValue("S",obj );
+    return Py_BuildValue("y#",msgPtr.get(),encMsg.size() );
+    //return Py_BuildValue("S",obj );
     
 }
 
