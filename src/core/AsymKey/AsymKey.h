@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 class AsymKeyImpl; 
 
@@ -31,6 +32,12 @@ class AsymKey_API AsymKey
         std::string getPublicKeyPEM()  const;
         std::string getPrivateKeyPEM() const;
         void setPEMPrivateKey(const std::string&);// Import PEM private key
+
+        /// Sign the message, return <r,s>  component
+        std::pair<std::string, std::string> sign(const std::string& crMsg) const;
+
+        /// Verify the message, providing <r,s> component
+        static bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
 
     private:
 

@@ -109,3 +109,12 @@ macro(build_py_module modulename additional_cpp_file)
     install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${Py_TARGET_NAME}/" DESTINATION "lib")
   endif()
 endmacro()
+
+## TODO
+## The actual build with python setuptools works well, but is annoyed since we're out of control with our build system
+## It's better to build Py Modules with normal cmake build. The idea it is simply a shared library with some specific 
+## build flags, there are no reason it doesn't work. Maybe cmake already handle that by setting all necessary flags
+## when import python:: (to check and test).
+##
+##  Ref Python::Python  Python_add_library
+##  Ref : http://notes.secretsauce.net/notes/2017/11/14_python-extension-modules-without-setuptools-or-distutils.html
