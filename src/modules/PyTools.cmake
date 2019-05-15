@@ -93,8 +93,8 @@ macro(build_py_module modulename additional_cpp_file)
                        --dependencies ${PYMODULE_DEPENDENCIES_LIST}
                        --sources ${CPP_LIST_SOURCE_FILES}
     )
-    install(DIRECTORY ${_Py_INSTALL_DIR_DEBUG} DESTINATION "lib" CONFIGURATIONS Debug)
-    install(DIRECTORY ${_Py_INSTALL_DIR_RELEASE} DESTINATION "lib" CONFIGURATIONS Release)
+    install(DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${Py_TARGET_NAME}/ DESTINATION "lib" CONFIGURATIONS Debug)
+    install(DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/${Py_TARGET_NAME}/ DESTINATION "lib" CONFIGURATIONS Release)
   else()
     set(PYMODULE_BUILD_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Build${Py_TARGET_NAME}")
     set(PYMODULE_INSTALL_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${Py_TARGET_NAME}")
@@ -106,6 +106,6 @@ macro(build_py_module modulename additional_cpp_file)
                        --dependencies ${PYMODULE_DEPENDENCIES_LIST}
                        --sources ${CPP_LIST_SOURCE_FILES}
     )
-    install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${Py_TARGET_NAME}" DESTINATION "lib")
+    install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${Py_TARGET_NAME}/" DESTINATION "lib")
   endif()
 endmacro()
