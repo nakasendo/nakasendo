@@ -146,7 +146,34 @@ int main(int argc,char** argv)
         std::cout << "Decoded Output (base58-checked): "<< decodedRes << std::endl ;
 
 
-    }    
+    }
+    {
+        std::cout << "my favourite word ... base64" << std::endl ; 
+        std::string msgVal ("programmer"); 
+
+        std::unique_ptr<unsigned char> msgPtr ( new unsigned char [msgVal.size() + 1 ]);
+        
+        int index(0);
+        for (std::string::const_iterator iter = msgVal.begin(); iter != msgVal.end(); ++ iter){
+            msgPtr.get()[index] = *iter ; 
+            ++ index; 
+        }        
+        Base64EncDec encdec ;
+        int sizeAllocated = 0 ;  
+        std::unique_ptr<unsigned char> retValPtr =  encdec.encode (msgPtr, msgVal.size (), 0,sizeAllocated);
+        printf("Output (base64): %s\n", retValPtr.get());
+
+        std::cout << "decoding..." << std::endl ;
+        size_t value = 0;
+        int strict = 0 ; 
+        int * err = new int; 
+        std::unique_ptr<unsigned char> decodedValPtr = encdec.decode(retValPtr,value, strict, err);
+        std::string reval; 
+        for (int i=0;i<value;++i){
+            reval.push_back(decodedValPtr.get()[i]);
+        }
+        printf ("Output(decoded): %s\n", reval.c_str());
+    }        
 #if 0 
     {
         std::cout << "And now via the client" << std::endl ; 

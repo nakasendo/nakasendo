@@ -8,19 +8,21 @@
 
 #include <memory>
 
-
-
 #ifdef __EMSCRIPTEN__
-EMSCRIPTEN_KEEPALIVE
+#include "utils/emscriptBindings.h"
 #endif
-std::vector<uint8_t> returnEmptyVector () {
-  std::vector<uint8_t> v;
-  return v;
-}
+
+//#ifdef __EMSCRIPTEN__
+//EMSCRIPTEN_KEEPALIVE
+//#endif
+//std::vector<uint8_t> returnEmptyVector () {
+//  std::vector<uint8_t> v;
+//  return v;
+//}
 #ifdef __EMSCRIPTEN__
 EMSCRIPTEN_KEEPALIVE
 #endif 
-std::vector<uint8_t>  EncodeBase64Ex (std::vector<uint8_t> toEnc){
+std::vector<uint8_t>  EncodeBase64Ex (const std::vector<uint8_t>& toEnc){
     std::unique_ptr<unsigned char> msgPtr ( new unsigned char[toEnc.size()] ) ; 
     std::fill_n(msgPtr.get(), toEnc.size(), 0x00);        
     int index(0);
@@ -129,15 +131,13 @@ std::vector<uint8_t> DecodeBase58CheckEx (std::vector<uint8_t> toDec){
 }
 
 #ifdef __EMSCRIPTEN__
-EMSCRIPTEN_BINDINGS(module) {
+EMSCRIPTEN_BINDINGS(moduleHash) {
     emscripten::function("EncodeBase64Ex", &EncodeBase64Ex);  
-    emscripten::function("returnEmptyVector", &returnEmptyVector);  
     emscripten::function("DecodeBase64Ex", &DecodeBase64Ex);
     emscripten::function("EncodeBase58Ex", &EncodeBase58Ex);
     emscripten::function("DecodeBase58Ex", &DecodeBase58Ex);
     emscripten::function("EncodeBase58CheckEx", &EncodeBase58CheckEx);
     emscripten::function("DecodeBase58CheckEx", &DecodeBase58CheckEx);  
-    emscripten::register_vector<uint8_t>("std::vector<uint8_t>");
   
 }
 #endif

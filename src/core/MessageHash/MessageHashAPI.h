@@ -9,13 +9,13 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/bind.h>
-EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> EncodeBase64Ex (std::vector<uint8_t>);
+EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> EncodeBase64Ex (const std::vector<uint8_t>&);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> DecodeBase64Ex (std::vector<uint8_t>);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> EncodeBase58Ex (std::vector<uint8_t>);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> DecodeBase58Ex (std::vector<uint8_t>);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> EncodeBase58CheckEx (std::vector<uint8_t>);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> DecodeBase58CheckEx (std::vector<uint8_t>);
-EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> returnEmptyVector ();
+//EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> returnEmptyVector ();
 
 
 

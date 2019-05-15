@@ -50,6 +50,11 @@ function EncodeBase64(argToEncode){
     }
     _free(strOnHeap);       
     
+
+    delete buf;
+    delete bufview8;
+    delete inputVec;
+    delete outputVec;
     return str1;
 }
 
@@ -88,6 +93,10 @@ function DecodeBase64(argToDecode){
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
+    delete buf;
+    delete bufview8;
+    delete inputVec;
+    delete outputVec;
     return str1;
 }
 
@@ -109,6 +118,10 @@ function EncodeBase58(argToEncode){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
     
+    delete buf;
+    delete bufview8;
+    delete inputVec;
+    delete outputVec;
     return str1;
 }
 
@@ -131,11 +144,15 @@ function DecodeBase58(argToDecode){
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
+    delete buf;
+    delete bufview;
+    delete inputVec;
+    delete outputVec;
     return str1;
 }
 
 function EncodeBase58Checked(argToEncode){
- var buf = new ArrayBuffer(argToEncode.length);
+    var buf = new ArrayBuffer(argToEncode.length);
     var bufview8 = new Uint8Array(buf); 
     for( var i=0,strLen=argToEncode.length; i < strLen; i++){
         bufview8[i] = argToEncode.charCodeAt(i); 
@@ -152,6 +169,10 @@ function EncodeBase58Checked(argToEncode){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
     
+    delete buf;
+    delete bufview8;
+    delete inputVec;
+    delete outputVec;
     return str1;
 }
 
@@ -174,6 +195,10 @@ function DecodeBase58Checked(argToDecode){
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
+    delete buf;
+    delete bufview8;
+    delete inputVec;
+    delete outputVec;
     return str1;
 }
 function StrConCat(a,b) {

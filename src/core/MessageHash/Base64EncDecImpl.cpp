@@ -188,6 +188,7 @@ messagePtr Base64EncDecImpl::decode (const messagePtr& buf, size_t& len, int str
            delete [] retValPtr;
            return nullptr; 
        }else{
+           std::cout << " Base64EncDecImpl::decode: " << "length: " << len << " value: " << (char*)retValPtr << std::endl; 
            messagePtr msgPtr(new unsigned char[len]);
            for (unsigned int i=0;i<len;++i){
                msgPtr.get()[i]= retValPtr[i];

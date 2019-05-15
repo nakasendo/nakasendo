@@ -12,6 +12,10 @@
     form.addOutput.value = addFromHex(argA, argB);
   }
 
+    function mulmodFromHexOnClick(form){
+        form.multiplymodOutput.value = MulModHex(form.MulInputArgA.value, form.MulInputArgB.value, form.MulModArg.value);
+    }
+
   function BNRandomOnClick(form){
     var argSize = form.GenerateRandomSize.value;
     form.GenerateRandOutput.value = BNRandom(argSize);
@@ -19,7 +23,7 @@
 
   function BNRandomWithSeedOnClick(form){
     var argSize = form.GenerateRandomSizeWithSeed.value;
-    form.GenerateRandOutputWithSeed.value = BNRandomWithSeed(argSize);
+    form.GenerateRandOutputWithSeed.value = BNRandomWithSeed(argSize,form.RandomSeed.value);
   }
 
   function SHA256Func(form){
@@ -122,6 +126,18 @@ Add:
 <p>
 Result:
 <INPUT NAME="addOutput" READONLY SIZE=15>
+ <p>
+<h2>Multiply Large Numbers (with a mod)</h2>
+Enter values please:
+<Input NAME="MulInputArgA" VALUE="0" maxlength="256" SIZE=15>
+<Input NAME="MulInputArgB" VALUE="0" maxlength="256" SIZE=15>
+<Input NAME="MulModArg" VALUE="0" maxlength="256" SIZE=15>
+<p>
+Add:
+<INPUT NAME="multiplymod" VALUE="Multiply With Mod" TYPE=BUTTON onClick=mulmodFromHexOnClick(this.form)>
+<p>
+Result:
+<INPUT NAME="multiplymodOutput" READONLY SIZE=15>
  <p>
 <h2>Random BigNumbers</h2>
 Please indicte a size in bits of a random number (default is 512)
