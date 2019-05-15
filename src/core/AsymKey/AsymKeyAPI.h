@@ -14,7 +14,7 @@
 #define AsymKey_C_API AsymKey_API
 #endif
 
-std::pair<std::string, std::string> AsymKey_API GenerateKeyPair();
+std::pair<std::string, std::string> AsymKey_API GenerateKeyPairPEM();
 
 
 #endif /* ASYM_KEY_API_H */

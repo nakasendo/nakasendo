@@ -15,16 +15,16 @@ struct module_state {
 static struct module_state _state;
 #endif
 
-static PyObject* wrap_GenerateKeyPair(PyObject* self, PyObject *args)
+static PyObject* wrap_GenerateKeyPairPEM(PyObject* self, PyObject *args)
 {
-    const std::pair<std::string, std::string> keyPair = GenerateKeyPair();
+    const std::pair<std::string, std::string> keyPair = GenerateKeyPairPEM();
     return Py_BuildValue("ss",keyPair.first.c_str(),keyPair.second.c_str());
 }
 
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
-    {"GenerateKeyPair",wrap_GenerateKeyPair,METH_VARARGS,"Generate pair of keys"},
+    {"GenerateKeyPairPEM",wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys"},
     {NULL, NULL, 0, NULL},
 };
  

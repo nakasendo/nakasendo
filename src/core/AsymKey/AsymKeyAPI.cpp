@@ -1,7 +1,7 @@
 #include <AsymKey/AsymKeyAPI.h>
 
-std::pair<std::string, std::string> GenerateKeyPair()
+std::pair<std::string, std::string> GenerateKeyPairPEM()
 {
     AsymKey keyGen;
-    return std::make_pair(keyGen.getPublicKey(), keyGen.getPrivateKey());
+    return std::make_pair(keyGen.getPublicKeyPEM(), keyGen.getPrivateKeyPEM());
 }
