@@ -33,5 +33,53 @@ def test_HashMsgAPI():
 
     hashMsgFile_txt.close()
 
-test_MsgHash256API()
-test_HashMsgAPI()
+def test_EncodeBase64API():
+
+    #Reading test data from the file
+    with open("testData_EncodeDecode", "r") as encodeFile_txt:
+
+        for x in encodeFile_txt.readlines():
+
+            encode_Value = x.split(",")
+            actual_Value = PyMessageHash.EncodeBase64(encode_Value[0])
+            expected_Value = encode_Value[1].rstrip("\n")
+
+            # Verifying the actual value with expected value
+            #assert actual_Value == encode_Value[1].rstrip("\n"), "Test failed"
+
+            if (actual_Value == encode_Value[1].rstrip("\n")):
+                #print(actual_Value)
+                print("Pass")
+
+            else:
+
+                print(actual_Value)
+                print("Failed")
+
+    encodeFile_txt.close()
+
+test_EncodeBase64API()
+
+def test_DecodeBase64API():
+
+    #Reading test data from the file
+    with open("testData_EncodeDecode", "r") as decodeFile_txt:
+
+        for x in decodeFile_txt.readlines():
+
+            decode_Value = x.split(",")
+            actual_Value = PyMessageHash.DecodeBase64(decode_Value[1].rstrip("\n"))
+
+            #Verifying the actual value with expected value
+            #assert actual_Value == decode_Value[0], "Test failed"
+
+            if (actual_Value == decode_Value[0]):
+                #print(actual_Value)
+                print("Pass")
+
+            else:
+
+                print(actual_Value)
+                print("Failed")
+
+    decodeFile_txt.close()
