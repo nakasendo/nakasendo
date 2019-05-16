@@ -1,4 +1,4 @@
-#################################################################
+################################################################
 #  Date             24/04/2019                                  #
 #  Author           nChain's employees                          #
 #                                                               #
@@ -18,7 +18,7 @@ target_link_libraries(MessageHashClient MessageHash)
 set_property(TARGET MessageHashClient PROPERTY FOLDER "tests")
 
 add_executable(SymEncDecClient SymEncDecTest.cpp)
-target_link_libraries(SymEncDecClient SymEncDec)
+target_link_libraries(SymEncDecClient SymEncDec MessageHash)
 set_property(TARGET SymEncDecClient PROPERTY FOLDER "tests")
 
 

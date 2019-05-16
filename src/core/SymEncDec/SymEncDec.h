@@ -35,6 +35,7 @@ class SymEncDec_API SymEncDec
 
         int aes_encrypt (const std::string&, std::unique_ptr<unsigned char>& ) ;
         int aes_decrypt (const std::string&, std::unique_ptr<unsigned char>& ) ;
+        int aes_decryptEx (const std::unique_ptr<unsigned char>&, const int&, std::unique_ptr<unsigned char>& );
 
     private:
          std::unique_ptr<SymEncDecImpl> m_pImpl ;

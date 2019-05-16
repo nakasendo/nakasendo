@@ -78,7 +78,6 @@ std::string Base58EncDecImpl::EncodeBase58(const uint8_t* pbegin, const uint8_t*
     while (it != b58.end() && *it == 0) {
         it++;
     }
-    // Translate the result into a string.
     std::string str;
     str.reserve(zeroes + (b58.end() - it));
     str.assign(zeroes, '1');
