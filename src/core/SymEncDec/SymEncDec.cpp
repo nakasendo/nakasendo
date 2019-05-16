@@ -51,6 +51,10 @@ int SymEncDec::aes_decrypt (const std::string& ctext, std::unique_ptr<unsigned c
     return m_pImpl->aes_decrypt (ctext, text);
 }
 
+int SymEncDec::aes_decryptEx (const std::unique_ptr<unsigned char>& ctext, const int& lenctext, std::unique_ptr<unsigned char>& ptext){
+    return m_pImpl->aes_decryptEx(ctext,lenctext,ptext);
+}
+
 // free functions
 std::unique_ptr<unsigned char> KeyGen (std::unique_ptr<unsigned char>& pw, const unsigned int& pwlen, const std::unique_ptr<unsigned char>& salt, const uint64_t& saltlen, const unsigned int& ic, uint64_t& requiredKeyLen )
 {

@@ -3,6 +3,7 @@
 
 #include<memory>
 #include<string>
+#include<utility>
 
 #include <openssl/bio.h>
 #include <openssl/err.h>
@@ -24,6 +25,12 @@ public:
     std::string getPrivateKeyPEMStr() const;
     void setPEMPrivateKey(const std::string&);// Import PEM private key
 
+    /// Sign the message, return <r,s>  component
+    std::pair<std::string, std::string> sign(const std::string& crMsg) const;
+
+    /// Verify the message, providing <r,s> component
+    static bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
+
 private:
 
     using BIO_ptr    = std::unique_ptr< BIO     , decltype(&BIO_free_all)  >;
@@ -34,6 +41,7 @@ private:
     EC_KEY* p_eckey;// Do not need to free p_eckey since all are own by m_prikey
 
     void _assign_privat_key();// transfer all ownership to m_prikey
+    static std::string _hash(const std::string& crMsg);
 };
 
 #endif /* ASYM_KEY_IMPL_H */

@@ -2,7 +2,10 @@
 #define SYM_ENC_DEC_API_H
 
 #include <SymEncDec/SymEncDec.h>
+
 #include <string>
+#include <vector>
+#include <cstdint>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -15,6 +18,9 @@
 
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Encode (const std::string&, const std::string&,const std::string&);
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Decode (const std::string&, const std::string&, const std::string& );
+
+SYMENCDEC_C_API std::vector<uint8_t> EncodeEx (const std::string&, const std::string&,const std::string&);
+SYMENCDEC_C_API std::string DecodeEx (const std::vector<uint8_t>&, const std::string&,const std::string&);
 
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string&, const std::string&);
 

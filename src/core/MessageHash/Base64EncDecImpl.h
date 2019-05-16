@@ -12,7 +12,7 @@ class Base64EncDecImpl
     public:
         explicit Base64EncDecImpl ();
         ~Base64EncDecImpl()=default; 
-        messagePtr encode (const messagePtr&, const size_t&, const int&);
+        messagePtr encode (const messagePtr&, const size_t&, const int&, int&);
         messagePtr decode (const messagePtr&, size_t&, int,  int*) ; 
 
     private:
