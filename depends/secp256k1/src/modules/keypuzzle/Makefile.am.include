@@ -1,0 +1,8 @@
+include_HEADERS += include/secp256k1_keypuzzle.h
+noinst_HEADERS += src/modules/keypuzzle/main_impl.h
+noinst_HEADERS += src/modules/keypuzzle/tests_impl.h
+if USE_BENCHMARK
+noinst_PROGRAMS += bench_keypuzzle
+bench_keypuzzle_SOURCES = src/bench_keypuzzle.c
+bench_keypuzzle_LDADD = libsecp256k1.la $(SECP_LIBS) $(COMMON_LIB)
+endif
