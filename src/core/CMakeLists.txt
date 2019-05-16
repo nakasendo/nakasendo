@@ -5,7 +5,7 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
-add_subdirectory(AsymKey)
 add_subdirectory(BigNumbers)
 add_subdirectory(MessageHash)
 add_subdirectory(SymEncDec)
+add_subdirectory(AsymKey)
