@@ -3,6 +3,8 @@
 
 #include <AsymKey/AsymKey.h>
 #include <AsymKey/AsymKeyAPI.h>
+#include <BigNumbers/BigNumbers.h>
+
 #include <string>
 #include <vector>
 #include <utility>
@@ -82,6 +84,31 @@ BOOST_AUTO_TEST_CASE(test_API)
     const std::pair<std::string, std::string> keyPair = GenerateKeyPairPEM();
     BOOST_CHECK(!keyPair.first.empty());
     BOOST_CHECK(!keyPair.second.empty());
+}
+
+BOOST_AUTO_TEST_CASE(test_Sig_Verify)
+{
+    const std::string msg{"Alice want to say hello to Bob"};
+    const AsymKey ecdsa;
+    const std::string pubkey = ecdsa.getPublicKeyPEM();
+    const std::pair<std::string, std::string> rs = ecdsa.sign(msg);
+    const bool verify_ok = AsymKey::verify(msg, pubkey,rs);
+    BOOST_CHECK(verify_ok);
+}
+
+BOOST_AUTO_TEST_CASE(test_Sig_Verify_Random)
+{
+    const size_t nbIter = 10;
+    for (size_t i = 0; i < nbIter; ++i)
+    {
+        BigNumber randBN = GenerateRand(100);
+        const std::string random_str = randBN.ToHex();
+        const AsymKey ecdsa;
+        const std::string pubkey = ecdsa.getPublicKeyPEM();
+        const std::pair<std::string, std::string> rs = ecdsa.sign(random_str);
+        const bool verify_ok = AsymKey::verify(random_str, pubkey, rs);
+        BOOST_CHECK(verify_ok);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <AsymKey/AsymKeyAPI.h>
+#include <AsymKey/AsymKey.h>
 
 
 struct module_state {
@@ -21,10 +22,51 @@ static PyObject* wrap_GenerateKeyPairPEM(PyObject* self, PyObject *args)
     return Py_BuildValue("ss",keyPair.first.c_str(),keyPair.second.c_str());
 }
 
+static PyObject* wrap_Sign(PyObject* self, PyObject *args)
+{
+    char* cPrivKey=nullptr;
+    char* cMsg = nullptr;
+
+    if (!PyArg_ParseTuple(args, "ss", &cPrivKey, &cMsg))
+        return NULL;
+
+    const std::string privPEMKey(cPrivKey);
+    const std::string msg(cMsg);
+
+    AsymKey key;
+    key.setPEMPrivateKey(privPEMKey);
+    const std::pair<std::string, std::string> sign = key.sign(msg);
+
+    return Py_BuildValue("ss", sign.first, sign.second);
+}
+
+static PyObject* wrap_Verify(PyObject* self, PyObject *args)
+{
+    char* cMsg = nullptr;
+    char* cPubKey = nullptr;
+    char* cSigR = nullptr;
+    char* cSigS = nullptr;
+
+    if (!PyArg_ParseTuple(args, "ssss", &cMsg, &cPubKey, &cSigR, &cSigS))
+        return NULL;
+
+    const std::string msg(cMsg);
+    const std::string pubKey(cPubKey);
+    const std::string sigR(cSigR);
+    const std::string sigS(cSigS);
+
+    const bool verifyOK = AsymKey::verify(msg, pubKey, std::make_pair(sigR, sigS));
+
+    return Py_BuildValue("i", verifyOK);
+}
+
+
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
     {"GenerateKeyPairPEM",wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys"},
+    {"Sign",wrap_Sign,METH_VARARGS,"Sign message with private Key"},
+    {"Verify",wrap_Verify,METH_VARARGS,"Verify message's signature with public key"},
     {NULL, NULL, 0, NULL},
 };
  
