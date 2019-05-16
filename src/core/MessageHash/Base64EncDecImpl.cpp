@@ -1,9 +1,3 @@
-#if 0 
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,7 +5,7 @@
 #include <string>
 
 
-#include "Base64EncDecImpl.h"
+#include "MessageHash/Base64EncDecImpl.h"
 
 
 namespace Base64{
@@ -72,7 +66,7 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
     }
     else{
         *p++ = Base64::b64table[input[i++] >> 2];
-        *p++ = Base64::b64table[((input[i-1] >> 4) | (input[i] >> 4)) & 0x3f];
+        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4)) & 0x3f];
         if(mod == 1){
             *p++ = '=';
             *p++ = '=';
@@ -112,7 +106,7 @@ unsigned int Base64EncDecImpl::rawBase64Decode (unsigned char * in, unsigned cha
                         *err = 1;
                         return result;
                     }
-                    buf[0] = 0;
+                    buf[2] = 0;
                     pad = 2;
                     result++;
                     break;
@@ -170,7 +164,7 @@ unsigned char * Base64EncDecImpl::dec (unsigned char *buf, size_t& len, int stri
 }
 
 
-messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, const int& wrap){    
+messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, const int& wrap, int& sizeEncoded){    
     int sizeAllocated=0;
     unsigned char * retValPtr =  enc (buf.get(), len, wrap, sizeAllocated);
     if (sizeAllocated>0){
@@ -179,8 +173,10 @@ messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, c
             msgPtr.get()[i]=retValPtr[i];
         }        
         delete [] retValPtr;
+        sizeEncoded = sizeAllocated; 
         return std::move(msgPtr);
     }else{
+        sizeEncoded = sizeAllocated; 
         delete [] retValPtr;
         return nullptr;
     }     

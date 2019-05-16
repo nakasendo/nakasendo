@@ -1,37 +1,37 @@
 pipeline {
-    agent none
+    agent { 
+        dockerfile  true
+    }
 
-        triggers {
-            bitbucketPush()
-        }
+    triggers {
+        bitbucketPush()
+    }
 
     stages {
 
         stage ('Build') {
 
-            agent { 
-                dockerfile  true 
-            }
-
             steps {
                 sh '/entrypoint.sh'
-                    archiveArtifacts '**/*.so'
             }
         }
     }
 
     post {
-        success {
-                script: emailext (
-                body: '$DEFAULT_CONTENT', 
-                to: '$DEFAULT_RECIPIENTS',  
-                subject: '$DEFAULT_SUBJECT')
-        }
+        cleanup { script:  cleanWs() }
+        success { archiveArtifacts '**/*.so' }
         failure {
-                script: emailext (
-                body: '$DEFAULT_CONTENT', 
-                to: '$DEFAULT_RECIPIENTS',  
-                subject: '$DEFAULT_SUBJECT')
+script: emailext (
+                subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+                <p>Check console output (account needed) at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+                recipientProviders: [[$class: 'CulpritsRecipientProvider'],
+                [$class: 'DevelopersRecipientProvider'],
+                [$class: 'RequesterRecipientProvider'], 
+                [$class: 'FailingTestSuspectsRecipientProvider'],
+                [$class: 'FirstFailingBuildSuspectsRecipientProvider'],
+                [$class: 'UpstreamComitterRecipientProvider']]
+                )
         }
     }
 }

@@ -8,10 +8,12 @@ set(MESSAGE_HASH_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashAPI.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHash.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Base58EncDec.h
 )
 set(MESSAGE_HASH_HPP_FILES_PRIVATE # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDecImpl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashImpl.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/Base58EncDecImpl.h
 )
 
 set(MESSAGE_HASH_HPP_FILES ${MESSAGE_HASH_HPP_FILES_PUBLIC} ${MESSAGE_HASH_HPP_FILES_PRIVATE})
@@ -22,6 +24,8 @@ set(MESSAGE_HASH_CPP_FILES # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashAPI.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHash.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashImpl.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Base58EncDec.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Base58EncDecImpl.cpp
 )
 set(MessageHash_CPP_FILES "${MESSAGE_HASH_CPP_FILES}" CACHE INTERNAL "Cache list of MessageHash cpp files")
 
@@ -33,6 +37,7 @@ endif()
 target_link_libraries(MessageHash OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(MessageHash PRIVATE EXPORT_MessageHash)
 set_property(TARGET MessageHash PROPERTY FOLDER "core")
+sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST MessageHash)
 
 install(FILES ${MESSAGE_HASH_HPP_FILES_PUBLIC} DESTINATION "include/MessageHash" COMPONENT CPP)
 install(TARGETS MessageHash DESTINATION "lib" COMPONENT CPP)

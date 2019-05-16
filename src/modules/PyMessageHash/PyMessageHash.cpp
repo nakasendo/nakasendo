@@ -1,4 +1,5 @@
 #include <Python.h>
+#include <string.h>
 #include <string>
 #include <iostream>
 #include <MessageHash/MessageHashAPI.h>
@@ -48,23 +49,90 @@ static PyObject* wrap_ListHash(PyObject* self, PyObject *args)
 }
 
 static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
-    char * argA;
-    if (!PyArg_ParseTuple(args, "s", &argA))
+    unsigned char * argA;
+    int lenargA; 
+    if (!PyArg_ParseTuple(args, "u#", &argA, &lenargA))
         return NULL;
-
-    std::string result = EncodeBase64(argA);
+    std::unique_ptr<unsigned char> msgPtr (new unsigned char [lenargA]);
+    
+    for (int i=0;i<lenargA; ++ i){
+        msgPtr.get()[i] = argA[i] ; 
+    }
+    std::string result = EncodeBase64(msgPtr.get(), lenargA);
+    
     return Py_BuildValue("s",result.c_str());
 }
 
 static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
-    char * argA;
-    if (!PyArg_ParseTuple(args, "s", &argA))
+    unsigned char * argA;
+    int lenA; 
+    if (!PyArg_ParseTuple(args, "u#", &argA, &lenA))
         return NULL;
 
-    std::string result = DecodeBase64(argA);
+    std::unique_ptr<unsigned char> msgPtr ( new unsigned char[lenA+1]);
+    std::fill_n(msgPtr.get(),lenA+1,0x00);
+    for(int i=0;i<lenA;++i){
+        msgPtr.get()[i] = argA[i];
+    }
+    std::string result = DecodeBase64(msgPtr.get(),(lenA+1));
+    
     return Py_BuildValue("s",result.c_str());
 }
 
+static PyObject* wrap_EncodeBase58(PyObject* self, PyObject *args){
+    unsigned char * argA;
+    int lenA;
+    if (!PyArg_ParseTuple(args, "u#", &argA,&lenA))
+        return NULL;
+    std::string paramsToPass;     
+    for (int i=0;i<lenA; ++ i){
+        paramsToPass.push_back(argA[i]); 
+    }
+    std::string result = EncodeBase58(paramsToPass);
+    return Py_BuildValue("s",result.c_str());
+}
+
+static PyObject* wrap_DecodeBase58(PyObject* self, PyObject *args){
+    unsigned char * argA;
+    int lenA;
+
+    if (!PyArg_ParseTuple(args, "u#", &argA, &lenA))
+        return NULL;
+
+    std::string paramsToPass;     
+    for (int i=0;i<lenA; ++ i){
+        paramsToPass.push_back(argA[i]); 
+    }
+    std::string result = DecodeBase58(paramsToPass);
+    return Py_BuildValue("s",result.c_str());
+}
+
+static PyObject* wrap_EncodeBase58Checked(PyObject* self, PyObject *args){
+    unsigned char * argA;
+    int lenA;
+    if (!PyArg_ParseTuple(args, "u#", &argA,&lenA))
+        return NULL;
+    std::string paramsToPass;     
+    for (int i=0;i<lenA; ++ i){
+        paramsToPass.push_back(argA[i]); 
+    }        
+    std::string result = EncodeBase58Checked(paramsToPass);
+    return Py_BuildValue("s",result.c_str());
+}
+
+static PyObject* wrap_DecodeBase58Checked(PyObject* self, PyObject *args){
+    unsigned char * argA;
+    int lenA;
+    if (!PyArg_ParseTuple(args, "u#", &argA))
+        return NULL;
+
+    std::string paramsToPass;     
+    for (int i=0;i<lenA; ++ i){
+        paramsToPass.push_back(argA[i]); 
+    }
+    std::string result = DecodeBase58Checked(paramsToPass);
+    return Py_BuildValue("s",result.c_str());
+}
 
 static PyMethodDef ModuleMethods[] =
 {
@@ -73,6 +141,10 @@ static PyMethodDef ModuleMethods[] =
     {"ListHash",wrap_ListHash, METH_VARARGS,"Return a list of available hash functions"},
     {"EncodeBase64",wrap_EncodeBase64,METH_VARARGS,"Encode given string in base64"},
     {"DecodeBase64",wrap_DecodeBase64,METH_VARARGS,"Decode given string in base64"},
+    {"EncodeBase58",wrap_EncodeBase58,METH_VARARGS,"Encode given string in base58"},
+    {"DecodeBase58",wrap_DecodeBase58,METH_VARARGS,"Decode given string in base58"},
+    {"EncodeBase58Checked",wrap_EncodeBase58Checked,METH_VARARGS,"Encode given string in base58"},
+    {"DecodeBase58Checked",wrap_DecodeBase58Checked,METH_VARARGS,"Decode given string in base58"},
     {NULL, NULL, 0, NULL},
 };
  

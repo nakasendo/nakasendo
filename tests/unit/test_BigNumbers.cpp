@@ -80,21 +80,21 @@ BOOST_AUTO_TEST_CASE(testLargeNumbersHexaAddition)
 
     const TestLargeNumberAdditionData testLargeNumberAdditionHexData = 
     {
-        { "0x0", "0x0", "0"  },
-        { "0x0", "0x1", "1"  },
-        { "0x1", "-0x1", "0" },
-        { "0x0", "-0x1", "-1" },
-        { "-0x1", "-0x1", "-2" },
-        { "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 
-          "0x0",
+        { "0", "0", "0"  },
+        { "0", "1", "1"  },
+        { "1", "-1", "0" },
+        { "0", "-1", "-1" },
+        { "-1", "-1", "-2" },
+        { "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 
+          "0",
           "179769313486231590772930519078902473361797697894230657273430081157732675805500963132708477322407536021120113879871393357658789768814416622492847430639474124377767893424865485276302219601246094119453082952085005768838150682342462881473913110540827237163350510684586298239947245938479716304835356329624224137215" 
         },
-        { "0x8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        { "8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "179769313486231590772930519078902473361797697894230657273430081157732675805500963132708477322407536021120113879871393357658789768814416622492847430639474124377767893424865485276302219601246094119453082952085005768838150682342462881473913110540827237163350510684586298239947245938479716304835356329624224137215"
         },
-        { "0x8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "-0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        { "8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "-7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "1"
         }
     };
@@ -170,21 +170,21 @@ BOOST_AUTO_TEST_CASE(testLargeNumbersHexaSubtraction)
     // Verify if Subtractions can be performed on the large number in hexadecimals.
     const TestLargeNumberSubtractionData testLargeNumberSubtractionHexaData = 
     {
-        { "0x0", "0x0", "0"  },
-        { "0x0", "0x1", "-1"  },
-        { "0x1", "-0x1", "2" },
-        { "0x0", "-0x1", "1" },
-        { "-0x1", "-0x1", "0" },
-        { "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 
-          "0x0",
+        { "0", "0", "0"  },
+        { "0", "1", "-1"  },
+        { "1", "-1", "2" },
+        { "0", "-1", "1" },
+        { "-1", "-1", "0" },
+        { "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 
+          "0",
           "179769313486231590772930519078902473361797697894230657273430081157732675805500963132708477322407536021120113879871393357658789768814416622492847430639474124377767893424865485276302219601246094119453082952085005768838150682342462881473913110540827237163350510684586298239947245938479716304835356329624224137215" 
         },
-        { "0x8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        { "8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "1"
         },
-        { "0x8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "-0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        { "8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "-7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           "179769313486231590772930519078902473361797697894230657273430081157732675805500963132708477322407536021120113879871393357658789768814416622492847430639474124377767893424865485276302219601246094119453082952085005768838150682342462881473913110540827237163350510684586298239947245938479716304835356329624224137215"
         }
     };
@@ -260,21 +260,21 @@ BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalMultiple)
 
     const TestLargeNumberMultipleData testLargeNumberMultipleDataHexa = 
     {
-         { "0x0", "0x0", "0" },
-         { "0x0", "-0x1", "0" },
-         { "-0x1", "-0x1", "1" },
-         { "0x1", "0x1", "1" },
-         { "0x3e8", "0x56bc75e2d63100000", "100000000000000000000000" },
-         { "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 
-           "-0x1", 
+         { "0", "0", "0" },
+         { "0", "-1", "0" },
+         { "-1", "-1", "1" },
+         { "1", "1", "1" },
+         { "3e8", "56bc75e2d63100000", "100000000000000000000000" },
+         { "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 
+           "-1", 
            "-179769313486231590772930519078902473361797697894230657273430081157732675805500963132708477322407536021120113879871393357658789768814416622492847430639474124377767893424865485276302219601246094119453082952085005768838150682342462881473913110540827237163350510684586298239947245938479716304835356329624224137215" 
          },
-         { "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-           "0x0",
+         { "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+           "0",
            "0"
          },
-         { "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-           "0x2",
+         { "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+           "2",
            "179769313486231590772930519078902473361797697894230657273430081157732675805500963132708477322407536021120113879871393357658789768814416622492847430639474124377767893424865485276302219601246094119453082952085005768838150682342462881473913110540827237163350510684586298239947245938479716304835356329624224137214"
          }
     };
@@ -353,21 +353,21 @@ BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalDivision)
 
     const TestLargeNumberDivisionData testLargeNumberDivisionHexaDecimalData = 
     {
-         { "0x0", "0x0", "0" },
-         { "0x0", "-0x1", "0" },
-         { "-0x1", "-0x1", "1" },
-         { "0x1", "0x1", "1" },
-         { "0x3e8", "0x56bc75e2d63100000", "0" },
-         { "0x56bc75e2d63100000", "0x3e8", "100000000000000000" },
-         { "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 
+         { "0", "0", "0" },
+         { "0", "-1", "0" },
+         { "-1", "-1", "1" },
+         { "1", "1", "1" },
+         { "3e8", "56bc75e2d63100000", "0" },
+         { "56bc75e2d63100000", "3e8", "100000000000000000" },
+         { "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 
            "-1", 
            "-179769313486231590772930519078902473361797697894230657273430081157732675805500963132708477322407536021120113879871393357658789768814416622492847430639474124377767893424865485276302219601246094119453082952085005768838150682342462881473913110540827237163350510684586298239947245938479716304835356329624224137215" 
          },
-         { "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+         { "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
            "0",
            "0"
          },
-         { "0x8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+         { "8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
            "2",
            "44942328371557897693232629769725618340449424473557664318357520289433168951375240783177119330601884005280028469967848339414697442203604155623211857659868531094441973356216371319075554900311523529863270738021251442209537670585615720368478277635206809290837627671146574559986811484619929076208839082406056034304"
          }
@@ -454,23 +454,23 @@ BOOST_AUTO_TEST_CASE(testLargeNumbersHexDecimalLeftShift)
     // Verify if left shift  can be performed on the large number in decimals.
     const TestLargeNumberShiftData testLargeNumberLeftShiftHexaData =
     {
-        { "0x0", "0x0", "0" },
-        { "0x0", "0x1", "0" },
-        { "0x0", "-0x1", "0" },
-        { "0x1", "0x0", "1" },
-        { "0x1", "0x1", "2" },
-        { "0x1", "-0x1", "0" },
-        { "-0x1", "0x1", "-2" },
-        { "-0x1", "-0x1", "0" },
-        { "0x56bc75e2d63100000", "0x3e8", "1071508607186267320948425049060001810561404811705533607443750388370351051124936122493198378815695858127594672917553146825187145285692314043598457757469857480393456777482423098542107460506237114187795418215304647498358194126739876755916554394607706291457119647768654216766042983165262438683720566806937600000000000000000000"},
-        { "0x3e8", "0x3e8", "10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376000"},
-        { "0x3e8", "-0x3e8", "0"},
-        { "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          "0x1",
+        { "0", "0", "0" },
+        { "0", "1", "0" },
+        { "0", "-1", "0" },
+        { "1", "0", "1" },
+        { "1", "1", "2" },
+        { "1", "-1", "0" },
+        { "-1", "1", "-2" },
+        { "-1", "-1", "0" },
+        { "56bc75e2d63100000", "3e8", "1071508607186267320948425049060001810561404811705533607443750388370351051124936122493198378815695858127594672917553146825187145285692314043598457757469857480393456777482423098542107460506237114187795418215304647498358194126739876755916554394607706291457119647768654216766042983165262438683720566806937600000000000000000000"},
+        { "3e8", "3e8", "10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376000"},
+        { "3e8", "-3e8", "0"},
+        { "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "1",
           "359538626972463181545861038157804946723595395788461314546860162315465351611001926265416954644815072042240227759742786715317579537628833244985694861278948248755535786849730970552604439202492188238906165904170011537676301364684925762947826221081654474326701021369172596479894491876959432609670712659248448274430"
         },
-        { "0x8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "0x2",
+        { "8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "2",
           "359538626972463181545861038157804946723595395788461314546860162315465351611001926265416954644815072042240227759742786715317579537628833244985694861278948248755535786849730970552604439202492188238906165904170011537676301364684925762947826221081654474326701021369172596479894491876959432609670712659248448274432"
         }
     };
@@ -565,31 +565,31 @@ BOOST_AUTO_TEST_CASE(testLargeNumbersHexaDecimalRightShift)
 
     const TestLargeNumberShiftData testLargeNumberRightShiftHexaData = 
     {
-         { "0x0", "0x0", "0" },
-         { "0x0", "0x1", "0" },
-         { "0x1", "0x0", "1" },
-         { "0x0", "-0x1", "0" },
-         { "0x1", "0x1", "0" },
-         { "0x1", "-0x1", "0" },
-         { "-0x1", "0x1", "0" },
-         { "-0x1", "-0x1", "0" },
-         { "0x56bc75e2d63100000", "0x3e8", "0" },
-         { "-0x56bc75e2d63100000", "-0x3e8", "0" },
-         { "0x3e8", "0x1", "500" },
-         { "-0x3e8", "0x1", "-500" },
-         { "-0x3e8", "0x3", "-125" },
-         { "0x3e8", "0x3e8", "0" },
-         { "-0x3e8", "0x3e8", "0" },
-         { "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-           "0x1", 
+         { "0", "0", "0" },
+         { "0", "1", "0" },
+         { "1", "0", "1" },
+         { "0", "-1", "0" },
+         { "1", "1", "0" },
+         { "1", "-1", "0" },
+         { "-1", "1", "0" },
+         { "-1", "-1", "0" },
+         { "56bc75e2d63100000", "3e8", "0" },
+         { "-56bc75e2d63100000", "-3e8", "0" },
+         { "3e8", "1", "500" },
+         { "-3e8", "1", "-500" },
+         { "-3e8", "3", "-125" },
+         { "3e8", "3e8", "0" },
+         { "-3e8", "3e8", "0" },
+         { "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+           "1", 
            "89884656743115795386465259539451236680898848947115328636715040578866337902750481566354238661203768010560056939935696678829394884407208311246423715319737062188883946712432742638151109800623047059726541476042502884419075341171231440736956555270413618581675255342293149119973622969239858152417678164812112068607" 
          },
-         { "-0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-           "0x1", 
+         { "-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+           "1", 
            "-89884656743115795386465259539451236680898848947115328636715040578866337902750481566354238661203768010560056939935696678829394884407208311246423715319737062188883946712432742638151109800623047059726541476042502884419075341171231440736956555270413618581675255342293149119973622969239858152417678164812112068607" 
          },
-         {"0x8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "0x2",
+         {"8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "2",
           "22471164185778948846616314884862809170224712236778832159178760144716584475687620391588559665300942002640014234983924169707348721101802077811605928829934265547220986678108185659537777450155761764931635369010625721104768835292807860184239138817603404645418813835573287279993405742309964538104419541203028017152"
          },
     };
@@ -795,6 +795,155 @@ BOOST_AUTO_TEST_CASE(test_primeness_cpp)
         BOOST_CHECK(primeBN.isPrime());
         BOOST_CHECK(primeBN.isPrimeFasttest());
     }
+}
+
+
+BOOST_AUTO_TEST_CASE(test_BN_Mod_5)
+{
+    BigNumber mod, arg, ret, test_ret;
+    mod.FromDec("5");
+    arg.FromDec("12");
+    test_ret.FromDec("2");
+    ret = arg % mod;
+    BOOST_CHECK(ret == test_ret);// 2 == 12 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_BN_Inv_mod_5)
+{
+    BigNumber mod, arg, ret, test_ret;
+    mod.FromDec("5");
+    arg.FromDec("2");
+    test_ret.FromDec("3");
+    ret = Inv_mod(arg, mod);
+    BOOST_CHECK(ret == test_ret);// 2 == 1/3 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_BN_Add_mod_5)
+{
+    BigNumber mod, lhs, rhs, ret, test_ret;
+    mod.FromDec("5");
+    lhs.FromDec("3");
+    rhs.FromDec("4");
+    test_ret.FromDec("2");
+    ret = Add_mod(lhs, rhs, mod);
+    BOOST_CHECK(ret == test_ret);// 3+4 == 2 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_BN_Sub_mod_5)
+{
+    BigNumber mod, lhs, rhs, ret, test_ret;
+    mod.FromDec("5");
+    lhs.FromDec("2");
+    rhs.FromDec("4");
+    test_ret.FromDec("3");
+    ret = Sub_mod(lhs, rhs, mod);
+    BOOST_CHECK(ret == test_ret); // 2-4 == 3 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_BN_Mul_mod_5)
+{
+    BigNumber mod, lhs, rhs, ret, test_ret;
+    mod.FromDec("5");
+    lhs.FromDec("2");
+    rhs.FromDec("3");
+    test_ret.FromDec("1");
+    ret = Mul_mod(lhs, rhs, mod);
+    BOOST_CHECK(ret == test_ret); // 2*3 == 1 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_BN_Div_mod_5)
+{
+    BigNumber mod, lhs, rhs, ret, test_ret;
+    mod.FromDec("5");
+    lhs.FromDec("2");
+    rhs.FromDec("3");
+    test_ret.FromDec("4");
+    ret = Div_mod(lhs, rhs, mod);
+    BOOST_CHECK(ret == test_ret); // 2/3 == 4 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Mod_5)
+{
+    const char *mod="5", *arg="12", *test_ret="2";
+    const auto ret = Mod_Dec(arg , mod);
+    BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element());// 2 == 12 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Inv_mod_5)
+{
+    const char *mod="5", *arg="2", *test_ret="3";
+    const auto ret = Inv_mod_Dec(arg, mod);
+    BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element());// 2 == 1/3 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Add_mod_5)
+{
+    const char *mod="5", *lhs="3", *rhs="4", *test_ret="2";
+    const auto ret = Add_mod_Dec(lhs, rhs, mod);
+    BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element());// 3+4 == 2 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Sub_mod_5)
+{
+    const char *mod = "5", *lhs = "2", *rhs = "4", *test_ret = "3";
+    const auto ret = Sub_mod_Dec(lhs, rhs, mod);
+    BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element()); // 2-4 == 3 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Mul_mod_5)
+{
+    const char *mod = "5", *lhs = "2", *rhs = "3", *test_ret = "1";
+    const auto ret = Mul_mod_Dec(lhs, rhs, mod);
+    BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element()); // 2*3 == 1 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Div_mod_5)
+{
+    const char *mod = "5", *lhs = "2", *rhs = "3", *test_ret = "4";
+    const auto ret = Div_mod_Dec(lhs, rhs, mod);
+    BOOST_TEST(ret.get() == test_ret, boost::test_tools::per_element()); // 2/3 == 4 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Mod_5)
+{
+    const char *mod = "5", *arg = "c", *test_ret_hex = "02";
+    const auto ret = Mod_Hex(arg, mod);
+    BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element());// 2 == 12 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Inv_mod_5)
+{
+    const char *mod = "5", *arg = "c", *test_ret_hex = "03";
+    const auto ret = Inv_mod_Hex(arg, mod);
+    BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element());// 12 == 1/3 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Add_mod_5)
+{
+    const char *mod = "5", *lhs = "d", *rhs = "e", *test_ret_hex = "02";
+    const auto ret = Add_mod_Hex(lhs, rhs, mod);
+    BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element());// 13+14 == 2 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Sub_mod_5)
+{
+    const char *mod = "5", *lhs = "c", *rhs = "e", *test_ret_hex = "03";
+    const auto ret = Sub_mod_Hex(lhs, rhs, mod);
+    BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element()); // 12-14 == 3 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Mul_mod_5)
+{
+    const char *mod = "5", *lhs = "c", *rhs = "d", *test_ret_hex = "01";
+    const auto ret = Mul_mod_Hex(lhs, rhs, mod);
+    BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element()); // 12*13 == 1 mod 5
+}
+
+BOOST_AUTO_TEST_CASE(test_HexAPI_BN_Div_mod_5)
+{
+    const char *mod = "5", *lhs = "c", *rhs = "d", *test_ret_hex = "04";
+    const auto ret = Div_mod_Hex(lhs, rhs, mod);
+    BOOST_TEST(ret.get() == test_ret_hex, boost::test_tools::per_element()); // 12/13 == 4 mod 5
 }
 
 BOOST_AUTO_TEST_SUITE_END();

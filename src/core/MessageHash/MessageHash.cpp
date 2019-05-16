@@ -1,5 +1,5 @@
-#include "MessageHash.h"
-#include "MessageHashImpl.h"
+#include <MessageHash/MessageHash.h>
+#include <MessageHash/MessageHashImpl.h>
 
 MessageHash::MessageHash(): m_pImpl(new MessageHashImpl)
 {
@@ -19,6 +19,10 @@ void MessageHash::HashSha256(const std::string& msg)
 void MessageHash::Hash(const std::string& msg, const std::string& hashfunc)
 {
     m_pImpl->Hash (msg, hashfunc);
+}
+
+std::unique_ptr<unsigned char> MessageHash::Value(){
+    return m_pImpl->HashVal();
 }
 
 std::string MessageHash::HashHex ()
