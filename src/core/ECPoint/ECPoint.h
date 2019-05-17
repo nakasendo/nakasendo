@@ -44,8 +44,8 @@ class ECPoint_API ECPoint
         std::string ToHex();
 
     private:
-        const ECPointImpl* pImpl() const { return m_pImpl.get(); }
-        ECPointImpl* pImpl() {return m_pImpl.get();}       
+        const ECPointImpl* pImpl() const;
+        ECPointImpl* pImpl();
 
         std::unique_ptr<ECPointImpl> m_pImpl ; 
 };
