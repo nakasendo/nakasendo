@@ -117,7 +117,10 @@ int SymEncDecImpl::aes_decrypt( const std::string& ctext, std::unique_ptr<unsign
   if (rc != 1)
     return -1;
 
+  
   int out_len2 = rtext.size() - out_len1;
+  std::cout << "out_len1: " << out_len1 << "\tout_len2: " << out_len2 << std::endl ; 
+  
   rc = EVP_DecryptFinal_ex(ctx.get(), (unsigned char*)&rtext[0]+out_len1, &out_len2);
   if (rc != 1){
     ERR_print_errors_fp(stderr);
@@ -135,7 +138,45 @@ int SymEncDecImpl::aes_decrypt( const std::string& ctext, std::unique_ptr<unsign
   return cypherlen;
 }
    
+ int SymEncDecImpl::aes_decryptEx (const std::unique_ptr<unsigned char>& ctext,const int& ctextlen,std::unique_ptr<unsigned char>& text){
+  EVP_CIPHER_CTX_free_ptr ctx(EVP_CIPHER_CTX_new(), ::EVP_CIPHER_CTX_free);
+  int rc = EVP_DecryptInit_ex(ctx.get(), EVP_aes_256_cbc(), NULL, m_key.get(), m_iv.get());
+  if (rc != 1)
+    return -1;
 
+  std::string rtext ; 
+  rtext.resize (ctextlen);
+  // Recovered text contracts upto BLOCK_SIZE
+  int out_len1 = ctextlen;
+  
+  //rc = EVP_DecryptUpdate(ctx.get(), (unsigned char*)&rtext[0], &out_len1, (unsigned char*)&ctext[0], (int)ctext.size());
+  rc = EVP_DecryptUpdate(ctx.get(), (unsigned char*)&rtext[0], &out_len1, ctext.get(), ctextlen);
+  if (rc != 1)
+    return -1;
+
+  
+  int out_len2 = rtext.size() - out_len1;
+  std::cout << "\nout_len1: " << out_len1 << "\tout_len2: " << out_len2 << std::endl ; 
+  
+  rc = EVP_DecryptFinal_ex(ctx.get(), (unsigned char*)&rtext[0]+out_len1, &out_len2);
+  if (rc != 1){
+    ERR_print_errors_fp(stderr);
+    return -1;
+  }
+    
+
+  int cypherlen = out_len1 + out_len2; 
+  text.reset (new unsigned char[cypherlen+1]);
+  
+  std::cout << "SymEncDecImpl::aes_decryptEx: length of returned cypherLen " << cypherlen << std::endl; 
+  std::fill_n(text.get(), cypherlen+1, 0x00);
+  for (int i=0;i<cypherlen;++i){
+    std::cout << rtext[i]; 
+    text.get()[i]=rtext[i];
+  }
+  std::cout << std::endl; 
+  return cypherlen;
+ }
 
 
 // Private parameter-generatiom

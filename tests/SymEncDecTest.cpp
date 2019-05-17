@@ -3,6 +3,7 @@
 #include <string>
 
 #include <sstream>
+#include <MessageHash/MessageHashAPI.h>
 #include <SymEncDec/SymEncDec.h>
 #include <SymEncDec/SymEncDecAPI.h>
 
@@ -102,15 +103,53 @@ int main (int argc, char** argv)
       std::string ptext ("the quick brown fox jumped over the lazy dog");
       // Test key & IV
        /* A 256 bit key */
-      //unsigned char *key = (unsigned char *)"01234567890123456789012345678901";
+      
       std::string UserPass ("j.murphy@nchain.com");
-      std::string UserSalt ("blahblhablhah");
+      std::string UserSalt ("19741005");
       
       std::string encMsg = Encode(ptext, UserPass, UserSalt);
+      std::cout << encMsg << std::endl; 
+     
       std::string decMsg = Decode(encMsg, UserPass, UserSalt);
-
+     
       std::cout << "Decoded Message: " << decMsg << std::endl;
 
+      std::string ptext1 ("Geeode") ;
+      encMsg.clear();
+      encMsg = Encode(ptext1, UserPass, UserSalt);
+      decMsg.clear();
+      decMsg = Decode(encMsg, UserPass,UserSalt);
+      std::cout <<"Decoded MEssage1: " << decMsg << std::endl;
+    }
+    {
+
+      std::cout << "And now via the API" << std::endl;
+      std::string ptext ("Now is the time for all good men to come to the aide of their country");
+      // Test key & IV
+       /* A 256 bit key */
+      
+      std::string UserPass ("j.murphy@nchain.com");
+      std::string UserSalt ("19741005");
+      
+      std::vector<uint8_t> bytesVec;
+      for (std::string::const_iterator iter = ptext.begin(); iter != ptext.end(); ++iter){
+          bytesVec.push_back(*iter);
+      }
+      std::string encStr; 
+      std::vector<uint8_t>  encMsg = EncodeEx(ptext, UserPass, UserSalt);
+
+      
+      for(std::vector<uint8_t>::const_iterator iter = encMsg.begin(); iter != encMsg.end(); ++iter){
+        encStr.push_back(*iter);
+      }
+    
+     
+      
+    
+      std::string decMsg = DecodeEx(encMsg, UserPass, UserSalt);
+     
+      std::cout << "Decoded Message: " << decMsg << std::endl;
+      
     }
   return 0 ; 
 }

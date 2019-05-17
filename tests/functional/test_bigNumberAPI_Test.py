@@ -76,6 +76,7 @@ def test_GenRandDec():
     genDec_txt.close()
 
 def test_GenRandHex():
+
     # Reading test data from the file
     with open("testData_GenBigNum", "r") as genHex_txt:
 
@@ -226,15 +227,18 @@ def test_MultiplyHex():
             # Verifying the actual value with expected value
             #assert actual_Value == expected_Value.upper(), "Test failed"
             if (actual_Value == expected_Value.upper()):
+
                 #print(actual_Value)
                 print("Pass")
 
             else:
 
                 print(actual_Value)
-                print("Failed")
+                print("Fail")
 
     multiplyHex_txt.close()
+
+test_MultiplyHex()
 
 def test_LeftShiftDec():
 
@@ -357,15 +361,6 @@ def test_DivideDec():
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[2].rstrip("\n"), "Test failed"
 
-            if (actual_Value == decNumber[2].rstrip("\n")):
-                #print(actual_Value)
-                print("Pass")
-
-            else:
-
-                print(actual_Value)
-                print("Failed")
-
     divideDec_txt.close()
 
 def test_DivideHex():
@@ -391,14 +386,5 @@ def test_DivideHex():
 
             # Verifying the actual value with expected value
             assert actual_Value == expected_Value.upper(), "Test failed"
-
-            if (actual_Value == expected_Value.upper()):
-                #print(actual_Value)
-                print("Pass")
-
-            else:
-
-                print(actual_Value)
-                print("Failed")
 
     divideHex_txt.close()

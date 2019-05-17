@@ -45,20 +45,9 @@ def test_EncodeBase64API():
             expected_Value = encode_Value[1].rstrip("\n")
 
             # Verifying the actual value with expected value
-            #assert actual_Value == encode_Value[1].rstrip("\n"), "Test failed"
-
-            if (actual_Value == encode_Value[1].rstrip("\n")):
-                #print(actual_Value)
-                print("Pass")
-
-            else:
-
-                print(actual_Value)
-                print("Failed")
+            assert actual_Value == encode_Value[1].rstrip("\n"), "Test failed"
 
     encodeFile_txt.close()
-
-test_EncodeBase64API()
 
 def test_DecodeBase64API():
 
@@ -71,15 +60,6 @@ def test_DecodeBase64API():
             actual_Value = PyMessageHash.DecodeBase64(decode_Value[1].rstrip("\n"))
 
             #Verifying the actual value with expected value
-            #assert actual_Value == decode_Value[0], "Test failed"
-
-            if (actual_Value == decode_Value[0]):
-                #print(actual_Value)
-                print("Pass")
-
-            else:
-
-                print(actual_Value)
-                print("Failed")
+            assert actual_Value == decode_Value[0], "Test failed"
 
     decodeFile_txt.close()
