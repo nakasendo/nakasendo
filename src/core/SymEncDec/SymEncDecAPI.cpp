@@ -115,7 +115,7 @@ SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, co
 #endif
 }
 
-SYMENCDEC_RETURN_TYPE DecodeEx (const std::vector<uint8_t>& msg, const std::string& key, const std::string& iv ){ 
+std::string DecodeEx (const std::vector<uint8_t>& msg, const std::string& key, const std::string& iv ){
     std::unique_ptr<unsigned char> myKey (new unsigned char [key.length()+1]);
     std::fill_n(myKey.get(), key.length()+1, 0x00);
     int index(0);
