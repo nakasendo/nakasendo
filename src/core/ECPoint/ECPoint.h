@@ -46,8 +46,8 @@ class ECPoint_API ECPoint
         bool FromHex(const std::string& hexStr, int nid);
 
     private:
-        const ECPointImpl* pImpl() const { return m_pImpl.get(); }
-        ECPointImpl* pImpl() {return m_pImpl.get();}       
+        const ECPointImpl* pImpl() const;
+        ECPointImpl* pImpl();
 
         std::unique_ptr<ECPointImpl> m_pImpl ; 
 };

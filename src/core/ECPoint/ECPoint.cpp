@@ -19,6 +19,14 @@ ECPoint& ECPoint::operator=(ECPoint&& obj) noexcept = default;
 
 ECPoint::ECPoint(const ECPoint& obj) : m_pImpl(new ECPointImpl (*obj.m_pImpl)) { }
 
+const ECPointImpl* ECPoint::pImpl() const
+{
+    return const_cast <const ECPointImpl *>(m_pImpl.get());
+}
+ECPointImpl* ECPoint::pImpl()
+{
+    return m_pImpl.get();
+}
 
 ECPoint& ECPoint::operator=(const ECPoint& obj)
 {
@@ -37,12 +45,12 @@ ECPoint operator+ (const ECPoint& obj1, const ECPoint& obj2)
     return res;
 }
 
-bool ECPoint_API operator == (const ECPoint& obj1, const ECPoint& obj2)
+bool operator == (const ECPoint& obj1, const ECPoint& obj2)
 {
     return Compare(obj1.pImpl(), obj2.pImpl());
 }
 
-bool ECPoint_API operator != (const ECPoint& obj1, const ECPoint& obj2)
+bool operator != (const ECPoint& obj1, const ECPoint& obj2)
 {
     return !Compare(obj1.pImpl(), obj2.pImpl());
 }
