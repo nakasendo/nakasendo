@@ -306,3 +306,47 @@ std::string ECPointImpl::ToHex()
 
     return ecStr;
 }
+
+bool ECPointImpl::FromHex(const std::string& hexStr, int nid)
+{
+    ECGROUP_ptr _gp = EC_GROUP_new_by_curve_name(nid);
+    ECPOINT_ptr _ec = nullptr;
+    if (_gp == nullptr)
+        return false;
+   
+    
+    // Allocate for CTX
+    BN_CTX* ctxptr = BN_CTX_new(); 
+    if (ctxptr == nullptr) 
+    {
+        EC_GROUP_free(_gp);
+        return false;
+    }
+
+    _ec = EC_POINT_hex2point(_gp, hexStr.c_str(), nullptr, nullptr);
+    if (_ec == nullptr)
+    {
+        EC_GROUP_free(_gp);
+        return false;
+    }
+
+    // free CTX object
+    BN_CTX_free(ctxptr);
+
+    // free up the existing memory of group and ec
+    if (m_ec)
+        EC_POINT_free(m_ec);
+
+    if (m_gp)
+        EC_GROUP_free(m_gp);
+
+    m_ec = nullptr;
+    m_gp = nullptr;
+
+    // Update the existing
+    this->nid = nid;
+    m_gp  =  _gp;
+    m_ec = _ec;
+
+    return true; 
+}

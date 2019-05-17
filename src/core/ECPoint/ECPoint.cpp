@@ -88,10 +88,20 @@ bool ECPoint::CheckOnCurve()
 
 CurveList ECPoint::getCurveList()
 {
-    return  this->pImpl()->getCurveList();
+    return  ECPointImpl::getCurveList();
 }
 
 std::string ECPoint::ToHex()
 {
     return  this->pImpl()->ToHex();
+}
+
+int ECPoint::GroupNid() const
+{
+    return  this->pImpl()->getNid();
+}
+
+bool ECPoint::FromHex(const std::string& hexStr, int nid)
+{
+    return this->pImpl()->FromHex(hexStr, nid);
 }

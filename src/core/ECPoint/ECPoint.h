@@ -40,8 +40,10 @@ class ECPoint_API ECPoint
         void Invert();
         bool CheckInfinity();
         bool CheckOnCurve();
-	CurveList getCurveList();
+        static CurveList getCurveList();
         std::string ToHex();
+        int GroupNid()const;
+        bool FromHex(const std::string& hexStr, int nid);
 
     private:
         const ECPointImpl* pImpl() const { return m_pImpl.get(); }
