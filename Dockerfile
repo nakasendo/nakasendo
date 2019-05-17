@@ -17,7 +17,8 @@ RUN apt-get update \
             libtool \
             libssl-dev \
             libzmq3-dev \
-            python3
+            python3 \
+            python3-pip
 
 RUN apt-get update && apt-get install -y libcrypto++-dev \
 		libcrypto++-utils \
@@ -63,10 +64,11 @@ RUN cd /home && wget -O keyutils-1.5.10.tar.bz2  http://people.redhat.com/~dhowe
 # Install any needed packages specified in requirements.txt
 #RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
+
 # Run app.py when the container launches
 #CMD ["bash"]
+RUN pip3 install pytest
 COPY ./entrypoint.sh .
 RUN chmod +x /entrypoint.sh
 RUN useradd -G users Jenkins
 USER Jenkins
-
