@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+import sys
+import pathlib
+## Helper script to import SDKLibraries Py Modules
+
+## Get the runtime directory in native path
+runtime_dir= pathlib.Path('${PY_MODULES_RUNTIME_DIR}')
+runtime_dir_str=str(runtime_dir)
+
+## At the runtime directory to py sys.path so it can find modules
+sys.path.append(runtime_dir_str)
+print('PyModuleLoadHelper is called, module path to be added : [{}]'.format(runtime_dir_str))
+
+# After importing PyModuleLoadHelper, you can import usual SDKLibraries Py modules
+# import PyBigNumbers, PyMessageHash, PyAsymKey, PySymEncDec
