@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
+#include <ECPoint/ECPointImpl.h>
 
 #include <cassert>
 #define ASSERT assert
@@ -94,12 +95,22 @@ bool ECPoint::CheckOnCurve()
     return  this->pImpl()->CheckOnCurve();
 }
 
-CurveList ECPoint::getCurveList()
-{
-    return  this->pImpl()->getCurveList();
-}
-
 std::string ECPoint::ToHex()
 {
     return  this->pImpl()->ToHex();
+}
+
+int ECPoint::GroupNid() const
+{
+    return  this->pImpl()->getNid();
+}
+
+bool ECPoint::FromHex(const std::string& hexStr, int nid)
+{
+    return this->pImpl()->FromHex(hexStr, nid);
+}
+
+std::vector<std::pair<int, std::string>> getCurveList()
+{
+    return  _getCurveList(); 
 }
