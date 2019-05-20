@@ -51,13 +51,14 @@ static PyObject* wrap_ListHash(PyObject* self, PyObject *args)
 static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
     unsigned char * argA;
     int lenargA; 
-    if (!PyArg_ParseTuple(args, "u#", &argA, &lenargA))
+    if (!PyArg_ParseTuple(args, "s#", &argA, &lenargA))
         return NULL;
     std::unique_ptr<unsigned char> msgPtr (new unsigned char [lenargA]);
-    
+    std::fill_n(msgPtr.get(), lenargA, 0x00);
     for (int i=0;i<lenargA; ++ i){
         msgPtr.get()[i] = argA[i] ; 
     }
+    
     std::string result = EncodeBase64(msgPtr.get(), lenargA);
     
     return Py_BuildValue("s",result.c_str());
@@ -66,14 +67,14 @@ static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
 static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
     unsigned char * argA;
     int lenA; 
-    if (!PyArg_ParseTuple(args, "u#", &argA, &lenA))
+    if (!PyArg_ParseTuple(args, "s#", &argA, &lenA))
         return NULL;
 
     std::unique_ptr<unsigned char> msgPtr ( new unsigned char[lenA+1]);
     std::fill_n(msgPtr.get(),lenA+1,0x00);
     for(int i=0;i<lenA;++i){
         msgPtr.get()[i] = argA[i];
-    }
+    }    
     std::string result = DecodeBase64(msgPtr.get(),(lenA+1));
     
     return Py_BuildValue("s",result.c_str());
@@ -82,7 +83,7 @@ static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
 static PyObject* wrap_EncodeBase58(PyObject* self, PyObject *args){
     unsigned char * argA;
     int lenA;
-    if (!PyArg_ParseTuple(args, "u#", &argA,&lenA))
+    if (!PyArg_ParseTuple(args, "s#", &argA,&lenA))
         return NULL;
     std::string paramsToPass;     
     for (int i=0;i<lenA; ++ i){
@@ -96,7 +97,7 @@ static PyObject* wrap_DecodeBase58(PyObject* self, PyObject *args){
     unsigned char * argA;
     int lenA;
 
-    if (!PyArg_ParseTuple(args, "u#", &argA, &lenA))
+    if (!PyArg_ParseTuple(args, "s#", &argA, &lenA))
         return NULL;
 
     std::string paramsToPass;     
@@ -110,7 +111,7 @@ static PyObject* wrap_DecodeBase58(PyObject* self, PyObject *args){
 static PyObject* wrap_EncodeBase58Checked(PyObject* self, PyObject *args){
     unsigned char * argA;
     int lenA;
-    if (!PyArg_ParseTuple(args, "u#", &argA,&lenA))
+    if (!PyArg_ParseTuple(args, "s#", &argA,&lenA))
         return NULL;
     std::string paramsToPass;     
     for (int i=0;i<lenA; ++ i){
@@ -123,7 +124,7 @@ static PyObject* wrap_EncodeBase58Checked(PyObject* self, PyObject *args){
 static PyObject* wrap_DecodeBase58Checked(PyObject* self, PyObject *args){
     unsigned char * argA;
     int lenA;
-    if (!PyArg_ParseTuple(args, "u#", &argA))
+    if (!PyArg_ParseTuple(args, "s#", &argA, &lenA))
         return NULL;
 
     std::string paramsToPass;     
