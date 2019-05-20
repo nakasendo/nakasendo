@@ -22,6 +22,21 @@ AsymKey::AsymKey() : m_pImpl(new AsymKeyImpl())
 {
 }
 
+int AsymKey::GroupNid()const
+{
+    return m_pImpl->GroupNid();
+}
+
+std::string AsymKey::getPublicKeyHEX() const
+{
+    return m_pImpl->getPublicKeyHEXStr();
+}
+
+std::string AsymKey::getPrivateKeyHEX() const
+{
+    return m_pImpl->getPrivateKeyHEXStr();
+}
+
 std::string AsymKey::getPublicKeyPEM()  const
 {
     return m_pImpl->getPublicKeyPEMStr();
