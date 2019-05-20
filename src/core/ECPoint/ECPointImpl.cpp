@@ -252,35 +252,6 @@ bool ECPointImpl::CheckOnCurve()
     return res == 0 ? false : true;
 }
 
-CurveList ECPointImpl::getCurveList()
-{
-    /* Get a list of all internal curves */
-    auto crvLen = EC_get_builtin_curves(NULL, 0);
-
-    EC_builtin_curve *curves = (EC_builtin_curve *) OPENSSL_malloc(sizeof(EC_builtin_curve) * crvLen);
-
-    if (curves == nullptr)
-    {
-        throw std::runtime_error("error : Failed to allocate memory for internal curves");
-    }
-
-    if (!EC_get_builtin_curves(curves, crvLen)) 
-    {
-        throw std::runtime_error("error : Failed to EC_get_builtin_curves to get internal curve list");
-    }
-
-    CurveList _curveList;
-    for (int i = 0; i < crvLen; i++)
-    {
-        _curveList.push_back(make_pair(curves[i].nid, curves[i].comment)); 
-    }
-  
-    /* NOTE : curves has an internal pointer, comment, which shouldn't freed as its just a pointer to a constant curve_list->comment*/
-    if (curves)
-        ::OPENSSL_free(curves);
-
-    return _curveList;
-}
 
 std::string ECPointImpl::ToHex()
 {
@@ -349,4 +320,34 @@ bool ECPointImpl::FromHex(const std::string& hexStr, int nid)
     m_ec = _ec;
 
     return true; 
+}
+
+CurveList _getCurveList()
+{
+    /* Get a list of all internal curves */
+    auto crvLen = EC_get_builtin_curves(NULL, 0);
+
+    EC_builtin_curve *curves = (EC_builtin_curve *) OPENSSL_malloc(sizeof(EC_builtin_curve) * crvLen);
+
+    if (curves == nullptr)
+    {
+        throw std::runtime_error("error : Failed to allocate memory for internal curves");
+    }
+
+    if (!EC_get_builtin_curves(curves, crvLen)) 
+    {
+        throw std::runtime_error("error : Failed to EC_get_builtin_curves to get internal curve list");
+    }
+
+    CurveList _curveList;
+    for (int i = 0; i < crvLen; i++)
+    {
+        _curveList.push_back(make_pair(curves[i].nid, curves[i].comment)); 
+    }
+  
+    /* NOTE : curves has an internal pointer, comment, which shouldn't freed as its just a pointer to a constant curve_list->comment*/
+    if (curves)
+        ::OPENSSL_free(curves);
+
+    return _curveList;
 }

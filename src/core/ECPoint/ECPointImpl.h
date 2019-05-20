@@ -115,8 +115,6 @@ class ECPointImpl
 	// Double the ECPointImpl
         std::unique_ptr<ECPointImpl> Double();
 
-        static CurveList  getCurveList();
-
         std::string ToHex();
         bool FromHex(const std::string& hexStr, int nid);
 
@@ -139,4 +137,5 @@ class ECPointImpl
         int nid = 0;
 };
 
+CurveList  _getCurveList();
 #endif // __ECPOINT_IMPL_H__
