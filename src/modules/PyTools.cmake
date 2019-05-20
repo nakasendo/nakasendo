@@ -5,33 +5,6 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
-set(PY_MODULE_BUILDER_IN "${CMAKE_CURRENT_SOURCE_DIR}/py_module_builder.py.in")
-
-## From cmake list, return the python list (single quoted with comma separator)
-function(sdkGetDoubleQuoted cmake_list output)
-  ## Only Win32 need to protect by double quote
-  if(WIN32)
-     string(REPLACE ";" "\" \"" list_comma_separated "${cmake_list}")
-     set(${output} "\"${list_comma_separated}\"" PARENT_SCOPE)
-  else()
-     set(${output} ${cmake_list} PARENT_SCOPE)
-  endif()
-endfunction()
-
-## For all core module, get the list of link libraries
-function(getListOfCoreLinkage output)
-  set(_output "")
-  foreach(_core_component ${SDK_CORE_COMPONENT_LIST})
-    if(NOT TARGET ${_core_component})
-      message(FATAL_ERROR "SDK error ${_core_component} is not indentified as target in cmake system")
-    endif()
-    list(APPEND _output "\$<TARGET_LINKER_FILE:${_core_component}>")
-  endforeach()
-  set(${output} "${_output}" PARENT_SCOPE)
-endfunction()
-
-
-
 macro(build_py_module modulename additional_cpp_file)
 
   set(_MODULE_NAME ${modulename})

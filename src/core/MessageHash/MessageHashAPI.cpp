@@ -68,6 +68,7 @@ std::vector<uint8_t>  DecodeBase64Ex (std::vector<uint8_t> toDec){
     std::unique_ptr<unsigned char> decodedValPtr = encdec.decode(msgPtr,value, strict, err);
     std::vector<uint8_t> retVal; 
     std::string strVal; 
+    
     if (decodedValPtr != nullptr){
         for (int i=0; i<value;++i){
             retVal.push_back(decodedValPtr.get()[i]);
@@ -199,22 +200,17 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
     //MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const std::string& msg)
     MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const unsigned char* msgPtrApi, int msgSize)    
     {
-        std::cout << "Will I see this in the window..." << msgPtrApi << "... and the length is " 
-                    << " ... and the length of the message from JS..." << msgSize << std::endl; 
         //std::string msg ( msgPtrApi );
         //std::cout << "msg looks like: " << msg << std::endl ; 
         //std::unique_ptr<unsigned char> msgPtr ( new unsigned char [msg.length()]); 
         std::unique_ptr<unsigned char> msgPtr ( new unsigned char[msgSize] ) ; 
         std::fill_n(msgPtr.get(), msgSize, 0x00);        
         int index(0);
-#if 0         
-        for (std::string::const_iterator iter = msg.begin(); iter != msg.end(); ++ iter, ++index){
-            msgPtr.get()[index] = *iter ; 
-        }        
-#endif
+
         for ( int i=0; i<msgSize; ++ i)        {
             msgPtr.get()[i] = msgPtrApi[i] ; 
         }
+     
         Base64EncDec encdec ; 
         int sizeEncodedBuffer(0);
         std::string retVal;
@@ -238,31 +234,21 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
         size_t value = 0;
         int strict = 0 ; 
         int * err = new int;  
-        
-        //std::string nonConstMsg ( msgPtrApi ); 
-        //nonConstMsg = nonConstMsg.erase(nonConstMsg.find_last_not_of("\t\n\v\f\r ")+1);
-        
-        //std::cout << "DecodeBase64 Will I see this in the window..." << msgPtrApi << "... and the length is " 
-        //            << "....size of JS ... " << msgSize << std::endl; 
-        //std::cout << "DecodeBase64 Will I see this in the window..." << nonConstMsg << "... and the length is " << nonConstMsg.length() << std::endl; 
+          
         
         std::unique_ptr<unsigned char> msgPtr ( new unsigned char [msgSize+1]);  
         std::fill_n(msgPtr.get(), msgSize+1, 0x00);      
-        //std::string::const_iterator iter = nonConstMsg.begin();
         for (unsigned int i = 0; i < msgSize;++i){
             msgPtr.get()[i] = msgPtrApi[i] ;
         }        
-        Base64EncDec encdec;
-        std::cout << "Value to decode ....." << msgPtr.get () << std::endl ; 
+        Base64EncDec encdec;        
         std::unique_ptr<unsigned char> decodedValPtr = encdec.decode(msgPtr,value, strict, err);
         std::string retVal; 
         if (decodedValPtr != nullptr){
             for (int i=0; i<value;++i){
                 retVal.push_back(decodedValPtr.get()[i]);
             }
-                //retVal = (char*)decodedValPtr.get() ; 
         }else{retVal="ERROR";}
-        std::cout << "Is this the length?...." << value << "..and the value from the string..." << retVal.length() << std::endl ;
         std::cout << retVal.c_str() << std::endl;
 #ifdef __EMSCRIPTEN__
         return retVal.c_str() ;         
