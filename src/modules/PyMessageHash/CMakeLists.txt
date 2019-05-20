@@ -5,5 +5,10 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
-set(_ADDITIONAL_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/PyMessageHash.cpp)
-build_py_module(MessageHash "${_ADDITIONAL_CPP_FILE}")
+set(_PY_MODULE_NAME PyMessageHash)
+set(_PY_MODULE_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/PyMessageHash.cpp)
+
+Python_add_library(${_PY_MODULE_NAME} ${_PY_MODULE_SOURCE_FILES})
+target_link_libraries(${_PY_MODULE_NAME} PRIVATE ${SDK_CORE_COMPONENT_LIST})
+set_target_properties(${_PY_MODULE_NAME} PROPERTIES FOLDER "modules" DEBUG_POSTFIX "")
+install(TARGETS ${_PY_MODULE_NAME} DESTINATION "lib" COMPONENT PyModules)
