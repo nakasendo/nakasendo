@@ -56,6 +56,39 @@ AsymKeyImpl& AsymKeyImpl::operator=(const AsymKeyImpl& crOther)
 /// https://stackoverflow.com/questions/50479284/openssl-read-an-ec-key-then-write-it-again-and-its-different
 /// https://www.openssl.org/docs/man1.1.0/man3/PEM_read_bio.html
 
+int AsymKeyImpl::GroupNid()const
+{
+    /// The curve name secp256k1 has to be consistent with the constructor
+    return OBJ_txt2nid("secp256k1");
+}
+
+std::string AsymKeyImpl::getPublicKeyHEXStr()  const
+{
+    using BN_CTX_ptr = std::unique_ptr< BN_CTX, decltype(&BN_CTX_free) >;
+    using EC_GROUP_ptr = std::unique_ptr< EC_GROUP, decltype(&EC_GROUP_free) >;
+    using EC_POINT_ptr = std::unique_ptr< EC_POINT, decltype(&EC_POINT_free) >;
+
+    BN_CTX_ptr nb_ctx( BN_CTX_new() , &BN_CTX_free);
+    EC_GROUP_ptr ec_group(EC_GROUP_new_by_curve_name(GroupNid()) , &EC_GROUP_free);
+    const EC_POINT* pEC_POINT = EC_KEY_get0_public_key(p_eckey);
+    const std::string pubkey_hex( EC_POINT_point2hex(ec_group.get(), pEC_POINT, POINT_CONVERSION_COMPRESSED, nb_ctx.get()));
+
+    return std::move(pubkey_hex);
+}
+
+std::string AsymKeyImpl::getPrivateKeyHEXStr()  const
+{
+    using BN_CTX_ptr = std::unique_ptr< BN_CTX, decltype(&BN_CTX_free) >;
+    using EC_GROUP_ptr = std::unique_ptr< EC_GROUP, decltype(&EC_GROUP_free) >;
+    using EC_POINT_ptr = std::unique_ptr< EC_POINT, decltype(&EC_POINT_free) >;
+
+    BN_CTX_ptr nb_ctx(BN_CTX_new(), &BN_CTX_free);
+    EC_GROUP_ptr ec_group(EC_GROUP_new_by_curve_name(GroupNid()), &EC_GROUP_free);
+    const BIGNUM * pBN = EC_KEY_get0_private_key(p_eckey);
+    const std::string private_key_hex(BN_bn2hex(pBN));
+    return std::move(private_key_hex);
+}
+
 std::string AsymKeyImpl::getPublicKeyPEMStr()  const
 {
     BIO_ptr outbio (BIO_new(BIO_s_mem()),&BIO_free_all);

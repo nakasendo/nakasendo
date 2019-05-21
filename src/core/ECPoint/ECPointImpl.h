@@ -43,24 +43,26 @@ class ECPointImpl
         { 
             m_gp = EC_GROUP_new_by_curve_name(NID_secp256k1);
             m_ec = EC_POINT_new(m_gp);
+            this->nid = NID_secp256k1;
         }
 
         ECPointImpl(const int& nid) 
-	{
+        {
             // Construct a builtin curve 
             if((m_gp = EC_GROUP_new_by_curve_name(nid)) == nullptr)
             {
                 throw std::runtime_error("error : Failed to allocate curve");
             }
             m_ec = EC_POINT_new(m_gp);
-	}
+            this->nid = nid;
+        }
 
         ~ECPointImpl()
         {
-	    if (m_ec)
+            if (m_ec)
                 EC_POINT_free(m_ec);
 
-	    if (m_gp)
+            if (m_gp)
                 EC_GROUP_free(m_gp);
 
         }
@@ -73,10 +75,11 @@ class ECPointImpl
             m_ec = EC_POINT_new(m_gp);
             EC_GROUP_copy (m_gp, obj.gp());
             EC_POINT_copy (m_ec, obj.ec());
+            nid = obj.getNid();
         }
 
         ECPointImpl& operator= (const ECPointImpl& obj)
-        { 
+        {
             if (this != &obj)
             {
                 method = obj.getMethod();
@@ -84,6 +87,7 @@ class ECPointImpl
                 m_ec = EC_POINT_new(m_gp);
                 EC_GROUP_copy (m_gp, obj.gp());
                 EC_POINT_copy (m_ec, obj.ec());
+		nid = obj.getNid();
             }
             return *this;
         }
@@ -91,6 +95,7 @@ class ECPointImpl
         const ECPOINT_ptr ec () const { return m_ec;}
         const ECGROUP_ptr gp () const { return m_gp;}
         ECMETHOD_ptr getMethod() const {return method;}
+        const int getNid() const { return nid;};
 
         // Invert the given object
         void Invert();
@@ -110,10 +115,8 @@ class ECPointImpl
 	// Double the ECPointImpl
         std::unique_ptr<ECPointImpl> Double();
 
-        CurveList  getCurveList();
-
         std::string ToHex();
-        
+        bool FromHex(const std::string& hexStr, int nid);
 
     private:
 
@@ -131,6 +134,8 @@ class ECPointImpl
         ECPOINT_ptr m_ec = nullptr; 
         ECGROUP_ptr m_gp = nullptr; 
         ECMETHOD_ptr method = nullptr;
+        int nid = 0;
 };
 
+CurveList  _getCurveList();
 #endif // __ECPOINT_IMPL_H__

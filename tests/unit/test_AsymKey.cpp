@@ -9,6 +9,8 @@
 #include <vector>
 #include <utility>
 
+#include <openssl/objects.h>
+
 BOOST_AUTO_TEST_SUITE(test_suite_AsymKey)
 
 BOOST_AUTO_TEST_CASE(test_constructor)
@@ -67,6 +69,13 @@ BOOST_AUTO_TEST_CASE(test_copy)
 BOOST_AUTO_TEST_CASE(test_IO)
 {
     const AsymKey test_key;
+    const int test_groupID = test_key.GroupNid();
+    const std::string test_pubkey_hex = test_key.getPublicKeyHEX();
+    const std::string test_prikey_hex = test_key.getPrivateKeyHEX();
+    BOOST_TEST(test_groupID == OBJ_txt2nid("secp256k1"));
+    BOOST_TEST(!test_pubkey_hex.empty());
+    BOOST_TEST(!test_prikey_hex.empty());
+
     const std::string test_pubkey_str = test_key.getPublicKeyPEM();
     const std::string test_priKey_Str = test_key.getPrivateKeyPEM();
 
@@ -81,9 +90,13 @@ BOOST_AUTO_TEST_CASE(test_IO)
 
 BOOST_AUTO_TEST_CASE(test_API)
 {
-    const std::pair<std::string, std::string> keyPair = GenerateKeyPairPEM();
-    BOOST_CHECK(!keyPair.first.empty());
-    BOOST_CHECK(!keyPair.second.empty());
+    const std::pair<std::string, std::string> keyPairPEM = GenerateKeyPairPEM();
+    BOOST_CHECK(!keyPairPEM.first.empty());
+    BOOST_CHECK(!keyPairPEM.second.empty());
+
+    const std::pair<std::string, std::string> keyPairHEX = GenerateKeyPairHEX();
+    BOOST_CHECK(!keyPairHEX.first.empty());
+    BOOST_CHECK(!keyPairHEX.second.empty());
 }
 
 BOOST_AUTO_TEST_CASE(test_Sig_Verify)

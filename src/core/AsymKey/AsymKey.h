@@ -29,6 +29,9 @@ class AsymKey_API AsymKey
         AsymKey(const AsymKey& obj);
         AsymKey& operator=(const AsymKey& obj);
 
+        int GroupNid()const;
+        std::string getPublicKeyHEX()  const;
+        std::string getPrivateKeyHEX() const;
         std::string getPublicKeyPEM()  const;
         std::string getPrivateKeyPEM() const;
         void setPEMPrivateKey(const std::string&);// Import PEM private key

@@ -11,7 +11,8 @@
 
 #include <memory>
 #include <string>
-#include <ECPoint/ECPointImpl.h>
+#include <utility>
+#include <vector>
 
 class ECPointImpl; 
 
@@ -40,8 +41,9 @@ class ECPoint_API ECPoint
         void Invert();
         bool CheckInfinity();
         bool CheckOnCurve();
-	CurveList getCurveList();
         std::string ToHex();
+        int GroupNid()const;
+        bool FromHex(const std::string& hexStr, int nid);
 
     private:
         const ECPointImpl* pImpl() const;
@@ -50,6 +52,6 @@ class ECPoint_API ECPoint
         std::unique_ptr<ECPointImpl> m_pImpl ; 
 };
 
+std::vector<std::pair<int, std::string>> getCurveList();
+
 #endif //ifndef _EC_POINT__H__
-
-
