@@ -1,0 +1,14 @@
+#################################################################
+#  Date             24/04/2019                                  #
+#  Author           nChain's employees                          #
+#                                                               #
+#  Copyright (c) 2019 nChain Limited. All rights reserved       #
+#################################################################
+
+set(_PY_MODULE_NAME PyECPoint)
+set(_PY_MODULE_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/PyECPoint.cpp)
+
+Python_add_library(${_PY_MODULE_NAME} ${_PY_MODULE_SOURCE_FILES})
+target_link_libraries(${_PY_MODULE_NAME} PRIVATE ${SDK_CORE_COMPONENT_LIST})
+set_target_properties(${_PY_MODULE_NAME} PROPERTIES FOLDER "modules" DEBUG_POSTFIX "")
+install(TARGETS ${_PY_MODULE_NAME} DESTINATION "lib" COMPONENT PyModules)
