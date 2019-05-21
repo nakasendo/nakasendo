@@ -1,5 +1,5 @@
 #include <ECPoint/ECPoint.h>
-
+#include <ECPoint/ECPointImpl.h>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
@@ -80,6 +80,11 @@ ECPoint ECPoint::Double()
     return res;
 }
 
+void ECPoint::SetRandom()
+{
+    pImpl()->SetRandom () ; 
+}
+
 void ECPoint::Invert()
 {
     return this->pImpl()->Invert();
@@ -93,6 +98,10 @@ bool ECPoint::CheckInfinity()
 bool ECPoint::CheckOnCurve()
 {
     return  this->pImpl()->CheckOnCurve();
+}
+
+std::pair<std::string, std::string> ECPoint::GetAffineCoords_GFp (){
+    return pImpl()->GetAffineCoords_GFp () ; 
 }
 
 std::string ECPoint::ToHex()

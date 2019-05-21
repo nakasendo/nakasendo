@@ -21,6 +21,10 @@ add_executable(SymEncDecClient SymEncDecTest.cpp)
 target_link_libraries(SymEncDecClient SymEncDec MessageHash)
 set_property(TARGET SymEncDecClient PROPERTY FOLDER "tests")
 
+add_executable(ECPointClient ECPointTest.cpp)
+target_link_libraries(ECPointClient ECPoint BigNumbers)
+set_property(TARGET ECPointClient PROPERTY FOLDER "tests")
+
 
 ## Add unit testing. TODO : remove all the above test cases into subdirectory and make it a real tests (with CHECKING results)
 add_subdirectory(unit)

@@ -10,9 +10,12 @@
 #endif
 
 #include <memory>
+#include <vector>
 #include <string>
+
 #include <utility>
 #include <vector>
+
 
 class ECPointImpl; 
 
@@ -38,12 +41,17 @@ class ECPoint_API ECPoint
         ECPoint MulHex(const std::string& objm, const std::string& objn);
         ECPoint MulDec(const std::string& objm, const std::string& objn);
         ECPoint Double();
+
+        void SetRandom() ; 
         void Invert();
         bool CheckInfinity();
         bool CheckOnCurve();
+
         std::string ToHex();
         int GroupNid()const;
-        bool FromHex(const std::string& hexStr, int nid = -1);
+
+        bool FromHex(const std::string& hexStr, int nid=-1);
+        std::pair<std::string, std::string> GetAffineCoords_GFp () ; 
 
     private:
         const ECPointImpl* pImpl() const;
@@ -51,6 +59,7 @@ class ECPoint_API ECPoint
 
         std::unique_ptr<ECPointImpl> m_pImpl ; 
 };
+
 
 std::vector<std::pair<int, std::string>> getCurveList();
 int getNidForString(std::string& nidStr);
