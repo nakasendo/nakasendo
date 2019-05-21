@@ -21,6 +21,9 @@ public:
     AsymKeyImpl(const AsymKeyImpl& crOther);
     AsymKeyImpl& operator= (const AsymKeyImpl&  crOther);
 
+    int GroupNid()const;
+    std::string getPublicKeyHEXStr()  const;
+    std::string getPrivateKeyHEXStr() const;
     std::string getPublicKeyPEMStr()  const;
     std::string getPrivateKeyPEMStr() const;
     void setPEMPrivateKey(const std::string&);// Import PEM private key

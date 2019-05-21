@@ -18,13 +18,32 @@ static struct module_state _state;
 
 static PyObject* wrap_GenerateKeyPairPEM(PyObject* self, PyObject *args)
 {
-    const std::pair<std::string, std::string> keyPair = GenerateKeyPairPEM();
-    return Py_BuildValue("ss",keyPair.first.c_str(),keyPair.second.c_str());
+    const std::pair<std::string, std::string> keyPairPEM = GenerateKeyPairPEM();
+    return Py_BuildValue("ss", keyPairPEM.first.c_str(), keyPairPEM.second.c_str());
+}
+
+static PyObject* wrap_GenerateKeyPairHEX(PyObject* self, PyObject *args)
+{
+    const std::pair<std::string, std::string> keyPairHEX = GenerateKeyPairHEX();
+    return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
+}
+
+static PyObject* wrap_GetKeyPairHEX(PyObject* self, PyObject *args)
+{
+    char* cPrivKeyPEM = nullptr;
+
+    if (!PyArg_ParseTuple(args, "s", &cPrivKeyPEM))
+        return NULL;
+
+    const std::string privPEMKey(cPrivKeyPEM);
+
+    const std::pair<std::string, std::string> keyPairHEX = GetKeyPairHEX(privPEMKey);
+    return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
 }
 
 static PyObject* wrap_Sign(PyObject* self, PyObject *args)
 {
-    char* cPrivKey=nullptr;
+    char* cPrivKey = nullptr;
     char* cMsg = nullptr;
 
     if (!PyArg_ParseTuple(args, "ss", &cPrivKey, &cMsg))
@@ -64,7 +83,9 @@ static PyObject* wrap_Verify(PyObject* self, PyObject *args)
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
-    {"GenerateKeyPairPEM",wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys"},
+    {"GenerateKeyPairPEM",wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys in pem format"},
+    {"GenerateKeyPairHEX",wrap_GenerateKeyPairHEX,METH_VARARGS,"Generate pair of keys in hex format"},
+    {"GetKeyPairHEX",wrap_GetKeyPairHEX,METH_VARARGS,"Get pair of keys in hex format from a private PEM key"},
     {"Sign",wrap_Sign,METH_VARARGS,"Sign message with private Key"},
     {"Verify",wrap_Verify,METH_VARARGS,"Verify message's signature with public key"},
     {NULL, NULL, 0, NULL},
