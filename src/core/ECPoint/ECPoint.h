@@ -43,7 +43,7 @@ class ECPoint_API ECPoint
         bool CheckOnCurve();
         std::string ToHex();
         int GroupNid()const;
-        bool FromHex(const std::string& hexStr, int nid);
+        bool FromHex(const std::string& hexStr, int nid = -1);
 
     private:
         const ECPointImpl* pImpl() const;
@@ -53,5 +53,6 @@ class ECPoint_API ECPoint
 };
 
 std::vector<std::pair<int, std::string>> getCurveList();
+int getNidForString(std::string& nidStr);
 
 #endif //ifndef _EC_POINT__H__

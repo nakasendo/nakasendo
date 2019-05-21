@@ -114,3 +114,20 @@ std::vector<std::pair<int, std::string>> getCurveList()
 {
     return  _getCurveList(); 
 }
+
+int getNidForString(std::string& nidStr)
+{
+    // get the curve vec list
+    std::vector<std::pair<int, std::string>> nidVec = getCurveList();
+
+    // iterate over the vec list and look for the matched one
+    for(auto& nidPair : nidVec)
+    {
+        if (nidPair.second == nidStr)
+        {
+            return nidPair.first;
+        }
+    }
+    return -1;
+}
+
