@@ -2,7 +2,8 @@
 import sys
 import json
 import string
-sys.path.append ('/home/osboxes/nchain/SDK/build/INSTALLATION/lib')
+#Please update the PYTHONPATH or use the sys.path.append with the path to 
+#the Nakasando installation
 import PyBigNumbers
 import PyECPoint
 import Nakasando
