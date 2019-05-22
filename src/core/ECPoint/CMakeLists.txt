@@ -29,5 +29,5 @@ target_compile_definitions(ECPoint PRIVATE EXPORT_ECPoint)
 set_property(TARGET ECPoint PROPERTY FOLDER "core")
 sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST ECPoint)
 
-install(FILES ${EC_POINT_HPP_FILES_PUBLIC} DESTINATION "include/ECPoint" COMPONENT CPP)
-install(TARGETS ECPoint DESTINATION "lib" COMPONENT CPP)
+install(FILES ${EC_POINT_HPP_FILES_PUBLIC} DESTINATION "include/ECPoint" COMPONENT core)
+install(TARGETS ECPoint DESTINATION "lib" COMPONENT core)
