@@ -1,7 +1,8 @@
 import sys
 import json
 import string
-sys.path.append ('/home/osboxes/nchain/SDK/build/INSTALLATION/lib')
+#Plese add the path to the library or update the PYTHONPATH
+#sys.path.append ('PATH TO INSTALLATION LIB')
 import PyBigNumbers
 import PyECPoint
 
