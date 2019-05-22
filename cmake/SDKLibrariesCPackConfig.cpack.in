@@ -1,0 +1,52 @@
+#################################################################
+#  Date             21/05/2019                                  #
+#  Author           nChain's employees                          #
+#                                                               #
+#  Copyright (c) 2019 nChain Limited. All rights reserved       #
+#################################################################
+if(SDKLibrariesCPackConfig_Include)## Include guard
+  return()
+endif()
+set(SDKLibrariesCPackConfig_Include TRUE)
+
+message(STATUS "SDK Configure Packaging ...  ") ##
+
+set(CPACK_PACKAGE_VENDOR "nChain")
+set(CPACK_PACKAGE_VERSION_MAJOR ${SDK_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${SDK_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${SDK_VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION ${SDK_VERSION_STRING})
+
+set(CPACK_COMPONENTS_ALL Files core PyModules WASMModules)
+
+if(NOT CUSTOM_SYSTEM_OS_NAME)## Add -DCUSTOM_SYSTEM_OS_NAME=Ubuntu for example to make the installer name
+  set(SDK_CPACK_OS_NAME ${SDK_SYSTEM_OS})
+else()
+  set(SDK_CPACK_OS_NAME ${CUSTOM_SYSTEM_OS_NAME})
+endif()
+
+set(SDK_BASE_PACKAGE_NAME "${CMAKE_PROJECT_NAME}-v${SDK_VERSION_STRING}_${SOURCE_GIT_COMMIT_BRANCH}-${SOURCE_GIT_COMMIT_HASH}")
+string(REPLACE "/" "_" SDK_BASE_PACKAGE_FIXEDNAME "${SDK_BASE_PACKAGE_NAME}") ## Fix the package name in case the branch name contains "/"
+if(CMAKE_CONFIGURATION_TYPES)
+  set(CPACK_PACKAGE_FILE_NAME "${SDK_BASE_PACKAGE_FIXEDNAME}_${SDK_CPACK_OS_NAME}-x${SDK_SYSTEM_BUILD_ARCHI}-\${CPACK_BUILD_CONFIG}")
+else()
+  set(CPACK_PACKAGE_FILE_NAME "${SDK_BASE_PACKAGE_FIXEDNAME}_${SDK_CPACK_OS_NAME}-x${SDK_SYSTEM_BUILD_ARCHI}-${CMAKE_BUILD_TYPE}")
+endif()
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENCE.txt")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${CMAKE_PROJECT_NAME} ${SDK_VERSION_STRING} Software Development Kit for advanced cryptographic functionalities")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_PROJECT_NAME}-${SDK_VERSION_STRING}")
+#set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/misc/SDKLibrariesLogo.ico")
+
+
+## Specific NSIS ##################################
+set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/misc/SDKLibrariesLogo.ico")
+#set(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/misc/SDKLibrariesLogo.ico")
+set(CPACK_NSIS_DISPLAY_NAME "${CMAKE_PROJECT_NAME} version ${SDK_VERSION_STRING}")
+set(CPACK_NSIS_PACKAGE_NAME "${CMAKE_PROJECT_NAME} ${SDK_VERSION_STRING}")
+
+

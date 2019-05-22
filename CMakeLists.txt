@@ -47,3 +47,11 @@ include_directories(${CMAKE_SOURCE_DIR}/src/core)
 add_subdirectory(depends/secp256k1)
 add_subdirectory(src)
 add_subdirectory(tests)
+
+## On Widows, need to download NSIS https://nsis.sourceforge.io/Download
+## Possible to do WIX generator for MSI installer
+set(SDK_CPACK_CONFIG_IN "${CMAKE_SOURCE_DIR}/cmake/SDKLibrariesCPackConfig.cpack.in")
+set(SDK_CPACK_CONFIG "${CMAKE_BINARY_DIR}/SDKLibrariesCPackConfig.cpack")
+configure_file(${SDK_CPACK_CONFIG_IN} ${SDK_CPACK_CONFIG} @ONLY)
+include(${SDK_CPACK_CONFIG})
+include(CPack)

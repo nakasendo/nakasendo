@@ -109,7 +109,7 @@ _add_secp256k1_test(tests_secp256k1_exhaustive src/tests_exhaustive.cpp)
 
 ## Install HEADERS
 foreach(_HEADER ${_SECP256K1_HEADER_FILES})
-  install(FILES "${_HEADER}" DESTINATION "${SDK_COMMON_INSTALL_PREFIX}/include/secp256k1/include" COMPONENT Core)
+  install(FILES "${_HEADER}" DESTINATION "include/secp256k1/include" COMPONENT core)
 endforeach()
 
 # TODO: Installation
