@@ -20,7 +20,6 @@ typedef EC_builtin_curve* EC_builtin_curve_ptr;
 using CurveList = std::vector<std::pair<int, std::string>>;
 using CTX_ptr = std::unique_ptr<BN_CTX, decltype(&::BN_CTX_free)>;
 
-//using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)> ;
 
 inline  bool caseInSensitiveStringCompare(const std::string& s1, const std::string& s2)
 {
