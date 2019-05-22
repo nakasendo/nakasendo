@@ -99,6 +99,8 @@ int main(int argc,char * argv[]){
     if (ecPt3 != ecPt2){
         std::cout << "Randomly generated points should not be equal ..." << std::endl; 
     }
-    
+   
+	
+	ECPoint nonDefaultCurvePt(704);
     return 0; 
 }
