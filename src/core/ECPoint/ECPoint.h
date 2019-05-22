@@ -3,7 +3,7 @@
 
 #include <DYNAMIC_LIBRARY_API.hpp>
 
-#ifdef EXPORT_ECPoints
+#ifdef EXPORT_ECPoint
 #    define ECPoint_API EXPORT_DYNAMIC_LIBRARY
 #else
 #    define ECPoint_API IMPORT_DYNAMIC_LIBRARY
