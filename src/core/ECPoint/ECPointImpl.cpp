@@ -280,6 +280,9 @@ std::string ECPointImpl::ToHex()
 
 bool ECPointImpl::FromHex(const std::string& hexStr, int nid)
 {
+    if (nid == -1)
+        nid = NID_secp256k1; 
+
     ECGROUP_ptr _gp = EC_GROUP_new_by_curve_name(nid);
     ECPOINT_ptr _ec = nullptr;
     if (_gp == nullptr)

@@ -9,8 +9,8 @@
 if(CMAKE_CONFIGURATION_TYPES)
   file(TOUCH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/__init__.py")
   file(TOUCH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/__init__.py")
-  install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/__init__.py" CONFIGURATIONS Debug DESTINATION lib COMPONENT Files)
-  install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/__init__.py" CONFIGURATIONS Release DESTINATION lib COMPONENT Files)
+  install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/__init__.py" CONFIGURATIONS Debug DESTINATION lib COMPONENT PyModules)
+  install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/__init__.py" CONFIGURATIONS Release DESTINATION lib COMPONENT PyModules)
 
   set(PY_MODULES_RUNTIME_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/PyModuleLoadHelper.py.in" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/PyModuleLoadHelper.py")
@@ -18,7 +18,7 @@ if(CMAKE_CONFIGURATION_TYPES)
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/PyModuleLoadHelper.py.in" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/PyModuleLoadHelper.py")
 else()
   file(TOUCH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/__init__.py")
-  install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/__init__.py" DESTINATION lib COMPONENT Files)
+  install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/__init__.py" DESTINATION lib COMPONENT PyModules)
 
   set(PY_MODULES_RUNTIME_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/PyModuleLoadHelper.py.in" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/PyModuleLoadHelper.py")
@@ -28,6 +28,7 @@ add_subdirectory(PyAsymKey)
 add_subdirectory(PyBigNumbers)
 add_subdirectory(PyMessageHash)
 add_subdirectory(PySymEncDec)
+add_subdirectory(PyECPoint)
 
 ## build wasm modules
 ## See ${CMAKE_CURRENT_SOURCE_DIR}/WasmTools.cmake header to see how to install/setup for WASM

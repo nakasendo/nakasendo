@@ -130,6 +130,6 @@ macro(build_wasm_modules)##################################################
       configure_file(${CMAKE_CURRENT_SOURCE_DIR}/wasm_module_builder.sh.in ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${WasmBuilderScriptName})
       add_custom_command(TARGET ${WASM_TARGET_NAME} POST_BUILD COMMAND /bin/sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${WasmBuilderScriptName} ${WASM_BITCODE_FILE} ${WASM_OUTPUT_FILE})
     endif()
-    install(FILES "${WASM_OUTPUT_FILE}" DESTINATION "lib" COMPONENT WASM)
+    install(FILES "${WASM_OUTPUT_FILE}" DESTINATION "lib" COMPONENT WASMModules)
   endforeach()
 endmacro()
