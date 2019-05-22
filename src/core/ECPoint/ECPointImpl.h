@@ -24,14 +24,6 @@ using CurveList = std::vector<std::pair<int, std::string>>;
 
 using CTX_ptr = std::unique_ptr<BN_CTX, decltype(&::BN_CTX_free)>;
 
-inline  bool caseInSensitiveStringCompare(const std::string& s1, const std::string& s2)
-{
-    return(s1.size() == s2.size() && std::equal(s1.begin(), s1.end(), s2.begin(), s2.end(), 
-                                                    [](const char& c1, const char& c2){
-                                                       return (c1 == c2 || std::toupper(c1) == std::toupper(c2));
-                                                    } ));
-}
-
 class ECPointImpl
 {
     friend std::unique_ptr<ECPointImpl> Add(const ECPointImpl *obj1, const ECPointImpl *obj2);
