@@ -28,5 +28,5 @@ target_link_libraries(ECPoint OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CM
 target_compile_definitions(ECPoint PRIVATE EXPORT_ECPoint)
 set_property(TARGET ECPoint PROPERTY FOLDER "core")
 
-install(FILES ${EC_POINT_HPP_FILES_PUBLIC} DESTINATION "include/ECPoint" COMPONENT CPP)
-install(TARGETS ECPoint DESTINATION "lib" COMPONENT CPP)
+install(FILES ${EC_POINT_HPP_FILES_PUBLIC} DESTINATION "include/ECPoint" COMPONENT core)
+install(TARGETS ECPoint DESTINATION "lib" COMPONENT core)

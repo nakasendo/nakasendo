@@ -31,5 +31,5 @@ target_compile_definitions(AsymKey PRIVATE EXPORT_AsymKey)
 set_property(TARGET AsymKey PROPERTY FOLDER "core")
 sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST AsymKey)
 
-install(FILES ${ASYM_KEY_HPP_FILES_PUBLIC} DESTINATION "include/AsymKey" COMPONENT CPP)
-install(TARGETS AsymKey DESTINATION "lib" COMPONENT CPP)
+install(FILES ${ASYM_KEY_HPP_FILES_PUBLIC} DESTINATION "include/AsymKey" COMPONENT core)
+install(TARGETS AsymKey DESTINATION "lib" COMPONENT core)
