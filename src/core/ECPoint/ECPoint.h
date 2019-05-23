@@ -14,7 +14,6 @@
 #include <string>
 
 #include <utility>
-#include <vector>
 
 
 class ECPointImpl; 

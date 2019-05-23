@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
-#include <ECPoint/ECPointImpl.h>
 
 #include <cassert>
 #define ASSERT assert
