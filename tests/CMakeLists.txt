@@ -17,13 +17,13 @@ add_executable(MessageHashClient MessageHashClient.cpp)
 target_link_libraries(MessageHashClient MessageHash)
 set_property(TARGET MessageHashClient PROPERTY FOLDER "tests")
 
-add_executable(SymEncDecClient SymEncDecTest.cpp)
-target_link_libraries(SymEncDecClient SymEncDec MessageHash)
-set_property(TARGET SymEncDecClient PROPERTY FOLDER "tests")
+add_executable(SymEncDecTest SymEncDecTest.cpp)
+target_link_libraries(SymEncDecTest SymEncDec MessageHash)
+set_property(TARGET SymEncDecTest PROPERTY FOLDER "tests")
 
-add_executable(ECPointClient ECPointTest.cpp)
-target_link_libraries(ECPointClient ECPoint BigNumbers)
-set_property(TARGET ECPointClient PROPERTY FOLDER "tests")
+add_executable(ECPointTest ECPointTest.cpp)
+target_link_libraries(ECPointTest ECPoint BigNumbers)
+set_property(TARGET ECPointTest PROPERTY FOLDER "tests")
 
 
 ## To run a single unit test, just run the compiled binary

@@ -60,7 +60,7 @@ class ECPoint_API ECPoint
 };
 
 
-std::vector<std::pair<int, std::string>> getCurveList();
-int getNidForString(std::string& nidStr);
+std::vector<std::pair<int, std::string>> ECPoint_API getCurveList();
+int ECPoint_API getNidForString(std::string& nidStr);
 
 #endif //ifndef _EC_POINT__H__

@@ -4,12 +4,17 @@
 #                                                               #
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
-
-file(GLOB _FUNCTIOINAL_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_*.py")
-#sdkPrintList(_FUNCTIOINAL_TEST_FILES "${_FUNCTIOINAL_TEST_FILES}")
+message("SDK INFO : Functional tests will not run in Debug mode because actually PyModules can not be loaded in debug")
+message("SDK INFO : To add a functional test, create a file name test_MyTestName.py")
+message("SDK INFO : import TestArgsParser")
+message("SDK INFO : To run a single functional test :")
+message("SDK INFO :    python test_MyTestName.py --data_dir=/absolute/path/to/data/dir --module_dir=/absolute/path/to/PyModules/dir")
 
 set(FTEST_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/test_data")
+## Get all test scripts
+file(GLOB _FUNCTIOINAL_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_*.py")
 
+## Create each test case corresponding to a test file
 foreach(_ftest_file ${_FUNCTIOINAL_TEST_FILES})
   get_filename_component(_ftest_file_name "${_ftest_file}" NAME_WE)
   string(REGEX REPLACE "test_" "ftest_" _test_name ${_ftest_file_name})
