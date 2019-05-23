@@ -3,16 +3,18 @@
 
 #include <DYNAMIC_LIBRARY_API.hpp>
 
-#ifdef EXPORT_ECPoints
+#ifdef EXPORT_ECPoint
 #    define ECPoint_API EXPORT_DYNAMIC_LIBRARY
 #else
 #    define ECPoint_API IMPORT_DYNAMIC_LIBRARY
 #endif
 
 #include <memory>
-#include <string>
-#include <utility>
 #include <vector>
+#include <string>
+
+#include <utility>
+
 
 class ECPointImpl; 
 
@@ -38,12 +40,17 @@ class ECPoint_API ECPoint
         ECPoint MulHex(const std::string& objm, const std::string& objn);
         ECPoint MulDec(const std::string& objm, const std::string& objn);
         ECPoint Double();
+
+        void SetRandom() ; 
         void Invert();
         bool CheckInfinity();
         bool CheckOnCurve();
+
         std::string ToHex();
         int GroupNid()const;
-        bool FromHex(const std::string& hexStr, int nid = -1);
+
+        bool FromHex(const std::string& hexStr, int nid=-1);
+        std::pair<std::string, std::string> GetAffineCoords_GFp () ; 
 
     private:
         const ECPointImpl* pImpl() const;
@@ -52,7 +59,8 @@ class ECPoint_API ECPoint
         std::unique_ptr<ECPointImpl> m_pImpl ; 
 };
 
-std::vector<std::pair<int, std::string>> getCurveList();
-int getNidForString(std::string& nidStr);
+
+std::vector<std::pair<int, std::string>> ECPoint_API getCurveList();
+int ECPoint_API getNidForString(std::string& nidStr);
 
 #endif //ifndef _EC_POINT__H__
