@@ -37,3 +37,12 @@ cmake -G"Visual Studio 15 2017" -A x64 ..\SDKLibraries && cmake --build . --targ
 ### Compile SDK on Linux
 cmake ..\SDKLibraries ; time -p make -j8
 
+## To run all test set:
+ctest            # or make test on linux
+ctest -C Release # On Windows
+ctest -C Debug   # On Windows
+
+## To manually run a single unit test, just run the compiled binary
+## To manually run a single functional test in python :
+##   python test_script.py --data_dir=/absolute/path/to/data/dir --module_dir=/absolute/path/to/PyModules/dir
+

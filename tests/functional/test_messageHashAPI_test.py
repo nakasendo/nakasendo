@@ -1,9 +1,11 @@
+import pathlib
+import TestArgsParser
 import PyMessageHash
 
 def test_MsgHash256API():
 
     # Reading test data from the file
-    with open("testData_MsgSHA256", "r") as msgHashFile_txt:
+    with (TestArgsParser.test_data_dir/"testData_MsgSHA256").open() as msgHashFile_txt:
 
         for x in msgHashFile_txt.readlines():
 
@@ -20,7 +22,7 @@ def test_MsgHash256API():
 def test_HashMsgAPI():
 
     # Reading test data from the file
-    with open("testData_HashMsg", "r") as hashMsgFile_txt:
+    with (TestArgsParser.test_data_dir/"testData_HashMsg").open() as hashMsgFile_txt:
 
         for x in hashMsgFile_txt.readlines():
 
@@ -36,7 +38,7 @@ def test_HashMsgAPI():
 def test_EncodeBase64API():
 
     #Reading test data from the file
-    with open("testData_EncodeDecode", "r") as encodeFile_txt:
+    with (TestArgsParser.test_data_dir/"testData_EncodeDecode").open() as encodeFile_txt:
 
         for x in encodeFile_txt.readlines():
 
@@ -52,7 +54,7 @@ def test_EncodeBase64API():
 def test_DecodeBase64API():
 
     #Reading test data from the file
-    with open("testData_EncodeDecode", "r") as decodeFile_txt:
+    with (TestArgsParser.test_data_dir/"testData_EncodeDecode").open() as decodeFile_txt:
 
         for x in decodeFile_txt.readlines():
 
