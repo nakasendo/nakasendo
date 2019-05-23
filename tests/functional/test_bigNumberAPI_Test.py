@@ -1,9 +1,11 @@
+import pathlib
+import TestArgsParser
 import PyBigNumbers
 
 def test_AddFromDecWithBigNumApi():
 
     # Reading test data from the file
-    with open("testData_AddDec", "r") as addDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_AddDec").open() as addDec_txt:
         for x in addDec_txt:
 
             decNumber = x.split()
@@ -18,7 +20,7 @@ def test_AddFromDecWithBigNumApi():
 def test_AddFromHexWithBigNumApi():
 
     # Reading test data from the file
-    with open("testData_AddHex", "r") as addHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_AddHex").open() as addHex_txt:
         for x in addHex_txt:
 
             hexNumber = x.split()
@@ -33,7 +35,7 @@ def test_AddFromHexWithBigNumApi():
 def test_SubFromDecWithBigNumApi():
 
     # Reading test data from the file
-    with open("testData_SubDec", "r") as subDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_SubDec").open() as subDec_txt:
         for x in subDec_txt:
 
             decNumber = x.split()
@@ -48,7 +50,7 @@ def test_SubFromDecWithBigNumApi():
 def test_SubFromHexWithBigNumApi():
 
     # Reading test data from the file
-    with open("testData_SubHex", "r") as subHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_SubHex").open() as subHex_txt:
         for x in subHex_txt:
 
             hexNumber = x.split()
@@ -62,7 +64,7 @@ def test_SubFromHexWithBigNumApi():
 
 def test_GenRandDec():
     # Reading test data from the file
-    with open("testData_GenBigNum", "r") as genDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_GenBigNum").open() as genDec_txt:
 
         for x in genDec_txt.readlines():
 
@@ -78,7 +80,7 @@ def test_GenRandDec():
 def test_GenRandHex():
 
     # Reading test data from the file
-    with open("testData_GenBigNum", "r") as genHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_GenBigNum").open() as genHex_txt:
 
         for x in genHex_txt.readlines():
 
@@ -94,7 +96,7 @@ def test_GenRandHex():
 def test_genRandDecWithSeed():
 
     # Reading test data from the file
-    with open("testData_SeedDec", "r") as seedDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_SeedDec").open() as seedDec_txt:
         for x in seedDec_txt:
 
             decNumber = x.split()
@@ -109,7 +111,7 @@ def test_genRandDecWithSeed():
 def test_genRandHexWithSeed():
 
     # Reading test data from the file
-    with open("testData_SeedDec", "r") as seedHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_SeedDec").open() as seedHex_txt:
         for x in seedHex_txt:
 
             decNumber = x.split()
@@ -124,7 +126,7 @@ def test_genRandHexWithSeed():
 def test_IsPrimeDec():
 
     # Reading test data from the file
-    with open("testData_PrimeDec", "r") as primeDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_PrimeDec").open() as primeDec_txt:
         for x in primeDec_txt:
 
             decNumber = x.split(",")
@@ -139,7 +141,7 @@ def test_IsPrimeDec():
 def test_IsPrimeHex():
 
     # Reading test data from the file
-    with open("testData_PrimeDec", "r") as primeHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_PrimeDec").open() as primeHex_txt:
         for x in primeHex_txt:
 
             decNumber = x.split(",")
@@ -158,7 +160,7 @@ def test_IsPrimeHex():
 def test_IsPrimeFastDec():
 
     # Reading test data from the file
-    with open("testData_PrimeDec", "r") as primeFastDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_PrimeDec").open() as primeFastDec_txt:
         for x in primeFastDec_txt:
 
             decNumber = x.split(",")
@@ -173,7 +175,7 @@ def test_IsPrimeFastDec():
 def test_IsPrimeFastHex():
 
     # Reading test data from the file
-    with open("testData_PrimeDec", "r") as primeFastHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_PrimeDec").open() as primeFastHex_txt:
         for x in primeFastHex_txt:
 
             decNumber = x.split(",")
@@ -192,7 +194,7 @@ def test_IsPrimeFastHex():
 def test_MultiplyDec():
 
     # Reading test data from the file
-    with open("testData_MultiplyDec", "r") as multiplyDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_MultiplyDec").open() as multiplyDec_txt:
         for x in multiplyDec_txt:
 
             decNumber = x.split(",")
@@ -207,7 +209,7 @@ def test_MultiplyDec():
 def test_MultiplyHex():
 
     # Reading test data from the file
-    with open("testData_MultiplyDec", "r") as multiplyHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_MultiplyDec").open() as multiplyHex_txt:
         for x in multiplyHex_txt:
 
             decNumber = x.split(",")
@@ -243,7 +245,7 @@ test_MultiplyHex()
 def test_LeftShiftDec():
 
     # Reading test data from the file
-    with open("testData_LeftRightShiftDec", "r") as leftDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_LeftRightShiftDec").open() as leftDec_txt:
         for x in leftDec_txt:
 
             decNumber = x.split(",")
@@ -258,7 +260,7 @@ def test_LeftShiftDec():
 def test_RightShiftDec():
 
     # Reading test data from the file
-    with open("testData_LeftRightShiftDec", "r") as rightDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_LeftRightShiftDec").open() as rightDec_txt:
         for x in rightDec_txt:
 
             decNumber = x.split(",")
@@ -273,7 +275,7 @@ def test_RightShiftDec():
 def test_LeftShiftHex():
 
     # Reading test data from the file
-    with open("testData_LeftRightShiftHex", "r") as leftHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_LeftRightShiftHex").open() as leftHex_txt:
         for x in leftHex_txt:
 
             decNumber = x.split(",")
@@ -288,7 +290,7 @@ def test_LeftShiftHex():
 def test_RightShiftHex():
 
     # Reading test data from the file
-    with open("testData_LeftRightShiftHex", "r") as rightHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_LeftRightShiftHex").open() as rightHex_txt:
         for x in rightHex_txt:
 
             decNumber = x.split(",")
@@ -351,7 +353,7 @@ def test_GenerateRandPrimeHexWithSeed():
 def test_DivideDec():
 
     # Reading test data from the file
-    with open("testData_DivideDec", "r") as divideDec_txt:
+    with (TestArgsParser.test_data_dir/"testData_DivideDec").open() as divideDec_txt:
         for x in divideDec_txt:
 
             decNumber = x.split(",")
@@ -366,7 +368,7 @@ def test_DivideDec():
 def test_DivideHex():
 
     # Reading test data from the file
-    with open("testData_DivideDec", "r") as divideHex_txt:
+    with (TestArgsParser.test_data_dir/"testData_DivideDec").open() as divideHex_txt:
         for x in divideHex_txt:
 
             decNumber = x.split(",")

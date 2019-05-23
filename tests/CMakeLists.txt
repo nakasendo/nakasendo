@@ -26,7 +26,9 @@ target_link_libraries(ECPointClient ECPoint BigNumbers)
 set_property(TARGET ECPointClient PROPERTY FOLDER "tests")
 
 
-## Add unit testing. TODO : remove all the above test cases into subdirectory and make it a real tests (with CHECKING results)
+## To run a single unit test, just run the compiled binary
 add_subdirectory(unit)
-#add_subdirectory(functional)
+## To run a single functional test in python :
+## python test_script.py --data_dir=/absolute/path/to/data/dir --module_dir=/absolute/path/to/PyModules/dir
+add_subdirectory(functional)
 #add_subdirectory(prog) # test program like running benchmark performance, demos programs

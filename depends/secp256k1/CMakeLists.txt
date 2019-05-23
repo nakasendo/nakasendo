@@ -101,7 +101,7 @@ macro(_add_secp256k1_test _targetName _testFile)
   endif()
 
   set_property(TARGET ${_targetName} PROPERTY FOLDER "depends")
-  add_test(NAME ${_targetName} COMMAND $<TARGET_FILE:${_targetName}>)
+  #add_test(NAME ${_targetName} COMMAND $<TARGET_FILE:${_targetName}>) ## Do not add test for external libraries. They are responsible to test
 endmacro()
 
 _add_secp256k1_test(tests_secp256k1 src/tests.cpp)
