@@ -37,3 +37,9 @@ add_executable(test_SymEncDec test_SymEncDec.cpp)
 target_link_libraries(test_SymEncDec SymEncDec)
 set_property(TARGET test_SymEncDec PROPERTY FOLDER "tests/unit")
 sdk_add_unit_test(test_SymEncDec)
+
+add_executable(test_ECPoint test_ECPoints.cpp)
+target_link_libraries(test_ECPoint ECPoint)
+set_property(TARGET test_ECPoint PROPERTY FOLDER "tests/unit")
+sdk_add_unit_test(test_ECPoint)
+

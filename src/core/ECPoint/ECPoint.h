@@ -12,8 +12,9 @@
 #include <memory>
 #include <vector>
 #include <string>
-
 #include <utility>
+#include <tuple>
+
 
 
 class ECPointImpl; 
@@ -28,6 +29,7 @@ class ECPoint_API ECPoint
         explicit ECPoint();
         ~ECPoint();
         ECPoint(const int& nid);
+        ECPoint(const std::string& NIDstring);
 
         //moveable
         ECPoint(ECPoint&& obj) noexcept;
@@ -50,7 +52,7 @@ class ECPoint_API ECPoint
         int GroupNid()const;
 
         bool FromHex(const std::string& hexStr, int nid=-1);
-        std::pair<std::string, std::string> GetAffineCoords_GFp () ; 
+        std::pair<std::string, std::string> GetAffineCoords_GFp () ;
 
     private:
         const ECPointImpl* pImpl() const;
@@ -60,7 +62,7 @@ class ECPoint_API ECPoint
 };
 
 
-std::vector<std::pair<int, std::string>> ECPoint_API getCurveList();
-int ECPoint_API getNidForString(std::string& nidStr);
+std::vector<std::tuple<int, std::string, std::string>> getCurveList();
+int ECPoint_API getNidForString(const std::string& NIDstr);
 
 #endif //ifndef _EC_POINT__H__
