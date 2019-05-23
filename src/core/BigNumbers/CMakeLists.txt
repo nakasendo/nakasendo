@@ -31,5 +31,5 @@ target_compile_definitions(BigNumbers PRIVATE EXPORT_BigNumbers)
 set_property(TARGET BigNumbers PROPERTY FOLDER "core")
 sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST BigNumbers)
 
-install(FILES ${BIG_NUMBERS_HPP_FILES_PUBLIC} DESTINATION "include/BigNumbers" COMPONENT CPP)
-install(TARGETS BigNumbers DESTINATION "lib" COMPONENT CPP)
+install(FILES ${BIG_NUMBERS_HPP_FILES_PUBLIC} DESTINATION "include/BigNumbers" COMPONENT core)
+install(TARGETS BigNumbers DESTINATION "lib" COMPONENT core)

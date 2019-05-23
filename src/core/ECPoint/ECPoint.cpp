@@ -1,5 +1,5 @@
 #include <ECPoint/ECPoint.h>
-
+#include <ECPoint/ECPointImpl.h>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
@@ -79,6 +79,11 @@ ECPoint ECPoint::Double()
     return res;
 }
 
+void ECPoint::SetRandom()
+{
+    pImpl()->SetRandom () ; 
+}
+
 void ECPoint::Invert()
 {
     return this->pImpl()->Invert();
@@ -94,12 +99,43 @@ bool ECPoint::CheckOnCurve()
     return  this->pImpl()->CheckOnCurve();
 }
 
-CurveList ECPoint::getCurveList()
-{
-    return  this->pImpl()->getCurveList();
+std::pair<std::string, std::string> ECPoint::GetAffineCoords_GFp (){
+    return pImpl()->GetAffineCoords_GFp () ; 
 }
 
 std::string ECPoint::ToHex()
 {
     return  this->pImpl()->ToHex();
 }
+
+int ECPoint::GroupNid() const
+{
+    return  this->pImpl()->getNid();
+}
+
+bool ECPoint::FromHex(const std::string& hexStr, int nid)
+{
+    return this->pImpl()->FromHex(hexStr, nid);
+}
+
+std::vector<std::pair<int, std::string>> getCurveList()
+{
+    return  _getCurveList(); 
+}
+
+int getNidForString(std::string& nidStr)
+{
+    // get the curve vec list
+    std::vector<std::pair<int, std::string>> nidVec = getCurveList();
+
+    // iterate over the vec list and look for the matched one
+    for(auto& nidPair : nidVec)
+    {
+        if (nidPair.second == nidStr)
+        {
+            return nidPair.first;
+        }
+    }
+    return -1;
+}
+
