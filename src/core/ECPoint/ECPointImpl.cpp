@@ -318,7 +318,7 @@ void ECPointImpl::SetRandom(){
 
     if ( !EC_GROUP_get_order(m_gp,k.get(),ctx)){
         BN_CTX_free(ctx);
-        throw std::runtime_error ("Invalid group order on set randon" );
+        throw std::runtime_error ("Invalid group order on set random" );
     }
 
     if (!BN_rand(k.get(), BN_num_bits(k.get()), 0, 0)){

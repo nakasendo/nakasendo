@@ -40,6 +40,7 @@ sdk_add_unit_test(test_SymEncDec)
 
 add_executable(test_ECPoint test_ECPoints.cpp)
 target_link_libraries(test_ECPoint ECPoint)
+target_link_libraries(test_ECPoint BigNumbers)
 set_property(TARGET test_ECPoint PROPERTY FOLDER "tests/unit")
 sdk_add_unit_test(test_ECPoint)
 
