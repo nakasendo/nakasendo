@@ -1,4 +1,5 @@
 #include <vector>
+#include <tuple>
 #include <string>
 #include <iostream>
 #include "ECPoint/ECPoint.h"
@@ -11,9 +12,10 @@ int main(int argc,char * argv[]){
     ECPoint ecPt2; 
     ECPoint ecPt3; 
 
-    std::vector<std::pair<int, std::string>> curveList = getCurveList();
-    for(std::vector<std::pair<int, std::string>>::const_iterator iter = curveList.begin(); iter != curveList.end(); ++ iter){
-        std::cout << "Curve ID: " << iter->first << "\tCurve String: " << iter->second << std::endl;
+    std::vector<std::tuple<int, std::string, std::string>> curveList = getCurveList();
+    for (const auto &curveTuple : curveList)
+    {
+        std::cout << "Curve ID: " << std::get<0>(curveTuple) << "\tCurve String: " <<  std::get<1>(curveTuple) << std::endl;
     }
     std::cout << std::endl;
 
