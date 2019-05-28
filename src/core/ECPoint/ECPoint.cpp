@@ -11,6 +11,17 @@ ECPoint::ECPoint() : m_pImpl(new ECPointImpl){}
 
 ECPoint::ECPoint(const int& nid) : m_pImpl(new ECPointImpl(nid)) {}
 
+ECPoint::ECPoint(const std::string& NIDstring) 
+{
+    int nid = getNidForString(NIDstring);
+    if (nid == -1)
+    {
+        throw std::runtime_error("Invalid NID string provided");
+    }
+    m_pImpl = std::make_unique<ECPointImpl>(nid);
+}
+
+
 ECPoint::~ECPoint()=default;
 
 ECPoint::ECPoint(ECPoint&& obj) noexcept = default;
@@ -81,7 +92,7 @@ ECPoint ECPoint::Double()
 
 void ECPoint::SetRandom()
 {
-    pImpl()->SetRandom () ; 
+    pImpl()->SetRandom () ;
 }
 
 void ECPoint::Invert()
@@ -100,7 +111,7 @@ bool ECPoint::CheckOnCurve()
 }
 
 std::pair<std::string, std::string> ECPoint::GetAffineCoords_GFp (){
-    return pImpl()->GetAffineCoords_GFp () ; 
+    return pImpl()->GetAffineCoords_GFp () ;
 }
 
 std::string ECPoint::ToHex()
@@ -118,24 +129,23 @@ bool ECPoint::FromHex(const std::string& hexStr, int nid)
     return this->pImpl()->FromHex(hexStr, nid);
 }
 
-std::vector<std::pair<int, std::string>> getCurveList()
+std::vector<std::tuple<int, std::string, std::string>> getCurveList()
 {
     return  _getCurveList(); 
 }
 
-int getNidForString(std::string& nidStr)
+int ECPoint_API getNidForString(const std::string& NIDstr)
 {
     // get the curve vec list
-    std::vector<std::pair<int, std::string>> nidVec = getCurveList();
+    std::vector<std::tuple<int, std::string, std::string>> nidVec = getCurveList();
 
     // iterate over the vec list and look for the matched one
-    for(auto& nidPair : nidVec)
+    for(auto& nidTuple : nidVec)
     {
-        if (nidPair.second == nidStr)
+        if (std::get<1>(nidTuple) == NIDstr)
         {
-            return nidPair.first;
+            return std::get<0>(nidTuple);
         }
     }
     return -1;
 }
-
