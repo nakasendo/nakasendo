@@ -42,7 +42,10 @@ pipeline {
     post {
         cleanup { script:  cleanWs() }
         always  { chuckNorris() }
-        success { archiveArtifacts 'SDKLibraries-*-Release.tar.gz }
+        success { 
+                  sh 'releasenotes.sh'
+                  archiveArtifacts 'SDKLibraries-*-Release.tar.gz, release-notes.txt'
+                  }
         failure {
 script: emailext (
                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
