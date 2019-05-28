@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 class BigNumberImpl; 
 
@@ -69,6 +70,10 @@ class BigNumbers_API BigNumber
 
         int FromHex (const std::string& );
         int FromDec (const std::string& );
+
+	std::string ToBin () const;
+	int FromBin (std::string& );
+	int FromBin (std::vector<uint8_t>&);
 
         // Generate & return string Representation
         std::string generateRandHex (const int& nsize=512) ; 

@@ -392,3 +392,35 @@ CurveList _getCurveList()
 
     return _curveList;
 }
+
+std::string ECPointImpl::getGroupOrder()
+{
+    BN_ptr x(BN_new(), ::BN_free );
+
+    // Allocate for CTX
+    BN_CTX* ctxptr = BN_CTX_new();
+
+    if(!EC_GROUP_get_order(m_gp, x.get(), ctxptr))
+    {
+        // free CTX object
+        BN_CTX_free(ctxptr);
+        return {};
+    }
+
+    // free CTX object
+    BN_CTX_free(ctxptr);
+
+    std::string xVal = BN_bn2hex(x.get());
+    return xVal;
+}
+
+int ECPointImpl::getGroupDegree()
+{
+    return EC_GROUP_get_degree(m_gp);
+}
+
+std::unique_ptr<ECPointImpl> ECPointImpl::getGenerator()
+{
+    std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(EC_GROUP_get0_generator(m_gp), m_gp, m_nid));
+    return std::move(ResImpl);
+}
