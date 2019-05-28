@@ -1,9 +1,9 @@
 #ifndef __BIGNUMBERS_IMPL_H__
 #define __BIGNUMBERS_IMPL_H__
-
 #include <memory>
 #include <iostream>
 #include <string>
+#include <vector>
 #include <openssl/bn.h>
 #include <openssl/objects.h>
 
@@ -40,7 +40,6 @@ class BigNumberImpl
 
         ~BigNumberImpl() = default;
 
-        //
         BigNumberImpl (const BigNumberImpl& obj) : m_bn(BN_new(), ::BN_free)
         { BN_copy (m_bn.get(), obj.m_bn.get());}
 
@@ -61,11 +60,16 @@ class BigNumberImpl
         BigNumberImpl operator--(int);
         BigNumberImpl& operator--();
 
-        std::string ToHex () const ; 
-        std::string ToDec () const ; 
+        std::string ToHex () const;
+        std::string ToDec () const;
 
         int FromHex (const std::string& );
         int FromDec (const std::string& );
+
+        int FromBin (std::string& );
+        int FromBin (std::vector<uint8_t>&);
+
+        std::string ToBin () const;
 
         void generate (const int& nsize); 
         void generateNeg (const int& nsize);
@@ -84,6 +88,7 @@ class BigNumberImpl
         BigNumberImpl(const BN_ptr& obj) : m_bn(BN_new(), ::BN_free){ 
             BN_copy(m_bn.get(), obj.get()) ;           
         }
+        int FromBin (unsigned char*, int);
         BN_ptr m_bn; 
 
 };

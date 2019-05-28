@@ -862,6 +862,44 @@ BOOST_AUTO_TEST_CASE(test_BN_Div_mod_5)
     BOOST_CHECK(ret == test_ret); // 2/3 == 4 mod 5
 }
 
+BOOST_AUTO_TEST_CASE(test_BN_ToBin)
+{
+    BigNumber val, val2;
+    std::string strVal = "5893745893477895348925689286234895892375907239047592347858972349057902347589034788905723490799";
+    val.FromDec(strVal);
+    val2.FromDec(strVal);
+    BOOST_CHECK(val.ToBin() == val2.ToBin());
+}
+
+BOOST_AUTO_TEST_CASE(test_BN_ToBin_zero)
+{
+    BigNumber val;
+    std::string strVal = "0";
+    val.FromDec(strVal);
+    BOOST_CHECK(val.ToBin().size() == 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_BN_FromBin)
+{
+    BigNumber val, val2;
+    std::string strVal = "5893745893477895348925689286234895892375907239047592347858972349057902347589034788905723490799";
+    val.FromDec(strVal);
+    std::string valBin = val.ToBin();
+    val2.FromBin(valBin);
+    BOOST_CHECK(val == val2);
+}
+
+BOOST_AUTO_TEST_CASE(test_BN_FromBin_Vec_uint8)
+{
+    BigNumber val2;
+    std::string valBN = "4924799637085902610613593248202630104520906895028320197159361210405324285739921147081495653543217499350505484682143206828111533320447609302848947120288676219378248141142763720774252502319922536271908355561433827150671801432377";
+    std::string strVal = "5893745893477895348925689286234895892375907239047592347858972349057902347589034788905723490799";
+    std::vector<uint8_t>  uint8_val(strVal.begin(), strVal.end());
+    val2.FromBin(uint8_val);
+    BOOST_CHECK( valBN == val2.ToDec());
+    BOOST_CHECK( strVal == val2.ToBin());
+}
+
 BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Mod_5)
 {
     const char *mod="5", *arg="12", *test_ret="2";
