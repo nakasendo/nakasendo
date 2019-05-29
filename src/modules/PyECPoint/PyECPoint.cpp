@@ -319,7 +319,7 @@ static PyObject* wrap_GetCurveList(PyObject* self, PyObject *args)
            firstIter = false;
        else
            ss << "," << '\n';
-        ss << std::get<0>(e)<< ":"<<std::get<1>(e);
+        ss << std::get<0>(e)<< ":\""<<std::get<1>(e) << "\"";
     }
     ss <<'\n'<< "}";
     return  Py_BuildValue("s", ss.str().c_str());
