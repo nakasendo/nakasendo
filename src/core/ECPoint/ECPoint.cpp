@@ -18,7 +18,7 @@ ECPoint::ECPoint(const std::string& NIDstring)
     {
         throw std::runtime_error("Invalid NID string provided");
     }
-    m_pImpl = std::make_unique<ECPointImpl>(nid);
+    m_pImpl.reset( new ECPointImpl(nid));
 }
 
 
