@@ -83,9 +83,9 @@ class ECPointImpl
         const ECGROUP_ptr gp () const { return m_gp;}
         const int getNid() const { return m_nid;};
 
-        std::string getGroupOrder();
-        int getGroupDegree();
-        std::unique_ptr<ECPointImpl> getGenerator();
+        std::string getGroupOrder() const;
+        int getGroupDegree() const;
+        std::unique_ptr<ECPointImpl> getGenerator() const;
 
 
         // Invert the given object
@@ -114,7 +114,7 @@ class ECPointImpl
 
     private:
 
-        ECPointImpl(const EC_POINT *ec, const EC_GROUP *gp, const int& nid)
+        ECPointImpl(const EC_POINT *ec, const int& nid)
         {
             m_gp = EC_GROUP_new_by_curve_name(nid);
             m_ec = EC_POINT_new(m_gp);

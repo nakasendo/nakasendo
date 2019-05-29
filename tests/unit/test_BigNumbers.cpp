@@ -884,7 +884,7 @@ BOOST_AUTO_TEST_CASE(test_BN_FromBin)
     BigNumber val, val2;
     std::string strVal = "5893745893477895348925689286234895892375907239047592347858972349057902347589034788905723490799";
     val.FromDec(strVal);
-    std::string valBin = val.ToBin();
+    std::vector<uint8_t> valBin = val.ToBin();
     val2.FromBin((unsigned char*)valBin.data(), valBin.size());
     BOOST_CHECK(val == val2);
 }
@@ -897,7 +897,7 @@ BOOST_AUTO_TEST_CASE(test_BN_FromBin_Vec_uint8)
     std::vector<uint8_t>  uint8_val(strVal.begin(), strVal.end());
     val2.FromBin(uint8_val);
     BOOST_CHECK( valBN == val2.ToDec());
-    BOOST_CHECK( strVal == val2.ToBin());
+    BOOST_CHECK( uint8_val == val2.ToBin());
 }
 
 BOOST_AUTO_TEST_CASE(test_DecAPI_BN_Mod_5)

@@ -95,7 +95,7 @@ int BigNumber::FromBin (std::vector<uint8_t>& val)
     return(this->pImpl()->FromBin(val));
 }
 
-std::string BigNumber::ToBin () const
+std::vector<uint8_t> BigNumber::ToBin () const
 {
     return(this->pImpl()->ToBin());
 }

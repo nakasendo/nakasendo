@@ -69,7 +69,7 @@ class BigNumberImpl
         int FromBin (unsigned char*, int);
         int FromBin (std::vector<uint8_t>&);
 
-        std::string ToBin () const;
+        std::vector<uint8_t> ToBin () const;
 
         void generate (const int& nsize); 
         void generateNeg (const int& nsize);

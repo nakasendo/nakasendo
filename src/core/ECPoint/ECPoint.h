@@ -55,9 +55,9 @@ class ECPoint_API ECPoint
         bool FromHex(const std::string& hexStr, int nid=-1);
         std::pair<std::string, std::string> GetAffineCoords_GFp () ;
 
-        BigNumber getECGroupOrder();
-        int getECGroupDegree();
-        ECPoint getGenerator();
+        BigNumber getECGroupOrder() const;
+        int getECGroupDegree() const;
+        ECPoint getGenerator() const;
 
     private:
         const ECPointImpl* pImpl() const;

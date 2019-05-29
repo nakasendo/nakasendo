@@ -71,7 +71,7 @@ class BigNumbers_API BigNumber
         int FromHex (const std::string& );
         int FromDec (const std::string& );
 
-	std::string ToBin () const;
+	std::vector<uint8_t> ToBin () const;
 
 	int FromBin (unsigned char *val, int);
 	int FromBin (std::vector<uint8_t>&);

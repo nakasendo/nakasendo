@@ -234,7 +234,7 @@ int BigNumberImpl::FromBin(std::vector<uint8_t>& val)
     return FromBin(valData, val.size());
 }
 
-std::string BigNumberImpl::ToBin() const
+std::vector<uint8_t>  BigNumberImpl::ToBin() const
 {
     size_t len = BN_num_bytes(m_bn.get());
     unsigned char *binBn = (unsigned char *)OPENSSL_malloc(len);
@@ -245,10 +245,13 @@ std::string BigNumberImpl::ToBin() const
     if (ret != len)
         return {};
 
-    std::string retStr (reinterpret_cast<char*>(binBn));
-    OPENSSL_free(binBn);
+    std::vector<uint8_t>  retVec(binBn, binBn+ret);
+    return std::move(retVec);
+//    std::string retStr (reinterpret_cast<char*>(binBn));
+//   OPENSSL_free(binBn);
 
-    return std::move(retStr);
+ //   return std::move(retStr);
+ //
 }
 
 void BigNumberImpl::generate(const int& nsize)
