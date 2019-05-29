@@ -885,7 +885,7 @@ BOOST_AUTO_TEST_CASE(test_BN_FromBin)
     std::string strVal = "5893745893477895348925689286234895892375907239047592347858972349057902347589034788905723490799";
     val.FromDec(strVal);
     std::string valBin = val.ToBin();
-    val2.FromBin(valBin);
+    val2.FromBin((unsigned char*)valBin.data(), valBin.size());
     BOOST_CHECK(val == val2);
 }
 

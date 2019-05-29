@@ -234,15 +234,6 @@ int BigNumberImpl::FromBin(std::vector<uint8_t>& val)
     return FromBin(valData, val.size());
 }
 
-int BigNumberImpl::FromBin (std::string& val)
-{
-    if (val.size() == 0)
-	    return -1;
-
-    // get bin value to BN
-    return FromBin(reinterpret_cast<unsigned char*>(val.data()), val.size());
-}
-
 std::string BigNumberImpl::ToBin() const
 {
     size_t len = BN_num_bytes(m_bn.get());

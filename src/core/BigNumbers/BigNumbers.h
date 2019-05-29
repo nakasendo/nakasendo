@@ -72,7 +72,7 @@ class BigNumbers_API BigNumber
         int FromDec (const std::string& );
 
 	std::string ToBin () const;
-	int FromBin (std::string& );
+	int FromBin (unsigned char *val, int);
 	int FromBin (std::vector<uint8_t>&);
 
         // Generate & return string Representation

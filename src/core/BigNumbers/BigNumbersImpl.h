@@ -66,7 +66,7 @@ class BigNumberImpl
         int FromHex (const std::string& );
         int FromDec (const std::string& );
 
-        int FromBin (std::string& );
+        int FromBin (unsigned char*, int);
         int FromBin (std::vector<uint8_t>&);
 
         std::string ToBin () const;
@@ -88,7 +88,6 @@ class BigNumberImpl
         BigNumberImpl(const BN_ptr& obj) : m_bn(BN_new(), ::BN_free){ 
             BN_copy(m_bn.get(), obj.get()) ;           
         }
-        int FromBin (unsigned char*, int);
         BN_ptr m_bn; 
 
 };

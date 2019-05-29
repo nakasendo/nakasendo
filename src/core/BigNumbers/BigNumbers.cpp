@@ -85,9 +85,9 @@ int BigNumber::FromDec (const std::string& val)
     return(this->pImpl()->FromDec(val));
 }
 
-int BigNumber::FromBin (std::string& val)
+int BigNumber::FromBin (unsigned char *val, int size)
 {
-    return(this->pImpl()->FromBin(val));
+    return(this->pImpl()->FromBin(val, size));
 }
 
 int BigNumber::FromBin (std::vector<uint8_t>& val)
