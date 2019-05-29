@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <tuple>
 #include <utility>
 #include <cctype>
 #include <openssl/bn.h>
@@ -17,7 +18,8 @@ typedef EC_POINT*  ECPOINT_ptr;
 typedef EC_GROUP*  ECGROUP_ptr;
 typedef EC_builtin_curve* EC_builtin_curve_ptr;
 
-using CurveList = std::vector<std::pair<int, std::string>>;
+using CurveList = std::vector<std::tuple<int, std::string, std::string>>;
+
 using CTX_ptr = std::unique_ptr<BN_CTX, decltype(&::BN_CTX_free)>;
 
 class ECPointImpl
@@ -59,8 +61,8 @@ class ECPointImpl
         //
         ECPointImpl (const ECPointImpl& obj) 
         {
-            m_gp = EC_GROUP_new_by_curve_name(obj.getNid()); 
-            m_ec = EC_POINT_new(m_gp);         
+            m_gp = EC_GROUP_new_by_curve_name(obj.getNid());
+            m_ec = EC_POINT_new(m_gp);
             EC_POINT_copy (m_ec, obj.ec());
             m_nid = obj.getNid();
         }
@@ -72,7 +74,7 @@ class ECPointImpl
                 m_gp = EC_GROUP_new_by_curve_name(obj.getNid()); 
                 m_ec = EC_POINT_new(m_gp);
                 EC_POINT_copy (m_ec, obj.ec());
-		        m_nid = obj.getNid();
+                m_nid = obj.getNid();
             }
             return *this;
         }
@@ -96,23 +98,23 @@ class ECPointImpl
         // Multiply ECPoint with dec number
         std::unique_ptr<ECPointImpl> MultiplyWithDecBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n); 
 
-	// Double the ECPointImpl
+        // Double the ECPointImpl
         std::unique_ptr<ECPointImpl> Double();
 
         std::string ToHex();
         bool FromHex(const std::string& hexStr, int nid);
 
-        void SetRandom (); 
-        std::pair<std::string, std::string> GetAffineCoords_GFp (); 
+        void SetRandom ();
+        std::pair<std::string, std::string> GetAffineCoords_GFp ();
 
     private:
 
-        ECPointImpl(const ECPOINT_ptr& ec, const ECGROUP_ptr& gp, const int& nid) 
+        ECPointImpl(const ECPOINT_ptr& ec, const ECGROUP_ptr& gp, const int& nid)
         {
             m_gp = EC_GROUP_new_by_curve_name(nid);
-            m_ec = EC_POINT_new(m_gp); 
+            m_ec = EC_POINT_new(m_gp);
             EC_POINT_copy (m_ec, ec);
-            m_nid = nid; 
+            m_nid = nid;
         }
 
         std::unique_ptr<ECPointImpl> Multiply(BIGNUM *m_ptr, BIGNUM *n_ptr = nullptr);
