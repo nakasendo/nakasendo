@@ -247,11 +247,6 @@ std::vector<uint8_t>  BigNumberImpl::ToBin() const
 
     std::vector<uint8_t>  retVec(binBn, binBn+ret);
     return std::move(retVec);
-//    std::string retStr (reinterpret_cast<char*>(binBn));
-//   OPENSSL_free(binBn);
-
- //   return std::move(retStr);
- //
 }
 
 void BigNumberImpl::generate(const int& nsize)
