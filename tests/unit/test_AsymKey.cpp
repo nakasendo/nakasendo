@@ -124,4 +124,22 @@ BOOST_AUTO_TEST_CASE(test_Sig_Verify_Random)
     }
 }
 
+BOOST_AUTO_TEST_CASE(test_SharedSecret)
+{
+    // Test a few iteration with keys randomly generated
+    const size_t nbIter = 10;
+    for (size_t i = 0; i < nbIter; ++i)
+    {
+        const AsymKey alice_key;
+        const AsymKey bob_key;
+
+        const std::string alice_pub_key = alice_key.getPublicKeyPEM();
+        const std::string bob_pub_key = bob_key.getPublicKeyPEM();
+
+        const std::string shared_secret_from_bob = bob_key.getSharedSecretHex(alice_pub_key);
+        const std::string shared_secret_from_alice = alice_key.getSharedSecretHex(bob_pub_key);
+        BOOST_CHECK(shared_secret_from_bob == shared_secret_from_alice);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
