@@ -209,6 +209,46 @@ int BigNumberImpl::FromDec (const std::string& val)
     return(BN_dec2bn (&ptr, val.c_str()));
 }
 
+// get bin value to BN
+int BigNumberImpl::FromBin(unsigned char *val, int size)
+{
+    if (val == NULL || size <=0)
+	    return -1;
+
+    // convert bin val to Big number
+    if (BN_bin2bn(val, size,  m_bn.get()) == nullptr)
+        return -1;
+
+    return 1;
+}
+
+int BigNumberImpl::FromBin(std::vector<uint8_t>& val)
+{
+    if (val.size() == 0)
+	    return -1;
+
+    // get the raw data from the vector
+    unsigned char *valData = val.data();
+    
+    // get bin value to BN
+    return FromBin(valData, val.size());
+}
+
+std::vector<uint8_t>  BigNumberImpl::ToBin() const
+{
+    size_t len = BN_num_bytes(m_bn.get());
+    unsigned char *binBn = (unsigned char *)OPENSSL_malloc(len);
+    if (!binBn)
+        return {};
+
+    size_t ret = BN_bn2bin(m_bn.get(), binBn);
+    if (ret != len)
+        return {};
+
+    std::vector<uint8_t>  retVec(binBn, binBn+ret);
+    return std::move(retVec);
+}
+
 void BigNumberImpl::generate(const int& nsize)
 {
     // todo seed the PRNG
