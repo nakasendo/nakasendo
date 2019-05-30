@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <ECPoint/ECPoint.h>
 #include <BigNumbers/BigNumbers.h>
@@ -193,7 +194,6 @@ static PyObject* wrap_GenerateRandomECHexOnCurve(PyObject* self, PyObject *args)
     int argA; 
     if (!PyArg_ParseTuple(args, "i", &argA))
         return NULL;
-    std::cout << "Creating a point with value " << argA << std::endl; 
     ECPoint ecpointA(argA);
     ecpointA.SetRandom();
     return Py_BuildValue("s", ecpointA.ToHex ().c_str());
@@ -306,6 +306,66 @@ static PyObject* wrap_GetAffineCoOrdinatesOnCurve(PyObject* self, PyObject *args
     return  Py_BuildValue("ss",coords.first.c_str(), coords.second.c_str());
 }
 
+static PyObject* wrap_GetCurveList(PyObject* self, PyObject *args)
+{
+    std::vector<std::tuple<int, std::string, std::string>> curveList = getCurveList();
+    std::stringstream ss;
+    ss << "{" << '\n';
+    bool firstIter = true;
+
+    for(auto&e : curveList)
+    {
+       if (firstIter)
+           firstIter = false;
+       else
+           ss << "," << '\n';
+        ss << std::get<0>(e)<< ":\""<<std::get<1>(e) << "\"";
+    }
+    ss <<'\n'<< "}";
+    return  Py_BuildValue("s", ss.str().c_str());
+}
+
+static PyObject* wrap_GetGenerator(PyObject* self, PyObject *args)
+{
+    char *ecPoint;
+    int curveID;
+     if (!PyArg_ParseTuple(args, "si", &ecPoint,&curveID))
+        return NULL;
+
+    ECPoint ecPointA(curveID);
+    ecPointA.FromHex(ecPoint);
+    ECPoint ecPointG = ecPointA.getGenerator();
+    return Py_BuildValue("s", ecPointG.ToHex().c_str());
+}
+
+static PyObject* wrap_GetGroupDegree(PyObject* self, PyObject *args)
+{
+    char *ecPoint;
+    int curveID;
+     if (!PyArg_ParseTuple(args, "si", &ecPoint,&curveID))
+        return NULL;
+
+    ECPoint ecPointA(curveID);
+    ecPointA.FromHex(ecPoint);
+    return Py_BuildValue("i", ecPointA.getECGroupDegree());
+}
+
+
+static PyObject* wrap_GetGroupOrder(PyObject* self, PyObject *args)
+{
+    char *ecPoint;
+    int curveID;
+     if (!PyArg_ParseTuple(args, "si", &ecPoint,&curveID))
+        return NULL;
+
+    ECPoint ecPointA(curveID);
+    ecPointA.FromHex(ecPoint);
+    BigNumber bnVal = ecPointA.getECGroupOrder();
+    return Py_BuildValue("s", bnVal.ToHex());
+}
+
+
+
 static PyMethodDef ModuleMethods[] =
 {
     {"addFromHex", wrap_addFromHex, METH_VARARGS, "Add two ECPoints in hex with the default NID ==> NID_secp256k1"},
@@ -330,6 +390,10 @@ static PyMethodDef ModuleMethods[] =
     {"MultiplyScalarMNOnCurve", wrap_MultiplyScalarECMNOnCurve, METH_VARARGS, "EC Point Scalar multiply with supplied curve ID"},
     {"GetAffineCoOrdinates", wrap_GetAffineCoOrdinates, METH_VARARGS, "EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1"},
     {"GetAffineCoOrdinatesOnCurve", wrap_GetAffineCoOrdinatesOnCurve, METH_VARARGS, "EC Point GetAffineCoOrdinates_GFp with supplied curve"},
+    {"GetCurveList", wrap_GetCurveList, METH_NOARGS, "Get list of all curves"},
+    {"GetGenerator", wrap_GetGenerator, METH_VARARGS, "EC Point Generator with supplied curve"},
+    {"GetGroupDegree", wrap_GetGroupDegree, METH_VARARGS, "EC Point Group Degree with supplied curve"},
+    {"GetGroupOrder", wrap_GetGroupOrder, METH_VARARGS, "EC Point Group Order with supplied curve"},
     {NULL, NULL, 0, NULL},
 };
  

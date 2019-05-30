@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
-
+#include <BigNumbers/BigNumbers.h>
 #include <cassert>
 #define ASSERT assert
 
@@ -148,4 +148,24 @@ int ECPoint_API getNidForString(const std::string& NIDstr)
         }
     }
     return -1;
+}
+
+BigNumber ECPoint::getECGroupOrder() const
+{
+    BigNumber bnVal;
+    bnVal.FromHex(this->pImpl()->getGroupOrder());
+    return std::move(bnVal);
+}
+
+int ECPoint::getECGroupDegree() const
+{
+    return this->pImpl()->getGroupDegree();
+}
+
+ECPoint ECPoint::getGenerator() const
+{
+    std::unique_ptr<ECPointImpl> res1 = this->pImpl()->getGenerator();
+    ECPoint res;
+    res.m_pImpl.reset(new ECPointImpl(*res1));
+    return std::move(res);
 }
