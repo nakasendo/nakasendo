@@ -10,6 +10,16 @@
 #include <stdexcept>
 #include <cstring>
 
+//// https://stackoverflow.com/questions/2228860/signing-a-message-using-ecdsa-in-openssl
+using SIG_ptr = std::unique_ptr< ECDSA_SIG, decltype(&ECDSA_SIG_free)>;
+using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
+
+using BN_CTX_ptr = std::unique_ptr< BN_CTX, decltype(&BN_CTX_free) >;
+using EC_GROUP_ptr = std::unique_ptr< EC_GROUP, decltype(&EC_GROUP_free) >;
+using EC_POINT_ptr = std::unique_ptr< EC_POINT, decltype(&EC_POINT_free) >;
+
+constexpr char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
 void AsymKeyImpl::_assign_privat_key()
 {
     if (!EVP_PKEY_assign_EC_KEY(m_prikey.get(), p_eckey))
@@ -64,10 +74,6 @@ int AsymKeyImpl::GroupNid()const
 
 std::string AsymKeyImpl::getPublicKeyHEXStr()  const
 {
-    using BN_CTX_ptr = std::unique_ptr< BN_CTX, decltype(&BN_CTX_free) >;
-    using EC_GROUP_ptr = std::unique_ptr< EC_GROUP, decltype(&EC_GROUP_free) >;
-    using EC_POINT_ptr = std::unique_ptr< EC_POINT, decltype(&EC_POINT_free) >;
-
     BN_CTX_ptr nb_ctx( BN_CTX_new() , &BN_CTX_free);
     EC_GROUP_ptr ec_group(EC_GROUP_new_by_curve_name(GroupNid()) , &EC_GROUP_free);
     const EC_POINT* pEC_POINT = EC_KEY_get0_public_key(p_eckey);
@@ -135,9 +141,45 @@ void AsymKeyImpl::setPEMPrivateKey(const std::string& crPEMStr)
     _assign_privat_key();
 }
 
-//// https://stackoverflow.com/questions/2228860/signing-a-message-using-ecdsa-in-openssl
-using SIG_ptr = std::unique_ptr< ECDSA_SIG, decltype(&ECDSA_SIG_free)>;
-using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
+std::string AsymKeyImpl::getSharedSecretHex(const std::string& crOtherPublicPEMKey) const
+{
+    BIO_ptr bio(BIO_new(BIO_s_mem()), &BIO_free_all);
+    const int bio_write_ret = BIO_write(bio.get(), static_cast<const char*>(crOtherPublicPEMKey.c_str()), (int)crOtherPublicPEMKey.size());
+    if (bio_write_ret <= 0)
+        throw std::runtime_error("Error reading PEM string");
+
+    EVP_PKEY* raw_tmp_pub_pkey=nullptr;
+    if (!PEM_read_bio_PUBKEY(bio.get(), &raw_tmp_pub_pkey, NULL, NULL))
+        throw std::runtime_error("Error reading public key");
+    EVP_PKEY_ptr tmp_pub_key(raw_tmp_pub_pkey, &EVP_PKEY_free);
+
+    using EVP_PKEY_CTX_ptr = std::unique_ptr< EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free) >;
+    EVP_PKEY_CTX_ptr ctx(EVP_PKEY_CTX_new(m_prikey.get(), nullptr), &EVP_PKEY_CTX_free);
+    if (!ctx)
+        throw std::runtime_error("Error creating key context");
+    if (EVP_PKEY_derive_init(ctx.get()) <= 0)
+        throw std::runtime_error("Error deriving key context");
+    if (EVP_PKEY_derive_set_peer(ctx.get(), tmp_pub_key.get()) <= 0)
+        throw std::runtime_error("Error setting peer public key");
+
+    size_t shared_secret_len;
+    if (EVP_PKEY_derive(ctx.get(), NULL, &shared_secret_len) <= 0)
+        throw std::runtime_error("Error determining shared secret lenght");
+
+    unsigned char* shared_secret = (unsigned char*)OPENSSL_malloc(shared_secret_len);
+    if (!shared_secret)
+        throw std::runtime_error("Error creating shared secret");
+
+    if (EVP_PKEY_derive(ctx.get(), shared_secret, &shared_secret_len) <= 0)
+        throw std::runtime_error("Error creating shared secret");
+
+    std::string hexStr(shared_secret_len * 2, ' ');
+    for (int i = 0; i < shared_secret_len; ++i) {
+        hexStr[2 * i] = hexmap[(shared_secret[i] & 0xF0) >> 4];
+        hexStr[2 * i + 1] = hexmap[shared_secret[i] & 0x0F];
+    }
+    return std::move(hexStr);
+}
 
 std::pair<std::string, std::string> AsymKeyImpl::sign(const std::string& crMsg)const
 {
@@ -180,7 +222,7 @@ bool AsymKeyImpl::verify(const std::string& crMsg, const std::string& crPublicKe
     EC_KEY* raw_tmp_ec = nullptr;
     if (!PEM_read_bio_EC_PUBKEY(bio.get(), &raw_tmp_ec, NULL, NULL))
         throw std::runtime_error("Error reading public key when verifying signature");
-    PubKey_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
+    EC_KEY_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
     EC_KEY_set_asn1_flag(pEC.get(), OPENSSL_EC_NAMED_CURVE);
 
     const std::string msg_hash = AsymKeyImpl::_hash(crMsg);
