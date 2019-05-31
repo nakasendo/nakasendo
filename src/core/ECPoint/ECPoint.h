@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <tuple>
+#include <BigNumbers/BigNumbers.h>
 
 
 
@@ -53,6 +54,10 @@ class ECPoint_API ECPoint
 
         bool FromHex(const std::string& hexStr, int nid=-1);
         std::pair<std::string, std::string> GetAffineCoords_GFp () ;
+
+        BigNumber getECGroupOrder() const;
+        int getECGroupDegree() const;
+        ECPoint getGenerator() const;
 
     private:
         const ECPointImpl* pImpl() const;

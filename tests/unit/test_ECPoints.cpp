@@ -26,6 +26,7 @@ BOOST_AUTO_TEST_CASE(testECPointComparasion1)
     ec1.FromHex("03A519004B8A4222CF06E5BFA825266E0DCC6A9C99E408D043A2D0D1C33AE8895F");
     ec2.FromHex("025F0F2C3C4A73FA39DA5E444481BC43CAB388E174517C2F63E1E8BFC1036D66B1");
     BOOST_CHECK(ec1 != ec2);
+    BOOST_CHECK(ec1+ec2 == ec2+ec1);
 }
 
 /* test case : test the point on curve */
@@ -53,6 +54,37 @@ BOOST_AUTO_TEST_CASE(testECPointNIDConstructors)
     {
         ECPoint ec1(std::get<0>(nidTuple));
         ECPoint ec2(std::get<1>(nidTuple));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testECPointGeneratorForAllCurves)
+{
+    std::vector<std::tuple<int, std::string, std::string>> curveList = getCurveList();
+    for (auto nidTuple : curveList)
+    {
+        ECPoint ec1(std::get<0>(nidTuple));
+	ec1.getGenerator();
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testECPointGroupDegreeForAllCurves)
+{
+    std::vector<std::tuple<int, std::string, std::string>> curveList = getCurveList();
+    for (auto nidTuple : curveList)
+    {
+        ECPoint ec1(std::get<0>(nidTuple));
+	ec1.getECGroupDegree();
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(testECPointGroupOrderForAllCurves)
+{
+    std::vector<std::tuple<int, std::string, std::string>> curveList = getCurveList();
+    for (auto nidTuple : curveList)
+    {
+        ECPoint ec1(std::get<0>(nidTuple));
+	ec1.getECGroupOrder().ToDec();
     }
 }
 
