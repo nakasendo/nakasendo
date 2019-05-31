@@ -52,6 +52,11 @@ void AsymKey::setPEMPrivateKey(const std::string& crPEMKey)
     m_pImpl->setPEMPrivateKey(crPEMKey);
 }
 
+std::string AsymKey::getSharedSecretHex(const std::string& crOtherPublicPEMKey) const
+{
+    return m_pImpl->getSharedSecretHex(crOtherPublicPEMKey);
+}
+
 std::pair<std::string, std::string> AsymKey::sign(const std::string& crMsg)const
 {
     return m_pImpl->sign(crMsg);
