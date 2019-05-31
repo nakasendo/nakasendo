@@ -35,6 +35,7 @@ class AsymKey_API AsymKey
         std::string getPublicKeyPEM()  const;
         std::string getPrivateKeyPEM() const;
         void setPEMPrivateKey(const std::string&);// Import PEM private key
+        std::string getSharedSecretHex(const std::string& crOtherPublicPEMKey) const;// Calculate the shared secrete giving the public key from other
 
         /// Sign the message, return <r,s>  component
         std::pair<std::string, std::string> sign(const std::string& crMsg) const;
