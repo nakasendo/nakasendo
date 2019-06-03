@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(test_Sig_Verify)
     const AsymKey ecdsa;
     const std::string pubkey = ecdsa.getPublicKeyPEM();
     const std::pair<std::string, std::string> rs = ecdsa.sign(msg);
-    const bool verify_ok = AsymKey::verify(msg, pubkey,rs);
+    const bool verify_ok = verify(msg, pubkey,rs);
     BOOST_CHECK(verify_ok);
 }
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(test_Sig_Verify_Random)
         const AsymKey ecdsa;
         const std::string pubkey = ecdsa.getPublicKeyPEM();
         const std::pair<std::string, std::string> rs = ecdsa.sign(random_str);
-        const bool verify_ok = AsymKey::verify(random_str, pubkey, rs);
+        const bool verify_ok = verify(random_str, pubkey, rs);
         BOOST_CHECK(verify_ok);
     }
 }
