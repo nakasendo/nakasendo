@@ -1,6 +1,7 @@
 #include <ECPoint/ECPointImpl.h>
 #include <BigNumbers/BigNumbersImpl.h>
 #include <openssl/ec.h>
+#include <openssl/objects.h>
 
 std::unique_ptr<ECPointImpl> Add(const ECPointImpl *obj1, const ECPointImpl *obj2)
 {
@@ -34,7 +35,7 @@ std::unique_ptr<ECPointImpl> Add(const ECPointImpl *obj1, const ECPointImpl *obj
     // free CTX object
     BN_CTX_free(ctxptr);
 
-    std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(resEC, resGroup,obj1->getNid())); 
+    std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(resEC, obj1->getNid()));
 
     // free group and EC structs
     EC_POINT_free(resEC);
@@ -105,12 +106,12 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Multiply(BIGNUM *mPtr, BIGNUM *nPtr)
     BN_CTX* ctxptr = BN_CTX_new(); 
 
     // allocate & get result group and EC struct
-    ECGROUP_ptr resGroup =  EC_GROUP_new_by_curve_name(m_nid); 
+    ECGROUP_ptr resGroup = EC_GROUP_new_by_curve_name(m_nid); 
     ECPOINT_ptr resEC = EC_POINT_new(resGroup);
 
     int res = EC_POINT_mul(resGroup, 
                            resEC, 
-                           nPtr ,
+                           nPtr,
                            m_ec,
                            mPtr,
                            ctxptr);
@@ -127,7 +128,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Multiply(BIGNUM *mPtr, BIGNUM *nPtr)
         throw std::runtime_error("error : Failed to multiply EC POINT with the BIGNUM");
     }
 
-    std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(resEC, resGroup, m_nid)); 
+    std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(resEC, m_nid));
 
     // free group and EC structs
     EC_POINT_free(resEC);
@@ -146,7 +147,7 @@ bool Compare(const ECPointImpl *obj1, const ECPointImpl *obj2)
     }
 
     if ( obj1->getNid() != obj2->getNid()){
-        return false; 
+        return false;
     }
     // Allocate for CTX 
     BN_CTX* ctxptr = BN_CTX_new(); 
@@ -194,7 +195,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Double()
     // free CTX object
     BN_CTX_free(ctxptr);
 
-    std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(resEC, m_gp, m_nid)); 
+    std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(resEC, m_nid));
 
     // free group and EC structs
     EC_POINT_free(resEC);
@@ -276,19 +277,19 @@ std::string ECPointImpl::ToHex()
 bool ECPointImpl::FromHex(const std::string& hexStr, int nid)
 {
     if(nid != -1){
-        m_nid = nid; 
+        m_nid = nid;
         if (m_ec != nullptr)
             EC_POINT_free (m_ec);
         if(m_gp != nullptr)
-            EC_GROUP_free(m_gp); 
+            EC_GROUP_free(m_gp);
         
         m_gp = EC_GROUP_new_by_curve_name(nid);
-        m_ec = EC_POINT_new(m_gp); 
+        m_ec = EC_POINT_new(m_gp);
     }
       
     
     // Allocate for CTX
-    BN_CTX* ctxptr = BN_CTX_new(); 
+    BN_CTX* ctxptr = BN_CTX_new();
     if (ctxptr == nullptr) {
         return false;
     }
@@ -301,7 +302,7 @@ bool ECPointImpl::FromHex(const std::string& hexStr, int nid)
     // free CTX object
     BN_CTX_free(ctxptr);
 
-    return true; 
+    return true;
 }
 
 void ECPointImpl::SetRandom(){
@@ -312,49 +313,49 @@ void ECPointImpl::SetRandom(){
     */
 
 
-    BN_ptr k ( BN_new(), ::BN_free ); 
-    BN_CTX *ctx = BN_CTX_new () ; 
+    BN_ptr k ( BN_new(), ::BN_free );
+    BN_CTX *ctx = BN_CTX_new () ;
 
     if ( !EC_GROUP_get_order(m_gp,k.get(),ctx)){
-        BN_CTX_free(ctx); 
-        throw std::runtime_error ("Invalid group order on set randon" ); 
+        BN_CTX_free(ctx);
+        throw std::runtime_error ("Invalid group order on set random" );
     }
 
     if (!BN_rand(k.get(), BN_num_bits(k.get()), 0, 0)){
-        BN_CTX_free(ctx); 
-        throw std::runtime_error ("Unable to generate a random number" ); 
+        BN_CTX_free(ctx);
+        throw std::runtime_error ("Unable to generate a random number" );
     }
 
     if (!EC_POINT_mul(m_gp,m_ec,k.get(),NULL,NULL,ctx)){
-        BN_CTX_free(ctx); 
-        throw std::runtime_error ("Unable to generate a random number" ); 
+        BN_CTX_free(ctx);
+        throw std::runtime_error ("Unable to generate a random number" );
     }
-    return ; 
+    return ;
 }
 
 std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp (){
-    std::string xVal, yVal ; 
+    std::string xVal, yVal ;
 
     BN_CTX* ctx = BN_CTX_new();
     if (!EC_POINT_is_on_curve(m_gp,m_ec,ctx)){
-        BN_CTX_free(ctx); 
-        std::cout << "Point not on the required curve.." << std::endl; 
-        return std::make_pair(xVal, yVal) ; 
+        BN_CTX_free(ctx);
+        std::cout << "Point not on the required curve.." << std::endl;
+        return std::make_pair(xVal, yVal) ;
     }
 
-    BN_ptr x ( BN_new(), ::BN_free ); 
-    BN_ptr y ( BN_new(), ::BN_free ); 
+    BN_ptr x ( BN_new(), ::BN_free );
+    BN_ptr y ( BN_new(), ::BN_free );
 
     if (!EC_POINT_get_affine_coordinates_GFp(m_gp, m_ec, x.get(), y.get(), ctx)){
-        BN_CTX_free(ctx); 
-         std::cout << "Unable to get affine coordinates.." << std::endl; 
-        return std::make_pair(xVal, yVal); 
+        BN_CTX_free(ctx);
+         std::cout << "Unable to get affine coordinates.." << std::endl;
+        return std::make_pair(xVal, yVal);
     }
 
     xVal = BN_bn2hex(x.get());
-    yVal = BN_bn2hex(y.get()); 
-    BN_CTX_free(ctx); 
-    return std::make_pair(xVal, yVal);     
+    yVal = BN_bn2hex(y.get());
+    BN_CTX_free(ctx);
+    return std::make_pair(xVal, yVal);
 }
 
 CurveList _getCurveList()
@@ -377,7 +378,12 @@ CurveList _getCurveList()
     CurveList _curveList;
     for (int i = 0; i < crvLen; i++)
     {
-        _curveList.push_back(make_pair(curves[i].nid, curves[i].comment)); 
+        const char *sname = nullptr;
+
+        sname =  OBJ_nid2sn(curves[i].nid);
+        if (sname== nullptr)
+            sname = "";
+        _curveList.push_back(make_tuple(curves[i].nid, sname, curves[i].comment)); 
     }
   
     /* NOTE : curves has an internal pointer, comment, which shouldn't freed as its just a pointer to a constant curve_list->comment*/
@@ -385,4 +391,36 @@ CurveList _getCurveList()
         ::OPENSSL_free(curves);
 
     return _curveList;
+}
+
+std::string ECPointImpl::getGroupOrder() const
+{
+    BN_ptr x(BN_new(), ::BN_free );
+
+    // Allocate for CTX
+    BN_CTX* ctxptr = BN_CTX_new();
+
+    if(!EC_GROUP_get_order(m_gp, x.get(), ctxptr))
+    {
+        // free CTX object
+        BN_CTX_free(ctxptr);
+        return {};
+    }
+
+    // free CTX object
+    BN_CTX_free(ctxptr);
+
+    std::string xVal = BN_bn2hex(x.get());
+    return xVal;
+}
+
+int ECPointImpl::getGroupDegree() const
+{
+    return EC_GROUP_get_degree(m_gp);
+}
+
+std::unique_ptr<ECPointImpl> ECPointImpl::getGenerator() const
+{
+    std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(EC_GROUP_get0_generator(m_gp), m_nid));
+    return std::move(ResImpl);
 }

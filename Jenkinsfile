@@ -22,19 +22,19 @@ pipeline {
                 sh '/entrypoint.sh'
             }
         }
-        stage ('Unit Tests') {
+        stage ('Tests') {
 
             steps {
-                sh 'python3 unittests.py``'
+                dir ('releasebuild') {
+                    sh 'ctest'
+                }   
             }
         }
-        stage ('Functional Tests') {
-
+        stage ('Pack') {
             steps {
-                sh 'pwd'
-                    dir ('tests/functional') {
-                        sh 'python3 functionaltests.py'
-                    }
+                dir ('releasebuild') {
+                    sh 'cpack -G TGZ'
+                }   
             }
         }
     }
@@ -42,7 +42,10 @@ pipeline {
     post {
         cleanup { script:  cleanWs() }
         always  { chuckNorris() }
-        success { archiveArtifacts 'build/**/x64/**/*.so' }
+        success { 
+                  sh 'releasenotes.sh'
+                  archiveArtifacts 'SDKLibraries-*-Release.tar.gz, release-notes.txt'
+                  }
         failure {
 script: emailext (
                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
