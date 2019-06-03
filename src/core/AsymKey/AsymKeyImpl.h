@@ -27,6 +27,7 @@ public:
     std::string getPublicKeyPEMStr()  const;
     std::string getPrivateKeyPEMStr() const;
     void setPEMPrivateKey(const std::string&);// Import PEM private key
+    std::string  getSharedSecretHex(const std::string& crOtherPublicPEMKey) const ;// Calculate the shared secrete giving the public key from other
 
     /// Sign the message, return <r,s>  component
     std::pair<std::string, std::string> sign(const std::string& crMsg) const;
@@ -36,11 +37,11 @@ public:
 
 private:
 
-    using BIO_ptr    = std::unique_ptr< BIO     , decltype(&BIO_free_all)  >;
-    using PubKey_ptr = std::unique_ptr< EC_KEY  , decltype(&EC_KEY_free)   >;
-    using PriKey_ptr = std::unique_ptr< EVP_PKEY, decltype(&EVP_PKEY_free) >;
+    using BIO_ptr      = std::unique_ptr< BIO     , decltype(&BIO_free_all)  >;
+    using EC_KEY_ptr   = std::unique_ptr< EC_KEY  , decltype(&EC_KEY_free)   >;
+    using EVP_PKEY_ptr = std::unique_ptr< EVP_PKEY, decltype(&EVP_PKEY_free) >;
 
-    PriKey_ptr m_prikey;
+    EVP_PKEY_ptr m_prikey;
     EC_KEY* p_eckey;// Do not need to free p_eckey since all are own by m_prikey
 
     void _assign_privat_key();// transfer all ownership to m_prikey
