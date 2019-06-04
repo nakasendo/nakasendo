@@ -1,11 +1,10 @@
 import pathlib
-import TestArgsParser
 import PyMessageHash
 
-def test_HashMsgAPI():
+def test_HashMsgAPI(test_data_dir):
 
     # Reading test data from the file
-    with (TestArgsParser.test_data_dir / "testData_HashMsg").open() as hashMsgFile_txt:
+    with (test_data_dir / "testData_HashMsg").open() as hashMsgFile_txt:
 
         for x in hashMsgFile_txt.readlines():
 
@@ -18,10 +17,10 @@ def test_HashMsgAPI():
 
     hashMsgFile_txt.close()
 
-def test_MsgHash256API():
+def test_MsgHash256API(test_data_dir):
 
     # Reading test data from the file
-    with (TestArgsParser.test_data_dir / "testData_MsgSHA256").open() as msgHashFile_txt:
+    with (test_data_dir / "testData_MsgSHA256").open() as msgHashFile_txt:
 
         for x in msgHashFile_txt.readlines():
 
@@ -35,10 +34,10 @@ def test_MsgHash256API():
 
     msgHashFile_txt.close()
 
-def test_EncodeBase58API():
+def test_EncodeBase58API(test_data_dir):
 
     #Reading test data from the file
-    with (TestArgsParser.test_data_dir / "testData_Encode58Decode").open() as encodeFile_txt:
+    with (test_data_dir / "testData_Encode58Decode").open() as encodeFile_txt:
 
         for x in encodeFile_txt.readlines():
 
@@ -51,10 +50,10 @@ def test_EncodeBase58API():
 
     encodeFile_txt.close()
 
-def test_DecodeBase58API():
+def test_DecodeBase58API(test_data_dir):
 
     #Reading test data from the file
-    with (TestArgsParser.test_data_dir / "testData_Encode58Decode").open() as decodeFile_txt:
+    with (test_data_dir / "testData_Encode58Decode").open() as decodeFile_txt:
 
         for x in decodeFile_txt.readlines():
 
@@ -67,10 +66,10 @@ def test_DecodeBase58API():
 
     decodeFile_txt.close()
 
-def test_EncodeBase58CheckedAPI():
+def test_EncodeBase58CheckedAPI(test_data_dir):
 
     #Reading test data from the file
-    with (TestArgsParser.test_data_dir / "testData_Encode58CheckedDecode").open() as encode58File_txt:
+    with (test_data_dir / "testData_Encode58CheckedDecode").open() as encode58File_txt:
 
         for x in encode58File_txt.readlines():
 
@@ -83,10 +82,10 @@ def test_EncodeBase58CheckedAPI():
 
     encode58File_txt.close()
 
-def test_DecodeBase58Checked58API():
+def test_DecodeBase58Checked58API(test_data_dir):
 
     #Reading test data from the file
-    with (TestArgsParser.test_data_dir / "testData_Encode58CheckedDecode").open() as decode58File_txt:
+    with (test_data_dir / "testData_Encode58CheckedDecode").open() as decode58File_txt:
 
         for x in decode58File_txt.readlines():
 
@@ -99,10 +98,10 @@ def test_DecodeBase58Checked58API():
 
     decode58File_txt.close()
 
-def test_EncodeBase64API():
+def test_EncodeBase64API(test_data_dir):
 
     #Reading test data from the file
-    with (TestArgsParser.test_data_dir / "testData_Encode64Decode").open() as encodeFile_txt:
+    with (test_data_dir / "testData_Encode64Decode").open() as encodeFile_txt:
 
         for x in encodeFile_txt.readlines():
 
@@ -122,10 +121,10 @@ def test_EncodeBase64API():
 
     encodeFile_txt.close()
 
-def test_DecodeBase64API():
+def test_DecodeBase64API(test_data_dir):
 
     #Reading test data from the file
-    with (TestArgsParser.test_data_dir / "testData_Encode64Decode") as decodeFile_txt:
+    with (test_data_dir / "testData_Encode64Decode").open() as decodeFile_txt:
 
         for x in decodeFile_txt.readlines():
 

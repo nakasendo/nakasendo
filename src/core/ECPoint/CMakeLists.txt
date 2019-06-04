@@ -24,7 +24,7 @@ add_library(ECPoint ${LIBS_BUILD_TYPE} ${EC_POINT_SOURCE_FILES})
 if(WIN32) #https://github.com/openssl/openssl/pull/1062
 	target_link_libraries(ECPoint crypt32 ws2_32)
 endif()
-target_link_libraries(ECPoint OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(ECPoint BigNumbers OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(ECPoint PRIVATE EXPORT_ECPoint)
 set_property(TARGET ECPoint PROPERTY FOLDER "core")
 sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST ECPoint)
