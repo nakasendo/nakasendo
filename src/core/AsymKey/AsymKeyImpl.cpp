@@ -20,6 +20,13 @@ using EC_POINT_ptr = std::unique_ptr< EC_POINT, decltype(&EC_POINT_free) >;
 
 constexpr char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
+std::string _do_hash_msg(const std::string& crMsg)
+{
+    MessageHash hasher;
+    hasher.HashSha256(crMsg);
+    return std::move(hasher.HashHex());
+}
+
 void AsymKeyImpl::_assign_privat_key()
 {
     if (!EVP_PKEY_assign_EC_KEY(m_prikey.get(), p_eckey))
@@ -183,7 +190,7 @@ std::string AsymKeyImpl::getSharedSecretHex(const std::string& crOtherPublicPEMK
 
 std::pair<std::string, std::string> AsymKeyImpl::sign(const std::string& crMsg)const
 {
-    const std::string msg_hash = AsymKeyImpl::_hash(crMsg);
+    const std::string msg_hash = _do_hash_msg(crMsg);
     SIG_ptr pSig (ECDSA_do_sign((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), p_eckey), &ECDSA_SIG_free);
     if (pSig ==nullptr)
         throw std::runtime_error("error signing message");
@@ -196,7 +203,7 @@ std::pair<std::string, std::string> AsymKeyImpl::sign(const std::string& crMsg)c
     return std::make_pair(rHEX, sHEX);
 }
 
-bool AsymKeyImpl::verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs)
+bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs)
 {
     /// Create new ECDSA_SIG
     SIG_ptr pSig(ECDSA_SIG_new(), &ECDSA_SIG_free);
@@ -225,7 +232,7 @@ bool AsymKeyImpl::verify(const std::string& crMsg, const std::string& crPublicKe
     EC_KEY_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
     EC_KEY_set_asn1_flag(pEC.get(), OPENSSL_EC_NAMED_CURVE);
 
-    const std::string msg_hash = AsymKeyImpl::_hash(crMsg);
+    const std::string msg_hash = _do_hash_msg(crMsg);
     const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSig.get(), pEC.get());
 
     if(verify_status<0)
@@ -233,11 +240,4 @@ bool AsymKeyImpl::verify(const std::string& crMsg, const std::string& crPublicKe
 
     const bool verify_OK = (1== verify_status);
     return verify_OK;
-}
-
-std::string AsymKeyImpl::_hash(const std::string& crMsg)
-{
-    MessageHash hasher;
-    hasher.HashSha256(crMsg);
-    return std::move(hasher.HashHex());
 }
