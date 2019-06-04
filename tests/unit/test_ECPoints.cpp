@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(testECPointGeneratorForAllCurves)
     for (auto nidTuple : curveList)
     {
         ECPoint ec1(std::get<0>(nidTuple));
-	ec1.getGenerator();
+        ec1.getGenerator();
     }
 }
 
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(testECPointGroupDegreeForAllCurves)
     for (auto nidTuple : curveList)
     {
         ECPoint ec1(std::get<0>(nidTuple));
-	ec1.getECGroupDegree();
+        ec1.getECGroupDegree();
     }
 }
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(testECPointGroupOrderForAllCurves)
     for (auto nidTuple : curveList)
     {
         ECPoint ec1(std::get<0>(nidTuple));
-	ec1.getECGroupOrder().ToDec();
+        ec1.getECGroupOrder().ToDec();
     }
 }
 

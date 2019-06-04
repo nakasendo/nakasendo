@@ -361,7 +361,7 @@ static PyObject* wrap_GetGroupOrder(PyObject* self, PyObject *args)
     ECPoint ecPointA(curveID);
     ecPointA.FromHex(ecPoint);
     BigNumber bnVal = ecPointA.getECGroupOrder();
-    return Py_BuildValue("s", bnVal.ToHex());
+    return Py_BuildValue("s", bnVal.ToHex().c_str());
 }
 
 
@@ -392,8 +392,8 @@ static PyMethodDef ModuleMethods[] =
     {"GetAffineCoOrdinatesOnCurve", wrap_GetAffineCoOrdinatesOnCurve, METH_VARARGS, "EC Point GetAffineCoOrdinates_GFp with supplied curve"},
     {"GetCurveList", wrap_GetCurveList, METH_NOARGS, "Get list of all curves"},
     {"GetGenerator", wrap_GetGenerator, METH_VARARGS, "EC Point Generator with supplied curve"},
-    {"GetGroupDegree", wrap_GetGroupDegree, METH_VARARGS, "EC Point Group Degree with supplied curve"},
-    {"GetGroupOrder", wrap_GetGroupOrder, METH_VARARGS, "EC Point Group Order with supplied curve"},
+    {"GetGroupDegreeFromHex", wrap_GetGroupDegree, METH_VARARGS, "EC Point Group Degree with supplied curve"},
+    {"GetGroupOrderFromHex", wrap_GetGroupOrder, METH_VARARGS, "EC Point Group Order with supplied curve"},
     {NULL, NULL, 0, NULL},
 };
  

@@ -74,7 +74,7 @@ static PyObject* wrap_Verify(PyObject* self, PyObject *args)
     const std::string sigR(cSigR);
     const std::string sigS(cSigS);
 
-    const bool verifyOK = AsymKey::verify(msg, pubKey, std::make_pair(sigR, sigS));
+    const bool verifyOK = verify(msg, pubKey, std::make_pair(sigR, sigS));
 
     return Py_BuildValue("i", verifyOK);
 }
