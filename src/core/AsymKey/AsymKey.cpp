@@ -62,7 +62,7 @@ std::pair<std::string, std::string> AsymKey::sign(const std::string& crMsg)const
     return m_pImpl->sign(crMsg);
 }
 
-bool AsymKey::verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs)
+bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs)
 {
-    return AsymKeyImpl::verify(crMsg,crPublicKeyPEMStr,rs);
+    return impl_verify(crMsg,crPublicKeyPEMStr,rs);
 }
