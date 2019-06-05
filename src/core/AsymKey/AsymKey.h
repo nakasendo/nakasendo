@@ -40,13 +40,12 @@ class AsymKey_API AsymKey
         /// Sign the message, return <r,s>  component
         std::pair<std::string, std::string> sign(const std::string& crMsg) const;
 
-        /// Verify the message, providing <r,s> component
-        static bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
-
     private:
 
         std::unique_ptr<AsymKeyImpl> m_pImpl;
 };
+
+bool AsymKey_API verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
 
 #endif /* ASYM_KEY_H */
 

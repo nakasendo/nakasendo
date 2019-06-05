@@ -10,6 +10,9 @@
 #include <openssl/ec.h>
 #include <openssl/pem.h>
 
+using BIO_ptr = std::unique_ptr< BIO, decltype(&BIO_free_all)  >;
+using EC_KEY_ptr = std::unique_ptr< EC_KEY, decltype(&EC_KEY_free)   >;
+using EVP_PKEY_ptr = std::unique_ptr< EVP_PKEY, decltype(&EVP_PKEY_free) >;
 
 class AsymKeyImpl
 {
@@ -32,20 +35,15 @@ public:
     /// Sign the message, return <r,s>  component
     std::pair<std::string, std::string> sign(const std::string& crMsg) const;
 
-    /// Verify the message, providing <r,s> component
-    static bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
-
 private:
-
-    using BIO_ptr      = std::unique_ptr< BIO     , decltype(&BIO_free_all)  >;
-    using EC_KEY_ptr   = std::unique_ptr< EC_KEY  , decltype(&EC_KEY_free)   >;
-    using EVP_PKEY_ptr = std::unique_ptr< EVP_PKEY, decltype(&EVP_PKEY_free) >;
 
     EVP_PKEY_ptr m_prikey;
     EC_KEY* p_eckey;// Do not need to free p_eckey since all are own by m_prikey
 
     void _assign_privat_key();// transfer all ownership to m_prikey
-    static std::string _hash(const std::string& crMsg);
+
 };
+
+bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
 
 #endif /* ASYM_KEY_IMPL_H */

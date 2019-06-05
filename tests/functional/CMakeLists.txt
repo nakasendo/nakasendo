@@ -21,10 +21,10 @@ foreach(_ftest_file ${_FUNCTIOINAL_TEST_FILES})
 
   ## Note at the moment, Py Module can be loaded only in release build. There are problem in debug build
   if(CMAKE_CONFIGURATION_TYPES)
-    add_test(NAME ${_test_name} COMMAND  ${Python_EXECUTABLE} "${_ftest_file}" --data_dir="${FTEST_DATA_DIR}" --module_dir="${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}" CONFIGURATIONS Release)
+    add_test(NAME ${_test_name} COMMAND  ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} CONFIGURATIONS Release)
   else()
     if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-      add_test(NAME ${_test_name} COMMAND  ${Python_EXECUTABLE} "${_ftest_file}" --data_dir="${FTEST_DATA_DIR}" --module_dir="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+      add_test(NAME ${_test_name} COMMAND ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endif()
   endif()
 endforeach()
