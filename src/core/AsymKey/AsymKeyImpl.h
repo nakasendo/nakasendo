@@ -19,6 +19,8 @@ class AsymKeyImpl
 public:
 
     AsymKeyImpl(); // Generate keys pair at construction
+    AsymKeyImpl(int groupNID);
+
     ~AsymKeyImpl();
 
     AsymKeyImpl(const AsymKeyImpl& crOther);
@@ -37,8 +39,8 @@ public:
 
 private:
 
-    EVP_PKEY_ptr m_prikey;
-    EC_KEY* p_eckey;// Do not need to free p_eckey since all are own by m_prikey
+    EVP_PKEY_ptr m_evp_key;
+    EC_KEY* p_eckey;// Do not need to free p_eckey since all are own by m_evp_key
 
     void _assign_privat_key();// transfer all ownership to m_prikey
 

@@ -10,10 +10,12 @@
 #include <utility>
 
 #include <openssl/objects.h>
+#include <openssl/ec.h>
+#include <openssl/crypto.h>
 
 BOOST_AUTO_TEST_SUITE(test_suite_AsymKey)
 
-BOOST_AUTO_TEST_CASE(test_constructor)
+BOOST_AUTO_TEST_CASE(test_default_constructor)
 {
     AsymKey key;
     
@@ -21,6 +23,32 @@ BOOST_AUTO_TEST_CASE(test_constructor)
     const std::string priKeyStr = key.getPrivateKeyPEM();
     BOOST_CHECK(!pubKeyStr.empty());
     BOOST_CHECK(!priKeyStr.empty());
+}
+
+BOOST_AUTO_TEST_CASE(test_constructor_with_groupnid)
+{
+    /// Construct asymkey with all possible ec curves
+    const auto nb_curves = EC_get_builtin_curves(NULL, 0);
+    EC_builtin_curve *curve_list = (EC_builtin_curve *)OPENSSL_malloc(sizeof(EC_builtin_curve) * nb_curves);
+    const auto nb_curves_r = EC_get_builtin_curves(curve_list, nb_curves);
+    BOOST_CHECK(nb_curves_r == nb_curves);
+
+    size_t i{0};
+    while (i < nb_curves)
+    {
+        const int curve_groupNID = curve_list[i].nid;
+
+        AsymKey key(curve_groupNID);
+        const std::string pubKeyStr = key.getPublicKeyPEM();
+        const std::string priKeyStr = key.getPrivateKeyPEM();
+        BOOST_CHECK(!pubKeyStr.empty());
+        BOOST_CHECK(!priKeyStr.empty());
+        const int key_group = key.GroupNid();
+        BOOST_CHECK(key_group== curve_groupNID);
+        ++i;
+    }
+
+    OPENSSL_free(curve_list);
 }
 
 BOOST_AUTO_TEST_CASE(test_randomness)

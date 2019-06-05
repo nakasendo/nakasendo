@@ -29,7 +29,7 @@ std::string _do_hash_msg(const std::string& crMsg)
 
 void AsymKeyImpl::_assign_privat_key()
 {
-    if (!EVP_PKEY_assign_EC_KEY(m_prikey.get(), p_eckey))
+    if (!EVP_PKEY_assign_EC_KEY(m_evp_key.get(), p_eckey))
         throw std::runtime_error("Error generating assiging private key to public key");
 }
 
@@ -39,7 +39,7 @@ AsymKeyImpl::~AsymKeyImpl()
 }
 
 AsymKeyImpl::AsymKeyImpl()
-: m_prikey(EVP_PKEY_new(), &EVP_PKEY_free)
+: m_evp_key(EVP_PKEY_new(), &EVP_PKEY_free)
 , p_eckey(EC_KEY_new_by_curve_name(OBJ_txt2nid("secp256k1")))
 {
     EC_KEY_set_asn1_flag(p_eckey, OPENSSL_EC_NAMED_CURVE);
@@ -49,8 +49,22 @@ AsymKeyImpl::AsymKeyImpl()
     _assign_privat_key();
 }
 
+AsymKeyImpl::AsymKeyImpl(int groupNID)
+    : m_evp_key(EVP_PKEY_new(), &EVP_PKEY_free)
+    , p_eckey(EC_KEY_new_by_curve_name(groupNID))
+{
+    if(p_eckey==nullptr)
+        throw std::runtime_error("Error generate EC key with group " + std::to_string(groupNID));
+
+    EC_KEY_set_asn1_flag(p_eckey, OPENSSL_EC_NAMED_CURVE);
+    if (!(EC_KEY_generate_key(p_eckey)))
+        throw std::runtime_error("Error generate EC key");
+
+    _assign_privat_key();
+}
+
 AsymKeyImpl::AsymKeyImpl(const AsymKeyImpl& crOther)
-: m_prikey(EVP_PKEY_new(), ::EVP_PKEY_free)
+: m_evp_key(EVP_PKEY_new(), ::EVP_PKEY_free)
 , p_eckey(EC_KEY_new_by_curve_name(OBJ_txt2nid("secp256k1")))
 {
     if (!EC_KEY_copy(p_eckey, crOther.p_eckey))
@@ -75,8 +89,14 @@ AsymKeyImpl& AsymKeyImpl::operator=(const AsymKeyImpl& crOther)
 
 int AsymKeyImpl::GroupNid()const
 {
-    /// The curve name secp256k1 has to be consistent with the constructor
-    return OBJ_txt2nid("secp256k1");
+    const EC_KEY* _ec_key = EVP_PKEY_get0_EC_KEY(m_evp_key.get());
+    if(_ec_key==nullptr)
+        throw std::runtime_error("Unable to get EC key");
+    const EC_GROUP* _ec_group = EC_KEY_get0_group(_ec_key);
+    if (_ec_group == nullptr)
+        throw std::runtime_error("Unable to get group ID from EC key");
+
+    return EC_GROUP_get_curve_name(_ec_group);
 }
 
 std::string AsymKeyImpl::getPublicKeyHEXStr()  const
@@ -105,7 +125,7 @@ std::string AsymKeyImpl::getPrivateKeyHEXStr()  const
 std::string AsymKeyImpl::getPublicKeyPEMStr()  const
 {
     BIO_ptr outbio (BIO_new(BIO_s_mem()),&BIO_free_all);
-    if (!PEM_write_bio_PUBKEY(outbio.get(), m_prikey.get()))
+    if (!PEM_write_bio_PUBKEY(outbio.get(), m_evp_key.get()))
         throw std::runtime_error("Error writting public key");
     
     const int pubKeyLen = BIO_pending(outbio.get());
@@ -118,7 +138,7 @@ std::string AsymKeyImpl::getPublicKeyPEMStr()  const
 std::string AsymKeyImpl::getPrivateKeyPEMStr() const
 {
     BIO_ptr outbio(BIO_new(BIO_s_mem()), &BIO_free_all);
-    if(!PEM_write_bio_PrivateKey(outbio.get(), m_prikey.get(), NULL, NULL, 0, 0,NULL))
+    if(!PEM_write_bio_PrivateKey(outbio.get(), m_evp_key.get(), NULL, NULL, 0, 0,NULL))
         throw std::runtime_error("Error writting private key");
 
     const int privKeyLen = BIO_pending(outbio.get());
@@ -161,7 +181,7 @@ std::string AsymKeyImpl::getSharedSecretHex(const std::string& crOtherPublicPEMK
     EVP_PKEY_ptr tmp_pub_key(raw_tmp_pub_pkey, &EVP_PKEY_free);
 
     using EVP_PKEY_CTX_ptr = std::unique_ptr< EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free) >;
-    EVP_PKEY_CTX_ptr ctx(EVP_PKEY_CTX_new(m_prikey.get(), nullptr), &EVP_PKEY_CTX_free);
+    EVP_PKEY_CTX_ptr ctx(EVP_PKEY_CTX_new(m_evp_key.get(), nullptr), &EVP_PKEY_CTX_free);
     if (!ctx)
         throw std::runtime_error("Error creating key context");
     if (EVP_PKEY_derive_init(ctx.get()) <= 0)

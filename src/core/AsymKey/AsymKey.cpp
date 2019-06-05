@@ -22,6 +22,10 @@ AsymKey::AsymKey() : m_pImpl(new AsymKeyImpl())
 {
 }
 
+AsymKey::AsymKey(int groupNID) : m_pImpl(new AsymKeyImpl(groupNID))
+{
+}
+
 int AsymKey::GroupNid()const
 {
     return m_pImpl->GroupNid();

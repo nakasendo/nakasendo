@@ -19,7 +19,7 @@ class AsymKey_API AsymKey
 {
     public:
         explicit AsymKey();
-
+        explicit AsymKey(int groupNID);
         ~AsymKey();
 
         //moveable
