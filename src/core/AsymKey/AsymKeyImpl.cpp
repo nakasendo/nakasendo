@@ -82,6 +82,35 @@ AsymKeyImpl& AsymKeyImpl::operator=(const AsymKeyImpl& crOther)
     return *this;
 }
 
+bool AsymKeyImpl::is_valid() const
+{
+    using EC_POINT_ptr = std::unique_ptr< EC_POINT, decltype(&EC_POINT_free) >;
+    using BN_CTX_ptr = std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)>;
+    /// Get public key
+    const EC_POINT* pub_key = EC_KEY_get0_public_key(p_eckey);
+    if (pub_key == nullptr)
+        throw std::runtime_error("Unable to get public key");
+
+    /// Get private key
+    const BIGNUM* private_key = EC_KEY_get0_private_key(p_eckey);
+    if (private_key == nullptr)
+        throw std::runtime_error("Unable to get private key");
+
+    /// Get group generator point
+    const EC_GROUP* pGroup = EC_KEY_get0_group(p_eckey);
+    const EC_POINT* pG = EC_GROUP_get0_generator(pGroup);
+    if (pG == nullptr)
+        throw std::runtime_error("Unable to get key group generator");
+
+    //EC_POINT* ret=nullptr;
+    EC_POINT_ptr pTestPubKey(EC_POINT_new(pGroup), &EC_POINT_free);
+    BN_CTX_ptr pCTX_mul(BN_CTX_new(), &BN_CTX_free);
+    if(!EC_POINT_mul(pGroup, pTestPubKey.get(), nullptr, pG, private_key, pCTX_mul.get()))
+        throw std::runtime_error("Unable to calculate public key from private key");
+
+    BN_CTX_ptr pCTX_cmp(BN_CTX_new(), &BN_CTX_free);
+    return 0==EC_POINT_cmp(pGroup, pub_key, pTestPubKey.get(), pCTX_cmp.get());
+}
 
 /// ECKey import export
 /// https://stackoverflow.com/questions/50479284/openssl-read-an-ec-key-then-write-it-again-and-its-different

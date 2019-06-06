@@ -26,6 +26,11 @@ AsymKey::AsymKey(int groupNID) : m_pImpl(new AsymKeyImpl(groupNID))
 {
 }
 
+bool AsymKey::is_valid() const
+{
+    return m_pImpl->is_valid();
+}
+
 int AsymKey::GroupNid()const
 {
     return m_pImpl->GroupNid();

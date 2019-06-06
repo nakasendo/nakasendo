@@ -29,6 +29,8 @@ class AsymKey_API AsymKey
         AsymKey(const AsymKey& obj);
         AsymKey& operator=(const AsymKey& obj);
 
+        bool is_valid() const; // Check if the keys satisfy pubkey = privkey * G
+
         int GroupNid()const;
         std::string getPublicKeyHEX()  const;
         std::string getPrivateKeyHEX() const;

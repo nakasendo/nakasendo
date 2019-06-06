@@ -18,6 +18,7 @@ BOOST_AUTO_TEST_SUITE(test_suite_AsymKey)
 BOOST_AUTO_TEST_CASE(test_default_constructor)
 {
     AsymKey key;
+    BOOST_CHECK(key.is_valid());
     
     const std::string pubKeyStr = key.getPublicKeyPEM();
     const std::string priKeyStr = key.getPrivateKeyPEM();
@@ -39,6 +40,7 @@ BOOST_AUTO_TEST_CASE(test_constructor_with_groupnid)
         const int curve_groupNID = curve_list[i].nid;
 
         AsymKey key(curve_groupNID);
+        BOOST_CHECK(key.is_valid());
         const std::string pubKeyStr = key.getPublicKeyPEM();
         const std::string priKeyStr = key.getPrivateKeyPEM();
         BOOST_CHECK(!pubKeyStr.empty());
@@ -81,6 +83,7 @@ BOOST_AUTO_TEST_CASE(test_copy)
     const std::string prikey_str = key.getPrivateKeyPEM();
 
     const AsymKey copied(key);
+    BOOST_CHECK(copied.is_valid());
     const std::string copied_pubkey_str = copied.getPublicKeyPEM();
     const std::string copied_prikey_str = copied.getPrivateKeyPEM();
     BOOST_TEST(pubkey_str == copied_pubkey_str);// copied public keys are same
@@ -88,6 +91,7 @@ BOOST_AUTO_TEST_CASE(test_copy)
 
     AsymKey assigned;
     assigned = key;
+    BOOST_CHECK(assigned.is_valid());
     const std::string assigned_pubkey_str = assigned.getPublicKeyPEM();
     const std::string assigned_prikey_str = assigned.getPrivateKeyPEM();
     BOOST_TEST(pubkey_str == assigned_pubkey_str);// assigned public keys are same
@@ -109,6 +113,7 @@ BOOST_AUTO_TEST_CASE(test_IO)
 
     AsymKey imported_key;
     imported_key.setPEMPrivateKey(test_priKey_Str);
+    BOOST_CHECK(imported_key.is_valid());
     const std::string imported_pubkey_str = imported_key.getPublicKeyPEM();
     const std::string imported_priKey_Str = imported_key.getPrivateKeyPEM();
 
