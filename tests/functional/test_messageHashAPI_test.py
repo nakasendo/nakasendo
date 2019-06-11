@@ -1,10 +1,18 @@
-import pathlib
 import PyMessageHash
+import pathlib
+
+##################################################################################################
+#       All test data are generated using third parties online web application.                  #
+#       The web sites used are as follow:-                                                       #
+#       https://emn178.github.io/online-tools/base64_encode.html                                 #
+#       https://incoherency.co.uk/base58/                                                        #
+#       https://emn178.github.io/online-tools/sha256.html                                        #
+##################################################################################################
 
 def test_HashMsgAPI(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_HashMsg").open() as hashMsgFile_txt:
+    with open(test_data_dir/"testData_HashMsg", "r") as hashMsgFile_txt:
 
         for x in hashMsgFile_txt.readlines():
 
@@ -15,12 +23,10 @@ def test_HashMsgAPI(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == hashMsg_value[2].rstrip("\n"), "Test failed"
 
-    hashMsgFile_txt.close()
-
 def test_MsgHash256API(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_MsgSHA256").open() as msgHashFile_txt:
+    with open(test_data_dir/"testData_MsgSHA256", "r") as msgHashFile_txt:
 
         for x in msgHashFile_txt.readlines():
 
@@ -32,12 +38,10 @@ def test_MsgHash256API(test_data_dir):
             assert actual_Value == msg_Hash_value[1].rstrip("\n"), "Test failed"
             assert len(actual_Value) == 64, "Test Failed"
 
-    msgHashFile_txt.close()
-
 def test_EncodeBase58API(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_Encode58Decode").open() as encodeFile_txt:
+    with open(test_data_dir/"testData_Encode58Decode", "r") as encodeFile_txt:
 
         for x in encodeFile_txt.readlines():
 
@@ -48,12 +52,10 @@ def test_EncodeBase58API(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == encode_Value[1].rstrip("\n"), "Test failed"
 
-    encodeFile_txt.close()
-
 def test_DecodeBase58API(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_Encode58Decode").open() as decodeFile_txt:
+    with open(test_data_dir/"testData_Encode58Decode", "r") as decodeFile_txt:
 
         for x in decodeFile_txt.readlines():
 
@@ -64,12 +66,10 @@ def test_DecodeBase58API(test_data_dir):
             #Verifying the actual value with expected value
             assert actual_Value == decode_Value[0], "Test failed"
 
-    decodeFile_txt.close()
-
 def test_EncodeBase58CheckedAPI(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_Encode58CheckedDecode").open() as encode58File_txt:
+    with open(test_data_dir/"testData_Encode58CheckedDecode", "r") as encode58File_txt:
 
         for x in encode58File_txt.readlines():
 
@@ -80,12 +80,10 @@ def test_EncodeBase58CheckedAPI(test_data_dir):
             #Verifying the actual value with expected value
             assert actual_Value == encode58_Value[1].rstrip("\n"), "Test failed"
 
-    encode58File_txt.close()
-
 def test_DecodeBase58Checked58API(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_Encode58CheckedDecode").open() as decode58File_txt:
+    with open(test_data_dir/"testData_Encode58CheckedDecode", "r") as decode58File_txt:
 
         for x in decode58File_txt.readlines():
 
@@ -96,12 +94,10 @@ def test_DecodeBase58Checked58API(test_data_dir):
             #Verifying the actual value with expected value
             assert actual_Value == decode58_Value[0], "Test failed"
 
-    decode58File_txt.close()
-
 def test_EncodeBase64API(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_Encode64Decode").open() as encodeFile_txt:
+    with open(test_data_dir/"testData_Encode64Decode", "r") as encodeFile_txt:
 
         for x in encodeFile_txt.readlines():
 
@@ -110,21 +106,12 @@ def test_EncodeBase64API(test_data_dir):
             actual_Value = PyMessageHash.EncodeBase64(encode_Value[0])
 
             # Verifying the actual value with expected value
-            #assert actual_Value == encode_Value[1].rstrip("\n"), "Test failed"
-            if (actual_Value == encode_Value[1].rstrip("\n")):
-
-                print("Passs")
-            else:
-
-                print(actual_Value)
-                print("Failed")
-
-    encodeFile_txt.close()
+            assert actual_Value == encode_Value[1].rstrip("\n"), "Test failed"
 
 def test_DecodeBase64API(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_Encode64Decode").open() as decodeFile_txt:
+    with open(test_data_dir/"testData_Encode64Decode", "r") as decodeFile_txt:
 
         for x in decodeFile_txt.readlines():
 
@@ -134,5 +121,3 @@ def test_DecodeBase64API(test_data_dir):
 
             #Verifying the actual value with expected value
             assert actual_Value == decode_Value[0], "Test failed"
-
-    decodeFile_txt.close()
