@@ -31,13 +31,25 @@ class AsymKey_API AsymKey
 
         bool is_valid() const; // Check if the keys satisfy pubkey = privkey * G
 
+        //// some usefull infomation about the EC group
         int GroupNid()const;
-        std::string getPublicKeyHEX()  const;
+        std::string Group_G_x() const;// big numb hex string 
+        std::string Group_G_y() const;// big numb hex string
+        std::string Group_p()   const;// big numb hex string 
+        std::string Group_a()   const;// big numb hex string 
+        std::string Group_b()   const;// big numb hex string
+        std::string Group_n()   const;// group order
+
+        std::pair<std::string, std::string> getPublicKeyHEX()  const;
+        std::string getPublicKeyHEXStr()  const; // Encoded
         std::string getPrivateKeyHEX() const;
         std::string getPublicKeyPEM()  const;
         std::string getPrivateKeyPEM() const;
         void setPEMPrivateKey(const std::string&);// Import PEM private key
+        void setHEXPrivateKey(const std::string&);// Import HEX private key, knowing it is the right group
         std::string getSharedSecretHex(const std::string& crOtherPublicPEMKey) const;// Calculate the shared secrete giving the public key from other
+
+        AsymKey derive(const std::string& crAdditiveMsg) const;
 
         /// Sign the message, return <r,s>  component
         std::pair<std::string, std::string> sign(const std::string& crMsg) const;
@@ -48,6 +60,8 @@ class AsymKey_API AsymKey
 };
 
 bool AsymKey_API verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
+std::string AsymKey_API derive_pubkey(const std::string& crPubPEMkey, const std::string& crRandomMsg);
+std::pair<std::string, std::string> AsymKey_API pubkey_pem2hex(const std::string& crPubPEMkey);
 
 #endif /* ASYM_KEY_H */
 

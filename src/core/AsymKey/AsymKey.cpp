@@ -35,8 +35,37 @@ int AsymKey::GroupNid()const
 {
     return m_pImpl->GroupNid();
 }
+std::string AsymKey::Group_G_x() const
+{
+    return m_pImpl->Group_G_x();
+}
+std::string AsymKey::Group_G_y() const
+{
+    return m_pImpl->Group_G_y();
+}
+std::string AsymKey::Group_p() const
+{
+    return m_pImpl->Group_p();
+}
+std::string AsymKey::Group_a() const
+{
+    return m_pImpl->Group_a();
+}
+std::string AsymKey::Group_b() const
+{
+    return m_pImpl->Group_b();
+}
+std::string AsymKey::Group_n() const
+{
+    return m_pImpl->Group_n();
+}
 
-std::string AsymKey::getPublicKeyHEX() const
+std::pair<std::string, std::string> AsymKey::getPublicKeyHEX() const
+{
+    return m_pImpl->getPublicKeyHEX();
+}
+
+std::string AsymKey::getPublicKeyHEXStr()  const
 {
     return m_pImpl->getPublicKeyHEXStr();
 }
@@ -61,9 +90,21 @@ void AsymKey::setPEMPrivateKey(const std::string& crPEMKey)
     m_pImpl->setPEMPrivateKey(crPEMKey);
 }
 
+void AsymKey::setHEXPrivateKey(const std::string& crHEXKey)
+{
+    m_pImpl->setHEXPrivateKey(crHEXKey);
+}
+
 std::string AsymKey::getSharedSecretHex(const std::string& crOtherPublicPEMKey) const
 {
     return m_pImpl->getSharedSecretHex(crOtherPublicPEMKey);
+}
+
+AsymKey AsymKey::derive(const std::string& crAdditiveMsg) const
+{
+    AsymKey new_key(GroupNid());
+    new_key.m_pImpl.reset(m_pImpl->derive_private(crAdditiveMsg));
+    return std::move(new_key);
 }
 
 std::pair<std::string, std::string> AsymKey::sign(const std::string& crMsg)const
@@ -74,4 +115,14 @@ std::pair<std::string, std::string> AsymKey::sign(const std::string& crMsg)const
 bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs)
 {
     return impl_verify(crMsg,crPublicKeyPEMStr,rs);
+}
+
+std::string derive_pubkey(const std::string& crPubPEMkey, const std::string& crRandomMsg)
+{
+    return impl_derive_pubkey(crPubPEMkey, crRandomMsg);
+}
+
+std::pair<std::string, std::string> AsymKey_API pubkey_pem2hex(const std::string& crPubPEMkey)
+{
+    return impl_pubkey_pem2hex(crPubPEMkey);
 }
