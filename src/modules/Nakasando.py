@@ -3,12 +3,21 @@ import json
 import string
 #Plese add the path to the library or update the PYTHONPATH
 #sys.path.append ('PATH TO INSTALLATION LIB')
-sys.path.append ('/home/osboxes/nchain/SDK/build/x64/release')
+#sys.path.append ('/home/osboxes/nchain/SDK/build/x64/release')
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
+import PyMessageHash
 
-
+class MessageHash:
+    def __init__(self, msg):
+        self.message = msg;
+    def Base64Encode(self):
+        return PyMessageHash.EncodeBase64(self.message);
+    def Bas64Decode(self,msg):
+        return PyMessageHash.DecodeBase64(msg);
+    def __str__(self):
+        return '{}'.format (self.message);
 class SymEncDec:
     def __init__ (self,pw,iv):
         self.pw = pw;
