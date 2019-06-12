@@ -2,6 +2,7 @@
 #include <MessageHash/MessageHashAPI.h>
 
 #include <string.h>
+#include <sstream>
 #include <memory>
 #include <iostream>
 
@@ -33,15 +34,22 @@ SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,con
     encdec.SetParams(encodingKey, mySalt, keylen,16);
     std::unique_ptr<unsigned char> encMsg;
     int encMsgLen = encdec.aes_encrypt(msg, encMsg);
-    
-    std::string retval; 
-    for (int i=0;i<encMsgLen; ++ i){
-        retval.push_back((char)encMsg.get()[i]);
-    } 
+    std::stringstream hexBuilder; 
+    if (encodingKey != nullptr){
+        //enough room for 3 bytes (the characters + the terminating 0)
+        std::unique_ptr<char> mykeyCopy (new char[3]);
+        std::fill_n(mykeyCopy.get(), 3, 0x00);
+        for(int i=0; i<encMsgLen;++i){
+            sprintf(mykeyCopy.get(), "%02x", encMsg.get()[i]); 
+            hexBuilder << mykeyCopy.get() ;             
+        }
+    }
+
+
 #ifdef __EMSCRIPTEN__
-    return retval.c_str(); 
+    return hexBuilder.str().c_str(); 
 #else
-    return retval;
+    return hexBuilder.str();
 #endif
 }
 
@@ -102,7 +110,19 @@ SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, co
     SymEncDec encdec;
     encdec.SetParams(encodingKey, mySalt, keylen, 16);
     std::unique_ptr<unsigned char> decMsg;
-    int decMsgLen = encdec.aes_decrypt(msg, decMsg);
+    //msg is in hex form...convert to numbers?
+    std::unique_ptr<unsigned char> RebuiltMsg ( new unsigned char[msg.length()/2]) ;     
+    int i = 0 ; 
+    for ( int len = 0; len <msg.length()/2; ++len ){                
+        std::string val =  msg.substr(len*2, 2) ; 
+        RebuiltMsg.get()[len] = strtoul ( val.c_str() , nullptr, 16) ; 
+    }
+    std::string strVal; 
+    for (int len =0;len<msg.length()/2; ++len){
+        strVal.push_back(RebuiltMsg.get()[len]);
+    }
+    
+    int decMsgLen = encdec.aes_decrypt(strVal, decMsg);
     
     std::string retval; 
     for (int i=0;i<decMsgLen; ++ i){
@@ -181,15 +201,18 @@ SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& 
     int iterCount(10000);
     std::unique_ptr<unsigned char> encodingKey = KeyGen(myKey,key.size(),mySalt, iv.length(),iterCount, keylen);
 
-    std::string retval; 
+    std::stringstream hexBuilder; 
     if (encodingKey != nullptr){
-        for(int i=0; i<32;++i){
-            retval.push_back(encodingKey.get()[i]);
+        std::unique_ptr<char> mykeyCopy (new char[keylen]);
+        for(int i=0; i<keylen;++i){
+            sprintf(mykeyCopy.get(), "%02x", encodingKey.get()[i]); 
+            hexBuilder << mykeyCopy.get() ;             
         }
     }
+
 #ifdef __EMSCRIPTEN__
-    return retval.c_str(); 
+    return hexBuilder.str().c_str(); 
 #else
-    return retval;
+    return hexBuilder.str();
 #endif
 }

@@ -53,13 +53,13 @@ static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
     int lenargA; 
     if (!PyArg_ParseTuple(args, "s#", &argA, &lenargA))
         return NULL;
-    std::unique_ptr<unsigned char> msgPtr (new unsigned char [lenargA]);
-    std::fill_n(msgPtr.get(), lenargA, 0x00);
+    std::unique_ptr<unsigned char> msgPtr (new unsigned char [lenargA+1]);
+    std::fill_n(msgPtr.get(), lenargA+1, 0x00);
     for (int i=0;i<lenargA; ++ i){
-        msgPtr.get()[i] = argA[i] ; 
+        msgPtr.get()[i] = argA[i] ;
     }
     
-    std::string result = EncodeBase64(msgPtr.get(), lenargA);
+    std::string result = EncodeBase64(msgPtr.get(), lenargA+1);
     
     return Py_BuildValue("s",result.c_str());
 }
