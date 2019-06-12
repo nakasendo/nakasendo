@@ -9,14 +9,14 @@
 
 int main (int argc, char** argv)
 {
-    std::string UserPass ("mypassword");
+    std::string UserPass ("j.murphy@nchain.com");
     std::unique_ptr<unsigned char> myPass (new unsigned char [UserPass.length() + 1 ]);
     std::fill_n(myPass.get(), UserPass.length()+1, 0x00);
     int index(0);
     for(std::string::const_iterator iter = UserPass.begin(); iter != UserPass.end(); ++ iter, ++index){
       myPass.get()[index]=*iter;
     }
-    std::string UserSalt ("0123456789");
+    std::string UserSalt ("05101974");
     std::unique_ptr<unsigned char> mySalt (new unsigned char [UserSalt.length() + 1 ]);
     std::fill_n(mySalt.get(), UserSalt.length()+1, 0x00);
     index = 0;
@@ -24,19 +24,44 @@ int main (int argc, char** argv)
       mySalt.get()[index]=*iter;
     }
     std::unique_ptr<unsigned char> mykey;
+     
 
     {      
       uint64_t keylen(32);
       int iterCount(10000);
       mykey = KeyGen(myPass,UserPass.length(),mySalt, UserSalt.length(), iterCount,keylen);
-      
+       std::unique_ptr<char> mykeyCopy (new char[keylen]);   
+        std::string myKeyHex;
+
+        std::stringstream hexBuilder; 
       if (mykey != nullptr){
           for ( int i = 0; i < keylen; ++i){
             //p += snprintf(p, 3, "%02x", *h);
             printf("%02x",mykey.get()[i]);
+            sprintf(mykeyCopy.get(), "%02x", mykey.get()[i]); 
+            hexBuilder << mykeyCopy.get() ; 
           }
-          std::cout << std::endl; 
-      }
+          std::cout << "\n" << hexBuilder.str() << std::endl; 
+        }
+
+        // Take what's in hexBuilder & convert it back to a pointer of unsigned char.
+        //var bytes = new Uint8Array(Math.ceil(hex.length / 2));
+        //for (var i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+        
+        std::unique_ptr<unsigned char> myRebuiltKey ( new unsigned char[hexBuilder.str().length()/2]) ; 
+        int i = 0 ; 
+        for ( int len = 0; len < hexBuilder.str().length()/2; ++len ){
+            std::string val =  hexBuilder.str().substr(len*2, 2) ; 
+            myRebuiltKey.get()[len] = strtol ( val.c_str() , nullptr, 16) ; 
+        }
+
+        std::cout << "My rebuilt key:" << std::endl; 
+        if ( myRebuiltKey != nullptr){
+            for ( int i = 0; i < keylen; ++i){
+                printf("%02x", myRebuiltKey.get()[i]); 
+            }
+        }
+        std::cout << std::endl ;
     }
     {
  #if 1
@@ -99,13 +124,13 @@ int main (int argc, char** argv)
     }
     {
 
-      std::cout << "And now via the API" << std::endl;
-      std::string ptext ("the quick brown fox jumped over the lazy dog");
+      std::cout << "And now via the API ... the hex representations" << std::endl;
+      std::string ptext ("Now is the time for all good men to come to the aide of their country");
       // Test key & IV
        /* A 256 bit key */
       
       std::string UserPass ("j.murphy@nchain.com");
-      std::string UserSalt ("19741005");
+      std::string UserSalt ("05101974");
       
       std::string encMsg = Encode(ptext, UserPass, UserSalt);
       std::cout << encMsg << std::endl; 
@@ -114,16 +139,16 @@ int main (int argc, char** argv)
      
       std::cout << "Decoded Message: " << decMsg << std::endl;
 
-      std::string ptext1 ("Geeode") ;
-      encMsg.clear();
-      encMsg = Encode(ptext1, UserPass, UserSalt);
-      decMsg.clear();
-      decMsg = Decode(encMsg, UserPass,UserSalt);
-      std::cout <<"Decoded MEssage1: " << decMsg << std::endl;
+      //std::string ptext1 ("Geeode") ;
+      //encMsg.clear();
+      //encMsg = Encode(ptext1, UserPass, UserSalt);
+      //decMsg.clear();
+      //decMsg = Decode(encMsg, UserPass,UserSalt);
+      //std::cout <<"Decoded MEssage1: " << decMsg << std::endl;
     }
     {
 
-      std::cout << "And now via the API" << std::endl;
+      std::cout << "And now via the API...the extended methods" << std::endl;
       std::string ptext ("Now is the time for all good men to come to the aide of their country");
       // Test key & IV
        /* A 256 bit key */

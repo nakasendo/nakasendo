@@ -119,7 +119,6 @@ int SymEncDecImpl::aes_decrypt( const std::string& ctext, std::unique_ptr<unsign
 
   
   int out_len2 = rtext.size() - out_len1;
-  std::cout << "out_len1: " << out_len1 << "\tout_len2: " << out_len2 << std::endl ; 
   
   rc = EVP_DecryptFinal_ex(ctx.get(), (unsigned char*)&rtext[0]+out_len1, &out_len2);
   if (rc != 1){

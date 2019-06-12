@@ -4,8 +4,11 @@ import json
 import string
 #Please update the PYTHONPATH or use the sys.path.append with the path to 
 #the Nakasando installation
+sys.path.append('/home/osboxes/nchain/SDK/sdklibraries/src/modules')
+sys.path.append ('/home/osboxes/nchain/SDK/build/x64/release')
 import PyBigNumbers
 import PyECPoint
+import PySymEncDec
 import Nakasando
 
 if __name__ == "__main__":
@@ -65,6 +68,21 @@ if __name__ == "__main__":
     print ("Result of addtion on a curve with ID - 704: %s " % ECPointOnScep112r1_sum)
 
     print ("Check if its on the curve")
+
+    print ("Check Encoding/Decoding/Key creation")
+    password='j.murphy@nchain.com'
+    iv='05101974'
+    encoder = Nakasando.SymEncDec (password,iv)
+    print ("Contents: %s" % encoder)
+    encoder.GenerateKey(); 
+    print ("Contents: %s" % encoder)
+
+    msgToEncode='the quick brown fox jumped over the lazy dog'
+    encodedAsHex = encoder.Encode(msgToEncode)
+    print ("EncodedMsgAsHex: %s" % encodedAsHex)
+
+    decoded =encoder.Decode(encodedAsHex)
+    print ("Decoded Message %s" % decoded )
     
     
 
