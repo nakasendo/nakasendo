@@ -231,7 +231,7 @@ int BigNumberImpl::FromBin(std::vector<uint8_t>& val)
     unsigned char *valData = val.data();
     
     // get bin value to BN
-    return FromBin(valData, val.size());
+    return FromBin(valData, (int)val.size());
 }
 
 std::vector<uint8_t>  BigNumberImpl::ToBin() const
@@ -292,6 +292,6 @@ bool BigNumberImpl::isPrimeFasttest() const
 
  void BigNumberImpl::seedRNG (const std::string& seed)
  {
-     RAND_seed(seed.c_str(), seed.size());
+     RAND_seed(seed.c_str(), (int)seed.size());
  }
 
