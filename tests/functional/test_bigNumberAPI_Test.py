@@ -1,10 +1,10 @@
-import pathlib
 import PyBigNumbers
+import pathlib
 
 def test_AddFromDecWithBigNumApi(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_AddDec").open() as addDec_txt:
+    with open(test_data_dir/"testData_AddDec", "r") as addDec_txt:
         for x in addDec_txt:
 
             decNumber = x.split()
@@ -14,12 +14,10 @@ def test_AddFromDecWithBigNumApi(test_data_dir):
             #Verifying the actual value with expected value
             assert actual_Value == decNumber[2], "Test failed"
 
-    addDec_txt.close()
-
 def test_AddFromHexWithBigNumApi(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_AddHex").open() as addHex_txt:
+    with open(test_data_dir/"testData_AddHex", "r") as addHex_txt:
         for x in addHex_txt:
 
             hexNumber = x.split()
@@ -29,12 +27,9 @@ def test_AddFromHexWithBigNumApi(test_data_dir):
             #Verifying the actual value with expected value
             assert actual_Value.upper() == hexNumber[2].upper(), "Test failed"
 
-    addHex_txt.close()
-
 def test_SubFromDecWithBigNumApi(test_data_dir):
-
     # Reading test data from the file
-    with (test_data_dir / "testData_SubDec").open() as subDec_txt:
+    with open(test_data_dir/"testData_SubDec", "r") as subDec_txt:
         for x in subDec_txt:
 
             decNumber = x.split()
@@ -44,12 +39,10 @@ def test_SubFromDecWithBigNumApi(test_data_dir):
             #Verifying the actual value with expected value
             assert actual_Value == decNumber[2], "Test failed"
 
-    subDec_txt.close()
-
 def test_SubFromHexWithBigNumApi(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_SubHex").open() as subHex_txt:
+    with open(test_data_dir/"testData_SubHex", "r") as subHex_txt:
         for x in subHex_txt:
 
             hexNumber = x.split()
@@ -59,11 +52,10 @@ def test_SubFromHexWithBigNumApi(test_data_dir):
             #Verifying the actual value with expected value
             assert actual_Value.upper() == hexNumber[2].upper(), "Test failed"
 
-    subHex_txt.close()
-
 def test_GenRandDec(test_data_dir):
+
     # Reading test data from the file
-    with (test_data_dir / "testData_GenBigNum").open() as genDec_txt:
+    with open(test_data_dir/"testData_GenBigNum", "r") as genDec_txt:
 
         for x in genDec_txt.readlines():
 
@@ -74,11 +66,10 @@ def test_GenRandDec(test_data_dir):
             #Verifying the actual value as a string and not negative value
             assert type(actual_Value) is str and actual_Value != "-1", "Test failed"
 
-    genDec_txt.close()
-
 def test_GenRandHex(test_data_dir):
+
     # Reading test data from the file
-    with (test_data_dir / "testData_GenBigNum").open() as genHex_txt:
+    with open(test_data_dir/"testData_GenBigNum", "r") as genHex_txt:
 
         for x in genHex_txt.readlines():
 
@@ -89,12 +80,10 @@ def test_GenRandHex(test_data_dir):
             #Verifying the actual value as a string and not negative value
             assert type(actual_Value) is str and actual_Value != "-1", "Test failed"
 
-    genHex_txt.close()
-
 def test_genRandDecWithSeed(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_SeedDec").open() as seedDec_txt:
+    with open(test_data_dir/"testData_SeedDec", "r") as seedDec_txt:
         for x in seedDec_txt:
 
             decNumber = x.split()
@@ -104,12 +93,10 @@ def test_genRandDecWithSeed(test_data_dir):
             #Verifying the actual value as a string with no negative sign
             assert type(actual_Value) is str and actual_Value != "-1", "Test failed"
 
-    seedDec_txt.close()
-
 def test_genRandHexWithSeed(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_SeedDec").open() as seedHex_txt:
+    with open(test_data_dir/"testData_SeedDec", "r") as seedHex_txt:
         for x in seedHex_txt:
 
             decNumber = x.split()
@@ -119,12 +106,10 @@ def test_genRandHexWithSeed(test_data_dir):
             #Verifying the actual value as a string with no negative sign
             assert type(actual_Value) is str and actual_Value != "-1", "Test failed"
 
-    seedHex_txt.close()
-
 def test_IsPrimeDec(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_PrimeDec").open() as primeDec_txt:
+    with open(test_data_dir/"testData_PrimeDec", "r") as primeDec_txt:
         for x in primeDec_txt:
 
             decNumber = x.split(",")
@@ -134,12 +119,10 @@ def test_IsPrimeDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == int(decNumber[1]), "Test failed"
 
-    primeDec_txt.close()
-
 def test_IsPrimeHex(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_PrimeDec").open() as primeHex_txt:
+    with open(test_data_dir/"testData_PrimeDec", "r") as primeHex_txt:
         for x in primeHex_txt:
 
             decNumber = x.split(",")
@@ -153,12 +136,10 @@ def test_IsPrimeHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == int(decNumber[1]), "Test failed"
 
-    primeHex_txt.close()
-
 def test_IsPrimeFastDec(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_PrimeDec").open() as primeFastDec_txt:
+    with open(test_data_dir/"testData_PrimeDec", "r") as primeFastDec_txt:
         for x in primeFastDec_txt:
 
             decNumber = x.split(",")
@@ -168,12 +149,10 @@ def test_IsPrimeFastDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == int(decNumber[1]), "Test failed"
 
-    primeFastDec_txt.close()
-
 def test_IsPrimeFastHex(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_PrimeDec").open() as primeFastHex_txt:
+    with open(test_data_dir/"testData_PrimeDec", "r") as primeFastHex_txt:
         for x in primeFastHex_txt:
 
             decNumber = x.split(",")
@@ -187,12 +166,10 @@ def test_IsPrimeFastHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == int(decNumber[1]), "Test failed"
 
-    primeFastHex_txt.close()
-
 def test_MultiplyDec(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_MultiplyDec").open() as multiplyDec_txt:
+    with open(test_data_dir/"testData_MultiplyDec", "r") as multiplyDec_txt:
         for x in multiplyDec_txt:
 
             decNumber = x.split(",")
@@ -202,12 +179,10 @@ def test_MultiplyDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[2].rstrip("\n"), "Test failed"
 
-    multiplyDec_txt.close()
-
 def test_MultiplyHex(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_MultiplyDec").open() as multiplyHex_txt:
+    with open(test_data_dir/"testData_MultiplyDec", "r") as multiplyHex_txt:
         for x in multiplyHex_txt:
 
             decNumber = x.split(",")
@@ -227,12 +202,10 @@ def test_MultiplyHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == expected_Value.upper(), "Test failed"
 
-    multiplyHex_txt.close()
-
 def test_LeftShiftDec(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_LeftRightShiftDec").open() as leftDec_txt:
+    with open(test_data_dir/"testData_LeftRightShiftDec", "r") as leftDec_txt:
         for x in leftDec_txt:
 
             decNumber = x.split(",")
@@ -242,12 +215,10 @@ def test_LeftShiftDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[2].rstrip("\n"), "Test failed"
 
-    leftDec_txt.close()
-
 def test_RightShiftDec(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_LeftRightShiftDec").open() as rightDec_txt:
+    with open(test_data_dir/"testData_LeftRightShiftDec", "r") as rightDec_txt:
         for x in rightDec_txt:
 
             decNumber = x.split(",")
@@ -257,12 +228,10 @@ def test_RightShiftDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[0], "Test failed"
 
-    rightDec_txt.close()
-
 def test_LeftShiftHex(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_LeftRightShiftHex").open() as leftHex_txt:
+    with open(test_data_dir/"testData_LeftRightShiftHex", "r") as leftHex_txt:
         for x in leftHex_txt:
 
             decNumber = x.split(",")
@@ -272,12 +241,10 @@ def test_LeftShiftHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value.lstrip("0") == decNumber[2].rstrip("\n"), "Test failed"
 
-    leftHex_txt.close()
-
 def test_RightShiftHex(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_LeftRightShiftHex").open() as rightHex_txt:
+    with open(test_data_dir/"testData_LeftRightShiftHex", "r") as rightHex_txt:
         for x in rightHex_txt:
 
             decNumber = x.split(",")
@@ -287,9 +254,7 @@ def test_RightShiftHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value.lstrip("0") == decNumber[0].upper(), "Test failed"
 
-    rightHex_txt.close()
-
-def test_GenerateRandPrimeDec(test_data_dir):
+def test_GenerateRandPrimeDec():
 
     #Generating prime decimal numbers with input parameter ranging from 10 to 10000
     for x in range (10,1000,50):
@@ -300,7 +265,7 @@ def test_GenerateRandPrimeDec(test_data_dir):
         # Verifying the actual value as prime number or not
         assert PyBigNumbers.isPrimeDec(primeDec_Value), "Test failed"
 
-def test_GenerateRandPrimeHex(test_data_dir):
+def test_GenerateRandPrimeHex():
 
     #Generating prime decimal numbers with input parameter ranging from 10 to 10000
     for x in range (10,1000,50):
@@ -311,7 +276,7 @@ def test_GenerateRandPrimeHex(test_data_dir):
         # Verifying the actual value as prime hex number or not
         assert PyBigNumbers.isPrimeHex(primeHex_Value), "Test failed"
 
-def test_GenerateRandPrimeDecWithSeed(test_data_dir):
+def test_GenerateRandPrimeDecWithSeed():
 
     seed = "moKDVMpSuLxh3tS2baDvmM4XmfTugpctBX"
 
@@ -324,7 +289,7 @@ def test_GenerateRandPrimeDecWithSeed(test_data_dir):
         # Verifying the actual value as prime number or not
         assert PyBigNumbers.isPrimeDec(primeDec_Value), "Test failed"
 
-def test_GenerateRandPrimeHexWithSeed(test_data_dir):
+def test_GenerateRandPrimeHexWithSeed():
 
     seed = "mhxdmxVS4qJWMyB7jsH9qfpS4qm1KHfY42"
 
@@ -340,7 +305,7 @@ def test_GenerateRandPrimeHexWithSeed(test_data_dir):
 def test_DivideDec(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_DivideDec").open() as divideDec_txt:
+    with open(test_data_dir/"testData_DivideDec", "r") as divideDec_txt:
         for x in divideDec_txt:
 
             decNumber = x.split(",")
@@ -350,38 +315,25 @@ def test_DivideDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[2].rstrip("\n"), "Test failed"
 
-    divideDec_txt.close()
-
 def test_DivideHex(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_DivideDec").open() as divideHex_txt:
+    with open(test_data_dir/"testData_DivideHex", "r") as divideHex_txt:
         for x in divideHex_txt:
 
-            decNumber = x.split(",")
-            #converting decimal to hex-decimal
-            i = int(decNumber[0])
-            j = int(decNumber[1])
-            k = int(decNumber[2].rstrip("\n"))
-            hex_Value = hex(i).lstrip("0x")
-            hex_Value2 = hex(j).lstrip("0x")
-            print(hex_Value)
-            print(hex_Value2)
-            expected_Value = hex(k).lstrip("0x")
+            hexNumber = x.split(",")
 
             # Divide two big numbers of arbitrary precision in hex
-            actualValue = PyBigNumbers.divideFromHex(str(hex_Value), str(hex_Value2))
-            actual_Value = actualValue.lstrip("0")
+            actual_value = PyBigNumbers.divideFromHex(hexNumber[0], hexNumber[1])
+            expected_value = hexNumber[2].rstrip("\n")
 
             # Verifying the actual value with expected value
-            assert actual_Value == expected_Value.upper(), "Test failed"
-
-    divideHex_txt.close()
+            assert actual_value == expected_value.upper(), "Test failed"
 
 def test_ModuloDec(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_ModuloDec").open() as moduloDec_txt:
+    with open(test_data_dir/"testData_ModuloDec", "r") as moduloDec_txt:
         for x in moduloDec_txt:
 
             decNumber = x.split(",")
@@ -392,12 +344,10 @@ def test_ModuloDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[2].rstrip("\n"), "Test failed"
 
-    moduloDec_txt.close()
-
 def test_ModuloHex(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_ModuloHex").open() as moduloHex_txt:
+    with open(test_data_dir/"testData_ModuloHex", "r") as moduloHex_txt:
         for x in moduloHex_txt:
 
             decNumber = x.split(",")
@@ -408,11 +358,10 @@ def test_ModuloHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == expected_Value.upper(), "Test failed"
 
-    moduloHex_txt.close()
-
 def test_AddModDec(test_data_dir):
+
     # Reading test data from the file
-    with (test_data_dir / "testData_AddModDec").open() as addModDec_txt:
+    with open(test_data_dir/"testData_AddModDec", "r") as addModDec_txt:
         for x in addModDec_txt:
             decNumber = x.split(",")
 
@@ -422,11 +371,10 @@ def test_AddModDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[3].rstrip("\n"), "Test failed"
 
-    addModDec_txt.close()
-
 def test_AddModHex(test_data_dir):
+
     # Reading test data from the file
-    with (test_data_dir / "testData_AddModHex").open() as addModHex_txt:
+    with open(test_data_dir/"testData_AddModHex", "r") as addModHex_txt:
         for x in addModHex_txt:
             decNumber = x.split(",")
 
@@ -437,11 +385,10 @@ def test_AddModHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value.lstrip("0") == expected_Value.upper(), "Test failed"
 
-    addModHex_txt.close()
-
 def test_SubModDec(test_data_dir):
+
     # Reading test data from the file
-    with (test_data_dir / "testData_SubModDec").open() as subModDec_txt:
+    with open(test_data_dir/"testData_SubModDec", "r") as subModDec_txt:
         for x in subModDec_txt:
             decNumber = x.split(",")
 
@@ -451,11 +398,10 @@ def test_SubModDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[3].rstrip("\n"), "Test failed"
 
-    subModDec_txt.close()
-
 def test_SubModHex(test_data_dir):
+
     # Reading test data from the file
-    with (test_data_dir / "testData_SubModHex").open() as subModHex_txt:
+    with open(test_data_dir/"testData_SubModHex", "r") as subModHex_txt:
         for x in subModHex_txt:
             decNumber = x.split(",")
 
@@ -466,12 +412,10 @@ def test_SubModHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value.lstrip("0") == expected_Value.upper(), "Test failed"
 
-    subModHex_txt.close()
-
 def test_MulModDec(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_MulModDec").open() as mulModDec_txt:
+    with open(test_data_dir/"testData_MulModDec", "r") as mulModDec_txt:
         for x in mulModDec_txt:
             decNumber = x.split(",")
 
@@ -481,12 +425,10 @@ def test_MulModDec(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value == decNumber[3].rstrip("\n"), "Test failed"
 
-    mulModDec_txt.close()
-
 def test_MulModHex(test_data_dir):
 
     # Reading test data from the file
-    with (test_data_dir / "testData_MulModHex").open() as mulModHex_txt:
+    with open(test_data_dir/"testData_MulModHex", "r") as mulModHex_txt:
         for x in mulModHex_txt:
             hexNumber = x.split(",")
 
@@ -497,12 +439,10 @@ def test_MulModHex(test_data_dir):
             # Verifying the actual value with expected value
             assert actual_Value.lstrip("0") == expected_Value.upper(), "Test failed"
 
-    mulModHex_txt.close()
-
 def test_DivModDec(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_DivModDec").open() as divModDec_txt:
+    with open(test_data_dir/"testData_DivModDec", "r") as divModDec_txt:
 
         for x in divModDec_txt:
 
@@ -514,12 +454,10 @@ def test_DivModDec(test_data_dir):
             #verifying the actual value with the expected value
             assert actual_value == decNumber[3].rstrip("\n"), "Test failed"
 
-    divModDec_txt.close()
-
 def test_DivModHex(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_DivModHex").open() as divModHex_txt:
+    with open(test_data_dir/"testData_DivModHex", "r") as divModHex_txt:
 
         for x in divModHex_txt:
 
@@ -531,12 +469,10 @@ def test_DivModHex(test_data_dir):
             #verifying the actual value with the expected value
             assert actual_value.lstrip("0") == expected_value.upper(), "Test failed"
 
-    divModHex_txt.close()
-
 def test_InvModDec(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_InvModDec").open() as invModDec_txt:
+    with open(test_data_dir/"testData_InvModDec", "r") as invModDec_txt:
 
         for x in invModDec_txt:
 
@@ -548,12 +484,10 @@ def test_InvModDec(test_data_dir):
             #verifying the actual value with the expected value
             assert actual_value == decNumber[2].rstrip("\n"), "Test failed"
 
-    invModDec_txt.close()
-
 def test_InvModHex(test_data_dir):
 
     #Reading test data from the file
-    with (test_data_dir / "testData_InvModHex").open() as invModHex_txt:
+    with open(test_data_dir/"testData_InvModHex", "r") as invModHex_txt:
 
         for x in invModHex_txt:
 
@@ -564,5 +498,3 @@ def test_InvModHex(test_data_dir):
             expected_value = hexNumber[2].rstrip("\n")
             #verifying the actual value with the expected value
             assert actual_value.lstrip("0") == expected_value.upper(), "Test failed"
-
-    invModHex_txt.close()
