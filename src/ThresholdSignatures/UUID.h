@@ -2,6 +2,8 @@
  * A random unique ID.
  */
 
+#ifndef __TS_UUID_H
+#define __TS_UUID_H
 
 #include <string>
 #include <ostream>
@@ -20,7 +22,7 @@ class UUID final
     * Create from a string.
     * @param uuid Value to create ourselves from.
     */
-    UUID(const std::string& uuid, unsigned int uuidLen = 32) : mUuid{uuid}, mUuidLen{uuidLen} {}
+    UUID(const std::string& uuid) : mUuid{uuid} { mUuidLen = uuid.length();}
 
 
     /**
@@ -49,4 +51,4 @@ bool operator!=(const UUID& lhs, const UUID& rhs);
 /// Stream output
 std::ostream& operator<<(std::ostream& str, const UUID& uuid);
 
-
+#endif // __TS_UUID_H

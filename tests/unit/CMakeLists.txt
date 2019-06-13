@@ -44,3 +44,7 @@ target_link_libraries(test_ECPoint BigNumbers)
 set_property(TARGET test_ECPoint PROPERTY FOLDER "tests/unit")
 sdk_add_unit_test(test_ECPoint)
 
+add_executable(test_GroupPlayers test_GroupPlayer.cpp)
+target_link_libraries(test_GroupPlayers ThresholdSignatures)
+set_property(TARGET test_GroupPlayers PROPERTY FOLDER "tests/unit")
+sdk_add_unit_test(test_GroupPlayers)
