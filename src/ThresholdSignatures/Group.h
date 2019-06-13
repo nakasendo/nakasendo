@@ -5,7 +5,7 @@
 
 #ifndef __TS_GROUP_H
 #define __TS_GROUP_H
-#include "nlohmann/json.hpp"
+#include <single_include/nlohmann/json.hpp>
 #include "Player.h"
 
 #include <UUID.h>

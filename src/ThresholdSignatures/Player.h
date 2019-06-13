@@ -5,7 +5,7 @@
 #ifndef __TS_PLAYER_H
 #define __TS_PLAYER_H
 
-#include "nlohmann/json.hpp"
+#include <single_include/nlohmann/json.hpp>
 #include <memory>
 
 /// Ordinal type

@@ -22,9 +22,9 @@ set(Threshold_signatures_CPP_FILES "${THRESHOLD_SIGNATURES_CPP_FILES}"  CACHE IN
 
 set(THRESHOLD_SIGNATURES_SOURCE_FILES ${THRESHOLD_SIGNATURES_HPP_FILES} ${THRESHOLD_SIGNATURES_CPP_FILES})
 
-#find_package(nlohmann_json)
+#include_directories(depends/json/single_include/nlohmann)
 
 add_library(ThresholdSignatures ${LIBS_BUILD_TYPE} ${THRESHOLD_SIGNATURES_SOURCE_FILES} )
 
 target_link_libraries(ThresholdSignatures BigNumbers MessageHash ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} )
-target_link_libraries(ThresholdSignatures nlohmann_json::nlohmann_json)
+#target_link_libraries(ThresholdSignatures nlohmann_json::nlohmann_json)

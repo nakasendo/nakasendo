@@ -44,8 +44,9 @@ sdkInitCMake()
 
 ## Everything in core should be includable from everywhere
 include_directories(${CMAKE_SOURCE_DIR}/src/core)
+include_directories(depends/json)
 add_subdirectory(depends/secp256k1)
-add_subdirectory(depends/json)
+#add_subdirectory(depends/json)
 add_subdirectory(src)
 add_subdirectory(tests)
 

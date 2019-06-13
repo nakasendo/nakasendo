@@ -4,7 +4,7 @@
  */
 
 #include "Player.h"
-#include "nlohmann/json.hpp"
+#include <single_include/nlohmann/json.hpp>
 
 // Constructor
 Player::Player(const std::string& uri, Ordinal ord)
