@@ -217,9 +217,7 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
         std::unique_ptr<unsigned char> retValPtr =  encdec.encode (msgPtr, msgSize, 0, sizeEncodedBuffer);
         for(int i=0;i<sizeEncodedBuffer;++i){
             retVal.push_back(retValPtr.get()[i]);
-        }
-        
-        std::cout << "Encoded value: " << retVal << std::endl; 
+        }        
        
 #ifdef __EMSCRIPTEN__
         return retVal.c_str() ; 
@@ -249,7 +247,6 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
                 retVal.push_back(decodedValPtr.get()[i]);
             }
         }else{retVal="ERROR";}
-        std::cout << retVal.c_str() << std::endl;
 #ifdef __EMSCRIPTEN__
         return retVal.c_str() ;         
 #else        
