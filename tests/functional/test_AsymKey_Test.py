@@ -13,7 +13,7 @@ def test_GenerateKeyPairHex():
 
 def test_GenerateKeyPairPEM():
 
-    privString = "BEGIN PRIVATE KEY"
+    privString = "BEGIN EC PRIVATE KEY"
 
     # Generating Random private key ranging from 10 to 10000 in step 10
     for x in range(10, 1000, 10):
@@ -26,7 +26,7 @@ def test_GenerateKeyPairPEM():
 
 def test_GetKeyPairHEX():
 
-    privString = "BEGIN PRIVATE KEY"
+    privString = "BEGIN EC PRIVATE KEY"
 
     # Generating Random private key ranging from 10 to 10000 in step 10
     for x in range(10, 1000, 10):
