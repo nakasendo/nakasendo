@@ -15,7 +15,7 @@ macro(sdk_add_unit_test _targetName)
       message(FATAL_ERROR " [${_targetName}] is not a TARGET")
   endif()
   sdkLinkTargetToBoost(${_targetName} Boost::unit_test_framework)
-  add_test(NAME ${_targetName} COMMAND $<TARGET_FILE:${_targetName}> --log_level=error)
+  add_test(NAME ${_targetName} COMMAND $<TARGET_FILE:${_targetName}> --report_format=HRF --report_level=detailed --log_format=JUNIT --log_sink=$<TARGET_FILE:${_targetName}>.xml)
 endmacro()
 
 add_executable(test_AsymKey test_AsymKey.cpp)
