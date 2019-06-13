@@ -9,7 +9,8 @@
 
 
 namespace Base64{
-    char b64table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    constexpr char b64table[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d' \
+                                ,'e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'};
 
     char b64revt[256] = {
         -3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, /*0-15*/
@@ -49,7 +50,6 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
     sizeAllocated = ((len/3) + (mod ? 1 : 0)) * 4 + 1;
     p = output = new unsigned char[sizeAllocated];
 
-    
     while ( i < (len-mod)){
         *p++ = Base64::b64table[input[i++] >> 2];
         *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4))& 0x3f];
@@ -64,8 +64,8 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
         *p = 0;
         return output; 
     }
-    else{
-        *p++ = Base64::b64table[input[i++] >> 2];
+    else{        
+        *p++ = Base64::b64table[input[i++] >> 2];   
         *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4)) & 0x3f];
         if(mod == 1){
             *p++ = '=';
@@ -79,7 +79,6 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
             *p++ = '='; 
             if(wrap) *p++ = '\n';
             *p=0; 
-
             return output;           
         }
     }
