@@ -3,9 +3,36 @@ import json
 import string
 #Plese add the path to the library or update the PYTHONPATH
 #sys.path.append ('PATH TO INSTALLATION LIB')
+#sys.path.append ('/home/osboxes/nchain/SDK/build/x64/release')
 import PyBigNumbers
 import PyECPoint
+import PySymEncDec
+import PyMessageHash
 
+class MessageHash:
+    def __init__(self, msg):
+        self.message = msg;
+    def Base64Encode(self):
+        return PyMessageHash.EncodeBase64(self.message);
+    def Bas64Decode(self,msg):
+        return PyMessageHash.DecodeBase64(msg);
+    def __str__(self):
+        return '{}'.format (self.message);
+class SymEncDec:
+    def __init__ (self,pw,iv):
+        self.pw = pw;
+        self.iv = iv;
+        self.KeyAsHex = "";
+    def GenerateKey(self):
+        self.KeyAsHex = PySymEncDec.GenerateKey(self.pw,self.iv);
+    def GetKey(self):
+        return self.KeyAsHex;
+    def Encode(self, secret):
+        return PySymEncDec.encodeAES(secret, self.pw, self.iv);        
+    def Decode(self,encodedAsHex):
+        return PySymEncDec.decodeAES(encodedAsHex,self.pw, self.iv);
+    def __str__(self):
+        return '{}, {}, {}'.format(self.pw, self.iv, self.KeyAsHex)
 class BigNum:
     def __init__ (self):
         self.value = PyBigNumbers.GenerateRandHex(256)
