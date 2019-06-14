@@ -6,7 +6,7 @@ pipeline {
     triggers {
         bitBucketTrigger([[$class: 'BitBucketPPRRepositoryTriggerFilter'
                 , actionFilter: [$class: 'BitBucketPPRRepositoryPushActionFilter'
-                , allowedBranches: 'master'
+                , allowedBranches: ''
                 , triggerAlsoIfTagPush: false]]
                 , [$class: 'BitBucketPPRPullRequestTriggerFilter'
                 , actionFilter: [$class: 'BitBucketPPRPullRequestApprovedActionFilter'
@@ -19,12 +19,15 @@ pipeline {
         stage ('Build') {
 
             steps {
+                bitbucketStatusNotify(buildState: 'INPROGRESS')
                 sh '/entrypoint.sh'
             }
         }
         stage ('Tests') {
 
             steps {
+                bitbucketStatusNotify(buildState: 'TESTING')
+
                 dir ('releasebuild') {
                     sh 'ctest'
                 }   
@@ -41,12 +44,15 @@ pipeline {
 
     post {
         cleanup { script:  cleanWs() }
-        always  { chuckNorris() }
+        always  { 
+                  chuckNorris() 
+                  }
         success { 
-                  sh 'releasenotes.sh'
-                  archiveArtifacts 'SDKLibraries-*-Release.tar.gz, release-notes.txt'
+                  bitbucketStatusNotify(buildState: 'SUCCESSFUL')
+                  archiveArtifacts '**/SDKLibraries-*-Release.tar.gz, **/release-notes.txt'
                   }
         failure {
+                  bitbucketStatusNotify(buildState: 'FAILED')
 script: emailext (
                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
