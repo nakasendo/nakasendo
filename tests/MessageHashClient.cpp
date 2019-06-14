@@ -200,7 +200,7 @@ int main(int argc,char** argv)
             reval.push_back(decodedValPtr.get()[i]);
         }
         printf ("Output(decoded): %s\n", reval.c_str());
-    }          
+    }
     {
         std::cout << "my favourite word ... base64 ... nChain Limited UK branch is fast growing in FinTech industry" << std::endl ; 
         std::string msgVal ("nChain Limited UK branch is fast growing in FinTech industry"); 

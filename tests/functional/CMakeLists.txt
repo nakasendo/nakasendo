@@ -19,12 +19,10 @@ foreach(_ftest_file ${_FUNCTIOINAL_TEST_FILES})
   get_filename_component(_ftest_file_name "${_ftest_file}" NAME_WE)
   string(REGEX REPLACE "test_" "ftest_" _test_name ${_ftest_file_name})
 
-  ## Note at the moment, Py Module can be loaded only in release build. There are problem in debug build
   if(CMAKE_CONFIGURATION_TYPES)
-    add_test(NAME ${_test_name} COMMAND  ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} CONFIGURATIONS Release)
+    ## Note at the moment, on Windows Py Module can be loaded only in release build. There are problem in debug build
+    add_test(NAME ${_test_name} COMMAND  ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} --junitxml=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/${_test_name}.xml CONFIGURATIONS Release)
   else()
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-      add_test(NAME ${_test_name} COMMAND ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    endif()
+    add_test(NAME ${_test_name} COMMAND ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY} --junitxml=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${_test_name}.xml)
   endif()
 endforeach()

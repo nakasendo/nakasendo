@@ -6,6 +6,7 @@
 #include <openssl/ecdsa.h>   // for ECDSA_do_sign, ECDSA_do_verify
 #include <openssl/obj_mac.h> // for 
 #include <openssl/bn.h>
+#include <openssl/crypto.h>
 
 #include <stdexcept>
 #include <cstring>
@@ -21,6 +22,8 @@ using BN_CTX_ptr = std::unique_ptr< BN_CTX, decltype(&BN_CTX_free) >;
 using EC_GROUP_ptr = std::unique_ptr< EC_GROUP, decltype(&EC_GROUP_free) >;
 using EC_POINT_ptr = std::unique_ptr< EC_POINT, decltype(&EC_POINT_free) >;
 using BIGNUM_ptr = std::unique_ptr<BIGNUM, decltype(&BN_free)>;
+inline void help_openssl_free_char(char* p) { OPENSSL_free(p); }
+using STR_ptr = std::unique_ptr<char, decltype(&help_openssl_free_char)>;//
 
 std::string _do_hash_msg(const std::string& crMsg)
 {
@@ -119,8 +122,9 @@ std::string AsymKeyImpl::Group_G_x() const
     if (!EC_POINT_get_affine_coordinates_GFp(pEC_GROUP, pEC_GENERATOR, G_x.get(), nullptr, pCTX_get.get()))
         throw std::runtime_error("Unable to get x coordinate of shared secret");
 
-    const std::string G_x_hex(BN_bn2hex(G_x.get()));
-    return std::move(G_x_hex);
+    STR_ptr pStr(BN_bn2hex(G_x.get()), &help_openssl_free_char);
+    const std::string hex_str(pStr.get());
+    return std::move(hex_str);
 }
 std::string AsymKeyImpl::Group_G_y() const
 {
@@ -136,8 +140,9 @@ std::string AsymKeyImpl::Group_G_y() const
     if (!EC_POINT_get_affine_coordinates_GFp(pEC_GROUP, pEC_GENERATOR, nullptr, G_y.get(), pCTX_get.get()))
         throw std::runtime_error("Unable to get y coordinate of shared secret");
 
-    const std::string G_y_hex(BN_bn2hex(G_y.get()));
-    return std::move(G_y_hex);
+    STR_ptr pStr(BN_bn2hex(G_y.get()), &help_openssl_free_char);
+    const std::string hex_str(pStr.get());
+    return std::move(hex_str);
 }
 std::string AsymKeyImpl::Group_p() const
 {
@@ -150,8 +155,10 @@ std::string AsymKeyImpl::Group_p() const
     BN_CTX_ptr pCTX_get_curve(BN_CTX_new(), &BN_CTX_free);
     if (!EC_GROUP_get_curve_GFp(pEC_GROUP, p.get(), a.get(), b.get(), pCTX_get_curve.get()))
         throw std::runtime_error("Unable to get ec group information");
-    const std::string p_hex(BN_bn2hex(p.get()));
-    return std::move(p_hex);
+
+    STR_ptr pStr(BN_bn2hex(p.get()), &help_openssl_free_char);
+    const std::string hex_str(pStr.get());
+    return std::move(hex_str);
 }
 std::string AsymKeyImpl::Group_a() const
 {
@@ -164,8 +171,10 @@ std::string AsymKeyImpl::Group_a() const
     BN_CTX_ptr pCTX_get_curve(BN_CTX_new(), &BN_CTX_free);
     if (!EC_GROUP_get_curve_GFp(pEC_GROUP, p.get(), a.get(), b.get(), pCTX_get_curve.get()))
         throw std::runtime_error("Unable to get ec group information");
-    const std::string a_hex(BN_bn2hex(a.get()));
-    return std::move(a_hex);
+
+    STR_ptr pStr ( BN_bn2hex(a.get()), &help_openssl_free_char);
+    const std::string hex_str(pStr.get());
+    return std::move(hex_str);
 }
 std::string AsymKeyImpl::Group_b() const
 {
@@ -178,8 +187,10 @@ std::string AsymKeyImpl::Group_b() const
     BN_CTX_ptr pCTX_get_curve(BN_CTX_new(), &BN_CTX_free);
     if (!EC_GROUP_get_curve_GFp(pEC_GROUP, p.get(), a.get(), b.get(), pCTX_get_curve.get()))
         throw std::runtime_error("Unable to get ec group information");
-    const std::string b_hex(BN_bn2hex(b.get()));
-    return std::move(b_hex);
+
+    STR_ptr pStr(BN_bn2hex(b.get()), &help_openssl_free_char);
+    const std::string hex_str(pStr.get());
+    return std::move(hex_str);
 }
 std::string AsymKeyImpl::Group_n() const
 {
@@ -192,8 +203,9 @@ std::string AsymKeyImpl::Group_n() const
     if (!EC_GROUP_get_order(pEC_GROUP, n.get(), pCTX_get_order.get()))
         throw std::runtime_error("Unable to get key group order");
 
-    const std::string n_hex(BN_bn2hex(n.get()));
-    return std::move(n_hex);
+    STR_ptr pStr(BN_bn2hex(n.get()), &help_openssl_free_char);
+    const std::string hex_str(pStr.get());
+    return std::move(hex_str);
 }
 
 std::pair<std::string, std::string> AsymKeyImpl::getPublicKeyHEX()  const
@@ -211,7 +223,9 @@ std::pair<std::string, std::string> AsymKeyImpl::getPublicKeyHEX()  const
     if (!EC_POINT_get_affine_coordinates_GFp(pEC_GROUP, pEC_POINT, x.get(), y.get(), pCTX_get.get()))
         throw std::runtime_error("Unable to get x coordinate of shared secret");
 
-    return std::move(std::make_pair(std::move(BN_bn2hex(x.get())), std::move(BN_bn2hex(y.get()))));
+    STR_ptr xStr(BN_bn2hex(x.get()), &help_openssl_free_char);
+    STR_ptr yStr(BN_bn2hex(y.get()), &help_openssl_free_char);
+    return std::move(std::make_pair( std::move(std::string(xStr.get())), std::move(std::string(yStr.get())) ));
 }
 
 std::string AsymKeyImpl::getPublicKeyHEXStr()  const
@@ -219,7 +233,9 @@ std::string AsymKeyImpl::getPublicKeyHEXStr()  const
     BN_CTX_ptr nb_ctx(BN_CTX_new(), &BN_CTX_free);
     const EC_GROUP* pEC_GROUP = EC_KEY_get0_group(m_key.get());
     const EC_POINT* pEC_POINT = EC_KEY_get0_public_key(m_key.get());
-    const std::string pubkey_hex(EC_POINT_point2hex(pEC_GROUP, pEC_POINT, POINT_CONVERSION_COMPRESSED, nb_ctx.get()));
+
+    STR_ptr pStr(EC_POINT_point2hex(pEC_GROUP, pEC_POINT, POINT_CONVERSION_COMPRESSED, nb_ctx.get()), &help_openssl_free_char);
+    const std::string pubkey_hex(pStr.get());
     return std::move(pubkey_hex);
 }
 
@@ -227,8 +243,10 @@ std::string AsymKeyImpl::getPrivateKeyHEXStr()  const
 {
     BN_CTX_ptr nb_ctx(BN_CTX_new(), &BN_CTX_free);
     const BIGNUM * pBN = EC_KEY_get0_private_key(m_key.get());
-    const std::string private_key_hex(BN_bn2hex(pBN));
-    return std::move(private_key_hex);
+
+    STR_ptr pStr(BN_bn2hex(pBN), &help_openssl_free_char);
+    const std::string priv_key_hex_str(pStr.get());
+    return std::move(priv_key_hex_str);
 }
 
 std::string AsymKeyImpl::getPublicKeyPEMStr()  const
@@ -364,8 +382,9 @@ std::string AsymKeyImpl::getSharedSecretHex(const std::string& crOtherPublicPEMK
     if(!EC_POINT_get_affine_coordinates_GFp(pEC_GROUP, shared_secret_point.get(), shared_secret_x.get(), nullptr, pCTX_get.get()))
         throw std::runtime_error("Unable to get x coordinate of shared secret");
 
-    return std::move(std::string(BN_bn2hex(shared_secret_x.get())));
-    
+    STR_ptr pStr(BN_bn2hex(shared_secret_x.get()), &help_openssl_free_char);
+    const std::string shared_secret_x_str(pStr.get());
+    return std::move(shared_secret_x_str);
 }
 
 AsymKeyImpl* AsymKeyImpl::derive_private(const std::string& crAdditiveMsg) const
@@ -427,10 +446,13 @@ std::pair<std::string, std::string> AsymKeyImpl::sign(const std::string& crMsg)c
 
     const BIGNUM* bnR = ECDSA_SIG_get0_r(pSig.get());
     const BIGNUM* bnS = ECDSA_SIG_get0_s(pSig.get());
-    const std::string rHEX(BN_bn2hex(bnR));
-    const std::string sHEX(BN_bn2hex(bnS));
 
-    return std::make_pair(rHEX, sHEX);
+    STR_ptr rStr(BN_bn2hex(bnR), &help_openssl_free_char);
+    STR_ptr sStr(BN_bn2hex(bnS), &help_openssl_free_char);
+    const std::string r_hex_str(rStr.get());
+    const std::string s_hex_str(sStr.get());
+
+    return std::move(std::make_pair(std::move(r_hex_str), std::move(s_hex_str)));
 }
 
 bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs)
@@ -525,16 +547,16 @@ std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string
 
     //// Setup the new key structure and output it as PEM =====================================================
     const int imported_nid = EC_GROUP_get_curve_name(imported_group);
-    EC_KEY* ret_ec_key=EC_KEY_new_by_curve_name(imported_nid);
+    EC_KEY_ptr ret_ec_key(EC_KEY_new_by_curve_name(imported_nid), &EC_KEY_free);
     if(ret_ec_key==nullptr)
         throw std::runtime_error("Error creating ec key");
 
-    EC_KEY_set_asn1_flag(ret_ec_key, OPENSSL_EC_NAMED_CURVE);
-    if(!EC_KEY_set_public_key(ret_ec_key, ret_point.get()))
+    EC_KEY_set_asn1_flag(ret_ec_key.get(), OPENSSL_EC_NAMED_CURVE);
+    if(!EC_KEY_set_public_key(ret_ec_key.get(), ret_point.get()))
         throw std::runtime_error("Error assining public ec key");
 
     BIO_ptr outbio(BIO_new(BIO_s_mem()), &BIO_free_all);
-    if (!PEM_write_bio_EC_PUBKEY(outbio.get(), ret_ec_key))
+    if (!PEM_write_bio_EC_PUBKEY(outbio.get(), ret_ec_key.get()))
         throw std::runtime_error("Error writting public key");
 
     const int pubKeyLen = BIO_pending(outbio.get());
@@ -574,5 +596,10 @@ std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPub
     if (!EC_POINT_get_affine_coordinates_GFp(pEC_GROUP, pEC_POINT, x.get(), y.get(), pCTX_get.get()))
         throw std::runtime_error("Unable to get x coordinate of shared secret");
 
-    return std::move(std::make_pair(std::move(BN_bn2hex(x.get())), std::move(BN_bn2hex(y.get()))));
+    STR_ptr xStr(BN_bn2hex(x.get()), &help_openssl_free_char);
+    STR_ptr yStr(BN_bn2hex(y.get()), &help_openssl_free_char);
+    const std::string x_hex_str(xStr.get());
+    const std::string y_hex_str(yStr.get());
+
+    return std::move(std::make_pair(std::move(x_hex_str), std::move(y_hex_str)));
 }
