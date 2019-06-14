@@ -6,7 +6,7 @@ pipeline {
     triggers {
         bitBucketTrigger([[$class: 'BitBucketPPRRepositoryTriggerFilter'
                 , actionFilter: [$class: 'BitBucketPPRRepositoryPushActionFilter'
-                , allowedBranches: 'master'
+                , allowedBranches: ''
                 , triggerAlsoIfTagPush: false]]
                 , [$class: 'BitBucketPPRPullRequestTriggerFilter'
                 , actionFilter: [$class: 'BitBucketPPRPullRequestApprovedActionFilter'
@@ -41,10 +41,13 @@ pipeline {
 
     post {
         cleanup { script:  cleanWs() }
-        always  { chuckNorris() }
+        always  { 
+                  chuckNorris() 
+                  bitbucketStatusNotify()
+                  }
         success { 
                   sh 'releasenotes.sh'
-                  archiveArtifacts 'SDKLibraries-*-Release.tar.gz, release-notes.txt'
+                  archiveArtifacts '**/SDKLibraries-*-Release.tar.gz, **/release-notes.txt'
                   }
         failure {
 script: emailext (
