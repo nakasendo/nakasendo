@@ -19,12 +19,15 @@ pipeline {
         stage ('Build') {
 
             steps {
+                bitbucketStatusNotify(buildState: 'INPROGRESS')
                 sh '/entrypoint.sh'
             }
         }
         stage ('Tests') {
 
             steps {
+                bitbucketStatusNotify(buildState: 'TESTING')
+
                 dir ('releasebuild') {
                     sh 'ctest'
                 }   
@@ -43,13 +46,14 @@ pipeline {
         cleanup { script:  cleanWs() }
         always  { 
                   chuckNorris() 
-                  bitbucketStatusNotify()
                   }
         success { 
+                  bitbucketStatusNotify(buildState: 'SUCCESSFUL')
                   sh 'releasenotes.sh'
                   archiveArtifacts '**/SDKLibraries-*-Release.tar.gz, **/release-notes.txt'
                   }
         failure {
+                  bitbucketStatusNotify(buildState: 'FAILED')
 script: emailext (
                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
