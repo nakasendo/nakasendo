@@ -8,3 +8,4 @@
 #TODO create a variable holding all source files from core to make the wasm build later in modules wasm
 add_subdirectory(core)
 add_subdirectory(modules)
+add_subdirectory(ThresholdSignatures)

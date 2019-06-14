@@ -43,3 +43,8 @@ add_executable(test_SymEncDec test_SymEncDec.cpp)
 target_link_libraries(test_SymEncDec SymEncDec BigNumbers)# Might use BigNumbers to generate random string
 set_property(TARGET test_SymEncDec PROPERTY FOLDER "tests/unit")
 sdk_add_unit_test(test_SymEncDec)
+
+add_executable(test_GroupPlayers test_GroupPlayer.cpp)
+target_link_libraries(test_GroupPlayers ThresholdSignatures)
+set_property(TARGET test_GroupPlayers PROPERTY FOLDER "tests/unit")
+sdk_add_unit_test(test_GroupPlayers)
