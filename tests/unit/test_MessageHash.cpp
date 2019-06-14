@@ -35,4 +35,5 @@ BOOST_AUTO_TEST_CASE(test_codec_base64_particular_case)// This case has failed o
     BOOST_CHECK(text == decoded_text);
 }
 
+/// TODO add a loop : similar test with random inputs : random msg, decode(encode(msg)) should return the message
 BOOST_AUTO_TEST_SUITE_END()
