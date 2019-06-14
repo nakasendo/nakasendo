@@ -1,4 +1,6 @@
 #!/bin/sh
+echo `pwd`
+ls -alrt
 ./releasenotes.sh
 mkdir -p releasebuild
 cd releasebuild
