@@ -5,7 +5,6 @@
 #ifndef __TS_PLAYER_H
 #define __TS_PLAYER_H
 
-#include <single_include/nlohmann/json.hpp>
 #include <memory>
 
 /// Ordinal type
@@ -73,6 +72,8 @@ class Player final
                  mRejected == that.mRejected };
     }
 
+    static std::string  to_json(const Player& p);
+    static Player       from_json(const std::string& playerJson);
 
   private:
 
@@ -92,6 +93,5 @@ class Player final
 /// Pointer type
 using PlayerSPtr = std::shared_ptr<Player>;
 
-void to_json(nlohmann::json& j, const Player& p);
-void from_json(nlohmann::json& j, Player& p);
+
 #endif // __TS_PLAYER_H

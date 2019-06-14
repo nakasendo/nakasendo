@@ -33,16 +33,22 @@ void Player::setRejected()
 }
 
 
-void  to_json(nlohmann::json& j, const Player& p)
+std::string  Player::to_json(const Player& p)
 {
+    nlohmann::json j;
+
     j["URI"] =  p.getURI();
     j["Ordinal"] = p.getOrdinal();
     j["Accepted"] =  p.accepted();
     j["Rejected"] = p.rejected();
+    return j.dump();
 }
 
-void from_json(nlohmann::json& j, Player& p)
+Player Player::from_json(const std::string& playerJson)
 {
+    Player p;
+    nlohmann::json j;
+    j = nlohmann::json::parse(playerJson);
     p.setURI(j.at("URI").get<std::string>());
     p.setOrdinal(j.at("Ordinal").get<Ordinal>());
     if ( j.at("Accepted").get<bool>())
@@ -50,4 +56,6 @@ void from_json(nlohmann::json& j, Player& p)
 
     if ( j.at("Rejected").get<bool>())
         p.setRejected();
+    
+    return p;
 }

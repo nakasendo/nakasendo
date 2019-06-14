@@ -44,7 +44,6 @@ sdkInitCMake()
 
 ## Everything in core should be includable from everywhere
 include_directories(${CMAKE_SOURCE_DIR}/src/core)
-include_directories(${CMAKE_SOURCE_DIR}/src/ThresholdSignatures)
 include_directories(depends/json)
 add_subdirectory(depends/secp256k1)
 add_subdirectory(src)

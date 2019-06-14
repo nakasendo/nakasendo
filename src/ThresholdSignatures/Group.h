@@ -5,7 +5,6 @@
 
 #ifndef __TS_GROUP_H
 #define __TS_GROUP_H
-#include <single_include/nlohmann/json.hpp>
 #include "Player.h"
 
 #include <UUID.h>
@@ -13,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 #include <memory>
+#include <string>
 
 
 /// A group of players for threshold signatures.
@@ -76,6 +76,9 @@ class Group final
     void emplace_player(std::pair<std::string, Player> && player);
     //void push_player(std::pair<std::string, Player>  player);
 
+    static std::string  to_json(const Group& );
+    static Group from_json(const std::string& );
+
   private:
 
     /// Our group ID.
@@ -89,6 +92,5 @@ class Group final
 /// Pointer type.
 using GroupSPtr = std::shared_ptr<Group>;
 
-void to_json(nlohmann::json& j, const Group& g);
-void from_json(nlohmann::json& j, Group& g);
+
 #endif // __TS_GROUP_H

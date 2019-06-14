@@ -20,6 +20,9 @@ BOOST_AUTO_TEST_CASE(testCreatePlayer)
     Player p1 {"p1", 1};
     Player p2 {"p2", 2};
     Player p3 {"p3", 3}; 
+    BOOST_CHECK(p1.getURI() == "p1" && p1.getOrdinal() == 1);
+    BOOST_CHECK(p2.getURI() == "p2" && p2.getOrdinal() == 2);
+    BOOST_CHECK(p3.getURI() == "p3" && p3.getOrdinal() == 3);
 }
 
 BOOST_AUTO_TEST_CASE(testCreateGroup)
@@ -39,6 +42,7 @@ BOOST_AUTO_TEST_CASE(testCreateGroup)
     UUID gGr1Id {"group1"};
 
     Group gGroup1 {gGr1Id, playersMap};
+    BOOST_CHECK(gGroup1.getPlayers().size() == playersMap.size());
 }
 
 BOOST_AUTO_TEST_CASE(testCreateGroupWithRandomUUID)
@@ -229,11 +233,8 @@ BOOST_AUTO_TEST_CASE(testGroupToJsonFromJson)
     Group gGroup1 {gGr1Id, playersMap};
     gGroup1.emplace_player(std::make_pair("player4@secret.org", p4));
 
-    nlohmann::json gGroup1JSON;
-    to_json(gGroup1JSON, gGroup1);
-
-    Group gGroup2 {};
-    from_json(gGroup1JSON, gGroup2);
+    std::string gGroup1JSONString = Group::to_json(gGroup1);
+    Group gGroup2  = Group::from_json(gGroup1JSONString);
     
     BOOST_CHECK  (gGroup1 == gGroup2); 
 }

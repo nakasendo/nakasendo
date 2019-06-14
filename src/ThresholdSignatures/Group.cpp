@@ -6,6 +6,7 @@
  */
 
 #include "Group.h"
+#include <single_include/nlohmann/json.hpp>
 
 // Construct from a list of player URIs.
 Group::Group(const UUID& uuid, const PlayerMap& players)
@@ -42,32 +43,37 @@ void Group::emplace_player(std::pair<std::string, Player> && player)
 {
     mPlayers.emplace(std::move(player));
 }
-void  to_json(nlohmann::json& j, const Group& g)
+
+std::string  Group::to_json(const Group& g)
 {
+    nlohmann::json j;
     j["ID"] = g.getID().getString();
-    std::vector<nlohmann::json> jsonPlayerList;
+    std::vector<std::string> playerList;
 
     for(const auto& player : g.getPlayers())
     {
-        nlohmann::json jsonPlayer;
-	to_json(jsonPlayer, player.second);
-        jsonPlayerList.push_back(jsonPlayer);
+        std::string playerString = Player::to_json(player.second);
+        playerList.push_back(playerString);
     }
-    j["Players"] = jsonPlayerList;
+    j["Players"] = playerList;
+    return j.dump();
 }
 
-void from_json(nlohmann::json& j, Group& g)
+Group Group::from_json(const std::string& groupJson)
 {
+    Group g;
+    nlohmann::json j;
+    j = nlohmann::json::parse(groupJson);
+
     g.setID(j.at("ID").get<std::string>());
-    
-    // Parse players
-    g.clearPlayers();
+
     for(auto& jsonPlayer : j["Players"])
     {
-        Player player {};
-	from_json(jsonPlayer, player);
-        g.emplace_player(std::make_pair(player.getURI(), player));
+        Player player = Player::from_json(jsonPlayer); 
+	g.emplace_player(std::make_pair(player.getURI(), player));
     }
+
+    return g;
 }
 
 // Comparison operator for Groups. Mainly of use in testing.
