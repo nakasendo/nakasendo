@@ -291,8 +291,10 @@ BOOST_AUTO_TEST_CASE(test_Sig_Verify_Random)
     const size_t nbIter = 10;
     for (size_t i = 0; i < nbIter; ++i)
     {
-        BigNumber randBN = GenerateRand(100);
-        const std::string random_str = randBN.ToHex();
+        //// Use Key to generate different strings. It is not really random, but it generate different string each iteration
+        const AsymKey randomKey;
+        const std::string random_str = randomKey.getPublicKeyHEXStr();
+
         const AsymKey ecdsa;
         const std::string pubkey = ecdsa.getPublicKeyPEM();
         const std::pair<std::string, std::string> rs = ecdsa.sign(random_str);
