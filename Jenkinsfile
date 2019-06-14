@@ -49,7 +49,6 @@ pipeline {
                   }
         success { 
                   bitbucketStatusNotify(buildState: 'SUCCESSFUL')
-                  sh 'releasenotes.sh'
                   archiveArtifacts '**/SDKLibraries-*-Release.tar.gz, **/release-notes.txt'
                   }
         failure {
