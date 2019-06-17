@@ -28,10 +28,8 @@ std::vector<uint8_t>  EncodeBase64Ex (const std::vector<uint8_t>& toEnc){
     int index(0);
     for (std::vector<uint8_t>::const_iterator iter = toEnc.begin(); iter != toEnc.end(); ++iter){
             msgPtr.get()[index] = *iter; 
-            std::cout << msgPtr.get()[index] ;
             ++ index ; 
     }
-    std::cout << std::endl; 
     Base64EncDec encdec ; 
     int sizeEncodedBuffer(0);
     
@@ -43,8 +41,6 @@ std::vector<uint8_t>  EncodeBase64Ex (const std::vector<uint8_t>& toEnc){
         retVal.push_back(retValPtr.get()[i]);
         testRetStr.push_back (retValPtr.get()[i]);
     }   
-    std::cout << testRetStr << std::endl; 
-    std::cout << "Vector lenght: " << retVal.size() << std::endl; 
     return retVal ;            
 }
 #ifdef __EMSCRIPTEN__
@@ -64,7 +60,6 @@ std::vector<uint8_t>  DecodeBase64Ex (std::vector<uint8_t> toDec){
     }
 
     Base64EncDec encdec;
-    std::cout << "Value to decode ....." << msgPtr.get () << std::endl ; 
     std::unique_ptr<unsigned char> decodedValPtr = encdec.decode(msgPtr,value, strict, err);
     std::vector<uint8_t> retVal; 
     std::string strVal; 
@@ -75,8 +70,6 @@ std::vector<uint8_t>  DecodeBase64Ex (std::vector<uint8_t> toDec){
             strVal.push_back(decodedValPtr.get()[i]);
         }
     }
-    std::cout << "Is this the length?...." << value << "..and the value from the string..." << retVal.size() << std::endl ;
-    std::cout << strVal.c_str() << std::endl;
     return retVal; 
 }
 #ifdef __EMSCRIPTEN__
@@ -101,7 +94,6 @@ std::vector<uint8_t> DecodeBase58Ex (std::vector<uint8_t> toDec){
         msg.push_back(*iter);  
     }        
     Base58EncDec encdec;
-    std::cout << msg << std::endl;
     std::vector<uint8_t> decodedVal = encdec.decode(msg);
     return decodedVal ; 
 }
@@ -144,8 +136,6 @@ EMSCRIPTEN_BINDINGS(moduleHash) {
 #endif
 
 MESSAGE_HASH_RETURN_TYPE HashMsgSHA256Test (char * msg){
-    std::cout <<"Message looks like: " << msg << std::endl;
-    std::string returnVal ("Message looks like: ");
     MessageHash hashMess;
     hashMess.HashSha256 (msg);
 #ifdef __EMSCRIPTEN__
@@ -157,7 +147,6 @@ MESSAGE_HASH_RETURN_TYPE HashMsgSHA256Test (char * msg){
 
 MESSAGE_HASH_RETURN_TYPE HashMsgSHA256 (const std::string& msg)
     {
-        std::cout <<"Message looks like: " << msg << std::endl; 
          MessageHash hashMess;
          hashMess.HashSha256 (msg);
 #ifdef __EMSCRIPTEN__
@@ -180,7 +169,6 @@ MESSAGE_HASH_RETURN_TYPE HashMsg (const std::string& msg, const std::string& has
 
 MessageHash_API std::unique_ptr<unsigned char> HashSha256 ( const std::string& msg ){
     MessageHash hashMess; 
-    std::cout <<"Message looks like: " << msg << std::endl; 
     hashMess.HashSha256(msg);
     //uint8_t retval = hashMess.Value().get(); 
     return std::move(hashMess.Value()); 

@@ -1,4 +1,5 @@
 import PyBigNumbers
+import pytest
 import pathlib
 
 def test_AddFromDecWithBigNumApi(test_data_dir):
@@ -226,7 +227,7 @@ def test_RightShiftDec(test_data_dir):
             actual_Value = PyBigNumbers.rightShiftFromDec(decNumber[2].rstrip("\n"),decNumber[1])
 
             # Verifying the actual value with expected value
-            assert actual_Value == decNumber[0], "Test failed"
+            assert actual_Value == decNumber[0], "Test failed"#
 
 def test_LeftShiftHex(test_data_dir):
 
