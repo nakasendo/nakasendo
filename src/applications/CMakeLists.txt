@@ -1,11 +1,9 @@
 #################################################################
-#  Date             24/04/2019                                  #
+#  Date             18/06/2019                                  #
 #  Author           nChain's employees                          #
 #                                                               #
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
-#TODO create a variable holding all source files from core to make the wasm build later in modules wasm
-add_subdirectory(core)
-add_subdirectory(modules)
-add_subdirectory(applications)
+set(SDK_APPLICATION_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(ThresholdSignatures)

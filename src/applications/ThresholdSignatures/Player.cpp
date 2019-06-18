@@ -3,7 +3,7 @@
  * A player within a threshold signature group.
  */
 
-#include "Player.h"
+#include <ThresholdSignatures/Player.h>
 #include <single_include/nlohmann/json.hpp>
 
 // Constructor
