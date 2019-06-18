@@ -1,44 +1,77 @@
 import PyAsymKey
 
 def test_GenerateKeyPairHex():
-
-    # Generating Random private key ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
-
+    for x in range(100):
         # Generate pair of keys in hex format
         privKey, pubKey = PyAsymKey.GenerateKeyPairHEX()
-
         # Verifying the the length of actual value as 66
         assert len(privKey) == 66, "Test failed"
 
 def test_GenerateKeyPairPEM():
-
-    privString = "BEGIN PRIVATE KEY"
-
-    # Generating Random private key ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
-
+    privKeyPEMHeader = "BEGIN EC PRIVATE KEY"
+    for x in range(100):
         # Generate pair of keys in pem format
         pubKey, privKey = PyAsymKey.GenerateKeyPairPEM()
-
         # Verifying the the length of actual value as 66
-        assert privString in privKey, "Test failed"
+        assert privKeyPEMHeader in privKey, "Test failed"
 
 def test_GetKeyPairHEX():
 
-    privString = "BEGIN PRIVATE KEY"
+    for x in range(100):
+        # Generate pair of keys in pem format
+        pubKeyPEM, privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
+        pubKeyHEX, privKeyHEX = PyAsymKey.GetKeyPairHEX(privKeyPEM)
+        # Keys hex are generated
+        assert len(pubKeyHEX)>0, "Test failed"
+        assert len(privKeyHEX) > 0, "Test failed"
 
-    # Generating Random private key ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+def test_GetPublicKeyPEM():
 
-        # Generate pair of keys in hex format
-        puKey, prKey = PyAsymKey.GenerateKeyPairPEM()
+    for x in range(100):
+        # Generate pair of keys in pem format
+        pubKeyPEM, privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
+        test_pubKeyPEM = PyAsymKey.GetPublicKeyPEM(privKeyPEM)
+        # Calculated public key should match the generated one
+        assert pubKeyPEM==test_pubKeyPEM, "Test failed"
 
-        # Verifying the the length of actual value as 66
-        assert privString in prKey, "Test failed"
+def test_Sign_Verification():
 
-        #Get pair of keys in hex format from a private PEM key
-        privKey, pubKey = PyAsymKey.GetKeyPairHEX(prKey)
+    msg = 'Hello, I am a message, sign me'
+    for x in range(100):
+        # Generate pair of keys in PEM format
+        pubKey, priKey = PyAsymKey.GenerateKeyPairPEM()
+        # Sign the message
+        rSig, sSig = PyAsymKey.Sign(msg, priKey)
+        # Verify the Signature
+        verify_ok = PyAsymKey.Verify(msg, pubKey, rSig, sSig)
+        assert verify_ok, "Test failed"
 
-        # Verifying the the length of actual value as 66
-        assert len(privKey) == 66, "Test failed"
+def test_ShareSecret():
+
+    for x in range(100):
+        # Generate keys for alice and bob
+        alice_pubKeyPEM, alice_privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
+        bob_pubKeyPEM, bob_privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
+        secret_share_from_alice = PyAsymKey.ShareSecret(alice_privKeyPEM, bob_pubKeyPEM)
+        secret_share_from_bob = PyAsymKey.ShareSecret(bob_privKeyPEM, alice_pubKeyPEM)
+        assert secret_share_from_alice==secret_share_from_bob, "Test failed"
+
+def test_KeyDerive():
+
+    additive_msg = 'I am a random message used for key derivation'
+    for x in range(100):
+        # Generate keys for alice and bob
+        alice_pubKeyPEM, alice_privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
+        bob_pubKeyPEM, bob_privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
+
+        alice_derived_pub = PyAsymKey.DerivePublic(alice_pubKeyPEM, additive_msg)
+        bob_derived_pub = PyAsymKey.DerivePublic(bob_pubKeyPEM, additive_msg)
+
+        alice_derived_private = PyAsymKey.DerivePrivate(alice_privKeyPEM, additive_msg)
+        bob_derived_private = PyAsymKey.DerivePrivate(bob_privKeyPEM, additive_msg)
+
+        calc_alice_derived_pub = PyAsymKey.GetPublicKeyPEM(alice_derived_private)
+        calc_bob_derived_pub = PyAsymKey.GetPublicKeyPEM(bob_derived_private)
+
+        assert calc_alice_derived_pub==alice_derived_pub, "Test failed"
+        assert calc_bob_derived_pub == bob_derived_pub, "Test failed"

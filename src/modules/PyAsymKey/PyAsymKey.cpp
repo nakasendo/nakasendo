@@ -41,14 +41,29 @@ static PyObject* wrap_GetKeyPairHEX(PyObject* self, PyObject *args)
     return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
 }
 
+static PyObject* wrap_GetPublicKeyPEM(PyObject* self, PyObject *args)
+{
+    char* cPrivateKeyPEM = nullptr;
+
+    if (!PyArg_ParseTuple(args, "s", &cPrivateKeyPEM))
+        return NULL;
+
+    const std::string private_key_pem(cPrivateKeyPEM);
+
+    AsymKey private_key;
+    private_key.setPEMPrivateKey(private_key_pem);
+    const std::string public_key_PEM = private_key.getPublicKeyPEM();
+
+    return Py_BuildValue("s", public_key_PEM.c_str());
+}
+
 static PyObject* wrap_Sign(PyObject* self, PyObject *args)
 {
     char* cPrivKey = nullptr;
     char* cMsg = nullptr;
 
-    if (!PyArg_ParseTuple(args, "ss", &cPrivKey, &cMsg))
+    if (!PyArg_ParseTuple(args, "ss", &cMsg, &cPrivKey))
         return NULL;
-
     const std::string privPEMKey(cPrivKey);
     const std::string msg(cMsg);
 
@@ -56,7 +71,7 @@ static PyObject* wrap_Sign(PyObject* self, PyObject *args)
     key.setPEMPrivateKey(privPEMKey);
     const std::pair<std::string, std::string> sign = key.sign(msg);
 
-    return Py_BuildValue("ss", sign.first, sign.second);
+    return Py_BuildValue("ss", sign.first.c_str(), sign.second.c_str());
 }
 
 static PyObject* wrap_Verify(PyObject* self, PyObject *args)
@@ -79,15 +94,72 @@ static PyObject* wrap_Verify(PyObject* self, PyObject *args)
     return Py_BuildValue("i", verifyOK);
 }
 
+static PyObject* wrap_ShareSecret(PyObject* self, PyObject *args)
+{
+    char* cMyPrivateKeyPEM = nullptr;
+    char* cTheirPublicKeyPEM = nullptr;
+
+    if (!PyArg_ParseTuple(args, "ss", &cMyPrivateKeyPEM, &cTheirPublicKeyPEM))
+        return NULL;
+
+    const std::string my_private_key_pem(cMyPrivateKeyPEM);
+    const std::string their_public_key_pem(cTheirPublicKeyPEM);
+
+    AsymKey my_private_key;
+    my_private_key.setPEMPrivateKey(my_private_key_pem);
+    const std::string shared_secrete = my_private_key.getSharedSecretHex(their_public_key_pem);
+
+    return Py_BuildValue("s", shared_secrete.c_str());
+}
+
+static PyObject* wrap_DerivePublic(PyObject* self, PyObject *args)
+{
+    char* cPublicKey = nullptr;
+    char* cMsg = nullptr;
+
+    if (!PyArg_ParseTuple(args, "ss", &cPublicKey, &cMsg))
+        return NULL;
+
+    const std::string public_key_pem(cPublicKey);
+    const std::string msg(cMsg);
+
+    const std::string derived_pub_key = derive_pubkey(public_key_pem, msg);
+
+    return Py_BuildValue("s", derived_pub_key.c_str());
+}
+
+static PyObject* wrap_DerivePrivate(PyObject* self, PyObject *args)
+{
+    char* cPrivateKey = nullptr;
+    char* cMsg = nullptr;
+
+    if (!PyArg_ParseTuple(args, "ss", &cPrivateKey, &cMsg))
+        return NULL;
+
+    const std::string private_key_pem(cPrivateKey);
+    const std::string msg(cMsg);
+
+    AsymKey private_key;
+    private_key.setPEMPrivateKey(private_key_pem);
+
+    const AsymKey derived_key = private_key.derive(msg);
+    const std::string derived_key_PEM = derived_key.getPrivateKeyPEM();
+
+    return Py_BuildValue("s", derived_key_PEM.c_str());
+}
 
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
-    {"GenerateKeyPairPEM",wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys in pem format"},
-    {"GenerateKeyPairHEX",wrap_GenerateKeyPairHEX,METH_VARARGS,"Generate pair of keys in hex format"},
-    {"GetKeyPairHEX",wrap_GetKeyPairHEX,METH_VARARGS,"Get pair of keys in hex format from a private PEM key"},
-    {"Sign",wrap_Sign,METH_VARARGS,"Sign message with private Key"},
-    {"Verify",wrap_Verify,METH_VARARGS,"Verify message's signature with public key"},
+    {"GenerateKeyPairPEM" , wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys in pem format"},
+    {"GenerateKeyPairHEX" , wrap_GenerateKeyPairHEX,METH_VARARGS,"Generate pair of keys in hex format"},
+    {"GetKeyPairHEX"      , wrap_GetKeyPairHEX,METH_VARARGS,"Get pair of keys in hex format from a private PEM key"},
+    {"GetPublicKeyPEM"    , wrap_GetPublicKeyPEM,METH_VARARGS,"Get public key PEM given the private key PEM"},
+    {"Sign"               , wrap_Sign,METH_VARARGS,"Sign message with private Key"},
+    {"Verify"             , wrap_Verify,METH_VARARGS,"Verify message's signature with public key"},
+    {"ShareSecret"        , wrap_ShareSecret,METH_VARARGS,"Calculate shared secret from my private key and their public key"},
+    {"DerivePublic"       , wrap_DerivePublic,METH_VARARGS,"Derive public key from a given public key and a additive message"},
+    {"DerivePrivate"     , wrap_DerivePrivate,METH_VARARGS,"Derive pirvate key from a given private key and a additive message"},
     {NULL, NULL, 0, NULL},
 };
  

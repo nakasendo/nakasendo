@@ -29,7 +29,6 @@ def test_GenerateECHexFromHex():
         actual_value = PyECPoint.GenerateECHexFromHex(value_ECHex)
 
         # Verifying the the length of actual value as 66
-        #print(actual_value)
         assert len(actual_value) == 66 and actual_value == value_ECHex, "Test failed"
 
 def test_GenerateRandomECHexOnCurve():
@@ -41,7 +40,6 @@ def test_GenerateRandomECHexOnCurve():
         actual_value = PyECPoint.GenerateRandomECHexOnCurve(nid_Id)
 
         # Verifying the the length of actual value as 66
-        #print(actual_value)
         assert len(actual_value) == 66, "Test failed"
 
 def test_GenerateECHexFromHexOnCurve():
@@ -56,7 +54,6 @@ def test_GenerateECHexFromHexOnCurve():
         actual_value = PyECPoint.GenerateECHexFromHexOnCurve(value_ECHex, nid_Id)
 
         # Verifying the the length of actual value as 66
-        print(actual_value)
         assert len(actual_value) == 66, "Test failed"
 
 def test_CheckOnCurve():
