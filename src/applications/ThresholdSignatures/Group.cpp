@@ -5,7 +5,7 @@
  * A group of players for threshold signatures.
  */
 
-#include "Group.h"
+#include <ThresholdSignatures/Group.h>
 #include <single_include/nlohmann/json.hpp>
 
 // Construct from a list of player URIs.

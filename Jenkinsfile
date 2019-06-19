@@ -30,7 +30,7 @@ pipeline {
 
                 dir ('releasebuild') {
                     sh 'ctest'
-                }   
+                }
             }
         }
         stage ('Pack') {
@@ -46,11 +46,11 @@ pipeline {
         cleanup { script:  cleanWs() }
         always  { 
                   chuckNorris() 
-                  }
+                }
         success { 
                   bitbucketStatusNotify(buildState: 'SUCCESSFUL')
                   archiveArtifacts '**/SDKLibraries-*-Release.tar.gz, **/release-notes.txt'
-                  }
+                }
         failure {
                   bitbucketStatusNotify(buildState: 'FAILED')
 script: emailext (

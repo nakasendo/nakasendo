@@ -110,7 +110,7 @@ macro(sdkInitCMake)
   cmake_policy(SET CMP0057 NEW)# USE IN_LIST functionality, example: if(${var} IN_LIST MYVAR_LIST)
   cmake_policy(SET CMP0074 NEW)# Avoid warning when find_package
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)#
-  set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
+  set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "_CMakeTargets")
 
   include(${SDK_ROOT_CMAKE_MODULE_PATH}/SDKTools.cmake)
   sdkInitModulePaths()
