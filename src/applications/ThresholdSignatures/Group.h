@@ -7,7 +7,8 @@
 #define __TS_GROUP_H
 #include "Player.h"
 
-#include <UUID.h>
+#include <ThresholdSignatures/ThresholdSignatures.h>
+#include <ThresholdSignatures/UUID.h>
 
 #include <unordered_map>
 #include <vector>
@@ -16,7 +17,7 @@
 
 
 /// A group of players for threshold signatures.
-class Group final 
+class ThresholdSignatures_API Group final
 {
   public:
 
