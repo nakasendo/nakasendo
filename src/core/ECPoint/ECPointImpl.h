@@ -36,6 +36,8 @@ class ECPointImpl
             m_nid = NID_secp256k1;
         }
 
+	ECPointImpl(const std::string& x, const std::string& y);
+
         ECPointImpl(const int& nid) 
         {
             // Construct a builtin curve 

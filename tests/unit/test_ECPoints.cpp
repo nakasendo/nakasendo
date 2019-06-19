@@ -171,4 +171,18 @@ BOOST_AUTO_TEST_CASE(testECPointMulDec)
     BOOST_CHECK(ec1.CheckOnCurve());
 }
 
+BOOST_AUTO_TEST_CASE(testECPointSetAffineCoordinatesConstructor)
+{
+    ECPoint ec1;
+    ec1.SetRandom();
+    std::pair<std::string, std::string> coord = ec1.GetAffineCoords_GFp();
+    BigNumber bnX, bnY;
+    bnX.FromHex(coord.first);
+    bnY.FromHex(coord.second);
+    ECPoint ec2(bnX, bnY);
+
+    BOOST_CHECK(ec1 == ec2);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END();

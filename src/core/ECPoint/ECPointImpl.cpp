@@ -44,6 +44,33 @@ std::unique_ptr<ECPointImpl> Add(const ECPointImpl *obj1, const ECPointImpl *obj
     return std::move(ResImpl);
 }
 
+ECPointImpl::ECPointImpl(const std::string& bn_obj_x, const std::string& bn_obj_y)
+{
+    m_gp = EC_GROUP_new_by_curve_name(NID_secp256k1);
+    m_ec = EC_POINT_new(m_gp);
+    m_nid = NID_secp256k1;
+
+    BN_CTX* ctx = BN_CTX_new();
+
+    BN_ptr bn_obj_x_uptr {BN_new(), ::BN_free};
+    BN_ptr bn_obj_y_uptr {BN_new(), ::BN_free};
+    //
+    // Get BN from Hex String
+    BIGNUM *xPtr = bn_obj_x_uptr.get();
+    BN_hex2bn(&xPtr, bn_obj_x.c_str());
+    //
+    // Get BN from Hex String
+    BIGNUM *yPtr = bn_obj_y_uptr.get();
+    BN_hex2bn(&yPtr, bn_obj_y.c_str());
+    if (!EC_POINT_set_affine_coordinates_GFp(m_gp, m_ec,bn_obj_x_uptr.get(), bn_obj_y_uptr.get() , ctx))
+    {
+        BN_CTX_free(ctx);
+        throw std::runtime_error("error");
+    }
+
+    BN_CTX_free(ctx);
+}
+
 // bn_obj_n + ec_obj_q * bn_obj_m, where bn_obj_n can be nullptr
 std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithHexBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n)
 {
