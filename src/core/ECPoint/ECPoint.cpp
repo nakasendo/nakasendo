@@ -30,7 +30,7 @@ ECPoint& ECPoint::operator=(ECPoint&& obj) noexcept = default;
 
 ECPoint::ECPoint(const ECPoint& obj) : m_pImpl(new ECPointImpl (*obj.m_pImpl)) { }
 
-ECPoint::ECPoint(const BigNumber& x, const BigNumber& y) : m_pImpl(new ECPointImpl(x.ToHex(), y.ToHex())) {}
+ECPoint::ECPoint(const BigNumber& x, const BigNumber& y) : m_pImpl(new ECPointImpl(x, y)) {}
 
 const ECPointImpl* ECPoint::pImpl() const
 {

@@ -153,7 +153,11 @@ BOOST_AUTO_TEST_CASE(testECPointMulHex)
     bnn.generateRandHex(1024);
 
     ECPoint ec2 = ec1.MulHex(bnm.ToHex(), bnn.ToHex());
-    BOOST_CHECK(ec1.CheckOnCurve());
+    BOOST_CHECK(ec2.CheckOnCurve());
+
+    std::string es;
+    ECPoint ec3 = ec1.MulHex(bnm.ToHex(), es);
+    BOOST_CHECK(ec3.CheckOnCurve());
 }
 
 

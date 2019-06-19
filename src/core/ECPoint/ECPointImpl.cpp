@@ -1,4 +1,5 @@
 #include <ECPoint/ECPointImpl.h>
+#include <BigNumbers/BigNumbers.h>
 #include <BigNumbers/BigNumbersImpl.h>
 #include <openssl/ec.h>
 #include <openssl/objects.h>
@@ -16,24 +17,18 @@ std::unique_ptr<ECPointImpl> Add(const ECPointImpl *obj1, const ECPointImpl *obj
     }
 
     // Allocate for CTX 
-    BN_CTX* ctxptr = BN_CTX_new(); 
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
     ECGROUP_ptr resGroup = EC_GROUP_new_by_curve_name (obj1->getNid()); 
     ECPOINT_ptr resEC = EC_POINT_new(resGroup);
 
-    if (! EC_POINT_add(resGroup, resEC, obj1->ec(), obj2->ec(), ctxptr))
+    if (! EC_POINT_add(resGroup, resEC, obj1->ec(), obj2->ec(), ctxptr.get()))
     {
-        // free CTX object
-        BN_CTX_free(ctxptr);
-	
         // free group and EC structs
         EC_POINT_free(resEC);
         EC_GROUP_free(resGroup);
 
         throw std::runtime_error("error : Failed to add EC POINTs");
     }
-
-    // free CTX object
-    BN_CTX_free(ctxptr);
 
     std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(resEC, obj1->getNid()));
 
@@ -44,31 +39,25 @@ std::unique_ptr<ECPointImpl> Add(const ECPointImpl *obj1, const ECPointImpl *obj
     return std::move(ResImpl);
 }
 
-ECPointImpl::ECPointImpl(const std::string& bn_obj_x, const std::string& bn_obj_y)
+ECPointImpl::ECPointImpl(const BigNumber& bn_obj_x, const BigNumber& bn_obj_y):ECPointImpl()
 {
-    m_gp = EC_GROUP_new_by_curve_name(NID_secp256k1);
-    m_ec = EC_POINT_new(m_gp);
-    m_nid = NID_secp256k1;
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
-    BN_CTX* ctx = BN_CTX_new();
+    // Get BN from Hex String
+    BIGNUM *xPtr = nullptr;
+    BN_hex2bn(&xPtr, bn_obj_x.ToHex().c_str());
+    BN_ptr bnXPtr{xPtr, ::BN_free};
 
-    BN_ptr bn_obj_x_uptr {BN_new(), ::BN_free};
-    BN_ptr bn_obj_y_uptr {BN_new(), ::BN_free};
-    //
     // Get BN from Hex String
-    BIGNUM *xPtr = bn_obj_x_uptr.get();
-    BN_hex2bn(&xPtr, bn_obj_x.c_str());
-    //
-    // Get BN from Hex String
-    BIGNUM *yPtr = bn_obj_y_uptr.get();
-    BN_hex2bn(&yPtr, bn_obj_y.c_str());
-    if (!EC_POINT_set_affine_coordinates_GFp(m_gp, m_ec,bn_obj_x_uptr.get(), bn_obj_y_uptr.get() , ctx))
+    BIGNUM *yPtr = nullptr;
+    BN_hex2bn(&yPtr, bn_obj_y.ToHex().c_str());
+    BN_ptr bnYPtr{yPtr, ::BN_free};
+
+    if (!EC_POINT_set_affine_coordinates_GFp(m_gp, m_ec, bnXPtr.get(), bnYPtr.get(), ctxptr.get()))
     {
-        BN_CTX_free(ctx);
-        throw std::runtime_error("error");
+        throw std::runtime_error("Failed to set coordinates.");
     }
 
-    BN_CTX_free(ctx);
 }
 
 // bn_obj_n + ec_obj_q * bn_obj_m, where bn_obj_n can be nullptr
@@ -107,22 +96,22 @@ std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithDecBigNum (const std::stri
         throw std::runtime_error("error : Given objector big number being null");
     }
 
-    BN_ptr bn_obj_m_uptr {BN_new(), ::BN_free};
-    BN_ptr bn_obj_n_uptr {BN_new(), ::BN_free};
 
 
     // Get BN from Hex String
-    BIGNUM *mPtr = bn_obj_m_uptr.get();
+    BIGNUM *mPtr = nullptr;
     BN_dec2bn(&mPtr, bn_obj_m.c_str());
+    BN_ptr bn_obj_m_uptr {mPtr, ::BN_free};
+
+    BIGNUM *nPtr = nullptr;
 
     if (!bn_obj_n.empty())
     {         
         // Get BN from Hex String
-        BIGNUM *nPtr = bn_obj_n_uptr.get();
         BN_dec2bn(&nPtr, bn_obj_n.c_str());
-    }else{
-        bn_obj_n_uptr = nullptr;
     }
+    BN_ptr bn_obj_n_uptr {nPtr, ::BN_free};
+   
     return Multiply(bn_obj_m_uptr.get(), bn_obj_n_uptr.get());
 }
 
@@ -130,7 +119,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Multiply(BIGNUM *mPtr, BIGNUM *nPtr)
 {
 
     // Allocate for CTX 
-    BN_CTX* ctxptr = BN_CTX_new(); 
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
     // allocate & get result group and EC struct
     ECGROUP_ptr resGroup = EC_GROUP_new_by_curve_name(m_nid); 
@@ -141,10 +130,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Multiply(BIGNUM *mPtr, BIGNUM *nPtr)
                            nPtr,
                            m_ec,
                            mPtr,
-                           ctxptr);
-
-    // free CTX object
-    BN_CTX_free(ctxptr);
+                           ctxptr.get());
 
     if (!res)
     {
@@ -177,15 +163,12 @@ bool Compare(const ECPointImpl *obj1, const ECPointImpl *obj2)
         return false;
     }
     // Allocate for CTX 
-    BN_CTX* ctxptr = BN_CTX_new(); 
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
     
     // allocate & get result group and EC struct
     ECGROUP_ptr resGroup = EC_GROUP_new_by_curve_name(obj1->getNid());
 
-    int res = EC_POINT_cmp(resGroup, obj1->ec(), obj2->ec(), ctxptr); 
-
-    // free CTX object
-    BN_CTX_free(ctxptr);
+    int res = EC_POINT_cmp(resGroup, obj1->ec(), obj2->ec(), ctxptr.get()); 
 
     // free group struct
     EC_GROUP_free(resGroup);
@@ -202,25 +185,19 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Double()
 {
 
     // Allocate for CTX 
-    BN_CTX* ctxptr = BN_CTX_new(); 
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
     // allocate & get result group and EC struct
 
     ECPOINT_ptr resEC = EC_POINT_new(m_gp);
 
-    if (! EC_POINT_dbl(m_gp, resEC, ec(), ctxptr))
+    if (! EC_POINT_dbl(m_gp, resEC, ec(), ctxptr.get()))
     {
-        // free CTX object
-        BN_CTX_free(ctxptr);
-	
         // free group and EC structs
         EC_POINT_free(resEC);
 
         throw std::runtime_error("error : Failed to double EC POINT");
     }
-
-    // free CTX object
-    BN_CTX_free(ctxptr);
 
     std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(resEC, m_nid));
 
@@ -233,13 +210,10 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Double()
 void ECPointImpl::Invert()
 {
     // Allocate for CTX 
-    BN_CTX* ctxptr = BN_CTX_new(); 
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
-    int res = EC_POINT_invert(m_gp, m_ec, ctxptr);
+    int res = EC_POINT_invert(m_gp, m_ec, ctxptr.get());
     
-    // free CTX object
-    BN_CTX_free(ctxptr);
-
     if (!res)
     {
         throw std::runtime_error("error : Failed to invert EC POINT");
@@ -260,12 +234,9 @@ bool ECPointImpl::CheckInfinity()
 bool ECPointImpl::CheckOnCurve()
 {
     // Allocate for CTX 
-    BN_CTX* ctxptr = BN_CTX_new(); 
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
-    int res = EC_POINT_is_on_curve(m_gp, m_ec, ctxptr);
-
-    // free CTX object
-    BN_CTX_free(ctxptr);
+    int res = EC_POINT_is_on_curve(m_gp, m_ec, ctxptr.get());
 
     if (res == -1)
     {
@@ -281,22 +252,18 @@ std::string ECPointImpl::ToHex()
     char *ecChar = nullptr; 
     
     // Allocate for CTX 
-    BN_CTX* ctxptr = BN_CTX_new(); 
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
-    ecChar  = EC_POINT_point2hex(m_gp, m_ec, POINT_CONVERSION_COMPRESSED, ctxptr);
+    ecChar  = EC_POINT_point2hex(m_gp, m_ec, POINT_CONVERSION_COMPRESSED, ctxptr.get());
     if ( ecChar == nullptr)
     {
-        // free CTX object
-        BN_CTX_free(ctxptr);
+	    std::runtime_error("Failed to convert EC Point to Hex");
     }
 
     std::string ecStr(ecChar) ;
 
     // free 
     OPENSSL_free(ecChar);
-  
-    // free CTX object
-    BN_CTX_free(ctxptr);
 
     return ecStr;
 }
@@ -316,18 +283,15 @@ bool ECPointImpl::FromHex(const std::string& hexStr, int nid)
       
     
     // Allocate for CTX
-    BN_CTX* ctxptr = BN_CTX_new();
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
     if (ctxptr == nullptr) {
         return false;
     }
 
-    m_ec = EC_POINT_hex2point(m_gp, hexStr.c_str(), m_ec, ctxptr);
+    m_ec = EC_POINT_hex2point(m_gp, hexStr.c_str(), m_ec, ctxptr.get());
     if (m_ec == nullptr){
         return false;
     }
-
-    // free CTX object
-    BN_CTX_free(ctxptr);
 
     return true;
 }
@@ -425,17 +389,12 @@ std::string ECPointImpl::getGroupOrder() const
     BN_ptr x(BN_new(), ::BN_free );
 
     // Allocate for CTX
-    BN_CTX* ctxptr = BN_CTX_new();
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
-    if(!EC_GROUP_get_order(m_gp, x.get(), ctxptr))
+    if(!EC_GROUP_get_order(m_gp, x.get(), ctxptr.get()))
     {
-        // free CTX object
-        BN_CTX_free(ctxptr);
         return {};
     }
-
-    // free CTX object
-    BN_CTX_free(ctxptr);
 
     std::string xVal = BN_bn2hex(x.get());
     return xVal;
