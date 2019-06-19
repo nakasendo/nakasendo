@@ -5,13 +5,13 @@
 #ifndef __TS_UUID_H
 #define __TS_UUID_H
 
+#include <ThresholdSignatures/ThresholdSignatures.h>
+
 #include <string>
 #include <ostream>
 
-
-
 // A randomly generated unique ID.
-class UUID final
+class ThresholdSignatures_API UUID final
 {
   public:
 
@@ -46,9 +46,9 @@ class UUID final
 };
 
 /// Comparision operators
-bool operator==(const UUID& lhs, const UUID& rhs);
-bool operator!=(const UUID& lhs, const UUID& rhs);
+ThresholdSignatures_API bool operator==(const UUID& lhs, const UUID& rhs);
+ThresholdSignatures_API bool operator!=(const UUID& lhs, const UUID& rhs);
 /// Stream output
-std::ostream& operator<<(std::ostream& str, const UUID& uuid);
+ThresholdSignatures_API std::ostream& operator<<(std::ostream& str, const UUID& uuid);
 
 #endif // __TS_UUID_H

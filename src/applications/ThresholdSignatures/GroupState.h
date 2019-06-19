@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include <impl/utils/EnumCast.h>
+#include <ThresholdSignatures/ThresholdSignatures.h>
+#include <impl/utils/EnumCast.h> // ?? What is that?
 
 namespace nakasendo { namespace impl
 {
