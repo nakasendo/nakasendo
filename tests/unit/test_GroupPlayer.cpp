@@ -9,7 +9,7 @@
 
 bool playerMapCompare(const Group::PlayerMap& lhs, const Group::PlayerMap& rhs)
 {
-    return lhs.size() == rhs.size() && std::equal( lhs.begin(), lhs.end(), rhs.begin());
+    return lhs.size() == rhs.size() && lhs == rhs;
 }
 
 BOOST_AUTO_TEST_SUITE(test_suite_ThresholdSignatures)
