@@ -2,9 +2,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
-#include <Group.h>
-#include <Player.h>
-#include <UUID.h>
+#include <ThresholdSignatures/Group.h>
+#include <ThresholdSignatures/Player.h>
+#include <ThresholdSignatures/UUID.h>
 #include <single_include/nlohmann/json.hpp>
 
 bool playerMapCompare(const Group::PlayerMap& lhs, const Group::PlayerMap& rhs)

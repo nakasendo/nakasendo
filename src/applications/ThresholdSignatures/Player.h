@@ -5,13 +5,16 @@
 #ifndef __TS_PLAYER_H
 #define __TS_PLAYER_H
 
+#include <ThresholdSignatures/ThresholdSignatures.h>
+
 #include <memory>
+#include <string>
 
 /// Ordinal type
 using Ordinal = unsigned int;
 
 /// A player within a threshold signature group.
-class Player final 
+class ThresholdSignatures_API Player final
 {
   public:
 
