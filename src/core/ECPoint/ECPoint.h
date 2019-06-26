@@ -28,6 +28,7 @@ class ECPoint_API ECPoint
 
     public:
         explicit ECPoint();
+	ECPoint(const BigNumber& x, const BigNumber& y);
         ~ECPoint();
         ECPoint(const int& nid);
         ECPoint(const std::string& NIDstring);
