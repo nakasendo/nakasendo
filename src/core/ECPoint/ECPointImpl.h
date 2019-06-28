@@ -11,6 +11,7 @@
 #include <openssl/bn.h>
 #include <openssl/objects.h>
 #include <openssl/ec.h>
+#include <BigNumbers/BigNumbers.h>
 
 using namespace std;
 
@@ -35,6 +36,8 @@ class ECPointImpl
             m_ec = EC_POINT_new(m_gp);
             m_nid = NID_secp256k1;
         }
+
+	ECPointImpl(const BigNumber& x, const BigNumber& y);
 
         ECPointImpl(const int& nid) 
         {
