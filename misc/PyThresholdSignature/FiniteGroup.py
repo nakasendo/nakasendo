@@ -62,8 +62,8 @@ def mul_mod(a,b,p):
 
 def inv_mod(a,p):
     """return x such that (x * a) % b == 1"""
-    if p <= 0:
-        raise ZeroDivisionError('inv_mod({},{}) second parameter expected to be strictly positive'.format(a, p))
+    if p < 2:
+        raise ZeroDivisionError('inv_mod({},{}) second parameter expected to be greater than 2'.format(a, p))
 
     norm_a = normalize_mod(a,p)
     if norm_a==0:
