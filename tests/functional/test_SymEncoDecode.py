@@ -23,7 +23,7 @@ def test_GenerateKey():
         # verifying the actual value with the expected value
         assert len(actual_value) == 64, "Test failed"
 
-def test_EncodeAES():
+def test_EncodeAES(test_data_dir):
 
     # Generate a key from random string of fixed length
     genKey = PySymEncDec.GenerateKey("ghmgpipbmz", bitSize)
@@ -32,7 +32,7 @@ def test_EncodeAES():
     assert len(genKey) == 64, "Test failed"
 
     # Reading test data from the file
-    with open("testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
+    with open(test_data_dir/"testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
 
         for x in strEncode_txt:
 
@@ -42,7 +42,7 @@ def test_EncodeAES():
 
             assert actual_value == strEncode[1].rstrip("\n"), "Test failed"
 
-def test_DecodeAES():
+def test_DecodeAES(test_data_dir):
 
     # Generate a key from random string of fixed length
     genKey = PySymEncDec.GenerateKey("ghmgpipbmz", bitSize)
@@ -51,7 +51,7 @@ def test_DecodeAES():
     assert len(genKey) == 64, "Test failed"
 
     # Reading test data from the file
-    with open("testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
+    with open(test_data_dir/"testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
 
         for x in strEncode_txt:
 
@@ -61,7 +61,7 @@ def test_DecodeAES():
 
             assert actual_value == strEncode[0], "Test failed"
 
-def test_EncodeDecodeAES():
+def test_EncodeDecodeAES(test_data_dir):
 
     # Generate a key from random string of fixed length
     genKey = PySymEncDec.GenerateKey("ghmgpipbmz", bitSize)
@@ -70,7 +70,7 @@ def test_EncodeDecodeAES():
     assert len(genKey) == 64, "Test failed"
 
     # Reading test data from the file
-    with open("testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
+    with open(test_data_dir/"testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
 
         for x in strEncode_txt:
 

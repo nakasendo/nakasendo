@@ -113,10 +113,10 @@ def test_GetCurveList():
     #Verifying one of the keys of the dictionary with it's value
     assert actual_value[nid_Id] == "secp256k1", "Test failed"
 
-def test_AddECFromHex():
+def test_AddECFromHex(test_data_dir):
 
     #Reading a Random generated EC Point with default NID ==> NID_secp256k1 from file
-    with open("testData_AddECFromHex", "r") as addEChex_txt:
+    with open(test_data_dir/"testData_AddECFromHex", "r") as addEChex_txt:
         for x in addEChex_txt:
 
             hexNumber = x.split(",")
@@ -130,10 +130,10 @@ def test_AddECFromHex():
             # Verifying the actual value with expected value
             assert actual_value == hexNumber[2].rstrip("\n") and len(actual_value) == 66, "Test failed"
 
-def test_AddECFromHexWithCurveID():
+def test_AddECFromHexWithCurveID(test_data_dir):
 
     #Reading a Random generated EC Point with default NID ==> NID_secp256k1 from file
-    with open("testData_AddECFromHex", "r") as addEChex_txt:
+    with open(test_data_dir/"testData_AddECFromHex", "r") as addEChex_txt:
         for x in addEChex_txt:
 
             hexNumber = x.split(",")
@@ -387,7 +387,7 @@ def test_GetGenerator():
         # Verifying the the length of actual value as 66
         assert len(actual_value) == 66, "Test failed"
 
-def test_GetGroupDegreeFromHex():
+def test_GetGroupDegreeFromHex(test_data_dir):
 
     # Generate a Random EC Point with default NID ==> NID_secp256k1
     ecPoint_value = PyECPoint.GenerateRandomECHex()
@@ -399,7 +399,7 @@ def test_GetGroupDegreeFromHex():
     generator_Point = PyECPoint.GetGenerator(ecPoint_value, nid_Id)
 
     # Reading a Random generated EC Point with default NID ==> NID_secp256k1 from file
-    with open("testData_GetGroupDegree", "r") as getGrpDegree_txt:#Test data are generated from https://svn.python.org/projects/external/openssl-0.9.8a/crypto/ec/ec_curve.c
+    with open(test_data_dir/"testData_GetGroupDegree", "r") as getGrpDegree_txt:#Test data are generated from https://svn.python.org/projects/external/openssl-0.9.8a/crypto/ec/ec_curve.c
         for x in getGrpDegree_txt:
 
             # Reading the line of the file as string and splitting into list
@@ -411,7 +411,7 @@ def test_GetGroupDegreeFromHex():
             # Verifying the actual value with the expected value.
             assert actual_value == int(nidID_Degree_Value[1]), "Test failed"
 
-def test_GetGroupOrderFromHex():
+def test_GetGroupOrderFromHex(test_data_dir):
 
     # Generate a Random EC Point with default NID ==> NID_secp256k1
     ecPoint_value = PyECPoint.GenerateRandomECHex()
@@ -423,7 +423,7 @@ def test_GetGroupOrderFromHex():
     generator_Point = PyECPoint.GetGenerator(ecPoint_value, nid_Id)
 
     # Reading a Random generated EC Point with default NID ==> NID_secp256k1 from file
-    with open("testData_GetGroupDegree", "r") as getGrpDegree_txt: #Test data are generated from https://svn.python.org/projects/external/openssl-0.9.8a/crypto/ec/ec_curve.c
+    with open(test_data_dir/"testData_GetGroupDegree", "r") as getGrpDegree_txt: #Test data are generated from https://svn.python.org/projects/external/openssl-0.9.8a/crypto/ec/ec_curve.c
         for x in getGrpDegree_txt:
 
             # Reading the line of the file as string and splitting into list
