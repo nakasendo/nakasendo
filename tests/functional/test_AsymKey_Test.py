@@ -50,7 +50,6 @@ def test_Sign_Verification():
 
         # Verify message's signature with public key
         verify_ok = PyAsymKey.Verify(msg, pubKey, rSig, sSig)
-
         assert verify_ok, "Test failed"
 
 def test_ShareSecret():
@@ -63,7 +62,6 @@ def test_ShareSecret():
         #Calculate shared secret from my private key and their public key
         secret_share_from_alice = PyAsymKey.ShareSecret(alice_privKeyPEM, bob_pubKeyPEM)
         secret_share_from_bob = PyAsymKey.ShareSecret(bob_privKeyPEM, alice_pubKeyPEM)
-
         assert secret_share_from_alice==secret_share_from_bob, "Test failed"
 
 def test_KeyDerive():
@@ -85,6 +83,5 @@ def test_KeyDerive():
         # Get public key PEM given the private key PEM
         calc_alice_derived_pub = PyAsymKey.GetPublicKeyPEM(alice_derived_private)
         calc_bob_derived_pub = PyAsymKey.GetPublicKeyPEM(bob_derived_private)
-
         assert calc_alice_derived_pub == alice_derived_pub, "Test failed"
         assert calc_bob_derived_pub == bob_derived_pub, "Test failed"
