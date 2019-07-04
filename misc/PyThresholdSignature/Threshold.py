@@ -14,19 +14,30 @@ Define the concept of Threshold signature
 """
 
 class Threshold:
-    """(t,n)-Threshold"""
+    """(t,n)-Threshold 1<t<n"""
+    """t is the degree of the polynomial"""
+    """n is the number of players"""
     def __init__(self, tt=1,nn=3):
-        if tt<1 or nn<tt:
+        if tt<1 or tt>=nn:
             raise RuntimeError('Invalid Threshold (t={},n={})'.format(tt,nn))
         self.t=tt
         self.n=nn
+
+    def __repr__(self):
+        outstr = '({},{})-Threshold'.format(self.t, self.n)
+        return outstr
 
     def t(self):
         return self.t
     def n(self):
         return self.n
     def indices(self):
-        return list(self.__get_indices(self.n))
+        return list(self.__get_indices_set(self.n))
+    def labels(self):
+        labs=[]
+        for i in range(self.n):
+            labs.append(i+1)
+        return labs
 
     ## From a full set of elements, and a sub cardinal, randomly pick a subset of the full set (in the indices order)
     def pick_subset(self, sub_card, full_set):
@@ -47,7 +58,7 @@ class Threshold:
         for i in range (len(random_picked_indices)):
             index=random_picked_indices[i]
             subset.append(full_set[index])
-        return subset
+        return random_picked_indices,subset
 
     def __get_indices_set(self,N):
         indx=set()

@@ -27,6 +27,18 @@ def test_polynomial_degree2():
     assert (eval_at_1 == 6)
     assert (eval_at_2 == 17)
 
+def test_polynomial_vector_degree2():
+    # 1 + 2x + 3x^2
+    rp = Polynomial.Polynomial()
+    rp.append_coeff(1)
+    rp.append_coeff(2)
+    rp.append_coeff(3)
+    x=[0,1,2]
+    fx= rp(x)
+    assert(fx[0] == 1)
+    assert (fx[1]== 6)
+    assert (fx[2]== 17)
+
 def test_polynomial_degree2_mod5():
     # 1 + 2x + 3x^2 [mod 5]
     rp = Polynomial.Polynomial()

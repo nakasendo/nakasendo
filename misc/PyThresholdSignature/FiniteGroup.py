@@ -25,6 +25,8 @@ def _xgcd(a, b):
 
 def normalize_mod(a,p):
     """Bring any number to [0 ... p-1]."""
+    if a>p:
+        return a%p
     opp_sign_a = -1 if a>0 else 1
     while a<0 or a>=p:
         a = a + opp_sign_a*p

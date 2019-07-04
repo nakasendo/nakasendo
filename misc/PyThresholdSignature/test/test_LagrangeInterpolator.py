@@ -55,8 +55,9 @@ def __interpolation_polynomial(degree, modulo):
 
     full_xfx=[]
     x=__get_vector_x(nbPoint)
+    fx= f(x)
     for i in range (len(x)):
-        full_xfx.append([x[i],f(x[i])])
+        full_xfx.append([x[i],fx[i]])
 
     ## run random interpolations :
     ## Substract a subset of points. build Lagrange Interpolator from those points and reevaluate the values

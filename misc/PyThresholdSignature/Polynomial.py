@@ -45,13 +45,22 @@ class Polynomial:
         coeff = FiniteGroup.normalize_mod(a_i, self.q) if self.q else a_i
         self.a.append(coeff)
 
-    # evaluate polynomial at value x
+    # evaluate polynomial at value x, or a vector of x_i
     def __call__(self, x):
         if not self.a:
             raise RuntimeError('Unable to evaluate polynomial when it is empty')
         if self.a[-1]==0:
             raise RuntimeWarning('Polynomial has zero coefficient at the highest degree')
 
+        if isinstance(x,list):
+            ret=[]
+            for x_i in x:
+                ret.append(self.__eval(x_i))
+            return ret
+        else:
+            return self.__eval(x)
+
+    def __eval(self,x):
         ret=0
         x_k=1 ## x^k
         for k in range (len(self.a)):

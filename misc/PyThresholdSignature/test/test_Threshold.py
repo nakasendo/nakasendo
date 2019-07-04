@@ -4,6 +4,8 @@ import random
 import sys
 sys.path.append('../')
 import Threshold
+import Polynomial
+import FiniteGroup
 
 def __get_random_vector(N):
     x=[]
@@ -18,7 +20,9 @@ def test_threshold():
     nn = tt + margin
     ts = Threshold.Threshold(tt,nn)
     random_vect = __get_random_vector(nn)
-    print('Vector {}'.format(str(random_vect)))
+    #print('Vector {}'.format(str(random_vect)))
     for i in range (10):
-        picked_random = ts.pick_subset(tt, random_vect)
-        print('SubVec {}'.format(str(picked_random)))
+        indices,picked_random = ts.pick_subset(tt, random_vect)
+        #print('Indices {}  SubVect {}'.format(str(indices), str(picked_random)))
+        for random_item in picked_random:
+            assert (random_item in random_vect)
