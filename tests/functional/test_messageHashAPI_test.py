@@ -70,7 +70,7 @@ def test_DecodeBase58API(test_data_dir):
 def test_EncodeBase58CheckedAPI(test_data_dir):
 
     #Reading test data from the file
-    with open(test_data_dir/"testData_Encode58CheckedDecode", "r") as encode58File_txt:
+    with open(test_data_dir/"testData_Encode58CheckedDecode", "r") as encode58File_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
 
         for x in encode58File_txt.readlines():
 
@@ -84,7 +84,7 @@ def test_EncodeBase58CheckedAPI(test_data_dir):
 def test_DecodeBase58Checked58API(test_data_dir):
 
     #Reading test data from the file
-    with open(test_data_dir/"testData_Encode58CheckedDecode", "r") as decode58File_txt:
+    with open(test_data_dir/"testData_Encode58CheckedDecode", "r") as decode58File_txt:# Test data were generated using our python interface to encode the input value and decode the output for same input value
 
         for x in decode58File_txt.readlines():
 
