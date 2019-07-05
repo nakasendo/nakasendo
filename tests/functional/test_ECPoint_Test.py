@@ -8,8 +8,8 @@ nid_Id = 714
 
 def test_GenerateRandomECHex():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         actual_value = PyECPoint.GenerateRandomECHex()
@@ -19,8 +19,8 @@ def test_GenerateRandomECHex():
 
 def test_GenerateECHexFromHex():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+    # Generating Random EC Points ranging
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         value_ECHex = PyECPoint.GenerateRandomECHex()
@@ -33,8 +33,8 @@ def test_GenerateECHexFromHex():
 
 def test_GenerateRandomECHexOnCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         #Generate a Random EC Point with supplied NID
         actual_value = PyECPoint.GenerateRandomECHexOnCurve(nid_Id)
@@ -44,8 +44,8 @@ def test_GenerateRandomECHexOnCurve():
 
 def test_GenerateECHexFromHexOnCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         value_ECHex = PyECPoint.GenerateRandomECHex()
@@ -58,8 +58,8 @@ def test_GenerateECHexFromHexOnCurve():
 
 def test_CheckOnCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+    # Generating Random EC Points
+    for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         value_ECHex = PyECPoint.GenerateRandomECHex()
 
@@ -73,8 +73,8 @@ def test_CheckOnCurve():
 
 def test_GetAffineCoOrdinates():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+    # Generating Random EC
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         hexValue = PyECPoint.GenerateRandomECHex()
@@ -89,8 +89,8 @@ def test_GetAffineCoOrdinates():
 
 def test_GetAffineCoOrdinatesOnCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+    # Generating Random EC Points
+    for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         hexValue = PyECPoint.GenerateRandomECHex()
 
@@ -149,8 +149,8 @@ def test_AddECFromHexWithCurveID(test_data_dir):
 
 def test_MultiplyScalarM():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         x = PyECPoint.GenerateRandomECHex()
@@ -167,8 +167,8 @@ def test_MultiplyScalarM():
 
 def test_MultiplyScalarMN():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 1000, 10):
+    # Generating Random EC Points
+    for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
@@ -186,8 +186,8 @@ def test_MultiplyScalarMN():
 
 def test_MultiplyScalarMOnCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         x = PyECPoint.GenerateRandomECHex()
@@ -204,8 +204,8 @@ def test_MultiplyScalarMOnCurve():
 
 def test_MultiplyScalarMNOnCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
@@ -223,8 +223,8 @@ def test_MultiplyScalarMNOnCurve():
 
 def test_CheckInfinityFromHex():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
@@ -236,8 +236,8 @@ def test_CheckInfinityFromHex():
 
 def test_CheckInfinityFromHexCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
@@ -249,8 +249,8 @@ def test_CheckInfinityFromHexCurve():
 
 def test_CheckOnCurveFromHexOnCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
@@ -265,8 +265,8 @@ def test_CheckOnCurveFromHexOnCurve():
 
 def test_CompareECPoint():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
@@ -280,8 +280,8 @@ def test_CompareECPoint():
 
 def test_CompareCurveECPoint():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
@@ -298,8 +298,8 @@ def test_CompareCurveECPoint():
 
 def test_DoubleFromHex():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
@@ -315,8 +315,8 @@ def test_DoubleFromHex():
 
 def test_DoubleFromHexCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
@@ -335,8 +335,8 @@ def test_DoubleFromHexCurve():
 
 def test_InvertFromHex():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
@@ -352,8 +352,8 @@ def test_InvertFromHex():
 
 def test_InvertFromHexCurve():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
@@ -372,8 +372,8 @@ def test_InvertFromHexCurve():
 
 def test_GetGenerator():
 
-    # Generating Random EC Points ranging from 10 to 10000 in step 10
-    for x in range(10, 10000, 10):
+    # Generating Random EC Points
+    for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         ecPoint_value = PyECPoint.GenerateRandomECHex()
