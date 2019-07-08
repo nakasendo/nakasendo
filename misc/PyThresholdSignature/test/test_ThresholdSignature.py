@@ -19,51 +19,35 @@ def __print_matrix(M):#list of list
 def __get_random_polynomial(deg,modulo=None):
     return Polynomial.RandomPolynomial(deg,modulo)
 
-def __test_DealerLessSharedSecret(tt,nn,modulo=None):## Interpolation
-    #if modulo is not None and not FiniteGroup.isPrime(modulo):
-    #    raise RuntimeError('Group modulo {} is not a prime number'.format(modulo))
+def __test_threshold_signature(tt,nn,modulo=None):##
+    # s = k^{-1}(H(msg) + dr)
 
+    #### Setting up the group players, subgroup 2t+1, subsubgroup t players
     ts = Threshold.Threshold(tt,nn)
-    print('\n{}'.format(ts))
-    players=[]
-    for i in range (ts.n):
-        players.append(__get_random_polynomial(ts.t,modulo))
     player_indices = ts.indices()
-    labels = ts.labels()
+    player_labels  = ts.labels()
+    subgroup_2tp1_indices, subgroup_2tp1_labels = ts.pick_subset(2*ts.t() + 1, player_labels)  # subgroup t++
+    _ , subgroup_t_indices = ts.pick_subset(ts.t()+1, subgroup_2tp1_indices)  # subgroup t++
+    subgroup_t_labels  = [player_labels[index] for index in subgroup_t_indices]
+    print('\n{}'.format(ts))
+    print('Subgroup 2tp1 indices {}'.format(subgroup_2tp1_indices))
+    print('Subgroup 2tp1 labels  {}'.format(subgroup_2tp1_labels))
+    print('Subgroup    t indices {}'.format(subgroup_t_indices))
+    print('Subgroup    t labels  {}'.format(subgroup_t_labels))
+    assert(2*(len(subgroup_t_indices)-1)+1 == len(subgroup_2tp1_labels)) ## test 2t+1 correctness
+    for i in range (len(subgroup_2tp1_labels)): ## test label == index+1
+        assert((subgroup_2tp1_indices[i]+1) == subgroup_2tp1_labels[i])
+    for i in range (len(subgroup_t_labels)):
+        assert(subgroup_t_indices[i] in subgroup_2tp1_indices) ## test inclusion group_t inside group_2tp1
+        assert(subgroup_t_labels[i] in subgroup_2tp1_labels)   ## test inclusion group_t inside group_2tp1
+        assert((subgroup_t_indices[i]+1) == subgroup_t_labels[i])  ## test label == index+1
 
-    fij=[]
-    for i in range (ts.n):
-        fij.append(players[i](labels))
 
-    shares=[0]*ts.n ## secret shares for player i
-    for row_i in fij:
-        for j in range (len(row_i)):
-            shares[j]= FiniteGroup.add_mod(shares[j],row_i[j],modulo) if modulo is not None else shares[j]+row_i[j]
 
-    subgroup_indices,subgroup_labels = ts.pick_subset(ts.t+1,labels)#subgroup t++
-    print('Subgroup players {}'.format(subgroup_indices))
-    shares_tpp= [0]*(len(subgroup_indices))
-    for i in range(len(subgroup_indices)):
-        player_index = subgroup_indices[i]
-        shares_tpp[i] = shares[player_index]
-
-    tn_points=[]
-    for i in range(len(subgroup_labels)):
-        tn_points.append([subgroup_labels[i], shares_tpp[i]])
-
-    tn_interpolator = Polynomial.LagrangeInterpolator(tn_points, modulo)
-    interpolated_share_secret = tn_interpolator(0)
-    rebuild_share_secret=0
-    for player_i in players:
-        rebuild_share_secret= FiniteGroup.add_mod(rebuild_share_secret,player_i.a[0],modulo) if modulo is not None else rebuild_share_secret+player_i.a[0]
-
-    print('Interpolated {}'.format(interpolated_share_secret))
-    print('rebuild      {}'.format(rebuild_share_secret))
-    assert(interpolated_share_secret == rebuild_share_secret)
-
-def test_DealerLessSharedSecret():## Interpolation
-    __test_DealerLessSharedSecret(1, 2, q)
+def test_ThresholdSignature():## Interpolation
     tt=3
     margin = 3
     nn = 2*tt + 1 + margin
-    __test_DealerLessSharedSecret(tt,nn,q)
+
+    __test_threshold_signature(1, 3, q)
+    #__test_threshold_signature(tt,nn,q)

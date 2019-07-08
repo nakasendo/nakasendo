@@ -98,6 +98,17 @@ def RandomPolynomial(degree=1, modulo=None):
         coeffs[len(coeffs)-1] = FiniteGroup.generate_random_positive_mod(default_max_bound)
     return Polynomial(coeffs, modulo) if  modulo else Polynomial(coeffs)
 
+def RandomPolynomialFixedZero(a_0, degree=1, modulo=None):## Generate random polynomial with fixed a_0
+    if degree<1:
+        raise RuntimeError('Unable to generate polynomial with degree less than 1')
+    if a_0<1:
+        raise RuntimeError('a_0 coefficient should be strictly positive')
+    if modulo!=None and a_0>=modulo:
+        raise RuntimeError('a_0 coefficient should be lower than modulo but {}>={}'.format(a_0,modulo))
+    random_polynomial = RandomPolynomial(degree, modulo)
+    random_polynomial.a[0]= a_0
+    return random_polynomial
+
 class LagrangeInterpolator:
     r"""
         Lagrange interpolator is a set of N+1 points [x,f(x)]

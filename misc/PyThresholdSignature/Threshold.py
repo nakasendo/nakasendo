@@ -20,22 +20,24 @@ class Threshold:
     def __init__(self, tt=1,nn=3):
         if tt<1 or tt>=nn:
             raise RuntimeError('Invalid Threshold (t={},n={})'.format(tt,nn))
-        self.t=tt
-        self.n=nn
+        self.__t=tt
+        self.__n=nn
 
     def __repr__(self):
-        outstr = '({},{})-Threshold'.format(self.t, self.n)
+        outstr = '({},{})-Threshold'.format(self.__t, self.__n)
         return outstr
 
     def t(self):
-        return self.t
+        return self.__t
+    def t2p1(self):
+        return 2*self.__t+1
     def n(self):
-        return self.n
+        return self.__n
     def indices(self):
-        return list(self.__get_indices_set(self.n))
+        return list(self.__get_indices_set(self.__n))
     def labels(self):
         labs=[]
-        for i in range(self.n):
+        for i in range(self.__n):
             labs.append(i+1)
         return labs
 
