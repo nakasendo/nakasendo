@@ -12,6 +12,7 @@
 #include "Group.h"
 
 /// A group setup message.
+
 class  ThresholdSignatures_API  GroupSetupMessage final : public Message
 {
     using Base = Message;
