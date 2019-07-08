@@ -17,7 +17,7 @@
 #include <mutex>
 
 /// A builder for groups.
-class GroupBuilder final 
+class  ThresholdSignatures_API GroupBuilder final 
 {
   public:
 

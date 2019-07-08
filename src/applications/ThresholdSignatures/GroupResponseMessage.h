@@ -14,7 +14,7 @@
 
 
 /// A group response message.
-class GroupResponseMessage : public Message
+class  ThresholdSignatures_API  GroupResponseMessage final : public Message
 {
     using Base = Message;
 
