@@ -108,6 +108,67 @@ def __test_DealerLessSharedSecret(tt,nn,modulo=None):## Interpolation
     assert(interpolated_share_secret == rebuild_share_secret)
     print('----------------------------------  End of test_DealerLessSharedSecret -------')
 
+
+def __test_FeldmanVSS(tt,nn,modulo):
+    if 2*tt+1>nn:
+        raise RuntimeError('Bad threshold configuration 2t+1>n with t={} n={}'.format(tt,nn))
+
+    ts = Threshold.Threshold(tt,nn)
+    player_indices = ts.indices()
+    player_labels  = ts.labels()
+    subgroup_2tp1_indices, subgroup_2tp1_labels = ts.pick_subset(2*ts.t() + 1, player_labels)  # subgroup t++
+    _ , subgroup_tp1_indices = ts.pick_subset(ts.t()+1, subgroup_2tp1_indices)  # subgroup t++
+    subgroup_tp1_labels  = [player_labels[index] for index in subgroup_tp1_indices]
+    print('\n---  test_DealerLessMultiplication -------')
+    print(ts)
+    print('Subgroup 2tp1 indices {}'.format(subgroup_2tp1_indices))
+    print('Subgroup 2tp1 labels  {}'.format(subgroup_2tp1_labels))
+    print('Subgroup    t indices {}'.format(subgroup_tp1_indices))
+    print('Subgroup    t labels  {}'.format(subgroup_tp1_labels))
+    assert(2*(len(subgroup_tp1_indices)-1)+1 == len(subgroup_2tp1_labels)) ## test 2t+1 correctness
+    for i in range (len(subgroup_2tp1_labels)): ## test label == index+1
+        assert((subgroup_2tp1_indices[i]+1) == subgroup_2tp1_labels[i])
+    for i in range (len(subgroup_tp1_labels)):
+        assert(subgroup_tp1_indices[i] in subgroup_2tp1_indices) ## test inclusion group_t inside group_2tp1
+        assert(subgroup_tp1_labels[i] in subgroup_2tp1_labels)   ## test inclusion group_t inside group_2tp1
+        assert((subgroup_tp1_indices[i]+1) == subgroup_tp1_labels[i])  ## test label == index+1
+
+    ### Generate shares k_i for player i ############################################################################################
+    polynomials_k=[]
+    for i in range (ts.n()):
+        polynomials_k.append(__get_random_polynomial(ts.t(),modulo))
+    matrix_k = __calc_matrix(polynomials_k, player_labels)
+    vect_k = __calc_matrix_sum_col(matrix_k, modulo)
+    k = __calc_shared_secret(polynomials_k, modulo)
+    inv_k = FiniteGroup.inv_mod(k, modulo)
+    kG = k*G
+    kGx = kG.x()
+    sig_r  = FiniteGroup.normalize_mod(kGx,modulo)
+
+    ### Calculate interpolated r for everyone using a subgroup of t+1 players #######################################################
+    #vect_r = __calc_vect_r(matrix_k, modulo)
+    private_k_points=[]##
+    for index_j in subgroup_tp1_indices:
+        label_j = player_labels[index_j]
+        k_j    = vect_k[index_j]
+        private_k_points.append([label_j , k_j])
+    private_k_interpolator = Polynomial.LagrangeInterpolator(private_k_points, modulo)
+    vect_kG=[] ## Precalculate for each player j the interpolated value   L_j(0) * k_j *G. The sum of this will give k*G
+    for sub_index_j in range(len(subgroup_tp1_indices)):
+        index_j = subgroup_tp1_indices[sub_index_j]
+        label_j = player_labels[index_j]
+        kG_j = FiniteGroup.normalize_mod((private_k_interpolator[sub_index_j](0) * private_k_points[sub_index_j][1]),modulo) *G
+        vect_kG.append([label_j , kG_j])
+    interpolated_kG = vect_kG[0]
+    for kG_j in vect_kG[1:len(vect_kG)]:
+        interpolated_kG = interpolated_kG + kG_j
+    interpolated_kGx = kG.x()
+    interpolated_r = FiniteGroup.normalize_mod(interpolated_kGx,modulo)
+    print('recalc   sig_r = {}'.format(sig_r))
+    print('interpolated_r = {}'.format(interpolated_r))
+    assert (interpolated_r == sig_r)
+    print('----------------------------------  End of test_FeldmanVSS -------')
+
 def __test_DealerLessMultiplication(tt,nn,modulo=None):
     if 2*tt+1>nn:
         raise RuntimeError('Bad threshold configuration 2t+1>n with t={} n={}'.format(tt,nn))
@@ -116,21 +177,21 @@ def __test_DealerLessMultiplication(tt,nn,modulo=None):
     player_indices = ts.indices()
     player_labels  = ts.labels()
     subgroup_2tp1_indices, subgroup_2tp1_labels = ts.pick_subset(2*ts.t() + 1, player_labels)  # subgroup t++
-    _ , subgroup_t_indices = ts.pick_subset(ts.t()+1, subgroup_2tp1_indices)  # subgroup t++
-    subgroup_t_labels  = [player_labels[index] for index in subgroup_t_indices]
+    _ , subgroup_tp1_indices = ts.pick_subset(ts.t()+1, subgroup_2tp1_indices)  # subgroup t++
+    subgroup_tp1_labels  = [player_labels[index] for index in subgroup_tp1_indices]
     print('\n---  test_DealerLessMultiplication -------')
     print(ts)
     print('Subgroup 2tp1 indices {}'.format(subgroup_2tp1_indices))
     print('Subgroup 2tp1 labels  {}'.format(subgroup_2tp1_labels))
-    print('Subgroup    t indices {}'.format(subgroup_t_indices))
-    print('Subgroup    t labels  {}'.format(subgroup_t_labels))
-    assert(2*(len(subgroup_t_indices)-1)+1 == len(subgroup_2tp1_labels)) ## test 2t+1 correctness
+    print('Subgroup    t indices {}'.format(subgroup_tp1_indices))
+    print('Subgroup    t labels  {}'.format(subgroup_tp1_labels))
+    assert(2*(len(subgroup_tp1_indices)-1)+1 == len(subgroup_2tp1_labels)) ## test 2t+1 correctness
     for i in range (len(subgroup_2tp1_labels)): ## test label == index+1
         assert((subgroup_2tp1_indices[i]+1) == subgroup_2tp1_labels[i])
-    for i in range (len(subgroup_t_labels)):
-        assert(subgroup_t_indices[i] in subgroup_2tp1_indices) ## test inclusion group_t inside group_2tp1
-        assert(subgroup_t_labels[i] in subgroup_2tp1_labels)   ## test inclusion group_t inside group_2tp1
-        assert((subgroup_t_indices[i]+1) == subgroup_t_labels[i])  ## test label == index+1
+    for i in range (len(subgroup_tp1_labels)):
+        assert(subgroup_tp1_indices[i] in subgroup_2tp1_indices) ## test inclusion group_t inside group_2tp1
+        assert(subgroup_tp1_labels[i] in subgroup_2tp1_labels)   ## test inclusion group_t inside group_2tp1
+        assert((subgroup_tp1_indices[i]+1) == subgroup_tp1_labels[i])  ## test label == index+1
 
     polynomials_k=[]
     for i in range (ts.n()):
@@ -169,21 +230,21 @@ def __test_DealerLessInverse(tt,nn,modulo=None):
     player_indices = ts.indices()
     player_labels  = ts.labels()
     subgroup_2tp1_indices, subgroup_2tp1_labels = ts.pick_subset(2*ts.t() + 1, player_labels)  # subgroup t++
-    _ , subgroup_t_indices = ts.pick_subset(ts.t()+1, subgroup_2tp1_indices)  # subgroup t++
-    subgroup_t_labels  = [player_labels[index] for index in subgroup_t_indices]
+    _ , subgroup_tp1_indices = ts.pick_subset(ts.t()+1, subgroup_2tp1_indices)  # subgroup t++
+    subgroup_tp1_labels  = [player_labels[index] for index in subgroup_tp1_indices]
     print('\n---  test_DealerLessMultiplication -------')
     print(ts)
     print('Subgroup 2tp1 indices {}'.format(subgroup_2tp1_indices))
     print('Subgroup 2tp1 labels  {}'.format(subgroup_2tp1_labels))
-    print('Subgroup    t indices {}'.format(subgroup_t_indices))
-    print('Subgroup    t labels  {}'.format(subgroup_t_labels))
-    assert(2*(len(subgroup_t_indices)-1)+1 == len(subgroup_2tp1_labels)) ## test 2t+1 correctness
+    print('Subgroup    t indices {}'.format(subgroup_tp1_indices))
+    print('Subgroup    t labels  {}'.format(subgroup_tp1_labels))
+    assert(2*(len(subgroup_tp1_indices)-1)+1 == len(subgroup_2tp1_labels)) ## test 2t+1 correctness
     for i in range (len(subgroup_2tp1_labels)): ## test label == index+1
         assert((subgroup_2tp1_indices[i]+1) == subgroup_2tp1_labels[i])
-    for i in range (len(subgroup_t_labels)):
-        assert(subgroup_t_indices[i] in subgroup_2tp1_indices) ## test inclusion group_t inside group_2tp1
-        assert(subgroup_t_labels[i] in subgroup_2tp1_labels)   ## test inclusion group_t inside group_2tp1
-        assert((subgroup_t_indices[i]+1) == subgroup_t_labels[i])  ## test label == index+1
+    for i in range (len(subgroup_tp1_labels)):
+        assert(subgroup_tp1_indices[i] in subgroup_2tp1_indices) ## test inclusion group_t inside group_2tp1
+        assert(subgroup_tp1_labels[i] in subgroup_2tp1_labels)   ## test inclusion group_t inside group_2tp1
+        assert((subgroup_tp1_indices[i]+1) == subgroup_tp1_labels[i])  ## test label == index+1
 
     polynomials_k=[]
     for i in range (ts.n()):
@@ -208,7 +269,7 @@ def __test_DealerLessInverse(tt,nn,modulo=None):
     interpolated_kq = kq_interpolator (0)
     inv_interpolated_kq = FiniteGroup.inv_mod(interpolated_kq ,modulo) if modulo is not None else 1/interpolated_kq
     invkq_q_points = []  ## used to interpolate kq
-    for index_j in subgroup_t_indices:
+    for index_j in subgroup_tp1_indices:
         label_j = player_labels[index_j]
         invkq_q_j = FiniteGroup.mul_mod(inv_interpolated_kq,vect_sum_col_q[index_j], modulo) if modulo is not None else inv_interpolated_kq*vect_sum_col_q[index_j]
         invkq_q_points.append([label_j, invkq_q_j])
@@ -229,4 +290,5 @@ def test_DealerLessSharedSecret():## Interpolation
     __test_DealerLessSharedSecret(tt,nn,q)
     __test_DealerLessMultiplication(tt, nn, q)
     __test_DealerLessInverse(tt, nn, q)
+    __test_FeldmanVSS(tt, nn, q)
 

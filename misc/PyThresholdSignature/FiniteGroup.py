@@ -7,7 +7,7 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 import random
-
+import hashlib
 """
 A finite group is defined by equivalent relation (modulo in our case)
 It is defined by a class modulo p and a group order n.
@@ -82,3 +82,11 @@ def generate_random_mod(p):
 def generate_random_positive_mod(p):
     """generate random int from [1 ... p-1]."""
     return random.randint(1, p - 1)
+
+def hash_mod(msg_str, p):
+    """hash a message to an int in a group p."""
+    msg_bin = bytes(msg_str, 'utf-8')
+    hashed = hashlib.sha256(msg_bin)
+    digest = hashed.hexdigest()
+    res = int(digest,16)
+    return normalize_mod(res,p) if p is not None else res
