@@ -227,7 +227,7 @@ def test_RightShiftDec(test_data_dir):
             actual_Value = PyBigNumbers.rightShiftFromDec(decNumber[2].rstrip("\n"),decNumber[1])
 
             # Verifying the actual value with expected value
-            assert actual_Value == decNumber[0], "Test failed"#
+            assert actual_Value == decNumber[0], "Test failed"
 
 def test_LeftShiftHex(test_data_dir):
 
@@ -257,8 +257,8 @@ def test_RightShiftHex(test_data_dir):
 
 def test_GenerateRandPrimeDec():
 
-    #Generating prime decimal numbers with input parameter ranging from 10 to 10000
-    for x in range (10,1000,50):
+    #Generating prime decimal numbers with input parameter
+    for x in range (10, 1000, 10):
 
         # Generate Random Prime Number of arbitary precision in dec
         primeDec_Value = PyBigNumbers.GenerateRandPrimeDec(x)
@@ -268,8 +268,8 @@ def test_GenerateRandPrimeDec():
 
 def test_GenerateRandPrimeHex():
 
-    #Generating prime decimal numbers with input parameter ranging from 10 to 10000
-    for x in range (10,1000,50):
+    #Generating prime decimal numbers with input parameter
+    for x in range (10, 100, 10):
 
         # Generate Random Prime Number of arbitary precision in hex
         primeHex_Value = PyBigNumbers.GenerateRandPrimeHex(x)
@@ -281,8 +281,8 @@ def test_GenerateRandPrimeDecWithSeed():
 
     seed = "moKDVMpSuLxh3tS2baDvmM4XmfTugpctBX"
 
-    #Generating prime decimal numbers with input parameter ranging from 10 to 10000
-    for x in range (10,1000,50):
+    #Generating prime decimal numbers with input parameter
+    for x in range (10, 100, 10):
 
         # Generate Random Prime Number of arbitary precision in dec with seed (specified as a string)
         primeDec_Value = PyBigNumbers.GenerateRandPrimeDecWithSeed(seed, x)
@@ -294,8 +294,8 @@ def test_GenerateRandPrimeHexWithSeed():
 
     seed = "mhxdmxVS4qJWMyB7jsH9qfpS4qm1KHfY42"
 
-    #Generating prime decimal numbers with input parameter ranging from 10 to 10000
-    for x in range (10,1000,50):
+    #Generating prime decimal numbers with input parameter
+    for x in range (10, 100, 10):
 
         # Generate Random Prime Number of arbitary precision in hex with seed (specified as a string)
         primeHex_Value = PyBigNumbers.GenerateRandPrimeHexWithSeed(seed, x)
@@ -497,5 +497,6 @@ def test_InvModHex(test_data_dir):
             # Inverse modulo of big numbers of arbitrary precision in hex
             actual_value = PyBigNumbers.Inv_mod_Hex(hexNumber[0], hexNumber[1])
             expected_value = hexNumber[2].rstrip("\n")
+
             #verifying the actual value with the expected value
             assert actual_value.lstrip("0") == expected_value.upper(), "Test failed"
