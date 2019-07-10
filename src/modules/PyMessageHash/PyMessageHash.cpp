@@ -49,19 +49,33 @@ static PyObject* wrap_ListHash(PyObject* self, PyObject *args)
 }
 
 static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
-    unsigned char * argA;
+     char * argA;
     int lenargA; 
     if (!PyArg_ParseTuple(args, "s#", &argA, &lenargA))
         return NULL;
-    std::unique_ptr<unsigned char> msgPtr (new unsigned char [lenargA+1]);
+
+    std::unique_ptr<unsigned char[]> msgValptr ( new unsigned char[lenargA+1]);
+    std::fill_n(msgValptr.get(), lenargA+1, 0x00);
+    //int i(0);
+    for (int i = 0;i < lenargA; ++i){
+        msgValptr.get()[i] = argA[i]; 
+    }
+    msgValptr.get()[lenargA+1]='\0';
+    //std::cout << (char*)msgValptr.get() << "\t"<< lenargA << std::endl;
+    std::string encoded = EncodeBase64(msgValptr,lenargA);
+    return Py_BuildValue("s#",encoded.c_str(),encoded.size());
+
+#if 0
+    std::unique_ptr<unsigned char[]> msgPtr (new unsigned char [lenargA+1]);
     std::fill_n(msgPtr.get(), lenargA+1, 0x00);
     for (int i=0;i<lenargA; ++ i){
         msgPtr.get()[i] = argA[i] ;
     }
     
-    std::string result = EncodeBase64(msgPtr.get(), lenargA+1);
+    std::string result = EncodeBase64(msgPtr, lenargA+1);
+#endif
     
-    return Py_BuildValue("s",result.c_str());
+    //return Py_BuildValue("s",result.c_str());
 }
 
 static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
@@ -69,6 +83,7 @@ static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
     int lenA; 
     if (!PyArg_ParseTuple(args, "s#", &argA, &lenA))
         return NULL;
+<<<<<<< HEAD
 
     std::unique_ptr<unsigned char> msgPtr ( new unsigned char[lenA+1]);
     std::fill_n(msgPtr.get(),lenA+1,0x00);
@@ -77,6 +92,15 @@ static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
     }    
     std::string result = DecodeBase64(msgPtr.get(),(lenA+1));
     
+=======
+ 
+    int msgLen(0);
+    std::string result;
+    std::unique_ptr<unsigned char[]> resultAsBytes = DecodeBase64(argA,msgLen);
+    for(int i=0;i<msgLen;++i){
+        result.push_back(resultAsBytes.get()[i]);
+    }
+>>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
     return Py_BuildValue("s",result.c_str());
 }
 

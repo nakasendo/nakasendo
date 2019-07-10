@@ -10,20 +10,20 @@
 int main (int argc, char** argv)
 {
     std::string UserPass ("j.murphy@nchain.com");
-    std::unique_ptr<unsigned char> myPass (new unsigned char [UserPass.length() + 1 ]);
+    std::unique_ptr<unsigned char[]> myPass (new unsigned char [UserPass.length() + 1 ]);
     std::fill_n(myPass.get(), UserPass.length()+1, 0x00);
     int index(0);
     for(std::string::const_iterator iter = UserPass.begin(); iter != UserPass.end(); ++ iter, ++index){
       myPass.get()[index]=*iter;
     }
     std::string UserSalt ("05101974");
-    std::unique_ptr<unsigned char> mySalt (new unsigned char [UserSalt.length() + 1 ]);
+    std::unique_ptr<unsigned char[]> mySalt (new unsigned char [UserSalt.length() + 1 ]);
     std::fill_n(mySalt.get(), UserSalt.length()+1, 0x00);
     index = 0;
     for(std::string::const_iterator iter = UserSalt.begin(); iter != UserSalt.end(); ++ iter, ++index){
       mySalt.get()[index]=*iter;
     }
-    std::unique_ptr<unsigned char> mykey;
+    std::unique_ptr<unsigned char[]> mykey;
      
 
     {      
@@ -48,7 +48,7 @@ int main (int argc, char** argv)
         //var bytes = new Uint8Array(Math.ceil(hex.length / 2));
         //for (var i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
         
-        std::unique_ptr<unsigned char> myRebuiltKey ( new unsigned char[hexBuilder.str().length()/2]) ; 
+        std::unique_ptr<unsigned char[]> myRebuiltKey ( new unsigned char[hexBuilder.str().length()/2]) ; 
         int i = 0 ; 
         for ( int len = 0; len < hexBuilder.str().length()/2; ++len ){
             std::string val =  hexBuilder.str().substr(len*2, 2) ; 
@@ -75,8 +75,8 @@ int main (int argc, char** argv)
           std::cout << std::endl; 
       }
 
-      std::unique_ptr<unsigned char> genKey; 
-      std::unique_ptr<unsigned char> genSalt; 
+      std::unique_ptr<unsigned char[]> genKey; 
+      std::unique_ptr<unsigned char[]> genSalt; 
       unsigned int keysize = 0, saltsize = 0; 
       symencdec.GetParams (genKey, genSalt, keysize, saltsize);
       
@@ -102,7 +102,7 @@ int main (int argc, char** argv)
 
       std::cout << "Calling aes_encrypt..." << std::endl; 
       //std::unique_ptr<unsigned char> encodedData = symencdec.aes_encrypt(sharedSecret);
-      std::unique_ptr<unsigned char> encodedData;
+      std::unique_ptr<unsigned char[]> encodedData;
       int encodedLen = symencdec.aes_encrypt(sharedSecret, encodedData);
       std::cout << "Encoded length: " << encodedLen << std::endl; 
 
@@ -132,8 +132,8 @@ int main (int argc, char** argv)
       std::string UserPass ("j.murphy@nchain.com");
       std::string UserSalt ("05101974");
       
-      std::string encMsg = Encode(ptext, UserPass, UserSalt);
-      std::cout << encMsg << std::endl; 
+      std::unique_ptr<char[]> encMsg = Encode(ptext, UserPass, UserSalt);
+     
      
       std::string decMsg = Decode(encMsg, UserPass, UserSalt);
      
