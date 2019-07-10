@@ -78,10 +78,13 @@ BOOST_AUTO_TEST_CASE(test_codec_base64_particular_case)// This case has failed o
     // This case fail, please make it pass
     const std::string text{ "nChain Limited UK branch is fast growing in FinTech industry" };
 <<<<<<< HEAD
+<<<<<<< HEAD
     const std::string encoded_text = EncodeBase64((const unsigned char*)text.data(), text.size());
     const std::string decoded_text = DecodeBase64((const unsigned char*)encoded_text.data(), text.size());
     BOOST_CHECK(text == decoded_text);
 =======
+=======
+>>>>>>> 18a824c... Commited for Base64 encoding and decoding issues
     std::unique_ptr<unsigned char[]> textPtr(new unsigned char[text.size()]);
     int index(0);
     for(std::string::const_iterator iter = text.begin();iter != text.end(); ++iter){

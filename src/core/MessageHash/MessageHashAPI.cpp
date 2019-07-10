@@ -186,6 +186,7 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     //MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const std::string& msg)
     MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const unsigned char* msgPtrApi, int msgSize)    
     {
@@ -204,6 +205,10 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
     MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const std::unique_ptr<unsigned char[]>& msgPtrApi, int msgSize)    
     {  
 >>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
+=======
+    MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const std::unique_ptr<unsigned char[]>& msgPtrApi, int msgSize)    
+    {  
+>>>>>>> 18a824c... Commited for Base64 encoding and decoding issues
         Base64EncDec encdec ; 
         int sizeEncodedBuffer(0);
         std::string retVal;
@@ -221,16 +226,21 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     //MESSAGE_HASH_RETURN_TYPE DecodeBase64 (const std::string& msg)
     MESSAGE_HASH_RETURN_TYPE DecodeBase64 (const unsigned char* msgPtrApi, int msgSize )    
 =======
     std::unique_ptr<unsigned char[]>  DecodeBase64 (const std::string& msgPtrApi, int& msgSize )    
 >>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
+=======
+    std::unique_ptr<unsigned char[]>  DecodeBase64 (const std::string& msgPtrApi, int& msgSize )    
+>>>>>>> 18a824c... Commited for Base64 encoding and decoding issues
     {
         size_t value = 0;
         int strict = 0 ; 
         int * err = new int;  
           
+<<<<<<< HEAD
 <<<<<<< HEAD
         
         std::unique_ptr<unsigned char> msgPtr ( new unsigned char [msgSize+1]);  
@@ -247,6 +257,8 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
             }
         }else{retVal="ERROR";}
 =======
+=======
+>>>>>>> 18a824c... Commited for Base64 encoding and decoding issues
         std::unique_ptr<unsigned char[]> msgPtr ( new unsigned char [msgPtrApi.size()+1]);  
         std::fill_n(msgPtr.get(), msgPtrApi.size()+1, 0x00);  
         int i(0);
@@ -263,10 +275,14 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
         return retVal.c_str() ;         
 #else        
 <<<<<<< HEAD
+<<<<<<< HEAD
         return retVal ; 
 =======
         return decodedValPtr; 
 >>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
+=======
+        return decodedValPtr; 
+>>>>>>> 18a824c... Commited for Base64 encoding and decoding issues
 #endif        
     }
 

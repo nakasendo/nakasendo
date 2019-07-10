@@ -109,6 +109,51 @@ int main(int argc,char** argv)
         }
         printf("Output (base64): %s\n", retValPtr.get());
         std::string encodedValTest ("bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5");
+<<<<<<< HEAD
+=======
+
+        std::cout << sizeEncoded << " " << encodedValTest.length() << " " << encodedVal.length() << std::endl;
+        if ( encodedValTest.length() != encodedVal.length()){
+            std::cout << "first panic" << std::endl;
+        }
+        if(encodedVal != encodedValTest){
+            std::cout << "panic ... \n" << encodedVal << "\n" << "bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5"<< std::endl;
+        }
+
+         std::cout << "decoding..." << std::endl ;
+        size_t value = 0;
+        int strict = 0 ; 
+        int * err = new int; 
+        std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(retValPtr,value, strict, err);
+        printf ("Output(decoded): %s\n", decodedValPtr.get());
+    }
+#endif
+    {
+    
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("nChain Limited UK branch is fast growing in FinTech industry"); 
+        std::string encodedValTest ("bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5");
+
+
+        processMsg(msgVal, encodedValTest);
+        
+    
+    }
+    {
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("Development team"); 
+        std::string encodedValTest ("RGV2ZWxvcG1lbnQgdGVhbQ==");
+        processMsg(msgVal, encodedValTest);
+    }
+        
+    {
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("team"); 
+        std::string encodedValTest ("dGVhbQ==");
+        processMsg(msgVal, encodedValTest);
+        
+    }
+>>>>>>> 18a824c... Commited for Base64 encoding and decoding issues
 
         std::cout << sizeEncoded << " " << encodedValTest.length() << " " << encodedVal.length() << std::endl;
         if ( encodedValTest.length() != encodedVal.length()){
@@ -153,6 +198,13 @@ int main(int argc,char** argv)
     }
 
 
+    {
+        std::cout << "And now via the client" << std::endl ;
+        std::string msgVal( "Research team");
+        std::string encodedValTest ("UmVzZWFyY2ggdGVhbQ==");
+        processMsg(msgVal,encodedValTest);
+    }
+#if 0
     {
         std::cout << "And now via the client" << std::endl ;
         std::string msgVal( "Research team");
