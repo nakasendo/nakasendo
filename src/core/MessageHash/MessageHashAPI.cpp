@@ -23,7 +23,7 @@
 EMSCRIPTEN_KEEPALIVE
 #endif 
 std::vector<uint8_t>  EncodeBase64Ex (const std::vector<uint8_t>& toEnc){
-    std::unique_ptr<unsigned char> msgPtr ( new unsigned char[toEnc.size()] ) ; 
+    std::unique_ptr<unsigned char[]> msgPtr ( new unsigned char[toEnc.size()] ) ; 
     std::fill_n(msgPtr.get(), toEnc.size(), 0x00);        
     int index(0);
     for (std::vector<uint8_t>::const_iterator iter = toEnc.begin(); iter != toEnc.end(); ++iter){
@@ -35,7 +35,7 @@ std::vector<uint8_t>  EncodeBase64Ex (const std::vector<uint8_t>& toEnc){
     
     std::vector<uint8_t> retVal; 
     std::string testRetStr; 
-    std::unique_ptr<unsigned char> retValPtr =  encdec.encode (msgPtr, toEnc.size(), 0, sizeEncodedBuffer);
+    std::unique_ptr<unsigned char[]> retValPtr =  encdec.encode (msgPtr, toEnc.size(), 0, sizeEncodedBuffer);
     // We don't want the null terminator now
     for(int i=0;i<(sizeEncodedBuffer-1);++i){
         retVal.push_back(retValPtr.get()[i]);
@@ -51,7 +51,7 @@ std::vector<uint8_t>  DecodeBase64Ex (std::vector<uint8_t> toDec){
     int strict = 0 ; 
     int * err = new int;  
                 
-    std::unique_ptr<unsigned char> msgPtr ( new unsigned char [toDec.size()+1]);  
+    std::unique_ptr<unsigned char[]> msgPtr ( new unsigned char [toDec.size()+1]);  
     std::fill_n(msgPtr.get(), toDec.size()+1, 0x00);      
     //std::string::const_iterator iter = nonConstMsg.begin();
     int index(0);
@@ -60,7 +60,7 @@ std::vector<uint8_t>  DecodeBase64Ex (std::vector<uint8_t> toDec){
     }
 
     Base64EncDec encdec;
-    std::unique_ptr<unsigned char> decodedValPtr = encdec.decode(msgPtr,value, strict, err);
+    std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(msgPtr,value, strict, err);
     std::vector<uint8_t> retVal; 
     std::string strVal; 
     
@@ -185,6 +185,7 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
     }
 
 
+<<<<<<< HEAD
     //MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const std::string& msg)
     MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const unsigned char* msgPtrApi, int msgSize)    
     {
@@ -199,10 +200,15 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
             msgPtr.get()[i] = msgPtrApi[i] ; 
         }
      
+=======
+    MESSAGE_HASH_RETURN_TYPE EncodeBase64 (const std::unique_ptr<unsigned char[]>& msgPtrApi, int msgSize)    
+    {  
+>>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
         Base64EncDec encdec ; 
         int sizeEncodedBuffer(0);
         std::string retVal;
-        std::unique_ptr<unsigned char> retValPtr =  encdec.encode (msgPtr, msgSize, 0, sizeEncodedBuffer);
+        std::unique_ptr<unsigned char[]> retValPtr =  encdec.encode (msgPtrApi, msgSize, 0, sizeEncodedBuffer);
+
         for(int i=0;i<sizeEncodedBuffer;++i){
             retVal.push_back(retValPtr.get()[i]);
         }        
@@ -214,13 +220,18 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
 #endif        
     }
 
+<<<<<<< HEAD
     //MESSAGE_HASH_RETURN_TYPE DecodeBase64 (const std::string& msg)
     MESSAGE_HASH_RETURN_TYPE DecodeBase64 (const unsigned char* msgPtrApi, int msgSize )    
+=======
+    std::unique_ptr<unsigned char[]>  DecodeBase64 (const std::string& msgPtrApi, int& msgSize )    
+>>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
     {
         size_t value = 0;
         int strict = 0 ; 
         int * err = new int;  
           
+<<<<<<< HEAD
         
         std::unique_ptr<unsigned char> msgPtr ( new unsigned char [msgSize+1]);  
         std::fill_n(msgPtr.get(), msgSize+1, 0x00);      
@@ -235,10 +246,27 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
                 retVal.push_back(decodedValPtr.get()[i]);
             }
         }else{retVal="ERROR";}
+=======
+        std::unique_ptr<unsigned char[]> msgPtr ( new unsigned char [msgPtrApi.size()+1]);  
+        std::fill_n(msgPtr.get(), msgPtrApi.size()+1, 0x00);  
+        int i(0);
+        for(std::string::const_iterator iter = msgPtrApi.begin(); iter != msgPtrApi.end(); ++iter){ 
+            msgPtr.get()[i++] = *iter;
+        }        
+
+        Base64EncDec encdec;       
+        msgPtr.get()[msgPtrApi.size()+1]='\0';
+        std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(msgPtr,value, strict, err);
+        msgSize = value; 
+>>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
 #ifdef __EMSCRIPTEN__
         return retVal.c_str() ;         
 #else        
+<<<<<<< HEAD
         return retVal ; 
+=======
+        return decodedValPtr; 
+>>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
 #endif        
     }
 
@@ -263,7 +291,7 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
         nonConstMsg = nonConstMsg.erase(nonConstMsg.find_last_not_of("\t\n\v\f\r ")+1);
         
         
-        std::unique_ptr<unsigned char> msgPtr ( new unsigned char [nonConstMsg.length()+1]);  
+        std::unique_ptr<unsigned char[]> msgPtr ( new unsigned char [nonConstMsg.length()+1]);  
         std::fill_n(msgPtr.get(), msg.length()+1, 0x00);      
         std::string::const_iterator iter = nonConstMsg.begin();
         for (unsigned int i = 0; i < nonConstMsg.size();++i){

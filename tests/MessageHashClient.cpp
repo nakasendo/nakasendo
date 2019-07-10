@@ -7,6 +7,43 @@
 #include "MessageHash/Base64EncDec.h"
 #include "MessageHash/Base58EncDec.h"
 
+
+void processMsg (const std::string& msgVal, const std::string& encodedValTest){
+
+    for ( int loop=0; loop<10; ++loop){
+        std::unique_ptr<unsigned char[]> msgValptr ( new unsigned char[msgVal.size()]);
+        int i(0);
+        for (std::string::const_iterator iter = msgVal.begin(); iter != msgVal.end(); ++iter, ++i){
+            msgValptr.get()[i] = *iter; 
+        }
+        std::string encoded = EncodeBase64(msgValptr,msgVal.size());
+
+        //std::cout << encoded << std::endl;
+        if (encoded != encodedValTest){
+            std::cout << "API ... encode panic \n" << encoded << "\n" <<encodedValTest << "\n" << encoded.length() << "\t" << encodedValTest.length() << std::endl;
+        }
+
+
+        int retLen (0);
+        std::string decodedStr; 
+        std::unique_ptr<unsigned char[]> decoded = DecodeBase64(encoded, retLen);
+
+        for (int i = 0; i < retLen; ++i){
+                decodedStr.push_back(decoded.get()[i]);
+        }
+        if (decodedStr.length()!= msgVal.length()){
+            std::cout << "first api decode panic \n" << decodedStr.length() << " " << msgVal.length() << std::endl;
+        }
+        if(decodedStr != msgVal){
+            std::cout << "second api decode panic \n" << decodedStr << "\n" << msgVal << std::endl ; 
+        }
+        //if(decodedStr.length() != 0){
+        //    std::cout << decodedStr << std::endl;
+        //}
+
+    }
+}
+
 int main(int argc,char** argv)
 {
     if(!argv[1]){
@@ -42,7 +79,7 @@ int main(int argc,char** argv)
 
     std::cout << HashMsgSHA256 (argv[1]) << std::endl ; 
 
-    std::cout << ListHashFunc () << std::endl ; 
+    //std::cout << ListHashFunc () << std::endl ; 
 
 #if 0 
     std::cout << "trying sha224WithRSAEncryption" << std::endl ; 
@@ -52,8 +89,77 @@ int main(int argc,char** argv)
     std::cout << "and BLAKE2b512" << std::endl ; 
     std::cout << HashMsg(argv[1], std::string ("BLAKE2b512")) << std::endl ;
 #endif
+#if 0
+    {
+        std::string msgVal ("nChain Limited UK branch is fast growing in FinTech industry"); 
+        std::unique_ptr<unsigned char[]> msgPtr ( new unsigned char [msgVal.length()]);
+        
+        int index(0);
+        for (std::string::const_iterator iter = msgVal.begin(); iter != msgVal.end(); ++ iter){
+            msgPtr.get()[index] = *iter ; 
+            ++ index; 
+        }        
+        Base64EncDec encdec ; 
+        int sizeEncoded(0);
+        std::unique_ptr<unsigned char[]> retValPtr =  encdec.encode (msgPtr, msgVal.size () , 0, sizeEncoded );
+        std::string encodedVal;
+        for(int i =0; i < sizeEncoded-1; ++i)
+        {
+            encodedVal.push_back(retValPtr.get()[i]);
+        }
+        printf("Output (base64): %s\n", retValPtr.get());
+        std::string encodedValTest ("bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5");
+
+        std::cout << sizeEncoded << " " << encodedValTest.length() << " " << encodedVal.length() << std::endl;
+        if ( encodedValTest.length() != encodedVal.length()){
+            std::cout << "first panic" << std::endl;
+        }
+        if(encodedVal != encodedValTest){
+            std::cout << "panic ... \n" << encodedVal << "\n" << "bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5"<< std::endl;
+        }
+
+         std::cout << "decoding..." << std::endl ;
+        size_t value = 0;
+        int strict = 0 ; 
+        int * err = new int; 
+        std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(retValPtr,value, strict, err);
+        printf ("Output(decoded): %s\n", decodedValPtr.get());
+    }
+#endif
+    {
+    
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("nChain Limited UK branch is fast growing in FinTech industry"); 
+        std::string encodedValTest ("bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5");
 
 
+        processMsg(msgVal, encodedValTest);
+        
+    
+    }
+    {
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("Development team"); 
+        std::string encodedValTest ("RGV2ZWxvcG1lbnQgdGVhbQ==");
+        processMsg(msgVal, encodedValTest);
+    }
+        
+    {
+        std::cout << "And now via the client" << std::endl ; 
+        std::string msgVal ("team"); 
+        std::string encodedValTest ("dGVhbQ==");
+        processMsg(msgVal, encodedValTest);
+        
+    }
+
+
+    {
+        std::cout << "And now via the client" << std::endl ;
+        std::string msgVal( "Research team");
+        std::string encodedValTest ("UmVzZWFyY2ggdGVhbQ==");
+        processMsg(msgVal,encodedValTest);
+    }
+#if 0
     {
 
         std::string msgVal ("Hello World"); 
@@ -403,6 +509,7 @@ int main(int argc,char** argv)
 
     }
 #endif    
+#endif
     return 0 ; 
     
 }

@@ -16,6 +16,19 @@ class MessageHash:
         return PyMessageHash.EncodeBase64(self.message);
     def Bas64Decode(self,msg):
         return PyMessageHash.DecodeBase64(msg);
+
+    def Base58Encode(self):
+        return PyMessageHash.EncodeBase58(self.message);
+
+    def Base58Decode(self,msg):
+        return PyMessageHash.DecodeBase58(msg);
+
+    def Base58CheckedEncode(self):
+        return PyMessageHash.EncodeBase58Checked(self.message);
+
+    def Base58CheckedDecode(self,msg):
+        return PyMessageHash.DecodeBase58Checked(msg);
+
     def __str__(self):
         return '{}'.format (self.message);
 class SymEncDec:

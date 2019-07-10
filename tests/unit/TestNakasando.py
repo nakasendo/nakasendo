@@ -102,6 +102,30 @@ if __name__ == "__main__":
 
     
     
+<<<<<<< HEAD
+=======
+    print ("Public key of recovered private key: %s " % newKey )
+    
+    
+    print ("check signing")
+    msg = "Alice and Bob are rocking"
+    signValues = AliceKey.Sign(msg)
+    print(signValues)
+    
+    val = Nakasando.verifySign(msg, AliceKey.GetPublicKeyPem(), signValues[0],signValues[1])
+    
+    if (val ==0):
+        print("Signature verified")
+    
+    msgToEncode='the quick brown fox jumped over the lazy dog'
+    encodedAsHex = encoder.Encode(msgToEncode)
+    print ("EncodedMsgAsHex: %s" % encodedAsHex)
+
+    decoded =encoder.Decode(encodedAsHex[0])
+    print ("Decoded Message %s" % decoded )
+
+    
+>>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
 
     
 
