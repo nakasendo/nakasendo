@@ -37,24 +37,12 @@ MessageHash_API std::unique_ptr<unsigned char> HashSha256 ( const std::string& )
 MessageHash_C_API MESSAGE_HASH_RETURN_TYPE ListHashFunc();
 #endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-//MessageHash_C_API MESSAGE_HASH_RETURN_TYPE EncodeBase64(const std::string&);
-MessageHash_C_API MESSAGE_HASH_RETURN_TYPE EncodeBase64(const unsigned char *, int size);
 
-=======
-MessageHash_C_API MESSAGE_HASH_RETURN_TYPE EncodeBase64(const std::unique_ptr<unsigned char[]>&, int size);
-=======
 MessageHash_C_API MESSAGE_HASH_RETURN_TYPE EncodeBase64(const std::unique_ptr<unsigned char[]>&, int size);
 
-MessageHash_C_API std::unique_ptr<unsigned char[]> DecodeBase64(const std::string&, int& size);
->>>>>>> 18a824c... Commited for Base64 encoding and decoding issues
 
 MessageHash_C_API std::unique_ptr<unsigned char[]> DecodeBase64(const std::string&, int& size);
->>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
 
-//MessageHash_C_API MESSAGE_HASH_RETURN_TYPE DecodeBase64(const std::string&);
-MessageHash_C_API MESSAGE_HASH_RETURN_TYPE DecodeBase64(const unsigned char*, int size);
 MessageHash_C_API MESSAGE_HASH_RETURN_TYPE EncodeBase58(const std::string&);
 
 MessageHash_C_API MESSAGE_HASH_RETURN_TYPE DecodeBase58(const std::string&);

@@ -7,6 +7,7 @@
 
 #include <MessageHash/MessageHash.h>
 #include <MessageHash/MessageHashAPI.h>
+#include <MessageHash/Base58EncDec.h>
 
 BOOST_AUTO_TEST_SUITE(test_suite_MessageHash)
 
@@ -18,14 +19,7 @@ BOOST_AUTO_TEST_CASE(test_codec_base58_particular_case)// This case has failed o
     BOOST_CHECK(text== decoded_text);
 }
 
-<<<<<<< HEAD
-BOOST_AUTO_TEST_CASE(test_codec_base58check_particular_case)// This case has failed on PyMessageHash on Windows (functional test)
-{
-    const std::string text{ "Our PHD-qualified scientists and researchers are finding new ways to scale the Bitcoin network and ignite the power of blockchain technology Their discoveries will enable new functions of the Bitcoin SV blockchain and re-invent the way enterprises operate and transform people's lives" };
-    const std::string encoded_text = EncodeBase58Checked(text);
-    const std::string decoded_text = DecodeBase58Checked(encoded_text);
-    BOOST_CHECK(text == decoded_text);
-=======
+
 
 BOOST_AUTO_TEST_CASE(test_codec_base58)
 {
@@ -70,21 +64,13 @@ BOOST_AUTO_TEST_CASE(test_codec_base58_checked)
 
     BOOST_CHECK(msgVal == decodedRes);
   }
->>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
 }
 
 BOOST_AUTO_TEST_CASE(test_codec_base64_particular_case)// This case has failed on PyMessageHash on Windows (functional test)
 {
+  {
     // This case fail, please make it pass
     const std::string text{ "nChain Limited UK branch is fast growing in FinTech industry" };
-<<<<<<< HEAD
-<<<<<<< HEAD
-    const std::string encoded_text = EncodeBase64((const unsigned char*)text.data(), text.size());
-    const std::string decoded_text = DecodeBase64((const unsigned char*)encoded_text.data(), text.size());
-    BOOST_CHECK(text == decoded_text);
-=======
-=======
->>>>>>> 18a824c... Commited for Base64 encoding and decoding issues
     std::unique_ptr<unsigned char[]> textPtr(new unsigned char[text.size()]);
     int index(0);
     for(std::string::const_iterator iter = text.begin();iter != text.end(); ++iter){
@@ -117,7 +103,6 @@ BOOST_AUTO_TEST_CASE(test_codec_base64_particular_case)// This case has failed o
     }
     BOOST_CHECK(text == decoded_text);
   } 
->>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
 }
 
 /// TODO add a loop : similar test with random inputs : random msg, decode(encode(msg)) should return the message

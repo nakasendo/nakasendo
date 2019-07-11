@@ -18,7 +18,7 @@
 
 
 
-std::unique_ptr<char> spc_print_hex(char *prefix, const std::unique_ptr<unsigned char>& str, int len) {
+std::unique_ptr<char[]> spc_print_hex(char *prefix, const std::unique_ptr<unsigned char[]>& str, int len) {
   unsigned long i, j, preflen = 0;
 
   if (prefix) {
@@ -27,7 +27,7 @@ std::unique_ptr<char> spc_print_hex(char *prefix, const std::unique_ptr<unsigned
   }
 
     std::cout << "Len of buffer in spc_print_hex ... " << (len + preflen) * 2 << std::endl; 
-  std::unique_ptr<char> buffer (new char [(len + preflen) * 2] );
+  std::unique_ptr<char[]> buffer (new char [(len + preflen) * 2] );
   std::fill_n (buffer.get(), (len+preflen) * 2, 0x00);
   
 
@@ -53,27 +53,34 @@ std::unique_ptr<char> spc_print_hex(char *prefix, const std::unique_ptr<unsigned
 
 
 std::unique_ptr<char[]> binToHex(const std::unique_ptr<unsigned char[]>& str, const int& len) {
-  unsigned long i, j = 0;
+  int i, j = 0;
 
 
-    std::cout << "binToHex ... len: " << len << std::endl;
-  std::unique_ptr<char[]> buffer (new char [(len) * 2] );
-  std::fill_n (buffer.get(), (len) * 2, 0x00);
+  std::cout << "binToHex ... len: " << len << std::endl;
+  std::unique_ptr<char[]> buffer (new char [(len*2)] );
+  char * localPtr = new char[(len*2)];
+  std::fill_n (buffer.get(), len*2, 0x0);
   
-
+  int n(0);
+  int wtf(0); 
   for (i = 0;  i < len;  ++i) {
 
-    sprintf(&(buffer.get()[i*2]), "%02X ", str.get()[i]);
- 
+    n += sprintf(&localPtr[i*2], "%02X", str.get()[i]);
+    wtf += printf("%02X", str.get()[i]);
   
   }
-
+  std::cout << "\nNumber of characters written on sprintf: " << n << "\nNumber of characters written on printf: " << wtf << std::endl;
   // Add the terminator character
 
-  buffer.get()[len*2]='0';
+  //buffer.get()[len*2]='0';
 
-  std::cout << "Size of buffer in binToHex .. " << strlen(buffer.get()) << "\n" << buffer.get() << std::endl; 
-  return (buffer); 
+  for (int i=0;i<n;++i){
+    buffer.get()[i] = localPtr[i]; 
+  }
+  //buffer.get()[(len*2)] = '0';
+  std::cout << "Size of buffer in binToHex .. " << strlen(buffer.get()) << "\n" << buffer.get() << "\n" << std::addressof(buffer) << std::endl; 
+  delete [] localPtr;
+  return std::move(buffer); 
 }
 
 //std::unique_ptr<unsigned char[], std::default_delete<unsigned char[]>> pData(new unsigned char[size]);
@@ -83,22 +90,22 @@ std::unique_ptr<unsigned char[]> spc_hex2bin(const std::unique_ptr<char[]>& inpu
   unsigned char       *r, *ret;
   const unsigned char *p;
   
-  std::cout << "sizeof buffer for hex2bin:\t" << (strlen(input.get()) -1 /2) << std::endl;
-  r = ret = new unsigned char[strlen(input.get())-1 / 2];
+  std::cout << "sizeof buffer for hex2bin:\t" << (strlen(input.get())/2) << std::endl;
+  r = ret = new unsigned char[strlen(input.get()) / 2];
   if (ret == nullptr){
     *l = ERR_NO_MEM;
     return nullptr;
   }
   
-  int lenInput = strlen(input.get())-1; 
+  int lenInput = strlen(input.get()); 
   
   std::cout << "SIZE OF lenInput: " << lenInput << std::endl;
-  unsigned char * ptr = new unsigned char[strlen(input.get())-1]; 
+  unsigned char * ptr = new unsigned char[strlen(input.get())]; 
   if(ptr == nullptr){
     *l = ERR_NO_MEM;
     return nullptr;
   }
-  std::fill_n(ptr, strlen(input.get())-1, 0x00);
+  std::fill_n(ptr, strlen(input.get()), 0x00);
   
  
   

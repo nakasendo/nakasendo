@@ -4,8 +4,8 @@ import json
 import string
 #Please update the PYTHONPATH or use the sys.path.append with the path to 
 #the Nakasando installation
-#sys.path.append('/home/osboxes/nchain/SDK/sdklibraries/src/modules')
-#sys.path.append ('/home/osboxes/nchain/SDK/build/x64/release')
+sys.path.append('/Users/j.murphy/nchain/SDK/sdklibraries/src/modules')
+sys.path.append ('/Users/j.murphy/nchain/SDK/build/x64/release')
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
@@ -102,8 +102,6 @@ if __name__ == "__main__":
 
     
     
-<<<<<<< HEAD
-=======
     print ("Public key of recovered private key: %s " % newKey )
     
     
@@ -123,16 +121,3 @@ if __name__ == "__main__":
 
     decoded =encoder.Decode(encodedAsHex[0])
     print ("Decoded Message %s" % decoded )
-
-    
->>>>>>> 72e2bba... Commited for Base64 encoding and decoding issues
-
-    
-
-
-
-    
-
-    
-
-
