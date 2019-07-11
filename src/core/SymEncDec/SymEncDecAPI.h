@@ -19,9 +19,10 @@
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Encode (const std::string&, const std::string&,const std::string&);
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Decode (const std::string&, const std::string&, const std::string& );
 
+#if 0
 SYMENCDEC_C_API std::vector<uint8_t> EncodeEx (const std::string&, const std::string&,const std::string&);
 SYMENCDEC_C_API std::string DecodeEx (const std::vector<uint8_t>&, const std::string&,const std::string&);
-
+#endif 
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string&, const std::string&);
 
 

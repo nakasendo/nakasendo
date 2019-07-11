@@ -5,10 +5,12 @@
 #include <sstream>
 #include <MessageHash/MessageHashAPI.h>
 #include <SymEncDec/SymEncDec.h>
+#include <SymEncDec/conversions.h>
 #include <SymEncDec/SymEncDecAPI.h>
 
 int main (int argc, char** argv)
 {
+#if 1 
     std::string UserPass ("j.murphy@nchain.com");
     std::unique_ptr<unsigned char[]> myPass (new unsigned char [UserPass.length() + 1 ]);
     std::fill_n(myPass.get(), UserPass.length()+1, 0x00);
@@ -30,7 +32,7 @@ int main (int argc, char** argv)
       uint64_t keylen(32);
       int iterCount(10000);
       mykey = KeyGen(myPass,UserPass.length(),mySalt, UserSalt.length(), iterCount,keylen);
-       std::unique_ptr<char> mykeyCopy (new char[keylen]);   
+       std::unique_ptr<char[]> mykeyCopy (new char[keylen]);   
         std::string myKeyHex;
 
         std::stringstream hexBuilder; 
@@ -106,22 +108,27 @@ int main (int argc, char** argv)
       int encodedLen = symencdec.aes_encrypt(sharedSecret, encodedData);
       std::cout << "Encoded length: " << encodedLen << std::endl; 
 
+      std::unique_ptr<char[]> vals = binToHex(encodedData, encodedLen);
+      std::cout << vals.get() << std::endl; 
+
       std::string outputData;
-      for(int i=0;i<encodedLen;++i){
-          outputData.push_back(encodedData.get()[i]);
+      //for(int i=0;i<encodedLen;++i){
+      for(int i=0;i<(strlen(vals.get())); ++i){
+          outputData.push_back(vals.get()[i]);
       }
     
-      std::unique_ptr<unsigned char> decodedData;
-      int decodedLen = symencdec.aes_decrypt(outputData, decodedData);
-      if(decodedData != nullptr){
-        std::string decode; 
-        for (int i=0;i<decodedLen;++i){
-          decode.push_back(decodedData.get()[i]);
-        }
-        std::cout << "Decoded: " << decode << std::endl;
-      }
+      size_t RebuiltMsgLen(0); 
+
+      std::unique_ptr<unsigned char[]> RebuiltMsg = spc_hex2binTwo(outputData, &RebuiltMsgLen);
+      
+      std::string decodedData; 
+      int decodedLen = symencdec.aes_decrypt(RebuiltMsg, RebuiltMsgLen, decodedData);
+      
+      std::cout << "Decoded: " << decodedData << std::endl;
+      
 #endif
     }
+  #endif
     {
 
       std::cout << "And now via the API ... the hex representations" << std::endl;
@@ -132,7 +139,7 @@ int main (int argc, char** argv)
       std::string UserPass ("j.murphy@nchain.com");
       std::string UserSalt ("05101974");
       
-      std::unique_ptr<char[]> encMsg = Encode(ptext, UserPass, UserSalt);
+      std::string encMsg = Encode(ptext, UserPass, UserSalt);
      
      
       std::string decMsg = Decode(encMsg, UserPass, UserSalt);
@@ -145,36 +152,6 @@ int main (int argc, char** argv)
       //decMsg.clear();
       //decMsg = Decode(encMsg, UserPass,UserSalt);
       //std::cout <<"Decoded MEssage1: " << decMsg << std::endl;
-    }
-    {
-
-      std::cout << "And now via the API...the extended methods" << std::endl;
-      std::string ptext ("Now is the time for all good men to come to the aide of their country");
-      // Test key & IV
-       /* A 256 bit key */
-      
-      std::string UserPass ("j.murphy@nchain.com");
-      std::string UserSalt ("19741005");
-      
-      std::vector<uint8_t> bytesVec;
-      for (std::string::const_iterator iter = ptext.begin(); iter != ptext.end(); ++iter){
-          bytesVec.push_back(*iter);
-      }
-      std::string encStr; 
-      std::vector<uint8_t>  encMsg = EncodeEx(ptext, UserPass, UserSalt);
-
-      
-      for(std::vector<uint8_t>::const_iterator iter = encMsg.begin(); iter != encMsg.end(); ++iter){
-        encStr.push_back(*iter);
-      }
-    
-     
-      
-    
-      std::string decMsg = DecodeEx(encMsg, UserPass, UserSalt);
-     
-      std::cout << "Decoded Message: " << decMsg << std::endl;
-      
     }
   return 0 ; 
 }
