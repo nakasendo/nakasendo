@@ -42,19 +42,6 @@ void SymEncDec::GetParams( std::unique_ptr<unsigned char[]>& key, std::unique_pt
 }
 
 
-#if 0 
-int SymEncDec::aes_encrypt (const std::string& text, std::unique_ptr<unsigned char[]>& ctext){
-    return m_pImpl->aes_encrypt(text, ctext);
-}
-
-int SymEncDec::aes_decrypt (const std::string& ctext, std::unique_ptr<unsigned char[]>& text){
-    return m_pImpl->aes_decrypt (ctext, text);
-}
-
-int SymEncDec::aes_decryptEx (const std::unique_ptr<unsigned char[]>& ctext, const int& lenctext, std::unique_ptr<unsigned char[]>& ptext){
-    return m_pImpl->aes_decryptEx(ctext,lenctext,ptext);
-}
-#endif
 
 int SymEncDec::aes_encrypt(const std::string& ptext, std::unique_ptr<unsigned char[]>& ctext) {
     return m_pImpl->aes_encrypt(ptext, ctext); 
@@ -68,4 +55,8 @@ int SymEncDec::aes_decrypt(const std::unique_ptr<unsigned char[]>& ctext, const 
 std::unique_ptr<unsigned char[]> KeyGen (std::unique_ptr<unsigned char[]>& pw, const unsigned int& pwlen, const std::unique_ptr<unsigned char[]>& salt, const uint64_t& saltlen, const unsigned int& ic, uint64_t& requiredKeyLen )
 {
     return (std::move(KeyGenImpl(pw,pwlen,salt,saltlen,ic,requiredKeyLen)));    
+}
+
+void NounceGen(std::unique_ptr<unsigned char[]>& nounce){
+    NounceGenImpl(nounce);
 }

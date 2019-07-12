@@ -10,7 +10,7 @@
 
 int main (int argc, char** argv)
 {
-#if 1 
+#if 0
     std::string UserPass ("j.murphy@nchain.com");
     std::unique_ptr<unsigned char[]> myPass (new unsigned char [UserPass.length() + 1 ]);
     std::fill_n(myPass.get(), UserPass.length()+1, 0x00);
@@ -129,6 +129,15 @@ int main (int argc, char** argv)
 #endif
     }
   #endif
+
+    {
+      std::cout << "API Test of nounce & key generation" << std::endl;
+      std::string UserPass ("j.murphy@nchain.com"); 
+      std::string nounceAsHex = GenerateNounce (); 
+      std::string keyAsHex = GenerateKey256(UserPass, nounceAsHex); 
+
+      std::cout << "nounce: " << nounceAsHex << "\n" << "keyAsHex: " << keyAsHex << std::endl; 
+    }
     {
 
       std::cout << "And now via the API ... the hex representations" << std::endl;
@@ -137,21 +146,46 @@ int main (int argc, char** argv)
        /* A 256 bit key */
       
       std::string UserPass ("j.murphy@nchain.com");
-      std::string UserSalt ("05101974");
       
-      std::string encMsg = Encode(ptext, UserPass, UserSalt);
+      std::string nounceAsHex = GenerateNounce();
+      std::string keyAsHex = GenerateKey256(UserPass, nounceAsHex);
+
+      std::string encMsg = Encode(ptext, keyAsHex, nounceAsHex);
      
      
-      std::string decMsg = Decode(encMsg, UserPass, UserSalt);
+      std::string decMsg = Decode(encMsg, keyAsHex, nounceAsHex);
      
       std::cout << "Decoded Message: " << decMsg << std::endl;
+      if (ptext != decMsg ){
+        std::cout << "API PANIC!" << std::endl; 
+      }
+ 
+    }
+    {
 
-      //std::string ptext1 ("Geeode") ;
-      //encMsg.clear();
-      //encMsg = Encode(ptext1, UserPass, UserSalt);
-      //decMsg.clear();
-      //decMsg = Decode(encMsg, UserPass,UserSalt);
-      //std::cout <<"Decoded MEssage1: " << decMsg << std::endl;
+      std::cout << "And now via the API ... the hex representations .... long string" << std::endl;
+      std::string ptext ("This is a test of a long message to encode. This is a test of a long message to encode. This is a test of a long message to encode. ");
+      ptext += ("This is a test of a long message to encode. This is a test of a long message to encode. This is a test of a long message to encode. This is a test of a long message to encode. ");
+      ptext += ("This is a test of a long message to encode. This is a test of a long message to encode. This is a test of a long message to encode. This is a test of a long message to encode. This is a test of a long message to encode. This is a test of a long message to encode. ");
+      
+      // Test key & IV
+       /* A 256 bit key */
+      
+      std::string UserPass ("j.murphy@nchain.com");
+      
+      std::string nounceAsHex = GenerateNounce();
+      std::string keyAsHex = GenerateKey256(UserPass, nounceAsHex);
+
+      std::string encMsg = Encode(ptext, keyAsHex, nounceAsHex);
+     
+     
+      std::string decMsg = Decode(encMsg, keyAsHex, nounceAsHex);
+     
+      std::cout << "Decoded Message: " << decMsg << std::endl;
+      if (ptext != decMsg ){
+        std::cout << "API PANIC!" << std::endl; 
+      }
+ 
     }
   return 0 ; 
 }

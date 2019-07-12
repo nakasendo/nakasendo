@@ -69,11 +69,11 @@ if __name__ == "__main__":
     print ("Result of addtion on a curve with ID - 704: %s " % ECPointOnScep112r1_sum)
 
     print ("Check if its on the curve")
+    
 
     print ("Check Encoding/Decoding/Key creation")
     password='j.murphy@nchain.com'
-    iv='05101974'
-    encoder = Nakasando.SymEncDec (password,iv)
+    encoder = Nakasando.SymEncDec (password)
     print ("Contents: %s" % encoder)
     encoder.GenerateKey(); 
     print ("Contents: %s" % encoder)
@@ -102,22 +102,11 @@ if __name__ == "__main__":
 
     
     
-    print ("Public key of recovered private key: %s " % newKey )
-    
-    
-    print ("check signing")
-    msg = "Alice and Bob are rocking"
-    signValues = AliceKey.Sign(msg)
-    print(signValues)
-    
-    val = Nakasando.verifySign(msg, AliceKey.GetPublicKeyPem(), signValues[0],signValues[1])
-    
-    if (val ==0):
-        print("Signature verified")
+   
     
     msgToEncode='the quick brown fox jumped over the lazy dog'
     encodedAsHex = encoder.Encode(msgToEncode)
     print ("EncodedMsgAsHex: %s" % encodedAsHex)
 
-    decoded =encoder.Decode(encodedAsHex[0])
+    decoded =encoder.Decode(encodedAsHex)
     print ("Decoded Message %s" % decoded )

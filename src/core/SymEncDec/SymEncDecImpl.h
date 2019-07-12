@@ -71,11 +71,6 @@ class SymEncDecImpl
 
         void SetParams(const std::unique_ptr<unsigned char[]>&, const std::unique_ptr<unsigned char[]>&, const unsigned int&, const unsigned int& );
         void GetParams(std::unique_ptr<unsigned char[]>&, std::unique_ptr<unsigned char[]>&, unsigned int&, unsigned int&);
-#if 0
-        int aes_encrypt (const std::string&, std::unique_ptr<unsigned char[]>& ) ; 
-        int aes_decrypt (const std::string&, std::unique_ptr<unsigned char[]>&) ; 
-        int aes_decryptEx (const std::unique_ptr<unsigned char[]>&, const int&, std::unique_ptr<unsigned char[]>&) ; 
-#endif
         int aes_encrypt(const std::string&, std::unique_ptr<unsigned char[]>& ) ;
         int aes_decrypt(const std::unique_ptr<unsigned char[]>&, const int&,std::string&);
 
@@ -92,6 +87,9 @@ class SymEncDecImpl
 };
 
 // free functions
+
+void NounceGenImpl(std::unique_ptr<unsigned char[]>&);
+
 std::unique_ptr<unsigned char[]> KeyGenImpl (std::unique_ptr<unsigned char[]>& pw, const unsigned int& pwlen, const std::unique_ptr<unsigned char[]>& salt, const uint64_t& saltlen, const unsigned int& ic, uint64_t& requiredKeyLen ) ;
 void pkc5InitialPRF(unsigned char *p, size_t plen, unsigned char *salt,size_t saltlen, size_t i, unsigned char *out, size_t *outlen);
 void pkc5SubsequentPRF(unsigned char *p, size_t plen, unsigned char *v,size_t vlen, unsigned char *out, size_t *outlen);
