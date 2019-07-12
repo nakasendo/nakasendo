@@ -189,12 +189,18 @@ BigNumberImpl& BigNumberImpl::operator--()
 
 std::string BigNumberImpl::ToHex () const
 {
-    return (BN_bn2hex(m_bn.get()));    
+    char *charVal= BN_bn2hex(m_bn.get());
+    std::string val = charVal;
+    OPENSSL_free(charVal);
+    return val;
 }
 
 std::string BigNumberImpl::ToDec () const
 {
-    return (BN_bn2dec(m_bn.get()));
+    char *charVal = BN_bn2dec(m_bn.get());
+    std::string val = charVal;
+    OPENSSL_free(charVal);
+    return val;
 }
 
 int BigNumberImpl::FromHex (const std::string& val)
@@ -238,14 +244,19 @@ std::vector<uint8_t>  BigNumberImpl::ToBin() const
 {
     size_t len = BN_num_bytes(m_bn.get());
     unsigned char *binBn = (unsigned char *)OPENSSL_malloc(len);
+    //std::unique_ptr<unsigned char, void (*)(void *)> binBn(OPENSSL_malloc(len), &OPENSSL_free);
     if (!binBn)
-        return {};
+       return {};
 
     size_t ret = BN_bn2bin(m_bn.get(), binBn);
     if (ret != len)
+    {
+        OPENSSL_free(binBn);
         return {};
+    }
 
     std::vector<uint8_t>  retVec(binBn, binBn+ret);
+    OPENSSL_free(binBn);
     return std::move(retVec);
 }
 
