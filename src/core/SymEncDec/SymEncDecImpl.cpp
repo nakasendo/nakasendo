@@ -48,9 +48,11 @@ void SymEncDecImpl::SetParams(const std::unique_ptr<unsigned char[]>& key, const
   {
     m_key.get()[i] = key.get()[i];
   }
-  for (unsigned int i=0;i<m_BlockSize; ++i){
+  unsigned int i = 0 ; 
+  for (;i<m_BlockSize; ++i){
     m_iv.get()[i]=iv.get()[i];
   }
+ 
 }
 
 void SymEncDecImpl::GetParams(std::unique_ptr<unsigned char[]>& key, std::unique_ptr<unsigned char[]>& iv, unsigned int& keysize, unsigned int& blocksize)
@@ -91,8 +93,6 @@ void SymEncDecImpl::generateParams (){
       throw std::runtime_error("EVP_EncryptInit_ex failed");
       // Recovered text expands upto BLOCK_SIZE
     ctext.reset (new unsigned char[ptext.size()+m_BlockSize]);
-    //ctext.resize(ptext.size()+BLOCK_SIZE);
-    //int out_len1 = (int)ctext.size();
     int out_len1 = ptext.size()+m_BlockSize;
 
     rc = EVP_EncryptUpdate(ctx.get(), &(ctext.get()[0]), &out_len1, (const unsigned char*)&ptext[0], (int)ptext.size());
@@ -104,8 +104,6 @@ void SymEncDecImpl::generateParams (){
     if (rc != 1)
       throw std::runtime_error("EVP_EncryptFinal_ex failed");
 
-    // Set cipher text size now that we know it
-    //ctext.resize(out_len1 + out_len2);
     int cipherLen(out_len1 + out_len2);
     return cipherLen; 
   }
@@ -137,6 +135,13 @@ void SymEncDecImpl::generateParams (){
 
 
 // free functions
+void  NounceGenImpl(std::unique_ptr<unsigned char[]>& nounce){
+  nounce.reset(new unsigned char[16]);
+  int rc = RAND_bytes(nounce.get(), 16);
+  if (rc != 1)
+    throw std::runtime_error("RAND_bytes for iv failed");  
+}
+
 std::unique_ptr<unsigned char[]> KeyGenImpl 
 (std::unique_ptr<unsigned char[]>& pw, const unsigned int& pwlen, const std::unique_ptr<unsigned char[]>& salt, const uint64_t& saltlen, const unsigned int& ic, uint64_t& requiredKeyLen )
 {
