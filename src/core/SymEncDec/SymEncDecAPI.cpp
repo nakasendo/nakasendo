@@ -137,15 +137,16 @@ SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, co
 
     SymEncDec encdec;
     encdec.SetParams(myKey, mySalt, keylen, blocksize);
-    std::unique_ptr<unsigned char[]> encMsg;
-    int encMsgLen = encdec.aes_encrypt(msg, encMsg);
-  
-    std::string hexvals = binTohexStr(encMsg, encMsgLen);
+    size_t bufferLen(0);
+    std::unique_ptr<unsigned char[]> recoveredBuf =  HexStrToBin(msg, &bufferLen);
+
+    std::string retval;  
+    int decMsgLen = encdec.aes_decrypt(recoveredBuf, bufferLen, retval);
 
 #ifdef __EMSCRIPTEN__
-    return hexvals.c_str(); 
+    return retval.c_str(); 
 #else
-    return hexvals;
+    return retval;
 #endif
 }
 
