@@ -30,7 +30,7 @@ std::string binTohexStr(const std::unique_ptr<unsigned char[]>& data, int len)
 
 //std::unique_ptr<unsigned char[], std::default_delete<unsigned char[]>> pData(new unsigned char[size]);
 
-std::unique_ptr<unsigned char[]> spc_hex2bin(const std::unique_ptr<char[]>& input, size_t *l) {
+std::unique_ptr<unsigned char[]> HexToBin(const std::unique_ptr<char[]>& input, size_t *l) {
   unsigned char       shift = 4, value = 0;
   unsigned char       *r, *ret;
   const unsigned char *p;
@@ -128,7 +128,7 @@ std::unique_ptr<unsigned char[]> spc_hex2bin(const std::unique_ptr<char[]>& inpu
 }
 
 
-std::unique_ptr<unsigned char[]> spc_hex2binTwo(const std::string& input, size_t *l) {
+std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l) {
   unsigned char       shift = 4, value = 0;
   unsigned char       *r, *ret;
   const unsigned char *p;
