@@ -66,7 +66,7 @@ SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string& msg, const std::string
     uint64_t keylen(32);
     uint64_t blocksize(16);
     size_t nounceBufferLen(0);
-    std::unique_ptr<unsigned char[]> nounce = spc_hex2binTwo(iv,&nounceBufferLen );
+    std::unique_ptr<unsigned char[]> nounce = HexStrToBin(iv,&nounceBufferLen );
 
     if(nounceBufferLen != blocksize){
         throw std::runtime_error("Incorrect nounce size");
@@ -79,7 +79,7 @@ SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string& msg, const std::string
 
     
     size_t bufferLen(0);
-    std::unique_ptr<unsigned char[]> recoveredBuf =  spc_hex2binTwo(msg, &bufferLen);
+    std::unique_ptr<unsigned char[]> recoveredBuf =  HexStrToBin(msg, &bufferLen);
 
     std::string retval;  
     int decMsgLen = encdec.aes_decrypt(recoveredBuf, bufferLen, retval);
@@ -96,9 +96,9 @@ SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string& msg, const std::string
 SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,const std::string& iv){
 
     size_t keyBufferLen(0);
-    std::unique_ptr<unsigned char[]> myKey = spc_hex2binTwo(key, &keyBufferLen);
+    std::unique_ptr<unsigned char[]> myKey = HexStrToBin(key, &keyBufferLen);
     size_t nounceBufferLen(0);
-    std::unique_ptr<unsigned char[]> mySalt = spc_hex2binTwo(iv, &nounceBufferLen);
+    std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(iv, &nounceBufferLen);
 
     uint64_t keylen(32);
     uint64_t blocksize(16);
@@ -126,9 +126,9 @@ SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,con
 
 SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, const std::string& iv){ 
     size_t keyBufferLen(0);
-    std::unique_ptr<unsigned char[]> myKey = spc_hex2binTwo(key, &keyBufferLen);
+    std::unique_ptr<unsigned char[]> myKey = HexStrToBin(key, &keyBufferLen);
     size_t nounceBufferLen(0);
-    std::unique_ptr<unsigned char[]> mySalt = spc_hex2binTwo(iv, &nounceBufferLen);
+    std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(iv, &nounceBufferLen);
 
     uint64_t keylen(32);
     uint64_t blocksize(16);
@@ -144,7 +144,7 @@ SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, co
 
     
     size_t bufferLen(0);
-    std::unique_ptr<unsigned char[]> recoveredBuf =  spc_hex2binTwo(msg, &bufferLen);
+    std::unique_ptr<unsigned char[]> recoveredBuf =  HexStrToBin(msg, &bufferLen);
 
     std::string retval;  
     int decMsgLen = encdec.aes_decrypt(recoveredBuf, bufferLen, retval);
@@ -171,7 +171,7 @@ SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& 
     }
 
     size_t ivbufferLen;
-    std::unique_ptr<unsigned char[]> mySalt = spc_hex2binTwo(iv, &ivbufferLen);
+    std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(iv, &ivbufferLen);
 
     uint64_t keylen(32);
     uint64_t blocksize(16);
