@@ -88,8 +88,8 @@ class SymEncDecImpl
 
 // free functions
 
-void NounceGenImpl(std::unique_ptr<unsigned char[]>&,const int blocksize=16);
 
+void NounceGenImpl(std::unique_ptr<unsigned char[]>&,const int blocksize=16);
 std::unique_ptr<unsigned char[]> KeyGenImpl (std::unique_ptr<unsigned char[]>& pw, const unsigned int& pwlen, const std::unique_ptr<unsigned char[]>& salt, const uint64_t& saltlen, const unsigned int& ic, uint64_t& requiredKeyLen ) ;
 void pkc5InitialPRF(unsigned char *p, size_t plen, unsigned char *salt,size_t saltlen, size_t i, unsigned char *out, size_t *outlen);
 void pkc5SubsequentPRF(unsigned char *p, size_t plen, unsigned char *v,size_t vlen, unsigned char *out, size_t *outlen);
