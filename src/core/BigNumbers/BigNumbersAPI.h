@@ -54,7 +54,13 @@ EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> Div_mod_DecEx  (const std::vector<uint
 
 #else
 #include <memory>
-#define BIGNUM_RETURN_TYPE std::unique_ptr<char>
+    struct CD
+    {
+        void operator() (char *ptr) {
+		std::free(ptr);
+	}
+    };
+#define BIGNUM_RETURN_TYPE std::unique_ptr<char, CD>
 #define BigNumbers_C_API BigNumbers_API
 #endif
 

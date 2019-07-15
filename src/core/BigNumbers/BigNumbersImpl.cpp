@@ -3,6 +3,8 @@
 
 //using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)> ; 
 
+inline void help_openssl_free_char(unsigned char* p) { OPENSSL_free(p); }
+
 
 std::unique_ptr<BigNumberImpl> Add (const BigNumberImpl* obj1, const BigNumberImpl* obj2){
     BN_ptr res(BN_new(), ::BN_free);
@@ -243,15 +245,17 @@ int BigNumberImpl::FromBin(std::vector<uint8_t>& val)
 std::vector<uint8_t>  BigNumberImpl::ToBin() const
 {
     size_t len = BN_num_bytes(m_bn.get());
-    unsigned char *binBn = (unsigned char *)OPENSSL_malloc(len);
-    if (!binBn)
+    std::unique_ptr<unsigned char, decltype(&help_openssl_free_char)> binBn((unsigned char *)OPENSSL_malloc(len), &help_openssl_free_char);
+    if (!binBn.get())
         return {};
 
-    size_t ret = BN_bn2bin(m_bn.get(), binBn);
+    size_t ret = BN_bn2bin(m_bn.get(), binBn.get());
     if (ret != len)
+    {
         return {};
+    }
 
-    std::vector<uint8_t>  retVec(binBn, binBn+ret);
+    std::vector<uint8_t>  retVec(binBn.get(), binBn.get()+ret);
     return std::move(retVec);
 }
 
