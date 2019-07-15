@@ -135,9 +135,9 @@ void SymEncDecImpl::generateParams (){
 
 
 // free functions
-void  NounceGenImpl(std::unique_ptr<unsigned char[]>& nounce){
-  nounce.reset(new unsigned char[16]);
-  int rc = RAND_bytes(nounce.get(), 16);
+void  NounceGenImpl(std::unique_ptr<unsigned char[]>& nounce,const int blocksize){
+  nounce.reset(new unsigned char[blocksize]);
+  int rc = RAND_bytes(nounce.get(), blocksize);
   if (rc != 1)
     throw std::runtime_error("RAND_bytes for iv failed");  
 }

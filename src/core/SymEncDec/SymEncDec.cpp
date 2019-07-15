@@ -57,6 +57,6 @@ std::unique_ptr<unsigned char[]> KeyGen (std::unique_ptr<unsigned char[]>& pw, c
     return (std::move(KeyGenImpl(pw,pwlen,salt,saltlen,ic,requiredKeyLen)));    
 }
 
-void NounceGen(std::unique_ptr<unsigned char[]>& nounce){
-    NounceGenImpl(nounce);
+void NounceGen(std::unique_ptr<unsigned char[]>& nounce,const int blocksize){
+    NounceGenImpl(nounce,blocksize);
 }

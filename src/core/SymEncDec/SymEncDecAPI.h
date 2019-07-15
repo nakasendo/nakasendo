@@ -16,15 +16,15 @@
 #define SYMENCDEC_C_API SymEncDec_API
 #endif
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string&, const std::string&, std::string&);
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string&, const std::string&, const std::string&);
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string&, const std::string&, std::string&,uint64_t keylen=32, uint64_t blocksize=16);
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string&, const std::string&, const std::string&,uint64_t keylen=32, uint64_t blocksize=16);
 
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Encode (const std::string&, const std::string&,const std::string&);
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Decode (const std::string&, const std::string&, const std::string&);
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Encode (const std::string&, const std::string&,const std::string&,uint64_t keylen=32, uint64_t blocksize=16);
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Decode (const std::string&, const std::string&, const std::string&,uint64_t keylen=32, uint64_t blocksize=16);
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateNounce();
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string&, const std::string&);
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateNounce(const int blocksize=16);
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string&, const std::string&,  uint64_t keylen = 32, uint64_t blocksize= 16);
 
 
 

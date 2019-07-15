@@ -6,7 +6,7 @@
 #include <memory>
 #include <iostream>
 
-SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string& msg, const std::string& key,std::string& iv){
+SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string& msg, const std::string& key,std::string& iv,uint64_t keylen, uint64_t blocksize){
 
 #if 1
     std::unique_ptr<unsigned char[]> myKey (new unsigned char [key.length()]);
@@ -16,15 +16,12 @@ SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string& msg, const std::string
     for(std::string::const_iterator iter = key.begin(); iter != key.end(); ++ iter, ++index){
         myKey.get()[index]=*iter;
     }
-
-    uint64_t keylen(32);
-    uint64_t blocksize(16);
     int iterCount(10000);
 
     std::unique_ptr<unsigned char[]> nounce;
     try{
         //change to return the nouce size. 
-        NounceGen(nounce);
+        NounceGen(nounce,blocksize);
         iv = binTohexStr(nounce,blocksize); 
     }
     catch(const std::exception& e){
@@ -40,7 +37,7 @@ SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string& msg, const std::string
 
     SymEncDec encdec;
 
-    encdec.SetParams(encodingKey, nounce, keylen,16);
+    encdec.SetParams(encodingKey, nounce, keylen,blocksize);
     std::unique_ptr<unsigned char[]> encMsg;
     int encMsgLen = encdec.aes_encrypt(msg, encMsg);
   
@@ -54,7 +51,7 @@ SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string& msg, const std::string
 }
 
 
-SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string& msg, const std::string& key, const std::string& iv){ 
+SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string& msg, const std::string& key, const std::string& iv,uint64_t keylen, uint64_t blocksize){ 
     std::unique_ptr<unsigned char[]> myKey (new unsigned char [key.length() + 1 ]);
     std::fill_n(myKey.get(), key.length()+1, 0x00);
     int index(0);
@@ -63,8 +60,6 @@ SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string& msg, const std::string
         myKey.get()[index]=*iter;
     }
 
-    uint64_t keylen(32);
-    uint64_t blocksize(16);
     size_t nounceBufferLen(0);
     std::unique_ptr<unsigned char[]> nounce = HexStrToBin(iv,&nounceBufferLen );
 
@@ -75,7 +70,7 @@ SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string& msg, const std::string
     std::unique_ptr<unsigned char[]> encodingKey = KeyGen(myKey,key.size(),nounce, blocksize,iterCount, keylen); 
 
     SymEncDec encdec;
-    encdec.SetParams(encodingKey, nounce, keylen, 16);
+    encdec.SetParams(encodingKey, nounce, keylen, blocksize);
 
     
     size_t bufferLen(0);
@@ -93,15 +88,13 @@ SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string& msg, const std::string
 }
 
 
-SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,const std::string& iv){
+SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,const std::string& iv,uint64_t keylen, uint64_t blocksize){
 
     size_t keyBufferLen(0);
     std::unique_ptr<unsigned char[]> myKey = HexStrToBin(key, &keyBufferLen);
     size_t nounceBufferLen(0);
     std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(iv, &nounceBufferLen);
 
-    uint64_t keylen(32);
-    uint64_t blocksize(16);
     if (keyBufferLen != keylen){
         throw std::runtime_error ("Incorrect Key size");
     } 
@@ -124,14 +117,12 @@ SYMENCDEC_RETURN_TYPE Encode (const std::string& msg, const std::string& key,con
 }
 
 
-SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, const std::string& iv){ 
+SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, const std::string& iv,uint64_t keylen, uint64_t blocksize){ 
     size_t keyBufferLen(0);
     std::unique_ptr<unsigned char[]> myKey = HexStrToBin(key, &keyBufferLen);
     size_t nounceBufferLen(0);
     std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(iv, &nounceBufferLen);
 
-    uint64_t keylen(32);
-    uint64_t blocksize(16);
     if (keyBufferLen != keylen){
         throw std::runtime_error ("Incorrect Key size");
     } 
@@ -140,7 +131,7 @@ SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, co
     }
 
     SymEncDec encdec;
-    encdec.SetParams(myKey, mySalt, keylen, 16);
+    encdec.SetParams(myKey, mySalt, keylen, blocksize);
 
     
     size_t bufferLen(0);
@@ -158,7 +149,7 @@ SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, co
 }
 
 
-SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& iv){
+SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& iv, uint64_t keylen , uint64_t blocksize){
 
     // This assumes that the IV is a hex encoded 16 byte number
 
@@ -173,8 +164,6 @@ SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& 
     size_t ivbufferLen;
     std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(iv, &ivbufferLen);
 
-    uint64_t keylen(32);
-    uint64_t blocksize(16);
     if (ivbufferLen != blocksize){
         throw std::runtime_error ("Nounce size is not equal to the block size") ; 
     }
@@ -191,7 +180,7 @@ SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& 
 #endif
 }
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateNounce(){
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateNounce(const int blocksize){
 
     std::unique_ptr<unsigned char[]> nounce;
     try{

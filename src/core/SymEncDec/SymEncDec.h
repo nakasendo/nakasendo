@@ -42,5 +42,5 @@ class SymEncDec_API SymEncDec
 
 // free function interface
 std::unique_ptr<unsigned char[]> SymEncDec_API KeyGen(std::unique_ptr<unsigned char[]>&, const unsigned int&, const std::unique_ptr<unsigned char[]>& , const uint64_t& , const unsigned int& , uint64_t&) ;
-void SymEncDec_API NounceGen(std::unique_ptr<unsigned char[]>&);
+void SymEncDec_API NounceGen(std::unique_ptr<unsigned char[]>&, const int blocksize=16);
 #endif /* SYM_ENC_DEC_H */
