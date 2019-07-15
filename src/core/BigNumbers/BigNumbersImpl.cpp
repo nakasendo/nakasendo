@@ -189,12 +189,18 @@ BigNumberImpl& BigNumberImpl::operator--()
 
 std::string BigNumberImpl::ToHex () const
 {
-    return (BN_bn2hex(m_bn.get()));    
+    char *charVal= BN_bn2hex(m_bn.get());
+    std::string val = charVal;
+    OPENSSL_free(charVal);
+    return val;
 }
 
 std::string BigNumberImpl::ToDec () const
 {
-    return (BN_bn2dec(m_bn.get()));
+    char *charVal = BN_bn2dec(m_bn.get());
+    std::string val = charVal;
+    OPENSSL_free(charVal);
+    return val;
 }
 
 int BigNumberImpl::FromHex (const std::string& val)
