@@ -16,16 +16,13 @@
 class Polynomial
 {
   public:
-    // How do we want to constuct polynomials ?
-    // From string?  From a BigNumber Vector ?
-
+ 
     // construct empty
     Polynomial( ) = default ;
 
+
     // construct from BigNumber vector
-    Polynomial( std::vector< BigNumber >& coefficients, int groupModulo = 0 ) 
-        : m_coefficients( coefficients )
-        , m_modulo( groupModulo ) { } 
+    Polynomial( std::vector< BigNumber >& coefficients, int groupModulo = 0 ) ;
 
     // construct from String vector
     Polynomial( std::vector< std::string >& coefficients, int groupModulo = 0 ) ;
@@ -33,13 +30,15 @@ class Polynomial
     /// Default destructor
     ~Polynomial() = default ;
 
+
     /**
     * Get the degree of the polynomial.
     * @return The degree (order) of the polynomial
     */
     int getDegree() { return m_coefficients.size() -1 ; }
 
-        /**
+
+    /**
     * Evaluate the polynomial at value x
     * @param x The value of x 
     * @return  The evaluated result 
@@ -59,43 +58,18 @@ class Polynomial
     }    
 
 
-    /**
-     * Push_back a coefficients to the vector
-     * Equivalent to append_coeff in Python 
-     * <todo> to we want to rename for consistency?
-     * <todo> do we need this ?  Remove ?
-     * @return 
-     
- 
-    void push_back( BigNumber big )
-    {
-        std::cout << "do we get here ?" << std::endl ;
-        BigNumber coeff ( big ) ; 
-        BigNumber modulo ;
-        //modulo.FromDec( modulo ) ;
-
-        if ( m_modulo )
-        {
-            coeff = big % modulo ;
-        }   
-
-        std::cout << "pushing_back the coeff" << coeff.ToDec( ) << std::endl ;
-        m_coefficients.push_back( std::move( coeff ) ) ;       
-    }
-*/
     /*
      * Array access
      */
-    BigNumber& operator [] (unsigned int index)
-    { return m_coefficients[ index] ; }
-
-    BigNumber const& operator [] (unsigned int index) const
-    { return m_coefficients[ index] ; }
+    BigNumber& operator [] (unsigned int index)                 { return m_coefficients[ index] ; }
+    BigNumber const& operator [] (unsigned int index) const     { return m_coefficients[ index] ; }
 
 
 
   private:
 
+    /* Push BigNumber to end of coefficients, using the modulo (if defined)
+     */
     void push_back( BigNumber big ) ;
 
     /// coefficients array
