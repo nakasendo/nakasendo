@@ -305,20 +305,17 @@ void ECPointImpl::SetRandom(){
 
 
     BN_ptr k ( BN_new(), ::BN_free );
-    BN_CTX *ctx = BN_CTX_new () ;
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
-    if ( !EC_GROUP_get_order(m_gp,k.get(),ctx)){
-        BN_CTX_free(ctx);
+    if ( !EC_GROUP_get_order(m_gp,k.get(),ctxptr.get())){
         throw std::runtime_error ("Invalid group order on set random" );
     }
 
     if (!BN_rand(k.get(), BN_num_bits(k.get()), 0, 0)){
-        BN_CTX_free(ctx);
         throw std::runtime_error ("Unable to generate a random number" );
     }
 
-    if (!EC_POINT_mul(m_gp,m_ec,k.get(),NULL,NULL,ctx)){
-        BN_CTX_free(ctx);
+    if (!EC_POINT_mul(m_gp,m_ec,k.get(),NULL,NULL,ctxptr.get())){
         throw std::runtime_error ("Unable to generate a random number" );
     }
     return ;
@@ -327,9 +324,8 @@ void ECPointImpl::SetRandom(){
 std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp (){
     std::string xVal, yVal ;
 
-    BN_CTX* ctx = BN_CTX_new();
-    if (!EC_POINT_is_on_curve(m_gp,m_ec,ctx)){
-        BN_CTX_free(ctx);
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
+    if (!EC_POINT_is_on_curve(m_gp,m_ec, ctxptr.get())){
         std::cout << "Point not on the required curve.." << std::endl;
         return std::make_pair(xVal, yVal) ;
     }
@@ -337,15 +333,17 @@ std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp (){
     BN_ptr x ( BN_new(), ::BN_free );
     BN_ptr y ( BN_new(), ::BN_free );
 
-    if (!EC_POINT_get_affine_coordinates_GFp(m_gp, m_ec, x.get(), y.get(), ctx)){
-        BN_CTX_free(ctx);
+    if (!EC_POINT_get_affine_coordinates_GFp(m_gp, m_ec, x.get(), y.get(), ctxptr.get())){
          std::cout << "Unable to get affine coordinates.." << std::endl;
         return std::make_pair(xVal, yVal);
     }
 
-    xVal = BN_bn2hex(x.get());
-    yVal = BN_bn2hex(y.get());
-    BN_CTX_free(ctx);
+    char *xCharVal = BN_bn2hex(x.get());
+    char *yCharVal = BN_bn2hex(y.get());
+    xVal = xCharVal;
+    yVal = yCharVal;
+    OPENSSL_free(xCharVal);
+    OPENSSL_free(yCharVal);
     return std::make_pair(xVal, yVal);
 }
 
@@ -396,7 +394,9 @@ std::string ECPointImpl::getGroupOrder() const
         return {};
     }
 
-    std::string xVal = BN_bn2hex(x.get());
+    char *xCharVal = BN_bn2hex(x.get());
+    std::string xVal = xCharVal;
+    OPENSSL_free(xCharVal);
     return xVal;
 }
 
