@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_CASE(test_encryp_decrypt_API)
     // This case fail
     const std::string msg_text{ "I am a message to encrypt" };
     const std::string secret_key{ "MyKey" };
-    std::string iv;
+    std::string iv = GenerateNounce (); 
  
     const std::string encrypted = GenKeyAndEncode(msg_text, secret_key, iv);
 

@@ -19,16 +19,9 @@ SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string& msg, const std::string
     int iterCount(10000);
 
 
-    std::unique_ptr<unsigned char[]> nounce;
-    try{
-        //change to return the nouce size. 
-        NounceGen(nounce,blocksize);
-        iv = binTohexStr(nounce,blocksize); 
-    }
-    catch(const std::exception& e){
-        std::cout << "Failed to generate a nounce value" << e.what () << std::endl;
-        return std::string (); 
-    }
+    size_t nounceBufferLen(0);
+    std::unique_ptr<unsigned char[]> nounce = HexStrToBin(iv, &nounceBufferLen);
+
     std::unique_ptr<unsigned char[]> encodingKey = KeyGen(myKey,key.size(),nounce, blocksize,iterCount, keylen); 
   
        
@@ -48,7 +41,7 @@ SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string& msg, const std::string
     return hexvals.c_str(); 
 #else
     return hexvals;
-#endif
+#endif 
 }
 
 
@@ -192,7 +185,7 @@ SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateNounce(const int blocksize){
     }
     catch(const std::exception& e){
         std::cout << "Failed to generate a nounce value" << e.what () << std::endl;
-        return std::string (); 
+        throw ; 
     }
     std::string returnNounce = binTohexStr(nounce, 16);
 #ifdef __EMSCRIPTEN__
