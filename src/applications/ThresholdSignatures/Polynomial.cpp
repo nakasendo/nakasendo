@@ -2,6 +2,18 @@
 
 
 
+/*
+    Construct a polynomial from a vector of BigNumber
+ */
+Polynomial::Polynomial( std::vector< BigNumber >& coefficients, int groupModulo )    
+    : m_modulo( groupModulo ) 
+{ 
+    for ( auto & big : coefficients )
+    {
+        // apply modulo
+        this->push_back( big ) ;
+    }
+} 
 
 /*
     Construct a polynomial from a vector of strings
@@ -21,7 +33,6 @@ Polynomial::Polynomial
         
         // apply modulo
         this->push_back( big ) ;
-       //m_coefficients.push_back( std::move( big ) ) ;
     }
 }
 
@@ -30,9 +41,8 @@ Polynomial::Polynomial
 /**
  * Push_back a coefficients to the vector
  * Equivalent to append_coeff in Python 
- * <todo> to we want to rename for consistency?
- * <todo> do we need this ?  Remove ?
- * @return 
+ * <todo> to we want to rename this to append_coeff for consistency?
+ * @param BigNumber append to coefficients vector
  */
 
 void Polynomial::push_back( BigNumber big )
@@ -50,6 +60,9 @@ void Polynomial::push_back( BigNumber big )
 }
 
 
+/* Friend function operato<<
+ * for writing out polynomial in human-friendly form
+ */
 std::ostream& operator<<( std::ostream &os, const Polynomial& poly )
 {
 

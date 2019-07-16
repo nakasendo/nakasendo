@@ -57,11 +57,11 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2 )
     long degree = poly.getDegree( ) ;
     BOOST_CHECK_EQUAL ( degree, strCoefficients.size() - 1 ) ;
 
-    BigNumber eval_at_0, eval_at_1 ;
+    BigNumber eval_at_0, eval_at_1, eval_at_2;
 
     BOOST_ASSERT  ( poly[ 0 ] == eval_at_0.FromDec( "1" )  ) ;
     BOOST_ASSERT  ( poly[ 1 ] == eval_at_1.FromDec( "2" )  ) ;
-    BOOST_ASSERT  ( poly[ 1 ] == eval_at_1.FromDec( "3" )  ) ;
+    BOOST_ASSERT  ( poly[ 2 ] == eval_at_2.FromDec( "3" )  ) ;
 
     // <todo> remove this
     std::cout << poly << std::endl ;
@@ -79,16 +79,46 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod )
     Polynomial poly ( strCoefficients, modulo ) ;
 
 
-    BigNumber eval_at_0, eval_at_1 ;
+    BigNumber eval_at_0, eval_at_1, eval_at_2 ;
 
     BOOST_ASSERT  ( poly[ 0 ] == eval_at_0.FromDec( "1" )  ) ;
     BOOST_ASSERT  ( poly[ 1 ] == eval_at_1.FromDec( "2" )  ) ;
-    BOOST_ASSERT  ( poly[ 1 ] == eval_at_1.FromDec( "3" )  ) ;
+    BOOST_ASSERT  ( poly[ 2 ] == eval_at_2.FromDec( "3" )  ) ;
 
     // <todo> remove this
     std::cout << poly << std::endl ;
 }
 
+/* Create a new polynomial using the vector constructor
+ *   Check the mod function
+ */
+BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod2 )
+{
+    // 16 + 9x^2  [mod 5]
+    std::vector< std::string>  strCoefficients { "16",  "0", "9" } ;     
+    int modulo ( 5 ) ;
+
+    std::vector< BigNumber >    bnCoefficients ;
+
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+	    big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }
+
+    Polynomial poly ( bnCoefficients, modulo ) ;
+
+
+    BigNumber eval_at_0, eval_at_1 ;
+
+    BOOST_ASSERT  ( poly[ 0 ] == eval_at_0.FromDec( "1" )  ) ;
+    BOOST_ASSERT  ( poly[ 1 ] == eval_at_1.FromDec( "0" )  ) ;
+    BOOST_ASSERT  ( poly[ 2 ] == eval_at_2.FromDec( "4" )  ) ;
+
+    // <todo> remove this
+    std::cout << poly << std::endl ;
+}
 
 
 
