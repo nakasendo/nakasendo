@@ -5,8 +5,12 @@
 /*
     Construct a polynomial from a vector of BigNumber
  */
-Polynomial::Polynomial( std::vector< BigNumber >& coefficients, int groupModulo )    
-    : m_modulo( groupModulo ) 
+Polynomial::Polynomial
+    ( 
+        std::vector< BigNumber >& coefficients, 
+        const BigNumber& modulo 
+    )    
+    : m_modulo( modulo ) 
 { 
     for ( auto & big : coefficients )
     {
@@ -21,11 +25,10 @@ Polynomial::Polynomial( std::vector< BigNumber >& coefficients, int groupModulo 
 Polynomial::Polynomial
     ( 
         std::vector< std::string >& strCoefficients, 
-        int groupModulo
+        const BigNumber& modulo
     )
-    : m_modulo ( groupModulo )
+    : m_modulo ( modulo )
 {
- 
     for ( auto & element : strCoefficients )
     {
         BigNumber big ;
@@ -48,25 +51,64 @@ Polynomial::Polynomial
 void Polynomial::push_back( BigNumber big )
 {
     BigNumber coeff ( big ) ; 
-    BigNumber modulo ;
-    modulo.FromDec( std::to_string( m_modulo ) ) ;
 
-    if ( m_modulo )
+    if ( !( m_modulo == GenerateZero( ) ) )
     {
-        coeff = big % modulo ;
+        coeff = big % m_modulo ;
     }   
 
     m_coefficients.push_back( std::move( coeff ) ) ;       
 }
 
+/*
+ */
+BigNumber Polynomial::operator( ) (  const BigNumber& x )
+{
+    if ( m_coefficients.empty() )
+    {
+        // <todo> how do we handle errors?  
+        std::cout << "Polynomial is empty, returning" << std::endl ;
+        throw ;
+    }
 
-/* Friend function operato<<
+    if ( m_coefficients.back( ) == GenerateZero( ) )
+    {
+        // <todo> how do we handle errors?  
+        std::cout << "Polynomial has zero coefficient at the highest degree, returning" << std::endl ;
+        throw ;
+    }
+
+    return ( this->evaluate( x ) );
+
+}
+
+    /**
+    * Evaluate the polynomial at value x
+    * @param x The value of x 
+    * @return  The evaluated result 
+    */
+    BigNumber Polynomial::evaluate(  const BigNumber& x )  
+    {
+        BigNumber res = GenerateZero( ) ;
+
+        // Horners method for polynomial evaluation
+        for( auto coef = m_coefficients.cbegin(); coef != m_coefficients.cend(); ++coef )
+        {   
+            res = ( res * x ) + *coef ;
+        }
+
+        return res;
+    }     
+
+
+
+/* Friend function operator<<
  * for writing out polynomial in human-friendly form
  */
 std::ostream& operator<<( std::ostream &os, const Polynomial& poly )
 {
 
-    os << "modulo = " << poly.m_modulo << ";\t" ;
+    os << "modulo = " << poly.m_modulo.ToDec( ) << ";\t" ;
     os << "polynomial = " ;
     
     int numberCoefficients = poly.m_coefficients.size( ) ;

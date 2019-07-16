@@ -20,42 +20,33 @@ class Polynomial
     // construct empty
     Polynomial( ) = default ;
 
+    // <todo> Do we want to use move semantics here?
+    //Polynomial( stsd::vector< BigNumber >&& coefficients, BigNumber groupModulo )
+
 
     // construct from BigNumber vector
-    Polynomial( std::vector< BigNumber >& coefficients, int groupModulo = 0 ) ;
+    Polynomial( std::vector< BigNumber >&, const BigNumber& ) ;
 
     // construct from String vector
-    Polynomial( std::vector< std::string >& coefficients, int groupModulo = 0 ) ;
+    Polynomial( std::vector< std::string >&, const BigNumber& ) ;
 
-    /// Default destructor
+    // Default destructor
     ~Polynomial() = default ;
 
 
-    /**
+    /*
     * Get the degree of the polynomial.
     * @return The degree (order) of the polynomial
     */
     int getDegree() { return m_coefficients.size() -1 ; }
 
 
-    /**
-    * Evaluate the polynomial at value x
-    * @param x The value of x 
-    * @return  The evaluated result 
-    */
-    BigNumber evaluate( const BigNumber& x ) 
-    {
-        BigNumber res ;
-	    res.FromDec( std::to_string( 0 ) ) ;
+    /*
+     * Function 
+     */
+    BigNumber operator( )( const BigNumber& ) ;
 
-        // Horners method for polynomial evaluation
-        for( auto coef = m_coefficients.cbegin(); coef != m_coefficients.cend(); ++coef )
-        {   
-            res = ( res * x ) + *coef ;
-        }
-
-        return res;
-    }    
+       
 
 
     /*
@@ -72,13 +63,18 @@ class Polynomial
      */
     void push_back( BigNumber big ) ;
 
+    /*
+    * Evaluate the polynomial at value x
+    */
+    BigNumber evaluate( const BigNumber& )  ;
+   
+
     /// coefficients array
     std::vector< BigNumber > m_coefficients ;    
 
    
     /// modulo 
-    //<todo> do we want to store BigNumber not int ?
-    int m_modulo ;
+    BigNumber m_modulo ;
 
 
     friend std::ostream& operator<<( std::ostream &os, const Polynomial& p ) ; 
