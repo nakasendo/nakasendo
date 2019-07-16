@@ -49,8 +49,10 @@ target_link_libraries(test_GroupPlayers ThresholdSignatures)
 set_property(TARGET test_GroupPlayers PROPERTY FOLDER "tests/unit")
 sdk_add_unit_test(test_GroupPlayers)
 
-add_executable(test_KnownPolynomial test_KnownPolynomial.cpp utils/ThreadPool.cpp)
-set_property(TARGET test_KnownPolynomial PROPERTY FOLDER "tests/unit")
-target_link_libraries(test_KnownPolynomial BigNumbers)
-target_link_libraries(test_KnownPolynomial ThresholdSignatures)
-sdk_add_unit_test(test_KnownPolynomial)
+
+add_executable(test_Polynomial test_Polynomial.cpp)
+target_link_libraries(test_Polynomial BigNumbers)
+target_link_libraries(test_Polynomial ThresholdSignatures)
+set_property(TARGET test_Polynomial PROPERTY FOLDER "tests/unit")
+sdk_add_unit_test(test_Polynomial)
+

@@ -109,7 +109,7 @@ class BigNumbers_API BigNumber
 };
 
 BigNumber BigNumbers_API GenerateOne ();
-BigNumber BigNumbers_API GnerateZero () ;
+BigNumber BigNumbers_API GenerateZero () ;
 
 BigNumber BigNumbers_API GenerateRand ( const int& )  ;
 BigNumber BigNumbers_API GenerateRandNegative (const int&);
