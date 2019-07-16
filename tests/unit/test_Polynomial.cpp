@@ -21,15 +21,23 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree1 )
 {
     // 3 + 2x 
     std::vector< std::string>  strCoefficients { "3",  "2" } ;     
-    Polynomial poly ( strCoefficients ) ;
+    Polynomial poly ( strCoefficients, GenerateZero( ) ) ;
 
     long degree = poly.getDegree( ) ;
     BOOST_CHECK_EQUAL ( degree, strCoefficients.size() - 1 ) ;
 
-    BigNumber eval_at_0, eval_at_1 ;
+    BigNumber fx_0, fx_1, eval_at_0, eval_at_1 ;
+    fx_0.FromDec( "0" ) ;
+    fx_1.FromDec( "1" ) ;
+    eval_at_0 = poly( fx_0 ) ;
+    eval_at_1 = poly( fx_1 ) ;
 
-    BOOST_ASSERT  ( poly[ 0 ] == eval_at_0.FromDec( "3" )  ) ;
-    BOOST_ASSERT  ( poly[ 1 ] == eval_at_1.FromDec( "2" )  ) ;
+    BOOST_ASSERT  ( eval_at_0.ToDec() == "3"  ) ;
+    BOOST_ASSERT  ( eval_at_1.ToDec() == "5"  ) ;
+
+    //std::cout << "Sanity check:" << std::endl ;
+    std::cout << "eval_at_0 = " << eval_at_0.ToDec( ) << std::endl ;
+    std::cout << "eval_at_1 = " << eval_at_1.ToDec( ) << std::endl ;
 
     // <todo> remove this
     std::cout << poly << std::endl ;
@@ -52,7 +60,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2 )
         bnCoefficients.push_back( std::move( big ) ) ;
     }
 
-    Polynomial poly ( bnCoefficients ) ;
+    Polynomial poly ( bnCoefficients, GenerateZero( ) ) ;
 
     long degree = poly.getDegree( ) ;
     BOOST_CHECK_EQUAL ( degree, strCoefficients.size() - 1 ) ;
@@ -74,7 +82,8 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod )
 {
     // 6 + 7x + 8x^2  [mod 5]
     std::vector< std::string>  strCoefficients { "6",  "7", "8" } ;     
-    int modulo ( 5 ) ;
+    BigNumber modulo ;
+    modulo.FromDec( "5" ) ;
 
     Polynomial poly ( strCoefficients, modulo ) ;
 
@@ -96,7 +105,8 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod2 )
 {
     // 16 + 9x^2  [mod 5]
     std::vector< std::string>  strCoefficients { "16",  "0", "9" } ;     
-    int modulo ( 5 ) ;
+    BigNumber modulo ;
+    modulo.FromDec( "5" ) ;
 
     std::vector< BigNumber >    bnCoefficients ;
 
