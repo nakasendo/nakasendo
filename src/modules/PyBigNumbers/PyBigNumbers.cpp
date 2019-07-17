@@ -23,7 +23,7 @@ static PyObject* wrap_addFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result = addFromHex (argA,argB);
+    std::unique_ptr<char, CD> result = addFromHex (argA,argB);
     return Py_BuildValue("s",result.get());
 }
 
@@ -35,7 +35,7 @@ static PyObject* wrap_addFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result = addFromDec(argA,argB);
+    std::unique_ptr<char, CD> result = addFromDec(argA,argB);
     return Py_BuildValue("s",result.get());
 }
 
@@ -47,7 +47,7 @@ static PyObject* wrap_multiplyFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result = multiplyFromHex(argA,argB);
+    std::unique_ptr<char, CD> result = multiplyFromHex(argA,argB);
     return Py_BuildValue("s",result.get());
 }
 
@@ -59,7 +59,7 @@ static PyObject* wrap_multiplyFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result = multiplyFromDec(argA,argB);
+    std::unique_ptr<char, CD> result = multiplyFromDec(argA,argB);
     return Py_BuildValue("s",result.get());
 }
 
@@ -71,7 +71,7 @@ static PyObject* wrap_divideFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result;
+    std::unique_ptr<char, CD> result;
     try{
        result = divideFromHex(argA,argB);
     }
@@ -90,7 +90,7 @@ static PyObject* wrap_divideFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result;
+    std::unique_ptr<char, CD> result;
     try{
        result = divideFromDec(argA,argB);
     }
@@ -109,7 +109,7 @@ static PyObject* wrap_Mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Mod_Hex(pARG,pMOD);
+    std::unique_ptr<char, CD> ret = Mod_Hex(pARG,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -121,7 +121,7 @@ static PyObject* wrap_Inv_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Inv_mod_Hex(pARG,pMOD);
+    std::unique_ptr<char, CD> ret = Inv_mod_Hex(pARG,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -134,7 +134,7 @@ static PyObject* wrap_Add_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Add_mod_Hex(pLHS,pRHS,pMOD);
+    std::unique_ptr<char, CD> ret = Add_mod_Hex(pLHS,pRHS,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -147,7 +147,7 @@ static PyObject* wrap_Sub_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Sub_mod_Hex(pLHS,pRHS,pMOD);
+    std::unique_ptr<char, CD> ret = Sub_mod_Hex(pLHS,pRHS,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -160,7 +160,7 @@ static PyObject* wrap_Mul_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Mul_mod_Hex(pLHS,pRHS,pMOD);
+    std::unique_ptr<char, CD> ret = Mul_mod_Hex(pLHS,pRHS,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -173,7 +173,7 @@ static PyObject* wrap_Div_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Div_mod_Hex(pLHS,pRHS,pMOD);
+    std::unique_ptr<char, CD> ret = Div_mod_Hex(pLHS,pRHS,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -185,7 +185,7 @@ static PyObject* wrap_Mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Mod_Dec(pARG,pMOD);
+    std::unique_ptr<char, CD> ret = Mod_Dec(pARG,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -197,7 +197,7 @@ static PyObject* wrap_Inv_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Inv_mod_Dec(pARG,pMOD);
+    std::unique_ptr<char, CD> ret = Inv_mod_Dec(pARG,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -210,7 +210,7 @@ static PyObject* wrap_Add_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Add_mod_Dec(pLHS,pRHS,pMOD);
+    std::unique_ptr<char, CD> ret = Add_mod_Dec(pLHS,pRHS,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -223,7 +223,7 @@ static PyObject* wrap_Sub_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Sub_mod_Dec(pLHS,pRHS,pMOD);
+    std::unique_ptr<char, CD> ret = Sub_mod_Dec(pLHS,pRHS,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -236,7 +236,7 @@ static PyObject* wrap_Mul_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Mul_mod_Dec(pLHS,pRHS,pMOD);
+    std::unique_ptr<char, CD> ret = Mul_mod_Dec(pLHS,pRHS,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -249,7 +249,7 @@ static PyObject* wrap_Div_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char> ret = Div_mod_Dec(pLHS,pRHS,pMOD);
+    std::unique_ptr<char, CD> ret = Div_mod_Dec(pLHS,pRHS,pMOD);
     return Py_BuildValue("s", ret.get());
 }
 
@@ -262,7 +262,7 @@ static PyObject* wrap_leftShiftFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result;
+    std::unique_ptr<char, CD> result;
     try{
         result = leftShiftFromHex(argA,argB);
     }
@@ -281,7 +281,7 @@ static PyObject* wrap_leftShiftFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result;
+    std::unique_ptr<char, CD> result;
     try{
         result = leftShiftFromDec(argA,argB);
     }
@@ -300,7 +300,7 @@ static PyObject* wrap_rightShiftFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result;
+    std::unique_ptr<char, CD> result;
     try{
         result = rightShiftFromHex(argA,argB);
     }
@@ -319,7 +319,7 @@ static PyObject* wrap_rightShiftFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result;
+    std::unique_ptr<char, CD> result;
     try{
         result = rightShiftFromDec(argA,argB);
     }
@@ -338,7 +338,7 @@ static PyObject* wrap_subFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result = subFromHex(argA,argB);
+    std::unique_ptr<char, CD> result = subFromHex(argA,argB);
     return Py_BuildValue("s",result.get());
 }
 
@@ -350,7 +350,7 @@ static PyObject* wrap_subFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char> result = subFromDec(argA,argB);
+    std::unique_ptr<char, CD> result = subFromDec(argA,argB);
     return Py_BuildValue("s",result.get());
 }
 
@@ -360,7 +360,7 @@ static PyObject* wrap_BNRandomHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &nSize))
         return NULL;
 
-    std::unique_ptr<char> result = BNRandomHex(nSize);
+    std::unique_ptr<char, CD> result = BNRandomHex(nSize);
     return Py_BuildValue("s",result.get());
 }
 
@@ -370,7 +370,7 @@ static PyObject* wrap_BNRandomDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &nSize))
         return NULL;
 
-    std::unique_ptr<char> result = BNRandomDec(nSize);
+    std::unique_ptr<char, CD> result = BNRandomDec(nSize);
     return Py_BuildValue("s",result.get());
 }
 
@@ -381,7 +381,7 @@ static PyObject* wrap_BNRandomHexWithSeed(PyObject* self, PyObject *args)
 
     if (!PyArg_ParseTuple(args,"si",&argSeed,&nSize))
         return NULL;
-    std::unique_ptr<char> result = BNRandomHexWithSeed(argSeed, nSize);
+    std::unique_ptr<char, CD> result = BNRandomHexWithSeed(argSeed, nSize);
     return Py_BuildValue ("s", result.get()); 
 }
 
@@ -392,7 +392,7 @@ static PyObject* wrap_BNRandomDecWithSeed(PyObject* self, PyObject *args)
 
     if (!PyArg_ParseTuple(args,"si",&argSeed,&nSize))
         return NULL;
-    std::unique_ptr<char> result = BNRandomDecWithSeed(argSeed, nSize);
+    std::unique_ptr<char, CD> result = BNRandomDecWithSeed(argSeed, nSize);
     return Py_BuildValue ("s", result.get()); 
 }
 
@@ -403,7 +403,7 @@ static PyObject* wrap_BNRandomPrimeHex(PyObject* self, PyObject *pyargs)
     if (!PyArg_ParseTuple(pyargs, "i", &nSize))
         return NULL;
 
-    std::unique_ptr<char> result = BNRandomPrimeHex(nSize);
+    std::unique_ptr<char, CD> result = BNRandomPrimeHex(nSize);
     return Py_BuildValue("s", result.get());
 }
 
@@ -413,7 +413,7 @@ static PyObject* wrap_BNRandomPrimeDec(PyObject* self, PyObject *pyargs)
     if (!PyArg_ParseTuple(pyargs, "i", &nSize))
         return NULL;
 
-    std::unique_ptr<char> result = BNRandomPrimeDec(nSize);
+    std::unique_ptr<char, CD> result = BNRandomPrimeDec(nSize);
     return Py_BuildValue("s", result.get());
 }
 
@@ -424,7 +424,7 @@ static PyObject* wrap_BNRandomPrimeHexWithSeed(PyObject* self, PyObject *pyargs)
 
     if (!PyArg_ParseTuple(pyargs, "si", &argSeed, &nSize))
         return NULL;
-    std::unique_ptr<char> result = BNRandomPrimeHexWithSeed(argSeed, nSize);
+    std::unique_ptr<char, CD> result = BNRandomPrimeHexWithSeed(argSeed, nSize);
     return Py_BuildValue("s", result.get());
 }
 
@@ -435,7 +435,7 @@ static PyObject* wrap_BNRandomPrimeDecWithSeed(PyObject* self, PyObject *pyargs)
 
     if (!PyArg_ParseTuple(pyargs, "si", &argSeed, &nSize))
         return NULL;
-    std::unique_ptr<char> result = BNRandomPrimeDecWithSeed(argSeed, nSize);
+    std::unique_ptr<char, CD> result = BNRandomPrimeDecWithSeed(argSeed, nSize);
     return Py_BuildValue("s", result.get());
 }
 
