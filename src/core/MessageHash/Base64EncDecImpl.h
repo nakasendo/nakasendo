@@ -4,14 +4,14 @@
 #include <string>
 #include <memory>
 
-using messagePtr = std::unique_ptr<unsigned char> ; 
-using charPtr = std::unique_ptr<char>;
+using messagePtr = std::unique_ptr<unsigned char[]> ; 
+using charPtr = std::unique_ptr<char[]>;
 
 class Base64EncDecImpl
 {
     public:
         explicit Base64EncDecImpl ();
-        ~Base64EncDecImpl()=default; 
+        ~Base64EncDecImpl(); 
         messagePtr encode (const messagePtr&, const size_t&, const int&, int&);
         messagePtr decode (const messagePtr&, size_t&, int,  int*) ; 
 
@@ -27,7 +27,6 @@ class Base64EncDecImpl
         unsigned char * enc (unsigned char *, size_t, int, int&);
         unsigned char * dec (unsigned char *, size_t&, int, int*);
         unsigned int rawBase64Decode (unsigned char *, unsigned char *, const int&, int*);
-        
 };
 
 
