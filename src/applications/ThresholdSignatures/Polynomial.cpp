@@ -89,14 +89,22 @@ BigNumber Polynomial::operator( ) (  const BigNumber& x )
     */
     BigNumber Polynomial::evaluate(  const BigNumber& x )  
     {
-        BigNumber res = GenerateZero( ) ;
+        BigNumber res  = GenerateZero( ) ;
 
         // Horners method for polynomial evaluation
-        for( auto coef = m_coefficients.cbegin(); coef != m_coefficients.cend(); ++coef )
-        {   
-            res = ( res * x ) + *coef ;
+        for ( 
+                auto itr = m_coefficients.cend( ) - 1  ;  
+                itr >= m_coefficients.begin();  
+                --itr
+            ) 
+        {
+            res = *itr + ( res *  x ) ;
         }
 
+        if ( !( m_modulo == GenerateZero( ) ) )
+        {
+            res = res % m_modulo ;
+        } 
         return res;
     }     
 
@@ -124,7 +132,7 @@ std::ostream& operator<<( std::ostream &os, const Polynomial& poly )
             if ( numberCoefficients > 2 )
             for ( int i = 2; i < poly.m_coefficients.size( ) ; ++i )         
             {
-                os << " + " << poly.m_coefficients[ i ].ToDec( ) << "^" << i ;
+                os << " + " << poly.m_coefficients[ i ].ToDec( ) << "x^" << i ;
             }
         }
     }
