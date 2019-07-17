@@ -30,19 +30,17 @@ class SymEncDec_API SymEncDec
         void SetKeySize(const int&) ; 
         void SetBlockSize(const int&);
 
-        void SetParams( const std::unique_ptr<unsigned char>&, const std::unique_ptr<unsigned char>&, const unsigned int&, const unsigned int& );
-        void GetParams(std::unique_ptr<unsigned char>&, std::unique_ptr<unsigned char>&, unsigned int&, unsigned int&);
+        void SetParams( const std::unique_ptr<unsigned char[]>&, const std::unique_ptr<unsigned char[]>&, const unsigned int&, const unsigned int& );
+        void GetParams(std::unique_ptr<unsigned char[]>&, std::unique_ptr<unsigned char[]>&, unsigned int&, unsigned int&);
 
-        int aes_encrypt (const std::string&, std::unique_ptr<unsigned char>& ) ;
-        int aes_decrypt (const std::string&, std::unique_ptr<unsigned char>& ) ;
-        int aes_decryptEx (const std::unique_ptr<unsigned char>&, const int&, std::unique_ptr<unsigned char>& );
-
+        int aes_encrypt(const std::string&, std::unique_ptr<unsigned char[]>& ) ;
+        int aes_decrypt(const std::unique_ptr<unsigned char[]>&, const int&,std::string&);
     private:
          std::unique_ptr<SymEncDecImpl> m_pImpl ;
 
 };
 
 // free function interface
-std::unique_ptr<unsigned char> SymEncDec_API KeyGen(std::unique_ptr<unsigned char>&, const unsigned int&, const std::unique_ptr<unsigned char>& , const uint64_t& , const unsigned int& , uint64_t&) ;
-
+std::unique_ptr<unsigned char[]> SymEncDec_API KeyGen(std::unique_ptr<unsigned char[]>&, const unsigned int&, const std::unique_ptr<unsigned char[]>& , const uint64_t& , const unsigned int& , uint64_t&) ;
+void SymEncDec_API NounceGen(std::unique_ptr<unsigned char[]>&, const int blocksize=16);
 #endif /* SYM_ENC_DEC_H */
