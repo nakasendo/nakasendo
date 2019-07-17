@@ -1,0 +1,14 @@
+pipeline
+{
+    agent { label 'master' }
+    stages {
+        stage('build test foo') {
+            steps {
+                echo 'Get all env variable'
+                sh 'printenv'
+                echo '----------  FINISH environment variables  -------------'
+                sh 'pwd'
+            }
+        }
+    }
+}
