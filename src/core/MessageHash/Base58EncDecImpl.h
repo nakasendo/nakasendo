@@ -5,7 +5,7 @@
 #include <memory>
 
 
-using messagePtr = std::unique_ptr<unsigned char> ;
+using messagePtr = std::unique_ptr<unsigned char[]> ;
 using messageVec = std::vector<uint8_t> ; 
 
 class Base58EncDecImpl
