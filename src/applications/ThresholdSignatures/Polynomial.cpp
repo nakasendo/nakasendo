@@ -48,30 +48,7 @@ Polynomial::Polynomial
 Polynomial::Polynomial( int degree, const BigNumber& modulo ) 
     : m_modulo ( modulo )
 {
-    if ( degree < 1 )
-    {
-        // <todo> raise an error
-        std::cout << "Unble to generate polynomial with degree less than 1" << std::endl ;
-        return ;
-    }
-
-    // default the min and max numbers
-    BigNumber min, max ;
-    min.FromDec( "0" ) ;
-
-    if ( m_modulo == m_zero ) 
-        max.FromDec( "100" ) ;        
-    else
-        max = m_modulo - GenerateOne( ) ;
-    
-    std::vector< BigNumber > tempCoefficients ;
-    tempCoefficients = randomBigGenerator( degree, min, max );
-
-    // apply modulo and push_back to vector
-    for ( auto & big : tempCoefficients )
-    {
-        this->push_back( big ) ;
-    }    
+    setup( degree ) ;
 }
 
 /*
@@ -128,8 +105,7 @@ void Polynomial::push_back( BigNumber big )
 }
 
 void Polynomial::setup( int degree )
-{
-// common part    
+{   
     if ( degree < 1 )
     {
         // <todo> raise an error
@@ -154,7 +130,6 @@ void Polynomial::setup( int degree )
     {
         this->push_back( big ) ;
     }    
-// end common part 
 }
 
 /* RandomBigGenerator

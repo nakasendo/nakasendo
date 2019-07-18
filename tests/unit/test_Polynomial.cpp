@@ -186,34 +186,48 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod2 )
  */
 BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
 {
-    //BigNumber modulo ;
-
-    // degree
-    Polynomial poly ( 5, GenerateZero( ) ) ;
-    std::cout << "Poly:\t" << poly << std::endl ;
+    std::vector< Polynomial > Polynomials ;
 
     BigNumber modulo ;
-    modulo.FromDec( "17" ) ;
- 
-    Polynomial poly2 ( 5, modulo ) ;
-    std::cout << "Poly2:\t" << poly2 << std::endl ;
-
-    Polynomial poly3 ( 6, GenerateZero( ) ) ;
-    std::cout << "Poly3:\t" << poly3 << std::endl ;
-
     BigNumber a_0 ;
-    a_0.FromDec( "2" ) ;
 
-    modulo.FromDec( "17" );    
-    Polynomial poly4 ( 2, modulo, a_0 ) ;
-    std::cout << "Poly4:\t" << poly4 << std::endl ;
+    // constuct using degree and modulo 0 
+    Polynomials.push_back ( Polynomial ( 5, GenerateZero( ) ) ) ;
 
-    Polynomial poly5 ( 2, modulo, GenerateZero( ) ) ;
-    std::cout << "Poly5:\t" << poly5 << std::endl ;   
+    // constuct using degree and modulo 12
+    modulo.FromDec( "12" ) ; 
+    Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
 
-    a_0.FromDec( "20" ) ;
-    Polynomial poly6 ( 2, modulo, a_0 ) ;
-    std::cout << "Poly6:\t" << poly6 << std::endl ; 
+    // constuct using degree, modulo and fixed a_0
+    a_0.FromDec( "10" ) ;
+    Polynomials.push_back  ( Polynomial( 2, modulo, a_0 ) ) ;
+    // test the a_0 is as expected
+    BOOST_CHECK( a_0 == Polynomials.back( )[ 0 ] ) ;
+
+    for ( 
+            auto poly = Polynomials.begin( ) ; 
+            poly != Polynomials.end( ) ; 
+            ++poly 
+        )
+    {
+        //std::cout << "Poly:\t" << *poly << "\tdegree = " << poly->getDegree( ) << std::endl ;
+
+        // test a_0 is not zero
+        BOOST_CHECK( !( (*poly)[0] == GenerateZero( ) ) ) ;
+        // test last term is not zero
+        BOOST_CHECK( !( (*poly)[ poly->getDegree( ) ] == GenerateZero( ) ) ) ;
+
+
+    }
+
+    // <todo> test the error conditions
+    // constuct using degree, modulo 0 and fixed a_0 of 0 
+    //Polynomials.push_back ( 2, modulo, GenerateZero( ) ) ;
+
+    // constuct using degree, modulo and fixed a_0 > modulo
+    //Polynomials.push_back ( 2, modulo, a_0 ) ;    
+
+    
 }
 
 BOOST_AUTO_TEST_SUITE_END( ) ;
@@ -221,7 +235,6 @@ BOOST_AUTO_TEST_SUITE_END( ) ;
 /* 
     <todo>
     What elses do we need to test?
-    - small polynomial with random inputs
     - small polynomial with big number
     - Assignments ?
  */
