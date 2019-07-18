@@ -25,10 +25,16 @@ class Polynomial
 
 
     // construct from BigNumber vector
-    Polynomial( std::vector< BigNumber >&, const BigNumber& ) ;
+    Polynomial( std::vector< BigNumber >& coefficients, const BigNumber& modulo ) ;
 
     // construct from String vector
-    Polynomial( std::vector< std::string >&, const BigNumber& ) ;
+    Polynomial( std::vector< std::string >& coefficients, const BigNumber& modulo ) ;
+
+    // construct from random numbers
+    Polynomial( int degree, const BigNumber& modulo ) ;
+
+    // construct from random numbers, with fixed a_0 term
+    Polynomial( int degree, const BigNumber& modulo, const BigNumber& a_0 ) ;
 
     // Default destructor
     ~Polynomial() = default ;
@@ -63,10 +69,22 @@ class Polynomial
      */
     void push_back( BigNumber big ) ;
 
-    /*
-    * Evaluate the polynomial at value x
+    /* Evaluate the polynomial at value x
     */
     BigNumber evaluate( const BigNumber& )  ;
+
+    /* Helper 
+    */
+    void setup( int degree ) ;
+
+    /* Generate random numbers
+     */
+    std::vector< BigNumber > randomBigGenerator
+    ( 
+        int degree, 
+        const BigNumber& min, 
+        const BigNumber& max 
+    ) ;
    
 
     /// coefficients array
@@ -75,6 +93,8 @@ class Polynomial
    
     /// modulo 
     BigNumber m_modulo ;
+
+    BigNumber m_zero = GenerateZero( ) ;
 
 
     friend std::ostream& operator<<( std::ostream &os, const Polynomial& p ) ; 

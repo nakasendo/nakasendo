@@ -177,6 +177,44 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod2 )
 }
 
 
+/* Create a new plynomial using the random number constructor
+ * <todo> put these tests into BOOST_CHECK | BOOST_TEST
+ *   test for - a_0 is not zero
+ *            - last coefficient is not zero
+ *            - degree of coefficient is as expected
+ *            - in case of fixed a_0, it is as expected
+ */
+BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
+{
+    //BigNumber modulo ;
+
+    // degree
+    Polynomial poly ( 5, GenerateZero( ) ) ;
+    std::cout << "Poly:\t" << poly << std::endl ;
+
+    BigNumber modulo ;
+    modulo.FromDec( "17" ) ;
+ 
+    Polynomial poly2 ( 5, modulo ) ;
+    std::cout << "Poly2:\t" << poly2 << std::endl ;
+
+    Polynomial poly3 ( 6, GenerateZero( ) ) ;
+    std::cout << "Poly3:\t" << poly3 << std::endl ;
+
+    BigNumber a_0 ;
+    a_0.FromDec( "2" ) ;
+
+    modulo.FromDec( "17" );    
+    Polynomial poly4 ( 2, modulo, a_0 ) ;
+    std::cout << "Poly4:\t" << poly4 << std::endl ;
+
+    Polynomial poly5 ( 2, modulo, GenerateZero( ) ) ;
+    std::cout << "Poly5:\t" << poly5 << std::endl ;   
+
+    a_0.FromDec( "20" ) ;
+    Polynomial poly6 ( 2, modulo, a_0 ) ;
+    std::cout << "Poly6:\t" << poly6 << std::endl ; 
+}
 
 BOOST_AUTO_TEST_SUITE_END( ) ;
 
