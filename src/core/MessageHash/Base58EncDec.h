@@ -8,7 +8,7 @@
 
 class Base58EncDecImpl;
 
-using messagePtr = std::unique_ptr<unsigned char> ;
+using messagePtr = std::unique_ptr<unsigned char[]> ;
 using messageVec = std::vector<uint8_t> ; 
 
 class MessageHash_API Base58EncDec

@@ -49,34 +49,38 @@ static PyObject* wrap_ListHash(PyObject* self, PyObject *args)
 }
 
 static PyObject* wrap_EncodeBase64(PyObject* self, PyObject *args){
-    unsigned char * argA;
+    char * argA;
     int lenargA; 
     if (!PyArg_ParseTuple(args, "s#", &argA, &lenargA))
         return NULL;
-    std::unique_ptr<unsigned char> msgPtr (new unsigned char [lenargA+1]);
-    std::fill_n(msgPtr.get(), lenargA+1, 0x00);
-    for (int i=0;i<lenargA; ++ i){
-        msgPtr.get()[i] = argA[i] ;
+
+    std::unique_ptr<unsigned char[]> msgValptr ( new unsigned char[lenargA+1]);
+    std::fill_n(msgValptr.get(), lenargA+1, 0x00);
+    //int i(0);
+    for (int i = 0;i < lenargA; ++i){
+        msgValptr.get()[i] = argA[i]; 
     }
-    
-    std::string result = EncodeBase64(msgPtr.get(), lenargA+1);
-    
-    return Py_BuildValue("s",result.c_str());
+    msgValptr.get()[lenargA+1]='\0';
+
+    std::string encoded = EncodeBase64(msgValptr,lenargA);
+    return Py_BuildValue("s#",encoded.c_str(),encoded.size());
+
 }
 
 static PyObject* wrap_DecodeBase64(PyObject* self, PyObject *args){
-    unsigned char * argA;
-    int lenA; 
-    if (!PyArg_ParseTuple(args, "s#", &argA, &lenA))
+    char * argA;
+    int lenargA; 
+    if (!PyArg_ParseTuple(args, "s#", &argA, &lenargA))
         return NULL;
+ 
+   
+    int msgLen(0);
+    std::string result;
+    std::unique_ptr<unsigned char[]> resultAsBytes = DecodeBase64(argA,msgLen);
+    for(int i=0;i<msgLen;++i){
+        result.push_back(resultAsBytes.get()[i]);
+    }
 
-    std::unique_ptr<unsigned char> msgPtr ( new unsigned char[lenA+1]);
-    std::fill_n(msgPtr.get(),lenA+1,0x00);
-    for(int i=0;i<lenA;++i){
-        msgPtr.get()[i] = argA[i];
-    }    
-    std::string result = DecodeBase64(msgPtr.get(),(lenA+1));
-    
     return Py_BuildValue("s",result.c_str());
 }
 

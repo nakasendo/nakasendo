@@ -36,6 +36,10 @@ Base64EncDecImpl::Base64EncDecImpl(){
     return ; 
 }
 
+Base64EncDecImpl::~Base64EncDecImpl(){
+    return ; 
+}
+
 unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wrap, int& sizeAllocated)
 {
     size_t i=0, toalloc=0;
@@ -47,14 +51,18 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
         if (len%57) toalloc++ ; 
     }
     unsigned char * p , * output ;
-    sizeAllocated = ((len/3) + (mod ? 1 : 0)) * 4 + 1;
+    //sizeAllocated = ((len/3) + (mod ? 1 : 0)) * 4 + 1;
+    sizeAllocated = ((len/3) + (mod ? 1 : 0)) * 4 +1;
     p = output = new unsigned char[sizeAllocated];
 
+    //std::cout << "len: " << len << "\tmod: " << mod << "\ttoalloc: " << toalloc << "\tsizeAllocated variable: " << sizeAllocated << std::endl;
+    //p = output = new unsigned char[toalloc];
+    int numIncs (0); 
     while ( i < (len-mod)){
-        *p++ = Base64::b64table[input[i++] >> 2];
-        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4))& 0x3f];
-        *p++ = Base64::b64table[((input[i] << 2) | (input[i+1] >> 6))& 0x3f];
-        *p++ = Base64::b64table[input[i+1] & 0x3f];
+        *p++ = Base64::b64table[input[i++] >> 2];++numIncs; 
+        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4))& 0x3f]; ++numIncs;
+        *p++ = Base64::b64table[((input[i] << 2) | (input[i+1] >> 6))& 0x3f]; ++numIncs; 
+        *p++ = Base64::b64table[input[i+1] & 0x3f]; ++numIncs;
         i += 2 ; 
         if (wrap && !(i%57)) *p++ = '\n'; 
     }
@@ -65,23 +73,25 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
         return output; 
     }
     else{        
-        *p++ = Base64::b64table[input[i++] >> 2];   
-        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4)) & 0x3f];
+        
+        *p++ = Base64::b64table[input[i++] >> 2];   ++numIncs; 
+        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4)) & 0x3f]; ++numIncs; 
         if(mod == 1){
-            *p++ = '=';
-            *p++ = '=';
+            *p++ = '='; ++numIncs; 
+            *p++ = '=';++numIncs; 
             if(wrap) *p++ = '\n'; 
             *p = 0 ; 
             return output; 
         }
         else{
-            *p++ = Base64::b64table[(input[i] << 2) & 0x3f]; 
-            *p++ = '='; 
+            *p++ = Base64::b64table[(input[i] << 2) & 0x3f]; ++numIncs; 
+            *p++ = '='; ++numIncs;
             if(wrap) *p++ = '\n';
             *p=0; 
             return output;           
         }
     }
+
 }
 
 unsigned int Base64EncDecImpl::rawBase64Decode (unsigned char * in, unsigned char * out, const int& strict, int* err){
@@ -167,13 +177,15 @@ messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, c
     int sizeAllocated=0;
     unsigned char * retValPtr =  enc (buf.get(), len, wrap, sizeAllocated);
     if (sizeAllocated>0){
-        std::unique_ptr<unsigned char> msgPtr ( new unsigned char [sizeAllocated]);
+        std::unique_ptr<unsigned char[]> msgPtr ( new unsigned char [sizeAllocated]);
         for (int i=0; i<sizeAllocated;++i){
             msgPtr.get()[i]=retValPtr[i];
         }        
+        //add in the terminator character
+        msgPtr.get()[sizeAllocated]='0';
         delete [] retValPtr;
-        sizeEncoded = sizeAllocated; 
-        return std::move(msgPtr);
+        sizeEncoded = sizeAllocated-1; 
+        return msgPtr;
     }else{
         sizeEncoded = sizeAllocated; 
         delete [] retValPtr;
@@ -181,6 +193,37 @@ messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, c
     }     
 }
 
+messagePtr Base64EncDecImpl::decode (const messagePtr& buf, size_t& len, int strict, int* err){    
+       //unsigned char * retValPtr = dec(buf.get(),len, strict,err );       
+       ///
+    unsigned char * outbuf = new unsigned char[3 * strlen((char*)buf.get()) / 4 + 1];
+    if (!outbuf){
+        *err = 3 ; 
+        len = 0;
+        return nullptr;
+    }
+    len = rawBase64Decode(buf.get(), outbuf, strict, err);
+    if(*err){        
+        delete [] outbuf;
+        len = 0; 
+        return nullptr;
+    }
+
+       ///
+       if (len == 0){
+           delete [] outbuf;
+           return nullptr; 
+       }else{
+           
+           messagePtr msgPtr(new unsigned char[len]);
+           for (unsigned int i=0;i<len;++i){
+               msgPtr.get()[i]= outbuf[i];
+           }
+           delete [] outbuf;
+           return msgPtr;
+       }
+}
+#if 0
 messagePtr Base64EncDecImpl::decode (const messagePtr& buf, size_t& len, int strict, int* err){    
        unsigned char * retValPtr = dec(buf.get(),len, strict,err );       
        if (len == 0){
@@ -192,7 +235,8 @@ messagePtr Base64EncDecImpl::decode (const messagePtr& buf, size_t& len, int str
                msgPtr.get()[i]= retValPtr[i];
            }
            delete [] retValPtr;
-           return std::move(msgPtr);
+           return msgPtr;
        }
 }
+#endif
 

@@ -19,12 +19,12 @@
     #define _HELP_RETURN_DEC(bnVar) return bnVar.ToDec().c_str();
 #else
     #define _HELP_RETURN_HEX(bnVar)                          \
-        std::unique_ptr<char> returnPtr;                     \
+        std::unique_ptr<char, CD> returnPtr;                     \
         returnPtr.reset(strdup_func(bnVar.ToHex().c_str())); \
         return (std::move(returnPtr));
 
     #define _HELP_RETURN_DEC(bnVar)                          \
-        std::unique_ptr<char> returnPtr;                     \
+        std::unique_ptr<char, CD> returnPtr;                     \
         returnPtr.reset(strdup_func(bnVar.ToDec().c_str())); \
         return (std::move(returnPtr));
 #endif
