@@ -12,9 +12,9 @@ Polynomial::Polynomial
     )    
     : m_modulo( modulo ) 
 { 
+    // apply modulo and push_back to vector
     for ( auto & big : coefficients )
     {
-        // apply modulo
         this->push_back( big ) ;
     }
 } 
@@ -29,17 +29,85 @@ Polynomial::Polynomial
     )
     : m_modulo ( modulo )
 {
+    // convert to BigNumber, apply modulo and push_back to vector
     for ( auto & element : strCoefficients )
     {
         BigNumber big ;
 	    big.FromDec( element ) ;
-        
-        // apply modulo
         this->push_back( big ) ;
     }
 }
 
+/*
+ *  Construct with random numbers from the degree and modulo
+ *  Constraints: 
+ *       - degree must be 1 or more
+ *       - m_coefficienst[0] must be non-zero and positive
+ *       - m_coefficients[size-1] must be non-zero and positive
+ */
+Polynomial::Polynomial( int degree, const BigNumber& modulo ) 
+    : m_modulo ( modulo )
+{
+    if ( degree < 1 )
+    {
+        // <todo> raise an error
+        std::cout << "Unble to generate polynomial with degree less than 1" << std::endl ;
+        return ;
+    }
 
+    // default the min and max numbers
+    BigNumber min, max ;
+    min.FromDec( "0" ) ;
+
+    if ( m_modulo == m_zero ) 
+        max.FromDec( "100" ) ;        
+    else
+        max = m_modulo - GenerateOne( ) ;
+    
+    std::vector< BigNumber > tempCoefficients ;
+    tempCoefficients = randomBigGenerator( degree, min, max );
+
+    // apply modulo and push_back to vector
+    for ( auto & big : tempCoefficients )
+    {
+        this->push_back( big ) ;
+    }    
+}
+
+/*
+ *  Construct with random numbers from the degree and modulo
+ *  @param degree - the order of the polynomial to be generated
+ *         modulo - the modulo to be applied to the polynomial
+ *         a_0 - fix the free coefficient
+ *  @return void
+ */
+Polynomial::Polynomial
+    ( 
+        int degree, 
+        const BigNumber& modulo, 
+        const BigNumber& a_0 
+    ) 
+    : m_modulo ( modulo )
+{
+    if ( a_0 == m_zero )
+    {
+        // <todo> raise an error
+        std::cout << "a_0 coefficient should be strictly positive" << std::endl ;
+        return ;
+    }
+
+    if ( a_0 > m_modulo )
+    {
+        // <todo> raise an error
+        std::cout   << "a_0 coefficient should be lower than modulo, but " 
+                    << a_0.ToDec( ) << ">=" << m_modulo.ToDec( ) << std::endl ;
+        return ;        
+    }
+    
+    setup( degree ) ;
+
+    m_coefficients[ 0 ] = a_0 ;
+}
 
 /**
  * Push_back a coefficients to the vector
@@ -47,7 +115,6 @@ Polynomial::Polynomial
  * <todo> to we want to rename this to append_coeff for consistency?
  * @param BigNumber append to coefficients vector
  */
-
 void Polynomial::push_back( BigNumber big )
 {
     BigNumber coeff ( big ) ; 
@@ -58,6 +125,75 @@ void Polynomial::push_back( BigNumber big )
     }   
 
     m_coefficients.push_back( std::move( coeff ) ) ;       
+}
+
+void Polynomial::setup( int degree )
+{
+// common part    
+    if ( degree < 1 )
+    {
+        // <todo> raise an error
+        std::cout << "Unble to generate polynomial with degree less than 1" << std::endl ;
+        return ;
+    }
+
+    // default the min and max numbers
+    BigNumber min, max ;
+    min.FromDec( "0" ) ;
+
+    if ( m_modulo == m_zero ) 
+        max.FromDec( "100" ) ;        
+    else
+        max = m_modulo - GenerateOne( ) ;
+    
+    std::vector< BigNumber > tempCoefficients ;
+    tempCoefficients = randomBigGenerator( degree, min, max );
+
+    // apply modulo and push_back to vector
+    for ( auto & big : tempCoefficients )
+    {
+        this->push_back( big ) ;
+    }    
+// end common part 
+}
+
+/* RandomBigGenerator
+ *   Generates random BigNumber's
+ * @Params: degree (size of vector is degree+1 )
+ *          min (minimum range for random number generator)
+ *          max (maximum range for random number generator)
+ * @Returns vector of BigNumbers
+ */
+std::vector< BigNumber > Polynomial::randomBigGenerator
+    ( 
+        int degree, 
+        const BigNumber& min, 
+        const BigNumber& max 
+    )
+{
+
+    std::vector< BigNumber > tempCoeffs ;
+    int i = 0 ;
+
+    while ( i < degree )
+    {
+        BigNumber randomBig ;
+
+        randomBig = GenerateRandRange( min, max );
+
+        if ( ( i == 0 ) || ( i == degree-1 ) )
+        {
+            while ( randomBig == m_zero )
+            {
+                randomBig = GenerateRandRange( min, max );
+            }   
+        }
+
+        tempCoeffs.push_back( std::move( randomBig ) ) ;
+        ++i ;
+    }
+    
+    return( tempCoeffs ) ;
 }
 
 /*
@@ -71,7 +207,8 @@ BigNumber Polynomial::operator( ) (  const BigNumber& x )
         throw ;
     }
 
-    if ( m_coefficients.back( ) == GenerateZero( ) )
+    //if ( m_coefficients.back( ) == GenerateZero( ) )
+    if ( m_coefficients.back( ) == m_zero )
     {
         // <todo> how do we handle errors?  
         std::cout << "Polynomial has zero coefficient at the highest degree, returning" << std::endl ;
@@ -101,7 +238,8 @@ BigNumber Polynomial::operator( ) (  const BigNumber& x )
             res = *itr + ( res *  x ) ;
         }
 
-        if ( !( m_modulo == GenerateZero( ) ) )
+       // if ( !( m_modulo == GenerateZero( ) ) )
+        if ( !( m_modulo == m_zero ) )
         {
             res = res % m_modulo ;
         } 
