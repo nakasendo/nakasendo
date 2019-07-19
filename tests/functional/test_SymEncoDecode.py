@@ -22,7 +22,6 @@ def test_GenerateKey():
 
     for x in range(100):
 
-        nounceString = PySymEncDec.GenerateNounce();
         # Generate a random string of fixed length
         String = randomString(10)
 
@@ -34,9 +33,8 @@ def test_GenerateKey():
 
         # verifying the actual value with the expected value
         assert len(actual_value) == 64, "Test failed"
-    
 
-#def test_EncodeAES(test_data_dir):
+def test_EncodeAES(test_data_dir):
 
     nonce_value = "c280f8553e93485876e423b1d3f2e3a7"
 
@@ -44,20 +42,20 @@ def test_GenerateKey():
     genKey = PySymEncDec.GenerateKey("ghmgpipbmz", nonce_value)
 
     # verifying the generated key
- #   assert len(genKey) == 64, "Test failed"
+    assert len(genKey) == 64, "Test failed"
 
     # Reading test data from the file
-#    with open(test_data_dir/"testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
+    with open(test_data_dir/"testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
 
-#        for x in strEncode_txt:
+        for x in strEncode_txt:
 
-#            strEncode = x.split(",")
+            strEncode = x.split(",")
 
             actual_value = PySymEncDec.encodeAES(strEncode[0], genKey, nonce_value)
 
-#            assert actual_value == strEncode[1].rstrip("\n"), "Test failed"
+            assert actual_value == strEncode[1].rstrip("\n"), "Test failed"
 
-#def test_DecodeAES(test_data_dir):
+def test_DecodeAES(test_data_dir):
 
     nonce_value = "c280f8553e93485876e423b1d3f2e3a7"
 
@@ -65,18 +63,18 @@ def test_GenerateKey():
     genKey = PySymEncDec.GenerateKey("ghmgpipbmz", nonce_value)
 
     # verifying the generated key
- #   assert len(genKey) == 64, "Test failed"
+    assert len(genKey) == 64, "Test failed"
 
     # Reading test data from the file
-#    with open(test_data_dir/"testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
+    with open(test_data_dir/"testData_EncDecode", "r") as strEncode_txt: # Test data were generated using our python interface to encode the input value and decode the output for same input value
 
-#        for x in strEncode_txt:
+        for x in strEncode_txt:
 
-#            strEncode = x.split(",")
+            strEncode = x.split(",")
 
             actual_value = PySymEncDec.decodeAES(strEncode[1].rstrip("\n"), genKey, nonce_value)
 
-#            assert actual_value == strEncode[0], "Test failed"
+            assert actual_value == strEncode[0], "Test failed"
 
 def test_EncodeDecodeAES(test_data_dir):
 
