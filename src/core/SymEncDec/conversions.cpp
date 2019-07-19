@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <SymEncDec/conversions.h>
 #define BYTES_PER_GROUP 4
 #define GROUPS_PER_LINE 4
 
