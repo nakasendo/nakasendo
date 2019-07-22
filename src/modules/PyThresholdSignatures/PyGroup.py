@@ -50,7 +50,7 @@ class Group:
     def __init__(self, mGroupID = None, playerMap = None):
         self.mGroupID = mGroupID 
         if(self.mGroupID  is None):
-            self.mGroupID = UUID() 
+            self.mGroupID = UUID().getUUIDString() 
         self.mPlayers = playerMap
         if (playerMap is None):
             self.mPlayers = PlayerMap()
@@ -125,8 +125,9 @@ playersMap.add(p22)
 playersMap.add(p33)
 playersMap.add(p44)
 
-_uuid = UUID().getUUIDString()
-gp = Group(_uuid, playersMap)
+#_uuid = UUID().getUUIDString()
+#gp = Group(_uuid, playersMap)
+gp = Group(mGroupID=None, playerMap=playersMap)
 #print(gp.to_json())
 data=gp.to_json()
 #print(data)
