@@ -3,7 +3,7 @@
 
 
 /*
-    Construct a polynomial from a vector of BigNumber
+ *  Construct a polynomial from a vector of BigNumber
  */
 Polynomial::Polynomial
     ( 
@@ -20,7 +20,7 @@ Polynomial::Polynomial
 } 
 
 /*
-    Construct a polynomial from a vector of strings
+ *   Construct a polynomial from a vector of strings
  */
 Polynomial::Polynomial
     ( 
@@ -86,13 +86,13 @@ Polynomial::Polynomial
     m_coefficients[ 0 ] = a_0 ;
 }
 
-/**
+/*
  * Push_back a coefficients to the vector
  * Equivalent to append_coeff in Python 
  * <todo> to we want to rename this to append_coeff for consistency?
  * @param BigNumber append to coefficients vector
  */
-void Polynomial::push_back( BigNumber big )
+void Polynomial::push_back( const BigNumber& big )
 {
     BigNumber coeff ( big ) ; 
 
@@ -104,6 +104,10 @@ void Polynomial::push_back( BigNumber big )
     m_coefficients.push_back( std::move( coeff ) ) ;       
 }
 
+/* 
+ * Setup helper function
+ * Create vector of coefficients from the degree and modulo
+ */
 void Polynomial::setup( int degree )
 {   
     if ( degree < 1 )
@@ -148,13 +152,13 @@ std::vector< BigNumber > Polynomial::randomBigGenerator
     std::vector< BigNumber > tempCoeffs ;
     int i = 0 ;
 
-    while ( i < degree )
+    while ( i <= degree )
     {
         BigNumber randomBig ;
 
         randomBig = GenerateRandRange( min, max );
 
-        if ( ( i == 0 ) || ( i == degree-1 ) )
+        if ( ( i == 0 ) || ( i == degree ) )
         {
             while ( randomBig == m_zero )
             {

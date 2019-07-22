@@ -58,7 +58,6 @@ class Polynomial
     /*
      * Array access
      */
-    BigNumber& operator [] (unsigned int index)                 { return m_coefficients[ index] ; }
     BigNumber const& operator [] (unsigned int index) const     { return m_coefficients[ index] ; }
 
 
@@ -67,7 +66,7 @@ class Polynomial
 
     /* Push BigNumber to end of coefficients, using the modulo (if defined)
      */
-    void push_back( BigNumber big ) ;
+    void push_back( const BigNumber& ) ;
 
     /* Evaluate the polynomial at value x
     */
