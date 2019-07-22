@@ -44,13 +44,13 @@ class Polynomial
     * Get the degree of the polynomial.
     * @return The degree (order) of the polynomial
     */
-    int getDegree() { return m_coefficients.size() -1 ; }
+    int getDegree() const { return m_coefficients.size() -1 ; }
 
 
     /*
      * Function 
      */
-    BigNumber operator( )( const BigNumber& ) ;
+    BigNumber operator( )( const BigNumber& ) const ;
 
        
 
@@ -71,7 +71,7 @@ class Polynomial
 
     /* Evaluate the polynomial at value x
     */
-    BigNumber evaluate( const BigNumber& )  ;
+    BigNumber evaluate( const BigNumber& ) const ;
 
     /* Helper 
     */

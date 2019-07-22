@@ -68,17 +68,17 @@ Polynomial::Polynomial
 {
     if ( a_0 == m_zero )
     {
-        // <todo> raise an error
-        std::cout << "a_0 coefficient should be strictly positive" << std::endl ;
-        return ;
+        throw std::range_error( "a_0 coefficient should be strictly positive" ) ;
     }
 
     if ( a_0 > m_modulo )
     {
-        // <todo> raise an error
-        std::cout   << "a_0 coefficient should be lower than modulo, but " 
-                    << a_0.ToDec( ) << ">=" << m_modulo.ToDec( ) << std::endl ;
-        return ;        
+        throw std::range_error
+            ( "a_0 coefficient should be lower than modulo, but " 
+                + a_0.ToDec( ) 
+                + ">=" 
+                + m_modulo.ToDec( ) 
+            ) ;     
     }
     
     setup( degree ) ;
@@ -108,9 +108,7 @@ void Polynomial::setup( int degree )
 {   
     if ( degree < 1 )
     {
-        // <todo> raise an error
-        std::cout << "Unble to generate polynomial with degree less than 1" << std::endl ;
-        return ;
+        throw std::range_error( "Unble to generate polynomial with degree less than 1" ) ;
     }
 
     // default the min and max numbers
@@ -173,21 +171,16 @@ std::vector< BigNumber > Polynomial::randomBigGenerator
 
 /*
  */
-BigNumber Polynomial::operator( ) (  const BigNumber& x )
+BigNumber Polynomial::operator( ) ( const BigNumber& x ) const
 {
     if ( m_coefficients.empty() )
-    {
-        // <todo> how do we handle errors?  
-        std::cout << "Polynomial is empty, returning" << std::endl ;
-        throw ;
+    { 
+        throw std::runtime_error( "Polynomial is empty, returning" ) ;
     }
 
-    //if ( m_coefficients.back( ) == GenerateZero( ) )
     if ( m_coefficients.back( ) == m_zero )
     {
-        // <todo> how do we handle errors?  
-        std::cout << "Polynomial has zero coefficient at the highest degree, returning" << std::endl ;
-        throw ;
+        throw std::runtime_error( "Polynomial has zero coefficient at the highest degree, returning" ) ;
     }
 
     return ( this->evaluate( x ) );
@@ -199,7 +192,7 @@ BigNumber Polynomial::operator( ) (  const BigNumber& x )
     * @param x The value of x 
     * @return  The evaluated result 
     */
-    BigNumber Polynomial::evaluate(  const BigNumber& x )  
+    BigNumber Polynomial::evaluate(  const BigNumber& x ) const
     {
         BigNumber res  = GenerateZero( ) ;
 
