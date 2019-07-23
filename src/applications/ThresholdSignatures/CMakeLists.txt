@@ -11,14 +11,12 @@ set(THRESHOLD_SIGNATURES_HPP_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupState.h
     ${CMAKE_CURRENT_SOURCE_DIR}/Player.h
     ${CMAKE_CURRENT_SOURCE_DIR}/UUID.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/polynomial/KnownPolynomial.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/polynomial/Polynomial.h
     ${CMAKE_CURRENT_SOURCE_DIR}/interface/EnumCast.h
     ${CMAKE_CURRENT_SOURCE_DIR}/interface/Message.h
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupBuilder.h
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupResponseMessage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupSetupMessage.h
-
+    ${CMAKE_CURRENT_SOURCE_DIR}/Polynomial.h
 )
 
 set(THRESHOLD_SIGNATURES_CPP_FILES
@@ -29,6 +27,8 @@ set(THRESHOLD_SIGNATURES_CPP_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupBuilder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupResponseMessage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupSetupMessage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Polynomial.cpp
+
 )
 
 
