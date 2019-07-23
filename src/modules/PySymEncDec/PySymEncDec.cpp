@@ -20,14 +20,21 @@ static struct module_state _state;
 static PyObject* wrap_encodeAES(PyObject* self, PyObject *args){
     char * argA;
     char * argB; 
-    char * argC; 
+    char * argC;
 
          
     if (!PyArg_ParseTuple(args, "sss", &argA,&argB,&argC))
         return NULL;       
     
-    std::string encMsgHex = Encode(argA, argB, argC);
+    std::string msg(argA);
+    std::string key(argB);
+    std::string iv(argC);
+
+    std::cout << msg << "\t" << key <<"\t" << iv << std::endl; 
+
+    std::string encMsgHex = Encode(msg, key, iv);
     return Py_BuildValue("s#",encMsgHex.c_str(), encMsgHex.length());      
+
     
 }
 
@@ -42,6 +49,7 @@ static PyObject* wrap_decodeAES(PyObject* self, PyObject *args){
     //if (!PyArg_ParseTuple(args, "y#ss",&argA,&argALen, &argB,&argC))
     if (!PyArg_ParseTuple(args, "sss",&argA, &argB, &argC))
         return NULL;
+
 
     std::string decMsg = Decode (argA, argB, argC);
     return Py_BuildValue("s#",decMsg.c_str(), decMsg.length());
@@ -71,10 +79,16 @@ static PyObject* wrap_generateKey(PyObject* self, PyObject *args){
     return Py_BuildValue("s#",keyHex.c_str(), keyHex.length());
 }
 
+static PyObject* wrap_GenerateNounce(PyObject* self, PyObject *args){
+    std::string nounceAsHex = GenerateNounce (); 
+    return Py_BuildValue ("s#", nounceAsHex.c_str(), nounceAsHex.size());
+}
+
 static PyMethodDef ModuleMethods[] =
 {
     {"encodeAES",wrap_encodeAES,METH_VARARGS,"encode AES"},
     {"decodeAES",wrap_decodeAES,METH_VARARGS,"decode AES"},
+    {"GenerateNounce", wrap_GenerateNounce,METH_NOARGS,"generate a nounce value"},
     {"GenerateKey", wrap_generateKey, METH_VARARGS,"generate a key"},
     {NULL, NULL, 0, NULL},
 };

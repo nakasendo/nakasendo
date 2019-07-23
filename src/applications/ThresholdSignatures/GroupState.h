@@ -4,18 +4,15 @@
 /*
  * The state of a threshold signatures group.
  */
+#ifndef _TS_GROUP_STATE_H
+#define _TS_GROUP_STATE_H
 
-#pragma once
-
-#include <ThresholdSignatures/ThresholdSignatures.h>
-#include <impl/utils/EnumCast.h> // ?? What is that?
-
-namespace nakasendo { namespace impl
-{
+#include "ThresholdSignatures.h"
+#include "interface/EnumCast.h" // ?? What is that?
 
 /// The states a Group can be in.
 enum class GroupState
-{   
+{
     UNKNOWN,
     PROPOSED,
     ACCEPTED,
@@ -23,9 +20,9 @@ enum class GroupState
 };
 
 /// Enable enum_cast for GroupBuilder::State
-inline const utils::enumTableT<GroupState>& enumTable(GroupState)
+inline const enumTableT<GroupState>& enumTable(GroupState)
 {
-    static utils::enumTableT<GroupState> table
+    static enumTableT<GroupState> table
     {   
         {GroupState::UNKNOWN,  "Unknown"},
         {GroupState::PROPOSED, "Proposed"},
@@ -34,6 +31,4 @@ inline const utils::enumTableT<GroupState>& enumTable(GroupState)
     };
     return table;
 }
-
-}}
-
+#endif //_TS_GROUP_STATE
