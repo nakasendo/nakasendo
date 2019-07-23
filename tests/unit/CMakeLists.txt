@@ -54,3 +54,8 @@ set_property(TARGET test_KnownPolynomial PROPERTY FOLDER "tests/unit")
 target_link_libraries(test_KnownPolynomial BigNumbers)
 target_link_libraries(test_KnownPolynomial ThresholdSignatures)
 sdk_add_unit_test(test_KnownPolynomial)
+
+add_executable(test_GroupBuilder test_GroupBuilder.cpp utils/FuncUtils.cpp)
+set_property(TARGET test_GroupBuilder PROPERTY FOLDER "tests/unit")
+target_link_libraries(test_GroupBuilder ThresholdSignatures)
+sdk_add_unit_test(test_GroupBuilder)
