@@ -45,6 +45,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree1 )
     BOOST_TEST ( ss.str( ) == "modulo = 0;	polynomial = 3 + 2x" ) ;
 }
 
+
 /* Create a new polynomial using the vector constr
  *   Evaluate the point for x=0,1,2
  *   Check the coefficients
@@ -191,16 +192,23 @@ BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
     BigNumber modulo ;
     BigNumber a_0 ;
 
-    // constuct using degree and modulo 0 
-    Polynomials.push_back ( Polynomial ( 5, GenerateZero( ) ) ) ;
+    modulo.FromDec( "5" ) ; 
 
+    // constuct using degree and modulo 0     
+    Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
+
+    BOOST_TEST( Polynomials.back( ).getDegree( ) == 5 ) ;
+   
     // constuct using degree and modulo 12
     modulo.FromDec( "12" ) ; 
     Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
+    BOOST_TEST( Polynomials.back( ).getDegree( ) == 5 ) ;
 
     // constuct using degree, modulo and fixed a_0
     a_0.FromDec( "10" ) ;
     Polynomials.push_back  ( Polynomial( 2, modulo, a_0 ) ) ;
+    BOOST_TEST( Polynomials.back( ).getDegree( ) == 2 ) ;
+    
     // test the a_0 is as expected
     BOOST_CHECK( a_0 == Polynomials.back( )[ 0 ] ) ;
 
@@ -217,24 +225,150 @@ BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
         // test last term is not zero
         BOOST_CHECK( !( (*poly)[ poly->getDegree( ) ] == GenerateZero( ) ) ) ;
 
-
-    }
-
-    // <todo> test the error conditions
-    // constuct using degree, modulo 0 and fixed a_0 of 0 
-    //Polynomials.push_back ( 2, modulo, GenerateZero( ) ) ;
-
-    // constuct using degree, modulo and fixed a_0 > modulo
-    //Polynomials.push_back ( 2, modulo, a_0 ) ;    
-
-    
+    } 
 }
 
+
+/***********************************************************
+ *  Error testing
+ ************************************************************/
+
+// Check modulo is zero
+BOOST_AUTO_TEST_CASE( test_polynomial_min_max )
+{
+    // Invalid range, min == max == 0
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial( 3, GenerateZero( ) ), 
+            std::range_error 
+        );
+
+    BigNumber modulo, min, max ;
+    modulo.FromDec( "0" ) ;
+    min.FromDec( "0" ) ;
+    max.FromDec( "0" ) ;
+    
+    // Invalid range, min == max == 0
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial( 3, modulo, min, max ) , 
+            std::range_error 
+        );        
+}
+
+// Check a_0 is zero
+BOOST_AUTO_TEST_CASE( test_polynomial_a_0_zero )
+{
+    // a_0 coefficient should be strictly positive, a_0 = 0
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial( 3, GenerateZero( ), GenerateZero( ) ),
+            std::range_error 
+        );
+}
+
+// Check a_0 > modulo
+BOOST_AUTO_TEST_CASE( test_polynomial_a_0_modulo )
+{
+    BigNumber modulo, a_0 ;
+    modulo.FromDec( "5" ) ;
+    a_0.FromDec( "6" ) ;
+
+    // a_0 coefficient should be lower than modulo, but a_0=6, modulo=5
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial( 3, modulo, a_0  ) ,
+            std::range_error 
+        );
+}
+
+// Check min >= 0 
+BOOST_AUTO_TEST_CASE( test_polynomial_min_zero )
+{
+    BigNumber min, max ;
+    min.FromDec( "-1" ) ;
+    max.FromDec( "1" ) ;
+
+    // min should be zero or greater, min = -1
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial( 3, GenerateZero( ), min, max ) ,
+            std::range_error 
+        );
+}
+
+// Check min >= 0 
+BOOST_AUTO_TEST_CASE( test_polynomial_max_modulo )
+{
+    BigNumber modulo, min, max ;
+    modulo.FromDec( "5" ) ;
+    min.FromDec( "0" ) ;
+    max.FromDec( "4" ) ;
+
+    // max should greater than or equal to modulo, max = 5, modulo = 6
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial( 3, modulo, min, max ) ,
+            std::range_error 
+        );
+}
+
+// Check empty coefficients
+BOOST_AUTO_TEST_CASE( test_polynomial_empty_coeff )
+{
+    std::vector< std::string>  strCoefficients ;     
+
+    // Polynomial is empty, returning
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial poly ( strCoefficients, GenerateZero( ) ) ,
+            std::runtime_error  
+        );
+
+   std::vector< BigNumber >    bnCoefficients ; ;     
+
+    // Polynomial is empty, returning
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial poly ( bnCoefficients, GenerateZero( ) ) ,
+            std::runtime_error  
+        );
+}
+
+
+// Check zero coefficients at highest degree
+BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
+{
+    std::vector< std::string>  strCoefficients { "3",  "0" } ;     
+    
+    // Polynomial has zero coefficient at the highest degree, returning
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial poly ( strCoefficients, GenerateZero( ) ) ,
+            std::runtime_error  
+        );
+
+    strCoefficients.push_back( "0" ) ;
+    std::vector< BigNumber >    bnCoefficients ;
+
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+	    big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }   
+
+    // Polynomial has zero coefficient at the highest degree, returning
+    BOOST_CHECK_THROW
+        ( 
+            Polynomial poly ( bnCoefficients, GenerateZero( ) ) ,
+            std::runtime_error  
+        );         
+    
+}
 BOOST_AUTO_TEST_SUITE_END( ) ;
 
 /* 
     <todo>
-    What elses do we need to test?
-    - small polynomial with big number
-    - Assignments ?
+Add large tests (see Chi's comments)
  */

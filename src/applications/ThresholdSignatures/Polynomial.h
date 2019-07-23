@@ -17,12 +17,8 @@ class Polynomial
 {
   public:
  
-    // construct empty
-    Polynomial( ) = default ;
-
     // <todo> Do we want to use move semantics here?
     //Polynomial( stsd::vector< BigNumber >&& coefficients, BigNumber groupModulo )
-
 
     // construct from BigNumber vector
     Polynomial( std::vector< BigNumber >& coefficients, const BigNumber& modulo ) ;
@@ -35,6 +31,15 @@ class Polynomial
 
     // construct from random numbers, with fixed a_0 term
     Polynomial( int degree, const BigNumber& modulo, const BigNumber& a_0 ) ;
+    
+    // construct from random numbers, with minimum and maximum range
+    Polynomial
+      ( 
+          int degree, 
+          const BigNumber& modulo, 
+          const BigNumber& min,
+          const BigNumber& max
+      ) ;
 
     // Default destructor
     ~Polynomial() = default ;
@@ -49,36 +54,41 @@ class Polynomial
 
     /*
      * Function 
+     * Evaluate the polynomial at value x
      */
     BigNumber operator( )( const BigNumber& ) const ;
-
-       
-
 
     /*
      * Array access
      */
-    BigNumber const& operator [] (unsigned int index) const     { return m_coefficients[ index] ; }
+    BigNumber const& operator [] (unsigned int index) const { return m_coefficients[ index] ; }
 
 
+    /*
+     * Get the coefficients of the polynomial.
+     * @return coefficients
+     */
+    const std::vector<BigNumber>& getCoefficients() const { return m_coefficients ; }
+    
+    /*
+     * Get the coefficients of the polynomial.
+     * @return coefficients
+     */
+    size_t length() const { return m_coefficients.size() ;}
 
   private:
 
-    /* Push BigNumber to end of coefficients, using the modulo (if defined)
+    /* Check the validity during construction
      */
-    void push_back( const BigNumber& ) ;
+    void checkValid( ) ;
 
-    /* Evaluate the polynomial at value x
-    */
-    BigNumber evaluate( const BigNumber& ) const ;
-
-    /* Helper 
-    */
-    void setup( int degree ) ;
+    /* Push  BigNumber to end of coefficients, using the modulo (if defined)
+     */
+    void pushBack( const BigNumber& ) ;
 
     /* Generate random numbers
      */
-    std::vector< BigNumber > randomBigGenerator
+    void randomBigGenerator
     ( 
         int degree, 
         const BigNumber& min, 
@@ -88,7 +98,6 @@ class Polynomial
 
     /// coefficients array
     std::vector< BigNumber > m_coefficients ;    
-
    
     /// modulo 
     BigNumber m_modulo ;
