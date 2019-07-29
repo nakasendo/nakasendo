@@ -8,9 +8,9 @@ import argparse
 Python script helping to import JUnit xml test results, merge them and print better views
 It require to install the package 'junitparser'
 Usage :
-    JUnitViewer --result_dir="/absolute/path/to/pymodules/dir" # (use unix path)
+    JUnitViewer --result_dir_debug="/absolute/path/to/build/dir/debug" # (use unix path)
 To send and html email :
-    JUnitViewer --result_dir="/absolute/path/to/pymodules/dir" --mail_sender=my_email@nchain.com --mail_pass=my_email_password
+    JUnitViewer --result_dir_debug="/absolute/path/to/pymodules/dir" --mail_sender=my_email@nchain.com --mail_pass=my_email_password
 """
 
 try:
@@ -30,7 +30,7 @@ def percentage_to_hex_color(passed_percentage):# percentage passed
     color_str = '#{}'.format(color_vector[failed_color_index])
     return color_str
 
-def get_junitxml(result_dir_path):
+def aggregate_junitxml(result_dir_path):
     xml_file_list = sorted(result_dir_path.glob('*test*.xml'))
     #print('\n'.join(xml_file_list))
     junit_xml = junitparser.JUnitXml()
@@ -79,27 +79,36 @@ def get_html_body_email(email_sender, email_receivers, test_result_html_table):
     ## TODO get more interesting Jenkins build status variable https://stackoverflow.com/questions/22264431/jenkins-job-build-status
     jenkins_env_vars['JOB_NAME'] = os.environ['JOB_NAME'] if 'JOB_NAME' in os.environ else 'jJOB_NAME'
     jenkins_env_vars['JOB_URL'] = os.environ['JOB_URL'] if 'JOB_URL' in os.environ else 'jJOB_URL'
+    jenkins_env_vars['BUILD_URL'] = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'jBUILD_URL'
     jenkins_env_vars['BUILD_NUMBER'] = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
     jenkins_env_vars['BUILD_ID'] = os.environ['BUILD_ID'] if 'BUILD_ID' in os.environ else 'jBUILD_ID'
+    jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'] = os.environ['BITBUCKET_PULL_REQUEST_ID'] if 'BITBUCKET_PULL_REQUEST_ID' in os.environ else 'jBITBUCKET_PULL_REQUEST_ID'
+    jenkins_env_vars['BITBUCKET_PULL_REQUEST_LINK'] = os.environ['BITBUCKET_PULL_REQUEST_LINK'] if 'BITBUCKET_PULL_REQUEST_LINK' in os.environ else 'jBITBUCKET_PULL_REQUEST_LINK'
     jenkins_env_vars['BUILD_URL'] = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'jBUILD_URL'
     jenkins_env_vars['GIT_COMMIT'] = os.environ['GIT_COMMIT'] if 'GIT_COMMIT' in os.environ else 'jGIT_COMMIT'
-    jenkins_env_vars['GIT_COMMITTER_NAME'] = os.environ['GIT_COMMITTER_NAME'] if 'GIT_COMMITTER_NAME' in os.environ else 'jGIT_COMMITTER_NAME'
+    jenkins_env_vars['BITBUCKET_PR_ACTOR'] = os.environ['BITBUCKET_PR_ACTOR'] if 'BITBUCKET_PR_ACTOR' in os.environ else 'jBITBUCKET_PR_ACTOR'
+    jenkins_env_vars['BITBUCKET_PR_SOURCE_REPO'] = os.environ['BITBUCKET_PR_SOURCE_REPO'] if 'BITBUCKET_PR_SOURCE_REPO' in os.environ else 'jBITBUCKET_PR_SOURCE_REPO'
+    jenkins_env_vars['BITBUCKET_SOURCE_BRANCH'] = os.environ['BITBUCKET_SOURCE_BRANCH'] if 'BITBUCKET_SOURCE_BRANCH' in os.environ else 'jBITBUCKET_SOURCE_BRANCH'
     jenkins_env_vars['CHANGE_ID'] = os.environ['CHANGE_ID'] if 'CHANGE_ID' in os.environ else 'jCHANGE_ID'  ## expected to be the PR ID
     jenkins_env_vars['CHANGE_URL'] = os.environ['CHANGE_URL'] if 'CHANGE_URL' in os.environ else 'jCHANGE_URL'  ## expected to be PR diff
     jenkins_env_vars['CHANGE_AUTHOR_DISPLAY_NAME'] = os.environ['CHANGE_AUTHOR_DISPLAY_NAME'] if 'CHANGE_AUTHOR_DISPLAY_NAME' in os.environ else 'jCHANGE_AUTHOR_DISPLAY_NAME'  ## expected to be PR diff
 
     msg = email.message.Message()
-    msg['Subject'] = 'SDKLibraries build [{}] [{}]'.format(jenkins_env_vars['BUILD_NUMBER'],jenkins_env_vars['BUILD_ID'])
+    msg['Subject'] = 'SDKLibraries build [{}] pull-request [{}]'.format(jenkins_env_vars['BUILD_NUMBER'],jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'])
     msg['From'] = email_sender
     msg['To'] = ', '.join(email_receivers)
     msg.add_header('Content-Type','text/html')
 
     html_body_str = '<body>\n\n'
-    html_body_str += '<b><a href="{}"><b>SDKLibraries test result for BUILD_NUMBER[{}] BUILD_ID[{}]</b></a><br><br><br>\n'.format(jenkins_env_vars['BUILD_URL'],jenkins_env_vars['BUILD_NUMBER'],jenkins_env_vars['BUILD_ID'])
+    html_body_str += 'Author : {}<br>\n'.format(jenkins_env_vars['BITBUCKET_PR_ACTOR']) # pullrequest_author_display_name
+    html_body_str += '<b><a href="{}"><b>SDKLibraries pull-request {}</b></a><br>\n'.format(jenkins_env_vars['BITBUCKET_PULL_REQUEST_LINK'], jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'])
+    html_body_str += 'Repository [{}] branch [{}]<br>\n'.format(jenkins_env_vars['BITBUCKET_PR_SOURCE_REPO'], jenkins_env_vars['BITBUCKET_SOURCE_BRANCH'])
+
+    html_body_str += '<a href="{}/console"><b>build {}</a><br><br>\n'.format(jenkins_env_vars['BUILD_URL'], jenkins_env_vars['BUILD_NUMBER'])
 
     html_body_str += test_result_html_table + '\n\n'
 
-    html_body_str += '\n\n<br><br> -----TODO Use all Jenkins Variable<br><br>\n'
+    html_body_str += '\n\n<br><br><br><br> -----TODO Use all Jenkins Variable<br><br>\n'
 
     for jVarName, jVarValue in jenkins_env_vars.items():
         html_body_str += '{}:[{}]<br>\n'.format(jVarName, jVarValue)
@@ -110,21 +119,27 @@ def get_html_body_email(email_sender, email_receivers, test_result_html_table):
 
 
 parser = argparse.ArgumentParser(description='JUnitViewer')
-parser.add_argument('--result_dir', metavar='-d', help='Directory containing all JUnit xml test results')
+parser.add_argument('--result_dir_debug', metavar='-d', help='Directory containing all JUnit xml test results for debug build')
+parser.add_argument('--result_dir_release', metavar='-r', help='Directory containing all JUnit xml test results for release build')
 parser.add_argument('--mail_sender', metavar='-s', help='Sender email (outlook)')
 parser.add_argument('--mail_pass', metavar='-p', help='Sender email password')
 
 args = parser.parse_args()
-if not args.result_dir:
+if not args.result_dir_debug and not args.result_dir_release:
     print("Directory containing JUnit xml files is expected")
     parser.print_help()
     sys.exit(2)
 
-test_result_dir = pathlib.Path(args.result_dir)
+test_result_dir_debug = pathlib.Path(args.result_dir_debug)
+test_result_dir_release = pathlib.Path(args.result_dir_release)
 
-xml = get_junitxml(test_result_dir)
-out_xml = test_result_dir/'test_all_junit.xml'
-xml.write(out_xml)
+xml_debug = aggregate_junitxml(test_result_dir_debug)
+out_xml_debug = test_result_dir_debug/'test_all_junit.xml'
+xml_debug.write(out_xml_debug)
+
+xml_release = aggregate_junitxml(test_result_dir_release)
+out_xml_release = test_result_dir_release/'test_all_junit.xml'
+xml_release.write(out_xml_release)
 
 ###################################################################
 ## SEND EMAIL
@@ -143,7 +158,7 @@ import smtplib
 html_table_str = get_html_table(xml)
 #print(html_table_str)## Debug log
 
-recipients=['j.murphy@nchain.com', 'c.nguyen@nchain.com', 'c.battini@nchain.com', 'd.edunfunke@nchain.com', 'p.foster@nchain.com', 'r.balagourouche@nchain.com', 'm.rae@nchain.com', 'm.jenner@nchain.com']
+recipients=['j.murphy@nchain.com', 'c.nguyen@nchain.com', 'j.wilden@nchain.com', 'c.battini@nchain.com', 'd.edunfunke@nchain.com', 'p.foster@nchain.com', 'r.balagourouche@nchain.com', 'm.rae@nchain.com', 'm.jenner@nchain.com']
 SERVER = "smtp.office365.com"
 
 server = smtplib.SMTP(SERVER, 587)
