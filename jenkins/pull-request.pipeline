@@ -2,11 +2,13 @@ pipeline
 {
     agent { label 'master' }
     stages {
-        stage('build test foo') {
+        stage('build on windows mvsc2017') {
             steps {
                 echo 'Get all env variable'
                 sh 'printenv'
                 echo '----------  FINISH environment variables  -------------'
+                sh 'pwd'
+                sh 'pwd'
                 sh 'pwd'
             }
         }

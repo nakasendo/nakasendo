@@ -7,6 +7,7 @@
 
 add_subdirectory(BigNumbers)
 add_subdirectory(MessageHash)
+add_subdirectory(Polynomial)
 add_subdirectory(SymEncDec)
 add_subdirectory(AsymKey)
 add_subdirectory(ECPoint)

@@ -4,7 +4,7 @@
 #include <boost/test/output_test_stream.hpp>
 
 #include <BigNumbers/BigNumbers.h>
-#include <ThresholdSignatures/Polynomial.h>
+#include <Polynomial/Polynomial.h>
 
 #include <string>
 #include <iostream>

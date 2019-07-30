@@ -28,6 +28,11 @@ target_link_libraries(test_MessageHash MessageHash BigNumbers) # Might use BigNu
 set_property(TARGET test_MessageHash PROPERTY FOLDER "tests/unit")
 sdk_add_unit_test(test_MessageHash)
 
+add_executable(test_Polynomial test_Polynomial.cpp)
+target_link_libraries(test_Polynomial BigNumbers Polynomial)
+set_property(TARGET test_Polynomial PROPERTY FOLDER "tests/unit")
+sdk_add_unit_test(test_Polynomial)
+
 add_executable(test_ECPoint test_ECPoints.cpp)
 target_link_libraries(test_ECPoint ECPoint)
 target_link_libraries(test_ECPoint BigNumbers)
@@ -53,11 +58,3 @@ add_executable(test_GroupBuilder test_GroupBuilder.cpp utils/FuncUtils.cpp)
 set_property(TARGET test_GroupBuilder PROPERTY FOLDER "tests/unit")
 target_link_libraries(test_GroupBuilder ThresholdSignatures)
 sdk_add_unit_test(test_GroupBuilder)
-
-add_executable(test_Polynomial test_Polynomial.cpp)
-target_link_libraries(test_Polynomial BigNumbers)
-target_link_libraries(test_Polynomial ThresholdSignatures)
-set_property(TARGET test_Polynomial PROPERTY FOLDER "tests/unit")
-sdk_add_unit_test(test_Polynomial)
-
-
