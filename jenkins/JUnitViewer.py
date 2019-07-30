@@ -94,6 +94,7 @@ def get_html_body_email(email_sender, email_receivers, test_result_html_table):
     ## TODO get more interesting Jenkins build status variable https://stackoverflow.com/questions/22264431/jenkins-job-build-status
     jenkins_env_vars['JOB_NAME'] = os.environ['JOB_NAME'] if 'JOB_NAME' in os.environ else 'jJOB_NAME'
     jenkins_env_vars['JOB_URL'] = os.environ['JOB_URL'] if 'JOB_URL' in os.environ else 'jJOB_URL'
+    jenkins_env_vars['JENKINS_SLAVE_OS'] = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
     jenkins_env_vars['BUILD_URL'] = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'jBUILD_URL'
     jenkins_env_vars['BUILD_NUMBER'] = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
     jenkins_env_vars['BUILD_ID'] = os.environ['BUILD_ID'] if 'BUILD_ID' in os.environ else 'jBUILD_ID'
@@ -109,13 +110,13 @@ def get_html_body_email(email_sender, email_receivers, test_result_html_table):
     jenkins_env_vars['CHANGE_AUTHOR_DISPLAY_NAME'] = os.environ['CHANGE_AUTHOR_DISPLAY_NAME'] if 'CHANGE_AUTHOR_DISPLAY_NAME' in os.environ else 'jCHANGE_AUTHOR_DISPLAY_NAME'  ## expected to be PR diff
 
     msg = email.message.Message()
-    msg['Subject'] = 'SDKLibraries build {} on pull-request {}'.format(jenkins_env_vars['BUILD_NUMBER'],jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'])
+    msg['Subject'] = 'SDKLibraries {} build {} on pull-request {}'.format(jenkins_env_vars['JENKINS_SLAVE_OS'],jenkins_env_vars['BUILD_NUMBER'],jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'])
     msg['From'] = email_sender
     msg['To'] = ', '.join(email_receivers)
     msg.add_header('Content-Type','text/html')
 
     html_body_str = '<body>\n\n'
-    html_body_str += 'Author : {}<br>\n'.format(jenkins_env_vars['BITBUCKET_PR_ACTOR']) # pullrequest_author_display_name
+    html_body_str += 'Author : {}<br>\n'.format(jenkins_env_vars['BITBUCKET_PR_ACTOR']) # pullrequest:author:display_name
     html_body_str += 'Branch [{}] repository [{}]<br>\n'.format(jenkins_env_vars['BITBUCKET_SOURCE_BRANCH'], jenkins_env_vars['BITBUCKET_PR_SOURCE_REPO'])
     html_body_str += '<b><a href="{}"><b>SDKLibraries pull-request {}</b></a><br>\n'.format(jenkins_env_vars['BITBUCKET_PULL_REQUEST_LINK'], jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'])
     html_body_str += '<a href="{}/console"><b>Build {}</a><br><br>\n'.format(jenkins_env_vars['BUILD_URL'], jenkins_env_vars['BUILD_NUMBER'])

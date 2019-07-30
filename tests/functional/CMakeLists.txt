@@ -4,9 +4,8 @@
 #                                                               #
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
-message("SDK INFO : Functional tests will not run in Debug mode because actually PyModules can not be loaded in debug")
 message("SDK INFO : To add a functional test, create a file name test_MyTestName.py")
-message("SDK INFO : import TestArgsParser")
+message("SDK INFO : pytest, are required")
 message("SDK INFO : To run a single functional test :")
 message("SDK INFO :    python test_MyTestName.py --data_dir=/absolute/path/to/data/dir --module_dir=/absolute/path/to/PyModules/dir")
 message("SDK INFO : To run with debug build on windows, remember to use python_d instead of python")
