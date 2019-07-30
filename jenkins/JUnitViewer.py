@@ -116,7 +116,7 @@ def get_html_body_email(email_sender, email_receivers, test_result_html_table):
     msg.add_header('Content-Type','text/html')
 
     html_body_str = '<body>\n\n'
-    html_body_str += 'Author : {}<br>\n'.format(jenkins_env_vars['BITBUCKET_PR_ACTOR']) # pullrequest_author_display_name
+    html_body_str += 'Author : {}<br>\n'.format(jenkins_env_vars['BITBUCKET_PR_ACTOR']) # pullrequest:author:display_name
     html_body_str += 'Branch [{}] repository [{}]<br>\n'.format(jenkins_env_vars['BITBUCKET_SOURCE_BRANCH'], jenkins_env_vars['BITBUCKET_PR_SOURCE_REPO'])
     html_body_str += '<b><a href="{}"><b>SDKLibraries pull-request {}</b></a><br>\n'.format(jenkins_env_vars['BITBUCKET_PULL_REQUEST_LINK'], jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'])
     html_body_str += '<a href="{}/console"><b>Build {}</a><br><br>\n'.format(jenkins_env_vars['BUILD_URL'], jenkins_env_vars['BUILD_NUMBER'])
