@@ -20,15 +20,15 @@ class GroupBuilderCompare {
 // Compare 2 GroupBuilders
 bool operator==(const GroupBuilder& builder1, const GroupBuilder& builder2)
 {
-    return { builder1.getID() == builder2.getID() &&
+    return ( builder1.getID() == builder2.getID() &&
              builder1.getPlayers().size() == builder2.getPlayers().size() &&
              builder1.getProposerURI() == builder2.getProposerURI() &&
-             builder1.getState() == builder2.getState() }; 
+             builder1.getState() == builder2.getState() ); 
 }
 inline std::string getRandomURI()
 {
     bool emailOrPhone = false; // false for email, true for phone
-    srand(getRandomNumberInRange(1, 9999999999));
+    srand(getRandomNumberInRange(1, (int)9999999999));
     emailOrPhone = (rand() % 2 == 1) ? false : true ;
     return (emailOrPhone == 0) ? getRandomString(10) + "@" + getRandomString(5) + ".com" : "00447" + getRandomNumberString(9);
 }
