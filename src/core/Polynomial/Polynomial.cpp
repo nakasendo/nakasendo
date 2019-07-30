@@ -1,6 +1,4 @@
-#include "Polynomial.h"
-
-
+#include <Polynomial/Polynomial.h>
 
 /*
  *  Construct a polynomial from a vector of BigNumber
@@ -283,6 +281,7 @@ BigNumber Polynomial::operator( ) ( const BigNumber& x ) const
 /* Friend function operator<<
  * for writing out polynomial in human-friendly form
  */
+
 std::ostream& operator<<( std::ostream &os, const Polynomial& poly )
 {
 
