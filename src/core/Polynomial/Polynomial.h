@@ -1,49 +1,49 @@
-/*
- * Polynomical implementation
- */
+#ifndef POLYNOMIAL_H
+#define POLYNOMIAL_H
 
-#ifndef _NCHAIN_SDK_POLYNOMIAL_H_
-#define _NCHAIN_SDK_POLYNOMIAL_H_
+#include <DYNAMIC_LIBRARY_API.hpp>
 
+#ifdef EXPORT_Polynomial
+#    define Polynomial_API EXPORT_DYNAMIC_LIBRARY
+#else
+#    define Polynomial_API IMPORT_DYNAMIC_LIBRARY
+#endif
 
 #include <vector>
 #include <string>
 #include <iostream>
 #include <BigNumbers/BigNumbers.h>
 
-
 /// 
-class Polynomial
+class Polynomial_API Polynomial
 {
   public:
- 
     // <todo> Do we want to use move semantics here?
     //Polynomial( stsd::vector< BigNumber >&& coefficients, BigNumber groupModulo )
 
     // construct from BigNumber vector
-    Polynomial( std::vector< BigNumber >& coefficients, const BigNumber& modulo ) ;
+    Polynomial( std::vector< BigNumber >& coefficients, const BigNumber& modulo );
 
     // construct from String vector
-    Polynomial( std::vector< std::string >& coefficients, const BigNumber& modulo ) ;
+    Polynomial( std::vector< std::string >& coefficients, const BigNumber& modulo );
 
     // construct from random numbers
     Polynomial( int degree, const BigNumber& modulo ) ;
 
     // construct from random numbers, with fixed a_0 term
-    Polynomial( int degree, const BigNumber& modulo, const BigNumber& a_0 ) ;
+    Polynomial( int degree, const BigNumber& modulo, const BigNumber& a_0 );
     
     // construct from random numbers, with minimum and maximum range
     Polynomial
-      ( 
+      (
           int degree, 
-          const BigNumber& modulo, 
+          const BigNumber& modulo,
           const BigNumber& min,
           const BigNumber& max
-      ) ;
+      );
 
     // Default destructor
     ~Polynomial() = default ;
-
 
     /*
     * Get the degree of the polynomial.
@@ -78,37 +78,30 @@ class Polynomial
 
   private:
 
-    /* Check the validity during construction
-     */
+    /* Check the validity during construction */
     void checkValid( ) ;
 
-    /* Push  BigNumber to end of coefficients, using the modulo (if defined)
-     */
+    /* Push  BigNumber to end of coefficients, using the modulo (if defined) */
     void pushBack( const BigNumber& ) ;
 
-    /* Generate random numbers
-     */
+    /* Generate random numbers */
     void randomBigGenerator
     ( 
         int degree, 
         const BigNumber& min, 
         const BigNumber& max 
     ) ;
-   
 
     /// coefficients array
-    std::vector< BigNumber > m_coefficients ;    
-   
+    std::vector< BigNumber > m_coefficients ;
+
     /// modulo 
     BigNumber m_modulo ;
 
     BigNumber m_zero = GenerateZero( ) ;
 
-
-    friend std::ostream& operator<<( std::ostream &os, const Polynomial& p ) ; 
+public:
+    friend Polynomial_API std::ostream& operator<<( std::ostream &os, const Polynomial& p ) ;
 };
 
-
-
-
-#endif 
+#endif /* POLYNOMIAL_H */

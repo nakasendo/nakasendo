@@ -16,7 +16,6 @@ set(THRESHOLD_SIGNATURES_HPP_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupBuilder.h
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupResponseMessage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupSetupMessage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/Polynomial.h
 )
 
 set(THRESHOLD_SIGNATURES_CPP_FILES
@@ -27,8 +26,6 @@ set(THRESHOLD_SIGNATURES_CPP_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupBuilder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupResponseMessage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupSetupMessage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Polynomial.cpp
-
 )
 
 

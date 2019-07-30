@@ -17,13 +17,19 @@ Usage :
 
 Example of info_path : pullrequest_source_repository_links_html_href : this get the html link of the source repository in the BITBUCKET_PAYLOAD
 To use with Windows Batch script :
-    for /f "delims=" %A in ('python BitbucketPayloadGet.py --source_repository') do set "BITBUCKET_PR_SOURCE=%A"  # this will retreive and set BITBUCKET_PR_SOURCE
-    for /f "delims=" %A in ('python BitbucketPayloadGet.py --destination_repository') do set "BITBUCKET_PR_DESTINATION=%A"  # this will retreive and set BITBUCKET_PR_DESTINATION
+    for /f "delims=" %A in ('python BitbucketPayloadGet.py --source_repository') do set "BITBUCKET_PR_SOURCE_REPO=%A"  # this will retreive and set BITBUCKET_PR_SOURCE_REPO
+    for /f "delims=" %A in ('python BitbucketPayloadGet.py --destination_repository') do set "BITBUCKET_PR_DESTINATION_REPO=%A"  # this will retreive and set BITBUCKET_PR_DESTINATION_REPO
     for /f "delims=" %A in ('python BitbucketPayloadGet.py --key_path=pullrequest_id') do set "BITBUCKET_PR_ID=%A"  # this will retreive and set BITBUCKET_PR_ID
+Note that for Windows, if use http git glone, then use 
+  --key_path=pullrequest_source_repository_links_html_href
+  --key_path=pullrequest_destination_repository_links_html_href
+To get the repo url with https protocol
 To use with Linux shell script :
-    BITBUCKET_PR_SOURCE=$(python BitbucketPayloadGet.py --source_repository)
-    BITBUCKET_PR_DESTINATION$(python BitbucketPayloadGet.py --destination_repository)
+    BITBUCKET_PR_SOURCE_REPO=$(python BitbucketPayloadGet.py --source_repository)
+    BITBUCKET_PR_DESTINATION_REPO=$(python BitbucketPayloadGet.py --destination_repository)
     BITBUCKET_PR_ID(python BitbucketPayloadGet.py --key_path=pullrequest_id)
+
+Do remember that the script BitbucketPayloadGet.py is in $SDKLIBRARIES_ROOT/jenkins
 """
 
 example_BITBUCKET_PAYLOAD = '''
