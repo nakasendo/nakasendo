@@ -25,7 +25,7 @@
 
 #ifndef _NCHAIN_SDK_ENUM_CAST_H_
 #define _NCHAIN_SDK_ENUM_CAST_H_
-
+#include <string>
 #include <unordered_map>
 //#include <type_traits>
 

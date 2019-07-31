@@ -6,11 +6,13 @@
 #################################################################
 
 set(POLYNOMIAL_HPP_FILES_PUBLIC # Keep alphabet order
+  ${CMAKE_CURRENT_SOURCE_DIR}/LGInterpolator.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Polynomial.h
 )
 set(POLYNOMIAL_HPP_FILES ${POLYNOMIAL_HPP_FILES_PUBLIC})
 
 set(POLYNOMIAL_CPP_FILES # Keep alphabet order
+  ${CMAKE_CURRENT_SOURCE_DIR}/LGInterpolator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Polynomial.cpp
 )
 set(Polynomial_CPP_FILES "${POLYNOMIAL_CPP_FILES}" CACHE INTERNAL "Cache list of Polynomial cpp files")

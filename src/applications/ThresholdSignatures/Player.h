@@ -69,10 +69,10 @@ class ThresholdSignatures_API Player final
     /// Comparison operator.
     bool operator==(const Player& that) const
     {
-        return { mUri == that.mUri &&
+        return ( mUri == that.mUri &&
                  mOrdinal == that.mOrdinal &&
                  mAccepted == that.mAccepted &&
-                 mRejected == that.mRejected };
+                 mRejected == that.mRejected );
     }
 
     static std::string  to_json(const Player& p);
