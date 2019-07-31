@@ -40,10 +40,31 @@ BigNumber LGInterpolator::operator()(const BigNumber& xValue){
     BigNumber k; 
     BigNumber mul;
     k.Zero(); 
-    
+    mul.One(); 
     for (int i=0;i<n;++i){
-        mul.One();
-        for(int j=0;j<n;++j){
+        mul = evalLi(i, xValue);
+        BigNumber completeTerm = Mul_mod(mul, m_Points.at(i).second, m_modulo);
+        k = Add_mod (k,completeTerm,m_modulo);       
+    }
+    return k;
+}
+
+BigNumber LGInterpolator::operator()(const int& i, const BigNumber& xValue){
+    // this operator is to evaluate the ith basis polynomial at xValue. 
+    // sanity check the value of i
+    if ( i <= 0 || i > m_Points.size()){
+        std::stringstream errMsg;
+        errMsg << "Invalid basis polynomial requested in LGInterpolator()\t i " << i << " is not between zero and " << m_Points.size () ;
+        std::runtime_error err (errMsg.str());
+        throw err; 
+    }
+    return ( evalLi (i, xValue));
+}
+
+BigNumber LGInterpolator::evalLi (const int& i, const BigNumber& xValue){
+    BigNumber mul;
+    mul.One();
+    for(int j=0;j<m_Points.size();++j){
             if( j!=i){
                 try{
                     BigNumber BNNumeratorTerm1 = Sub_mod( xValue, m_Points.at(j).first, m_modulo);                
@@ -59,15 +80,10 @@ BigNumber LGInterpolator::operator()(const BigNumber& xValue){
                     std::runtime_error extraExp ( errStr.str());
                     throw extraExp; 
                 }
-
             }
-        }
-        BigNumber completeTerm = Mul_mod(mul, m_Points.at(i).second, m_modulo);
-        k = Add_mod (k,completeTerm,m_modulo);       
     }
-    return k;
+    return mul;
 }
-
 
 
 std::ostream& operator<<(std::ostream& output, const LGInterpolator& obj){

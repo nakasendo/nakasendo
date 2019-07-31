@@ -18,6 +18,7 @@ class Polynomial_API LGInterpolator
         ~LGInterpolator () = default;
 
         BigNumber operator()( const BigNumber&);
+        BigNumber operator()(const int&, const BigNumber&);
 
         int Degree () const ; 
         int Length () const ; 
@@ -25,6 +26,7 @@ class Polynomial_API LGInterpolator
         PointsList m_Points ; 
         BigNumber m_modulo;
 
+        BigNumber evalLi (const int&, const BigNumber&);
 };
 
 #endif //#ifndef __LGINTERPOLATOR_H__

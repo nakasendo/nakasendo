@@ -553,6 +553,44 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_repeated_coeff )
             std::runtime_error  
         );
 }
+
+BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_invalid_basis )
+{
+    int degree = 50;
+    BigNumber mod; 
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<BigNumber> fx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+
+    std::vector<BigNumber> x = getVectorBNX(npPoint);
+    
+    for (std::vector<BigNumber>::const_iterator iter = x.begin(); iter !=x.end(); ++ iter){
+        fx.push_back(poly(*iter));
+    }
+
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx; 
+    std::vector<BigNumber>::const_iterator xIter = x.begin(), fxIter = fx.begin (); 
+    for(; xIter != x.end(); ++xIter, ++fxIter){
+        xfx.push_back ( std::pair(*xIter, *fxIter)); 
+    }
+
+    // Pick a number with in the Mod range.
+    BigNumber zero;
+    zero.Zero(); 
+    BigNumber xValue = GenerateRandRange(zero, mod); 
+
+    LGInterpolator interpFunc(xfx, mod);
+    BigNumber Val = interpFunc(xValue);
+    BOOST_CHECK_THROW(
+        BigNumber valBasis = interpFunc(55, xValue),
+        std::runtime_error
+    );
+}
 ////
 BOOST_AUTO_TEST_SUITE_END( ) ;
 
