@@ -16,7 +16,7 @@ To be able to build the SDK, users need to install some tools and libraries. In 
 * Boost 1.69.0
 * OpenSSL 1.1.b. It need to have two versions : one for native C++, other for emcripten
 * EMSDK : 1.38.0 : https://emscripten.org/docs/getting_started/downloads.html
-* Python3
+* Python3 [pytest, junitparser, ecdsa]
 
 Once build/install tools and libraries, it requires to do some post installation in order to let SDKLibraries build system to know how to find them :
 
