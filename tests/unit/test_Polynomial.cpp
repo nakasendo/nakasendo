@@ -413,13 +413,8 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_3_mod_17 )
     LGInterpolator interpFunc(xfx, mod);
 
      for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
-         try{
-            BigNumber TestVal = interpFunc(testIter->first);
-            BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
-        }
-        catch(std::exception& e){
-            std::cout << e.what() << std::endl;
-        }
+        BigNumber TestVal = interpFunc(testIter->first);
+        BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
      }
 
 }
@@ -458,13 +453,8 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
     LGInterpolator interpFunc(xfx, mod);
 
      for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
-         try{
-            BigNumber TestVal = interpFunc(testIter->first);
-            BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
-        }
-        catch(std::exception& e){
-            std::cout << e.what() << std::endl;
-        }
+        BigNumber TestVal = interpFunc(testIter->first);
+        BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
      }
 
 }
@@ -501,13 +491,8 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_200_mod_SECP256K1MOD )
     LGInterpolator interpFunc(xfx, mod);
 
      for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
-         try{
-            BigNumber TestVal = interpFunc(testIter->first);
-            BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
-        }
-        catch(std::exception& e){
-            std::cout << e.what() << std::endl;
-        }
+        BigNumber TestVal = interpFunc(testIter->first);
+        BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
      }
 }
 
@@ -590,7 +575,67 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_invalid_basis )
         BigNumber valBasis = interpFunc(55, xValue),
         std::runtime_error
     );
+
+    BOOST_CHECK_THROW(
+        BigNumber valBasis = interpFunc(-1, xValue),
+        std::runtime_error
+    );
 }
+////
+BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_basis )
+{
+    int degree = 3;
+    BigNumber mod; 
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<BigNumber> fx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+
+    std::vector<BigNumber> x = getVectorBNX(npPoint);
+    
+    for (std::vector<BigNumber>::const_iterator iter = x.begin(); iter !=x.end(); ++ iter){
+        fx.push_back(poly(*iter));
+    }
+
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx; 
+    std::vector<BigNumber>::const_iterator xIter = x.begin(), fxIter = fx.begin (); 
+    for(; xIter != x.end(); ++xIter, ++fxIter){
+        xfx.push_back ( std::pair(*xIter, *fxIter)); 
+    }
+
+    // Please refer to - https://en.wikipedia.org/wiki/Lagrange_polynomial
+    // These should all evaluate to 1
+    int index = 0;
+    LGInterpolator interpFunc(xfx, mod);
+    BigNumber one ; 
+    one.One(); 
+    for (std::vector<std::pair<BigNumber, BigNumber> >::const_iterator iter = xfx.begin (); iter != xfx.end(); ++ iter){
+        BigNumber ithVal = interpFunc(index++, iter->first);
+        std::cout << "@ " << index << " L[" << index << "](" << iter->first.ToDec() << "): " << ithVal.ToDec() << std::endl;
+        BOOST_ASSERT ( ithVal == one );
+    }
+    
+    // These should all evaluate to 0
+    index = 5;
+    BigNumber zero; 
+    zero.Zero(); 
+    for (std::vector<std::pair<BigNumber, BigNumber> >::const_iterator iter = xfx.begin (); iter != xfx.end(); ++ iter){
+        BigNumber ithVal = interpFunc(index--, iter->first);
+        std::cout << "@ " << (index+1) << " L[" << (index+1) << "](" << iter->first.ToDec() << "): " << ithVal.ToDec() << std::endl;
+        BOOST_ASSERT ( ithVal == zero);
+    }
+
+    
+
+
+
+
+}
+
 ////
 BOOST_AUTO_TEST_SUITE_END( ) ;
 
