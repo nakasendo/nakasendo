@@ -77,14 +77,14 @@ def get_html_table(xml_junit):
 def get_html_table_test_result(xml_release, xml_debug):
     html_test_str =''
     if len(xml_release) > 0:
-        html_test_str+= 'Test results on Release:<br>{}\n'.format(get_html_table(xml_release))
+        html_test_str+= '<b>Test results on Release</b>:<br>{}<br>\n'.format(get_html_table(xml_release))
     else:
-        html_test_str+= '<font color="red">Test results on Release: MISSING</font><br><br>\n'
+        html_test_str+= '<font color="red"><b>Test results on Release</b>: MISSING</font><br><br>\n'
 
     if len(xml_debug) > 0:
-        html_test_str+= '<br><br>Test results on Debug:<br>{}\n'.format(get_html_table(xml_debug))
+        html_test_str+= '<b>Test results on Debug</b>:<br>{}<br>\n'.format(get_html_table(xml_debug))
     else:
-        html_test_str+= '<br><br><font color="red">Test results on Debug: MISSING</font><br><br>\n'
+        html_test_str+= '<font color="red"><b>Test results on Debug: MISSING</b></font><br><br>\n'
 
     return html_test_str
 
@@ -104,16 +104,15 @@ def get_html_body_email(email_sender, email_receivers, test_result_html_table):
     jenkins_env_vars['BITBUCKET_SOURCE_BRANCH'] = os.environ['BITBUCKET_SOURCE_BRANCH'] if 'BITBUCKET_SOURCE_BRANCH' in os.environ else 'jBITBUCKET_SOURCE_BRANCH'
 
     msg = email.message.Message()
-    msg['Subject'] = '{} build[{}] on pr[{}]:{}'.format(jenkins_env_vars['JENKINS_SLAVE_OS'],jenkins_env_vars['BUILD_NUMBER'],jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'], jenkins_env_vars['BITBUCKET_PR_TITLE'])
+    msg['Subject'] = '{} PR #{} : "{}"'.format(jenkins_env_vars['JENKINS_SLAVE_OS'], jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'], jenkins_env_vars['BITBUCKET_PR_TITLE'])
     msg['From'] = email_sender
     msg['To'] = ', '.join(email_receivers)
     msg.add_header('Content-Type','text/html')
 
     html_body_str = '<body>\n\n'
-    html_body_str += 'Author : {}<br>\n'.format(jenkins_env_vars['BITBUCKET_PR_ACTOR']) # pullrequest:author:display_name
-    html_body_str += 'Pull Request from repository [{}] branch [{}] <br>\n'.format(jenkins_env_vars['BITBUCKET_PR_SOURCE_REPO'], jenkins_env_vars['BITBUCKET_SOURCE_BRANCH'])
-    html_body_str += '<b><a href="{}"><b>SDKLibraries pull-request[{}] :"{}"</b></a><br>\n'.format(jenkins_env_vars['BITBUCKET_PULL_REQUEST_LINK'], jenkins_env_vars['BITBUCKET_PULL_REQUEST_ID'], jenkins_env_vars['BITBUCKET_PR_TITLE'])
-    html_body_str += '<a href="{}/console"><b>Build {} on {}</a><br><br>\n'.format(jenkins_env_vars['BUILD_URL'], jenkins_env_vars['BUILD_NUMBER'], jenkins_env_vars['JENKINS_SLAVE_OS'])
+    html_body_str += 'Pull Request author : <b>{}</b><br><br>\n'.format(jenkins_env_vars['BITBUCKET_PR_ACTOR']) # pullrequest:author:display_name
+    html_body_str += '<a href="{}/consoleFull">Log Build #{} on {}</a><br>\n'.format(jenkins_env_vars['BUILD_URL'], jenkins_env_vars['BUILD_NUMBER'], jenkins_env_vars['JENKINS_SLAVE_OS'])
+    html_body_str += '<a href="{}">Repository <i>{}</i>   b[<b>{}</b>]</a><br><br><br>\n'.format(jenkins_env_vars['BITBUCKET_PULL_REQUEST_LINK'], jenkins_env_vars['BITBUCKET_PR_SOURCE_REPO'], jenkins_env_vars['BITBUCKET_SOURCE_BRANCH'])
 
     html_body_str += test_result_html_table + '\n\n'
 
@@ -160,9 +159,10 @@ import smtplib
 ## Build the html body for the email
 html_table_str = get_html_table_test_result(xml_release, xml_debug)
 #print(html_table_str)## Debug log
-recipients=['j.murphy@nchain.com', 'c.nguyen@nchain.com', 'j.wilden@nchain.com', 'c.battini@nchain.com', 'd.edunfunke@nchain.com', 'r.balagourouche@nchain.com', 'm.rae@nchain.com', 'p.foster@nchain.com']
-SERVER = "smtp.office365.com"
 
+recipients=['j.murphy@nchain.com', 'c.nguyen@nchain.com', 'j.wilden@nchain.com', 'c.battini@nchain.com', 'd.edunfunke@nchain.com', 'r.balagourouche@nchain.com', 'm.rae@nchain.com', 'p.foster@nchain.com']
+
+SERVER = "smtp.office365.com"
 server = smtplib.SMTP(SERVER, 587)
 server.starttls()
 server.login(args.mail_sender, args.mail_pass)
