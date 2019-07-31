@@ -33,11 +33,6 @@ target_link_libraries(test_Polynomial BigNumbers Polynomial)
 set_property(TARGET test_Polynomial PROPERTY FOLDER "tests/unit")
 sdk_add_unit_test(test_Polynomial)
 
-add_executable(test_Interpolation test_Interpolation.cpp)
-target_link_libraries(test_Interpolation BigNumbers Polynomial)
-set_property(TARGET test_Interpolation PROPERTY FOLDER "tests/unit")
-sdk_add_unit_test(test_Interpolation)
-
 add_executable(test_ECPoint test_ECPoints.cpp)
 target_link_libraries(test_ECPoint ECPoint)
 target_link_libraries(test_ECPoint BigNumbers)

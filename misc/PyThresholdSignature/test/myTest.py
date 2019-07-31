@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
 import sys
-sys.path.append ('/Users/j.murphy/nchain/SDK-NAME-CHANGE/sdklibraries-john/misc/PyThresholdSignature')
-sys.path.append ('/Users/j.murphy/nchain/SDK-NAME-CHANGE/sdklibraries-john/misc/PyThresholdSignature/test')
 import Polynomial
 import test_Polynomial
 

@@ -4,6 +4,8 @@
 
 #include "Polynomial/LGInterpolator.h"
 
+template <typename Iterator>
+bool has_duplicates( Iterator, Iterator );
 
 LGInterpolator::LGInterpolator(const PointsList& points, const BigNumber& modulo)
     : m_Points (points)
@@ -25,11 +27,11 @@ LGInterpolator::LGInterpolator(const PointsList& points, const BigNumber& modulo
     return ;
 }
 
-const int LGInterpolator::Degree () const { 
+int LGInterpolator::Degree () const { 
     return int(m_Points.size() - 1);
 }
 
-const int LGInterpolator::Length () const {
+int LGInterpolator::Length () const {
     return int (m_Points.size());
 }
 
@@ -50,8 +52,12 @@ BigNumber LGInterpolator::operator()(const BigNumber& xValue){
                     mul = Mul_mod(mul,div,m_modulo);
                 }
                 catch (std::exception& e){
-                    std::cout << e.what() << std::endl;
-                    throw;  
+                    std::stringstream errStr ; 
+                    errStr << "Exception in interpolation of point: " << xValue.ToHex() << " between " 
+                            << m_Points.at(i).first.ToHex () << " and " << m_Points.at(j).first.ToHex() << "\t" << e.what(); 
+                    
+                    std::runtime_error extraExp ( errStr.str());
+                    throw extraExp; 
                 }
 
             }
