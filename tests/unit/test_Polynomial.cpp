@@ -615,8 +615,7 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_basis )
     one.One(); 
     for (std::vector<std::pair<BigNumber, BigNumber> >::const_iterator iter = xfx.begin (); iter != xfx.end(); ++ iter){
         BigNumber ithVal = interpFunc(index++, iter->first);
-        std::cout << "@ " << index << " L[" << index << "](" << iter->first.ToDec() << "): " << ithVal.ToDec() << std::endl;
-        BOOST_ASSERT ( ithVal == one );
+        BOOST_TEST ( ithVal.ToDec () == one.ToDec() );
     }
     
     // These should all evaluate to 0
@@ -625,8 +624,7 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_basis )
     zero.Zero(); 
     for (std::vector<std::pair<BigNumber, BigNumber> >::const_iterator iter = xfx.begin (); iter != xfx.end(); ++ iter){
         BigNumber ithVal = interpFunc(index--, iter->first);
-        std::cout << "@ " << (index+1) << " L[" << (index+1) << "](" << iter->first.ToDec() << "): " << ithVal.ToDec() << std::endl;
-        BOOST_ASSERT ( ithVal == zero);
+        BOOST_TEST ( ithVal.ToDec() == zero.ToDec());
     }
 
     
