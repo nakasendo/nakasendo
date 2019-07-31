@@ -21,12 +21,33 @@ class PlayerItem:
 class PlayerMap:
     def __init__(self):
         self.items = []
+        self.count = 0
+        self.currentCount = 0
 
     def add(self, playeritem):
+        if (playeritem in self.items):
+            return False
         self.items.append(playeritem)
+        self.count += 1
+        return True
 
     def getItems(self):
         return self.items
+
+    def getCount(self):
+        return self.count
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+
+        if (self.currentCount + 1 > self.count):
+            raise StopIteration
+            
+        else:
+            self.currentCount += 1
+            return self.items[self.currentCount - 1]
 
     def getPlayersSortedByOrdinal(self):
         if (len(self.items) == 0):
@@ -44,6 +65,12 @@ class PlayerMap:
             if (item.getPlayer().getOrdinal() == ordinal):
                 return item
         return None
+
+    def findPlayer(self, uri):
+        for playerItem in self.getItems():
+            if (playerItem.getPlayer().getURI() == uri):
+                return playerItem.getPlayer()
+        return None 
 
 class Group:
 
