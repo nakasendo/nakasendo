@@ -11,19 +11,25 @@ stay in the BITBUCKET_PAYLOAD json string. This script help to pull out the deta
 a pull request, source of a pull request ... etc.
 Note : This script assume the system variable BITBUCKET_PAYLOAD is set and exist
 Usage :
-    BitbucketPayloadGet --key_path=repository_scm # generic query
+    BitbucketPayloadGet --key_path=repository:scm # generic query
     BitbucketPayloadGet --source_repository       # give out the git link of the source repository
     BitbucketPayloadGet --destination_repository  # give out the git link of the destination repository
 
 Example of info_path : pullrequest_source_repository_links_html_href : this get the html link of the source repository in the BITBUCKET_PAYLOAD
 To use with Windows Batch script :
-    for /f "delims=" %A in ('python BitbucketPayloadGet.py --source_repository') do set "BITBUCKET_PR_SOURCE=%A"  # this will retreive and set BITBUCKET_PR_SOURCE
-    for /f "delims=" %A in ('python BitbucketPayloadGet.py --destination_repository') do set "BITBUCKET_PR_DESTINATION=%A"  # this will retreive and set BITBUCKET_PR_DESTINATION
-    for /f "delims=" %A in ('python BitbucketPayloadGet.py --key_path=pullrequest_id') do set "BITBUCKET_PR_ID=%A"  # this will retreive and set BITBUCKET_PR_ID
+    for /f "delims=" %A in ('python BitbucketPayloadGet.py --source_repository') do set "BITBUCKET_PR_SOURCE_REPO=%A"  # this will retreive and set BITBUCKET_PR_SOURCE_REPO
+    for /f "delims=" %A in ('python BitbucketPayloadGet.py --destination_repository') do set "BITBUCKET_PR_DESTINATION_REPO=%A"  # this will retreive and set BITBUCKET_PR_DESTINATION_REPO
+    for /f "delims=" %A in ('python BitbucketPayloadGet.py --key_path=pullrequest:id') do set "BITBUCKET_PR_ID=%A"  # this will retreive and set BITBUCKET_PR_ID
+Note that for Windows, if use http git glone, then use 
+  --key_path=pullrequest:source:repository:links:html:href
+  --key_path=pullrequest:destination:repository:links:html:href
+To get the repo url with https protocol
 To use with Linux shell script :
-    BITBUCKET_PR_SOURCE=$(python BitbucketPayloadGet.py --source_repository)
-    BITBUCKET_PR_DESTINATION$(python BitbucketPayloadGet.py --destination_repository)
-    BITBUCKET_PR_ID(python BitbucketPayloadGet.py --key_path=pullrequest_id)
+    BITBUCKET_PR_SOURCE_REPO=$(python BitbucketPayloadGet.py --source_repository)
+    BITBUCKET_PR_DESTINATION_REPO=$(python BitbucketPayloadGet.py --destination_repository)
+    BITBUCKET_PR_ID(python BitbucketPayloadGet.py --key_path=pullrequest:id)
+
+Do remember that the script BitbucketPayloadGet.py is in $SDKLIBRARIES_ROOT/jenkins
 """
 
 example_BITBUCKET_PAYLOAD = '''
@@ -153,13 +159,13 @@ example_BITBUCKET_PAYLOAD = '''
    }
 }
 '''
-example_INFO_PATH = 'pullrequest_source_repository_links_html_href'
+example_INFO_PATH = 'pullrequest:source:repository:links:html:href'
 
 #print(example_BITBUCKET_PAYLOAD)
 
-## From key_path_str separated by '_', return key_path in form of list
+## From key_path_str separated by ':', return key_path in form of list
 def _get_key_path_list(key_path_str):
-    return key_path_str.split('_')
+    return key_path_str.split(':')
 
 ##  dict_obj        is a dictionary
 ##  key_path        is the key path in form of a list
@@ -191,7 +197,7 @@ def _transform_git_html_to_ssh(html_link):
     return ''
 
 parser = argparse.ArgumentParser(description='BITBUCKET_PAYLOAD parser')
-parser.add_argument('-k','--key_path'              , help='Key path \'_\'-separated to query the JSON string')
+parser.add_argument('-k','--key_path'              , help='Key path \':\'-separated to query the JSON string')
 parser.add_argument('-s','--source_repository'     , dest='source_repository', action='store_true'      , help='Get the git source repository of the pull request. It cancel out other arguments')
 parser.add_argument('-d','--destination_repository', dest='destination_repository', action='store_true' , help='Get the git destination repository of the pull request. It cancel out other arguments')
 
@@ -208,6 +214,7 @@ if args.destination_repository:
     args.key_path=None
     args.source_repository=None
 
+#BITBUCKET_PAYLOAD_str = example_BITBUCKET_PAYLOAD
 BITBUCKET_PAYLOAD_str = os.environ['BITBUCKET_PAYLOAD'] #example_BITBUCKET_PAYLOAD
 bbPAYLOAD = json.loads(BITBUCKET_PAYLOAD_str)
 
@@ -219,7 +226,7 @@ if args.key_path is not None:
     sys.exit(0)
 
 if args.source_repository:
-    key_path_str_for_source_repo = 'pullrequest_source_repository_links_html_href'
+    key_path_str_for_source_repo = 'pullrequest:source:repository:links:html:href'
     key_path_str = key_path_str_for_source_repo
     key_path_list = _get_key_path_list(key_path_str)
     source_repo_html = _get_json_data(bbPAYLOAD, key_path_list, 0)
@@ -228,7 +235,7 @@ if args.source_repository:
     sys.exit(0)
 
 if args.destination_repository:
-    key_path_str_for_destination_repo = 'pullrequest_destination_repository_links_html_href'
+    key_path_str_for_destination_repo = 'pullrequest:destination:repository:links:html:href'
     key_path_str = key_path_str_for_destination_repo
     key_path_list = _get_key_path_list(key_path_str)
     destination_repo_html = _get_json_data(bbPAYLOAD, key_path_list, 0)
