@@ -49,32 +49,31 @@ class Polynomial_API Polynomial
     * Get the degree of the polynomial.
     * @return The degree (order) of the polynomial
     */
-    int getDegree() const { return m_coefficients.size() -1 ; }
-
-
-    /*
-     * Function 
-     * Evaluate the polynomial at value x
-     */
-    BigNumber operator( )( const BigNumber& ) const ;
-
+    int getDegree() const;
+    
     /*
      * Array access
      */
-    BigNumber const& operator [] (unsigned int index) const { return m_coefficients[ index] ; }
+    BigNumber const& operator [] (unsigned int index) const;
 
 
     /*
      * Get the coefficients of the polynomial.
      * @return coefficients
      */
-    const std::vector<BigNumber>& getCoefficients() const { return m_coefficients ; }
+    const std::vector<BigNumber>& getCoefficients() const;
     
     /*
      * Get the coefficients of the polynomial.
      * @return coefficients
      */
-    size_t length() const { return m_coefficients.size() ;}
+    size_t length() const;
+
+    /*
+     * Function
+     * Evaluate the polynomial at value x
+     */
+    BigNumber operator( )(const BigNumber&) const;
 
   private:
 
