@@ -1,15 +1,29 @@
-pipeline
-{
-    agent { label 'master' }
+pipeline {
+    agent none
     stages {
-        stage('build on windows mvsc2017') {
+        stage('Investigate') {
+            agent any
             steps {
-                echo 'Get all env variable'
+                sh 'echo stage investigatioin on master node '
                 sh 'printenv'
-                echo '----------  FINISH environment variables  -------------'
-                sh 'pwd'
-                sh 'pwd'
-                sh 'pwd'
+            }
+        }
+        stage('Build Linux')
+        {
+            agent { label 'slave_vm_Ubuntu18_x64_gcc730'}
+            steps {
+                sh 'echo Build Linux Stage'
+                sh 'printenv'
+                sh 'echo ----------    FINISHED PRINTING ENV VARIABLES   -------------------'
+            }
+        }
+        stage('Build Windows')
+        {
+            agent { label 'slave_vm_win10pro_x64_mvsc2017' }
+            steps {
+                bat 'echo Build Windows Stage'
+                bat 'set'
+                bat 'echo ----------    FINISHED PRINTING ENV VARIABLES   -------------------'
             }
         }
     }
