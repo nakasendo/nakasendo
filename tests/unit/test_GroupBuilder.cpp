@@ -1,4 +1,10 @@
-#define BOOST_TEST_MODULE test_GroupBuilder
+/// Define test module name with debug postfix
+#ifdef NDEBUG 
+#  define BOOST_TEST_MODULE test_GroupBuilder
+#else
+#  define BOOST_TEST_MODULE test_GroupBuilderd
+#endif
+
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 #include <memory>
