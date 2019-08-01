@@ -13,10 +13,15 @@ To be able to build the SDK, users need to install some tools and libraries. In 
 
 * CMake 3.12 (https://cmake.org/download/) 
 * C++ Compiler : Visual Studio 2017 on windows, g++7 on Linux
-* Boost 1.69.0
+* Boost 1.69.0 to build cpp unit tests
 * OpenSSL 1.1.b. It need to have two versions : one for native C++, other for emcripten
 * EMSDK : 1.38.0 : https://emscripten.org/docs/getting_started/downloads.html
-* Python3 [pytest, junitparser, ecdsa]
+* Python3
+    pathlib       usefull
+    pytest        to run functional tests
+    junitparser   to combine overall junit test results
+    ecdsa         to study elliptic curves
+    requests      to send http(s) request to different server api (jenkins/bitbucket)
 
 Once build/install tools and libraries, it requires to do some post installation in order to let SDKLibraries build system to know how to find them :
 
