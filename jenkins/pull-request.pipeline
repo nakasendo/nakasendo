@@ -1,7 +1,34 @@
+/*
+   Pipeline setting to trigger build on pull request Created/Updated
+   Once trigger, the build jobs will be delegate to multiple slaves
+*/
+
+
 pipeline {
     agent none
+
+    /**
+       Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated
+       https://wiki.jenkins.io/display/JENKINS/Bitbucket+Push+And+Pull+Request+Plugin
+     */
+    properties([
+        pipelineTriggers([
+            [
+                $class: 'BitBucketPPRTrigger',
+                triggers : [
+                    [
+                        $class: 'BitBucketPPRPullRequestTriggerFilter',
+                        actionFilter:[$class: 'BitBucketPPRPullRequestCreatedActionFilter'] /*Trigger on Created*/
+                        actionFilter:[$class: 'BitBucketPPRPullRequestUpdatedActionFilter'] /*Trigger on Updated*/
+                    ]
+                ]
+            ]
+        ])
+    ])
+
+    /* Start builds in different slaves*/
     stages {
-        stage('Investigate') {
+        stage('Investigate'){
             agent any
             steps {
                 sh 'echo stage investigatioin on master node '
