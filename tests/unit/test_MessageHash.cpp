@@ -1,4 +1,10 @@
-#define BOOST_TEST_MODULE test_MessageHash
+/// Define test module name with debug postfix
+#ifdef NDEBUG 
+#  define BOOST_TEST_MODULE test_MessageHash
+#else
+#  define BOOST_TEST_MODULE test_MessageHashd
+#endif
+
 #include <boost/test/unit_test.hpp>
 
 #include <string.h>

@@ -1,6 +1,12 @@
-#define BOOST_TEST_MODULE test_SymEncDec
-#include <boost/test/unit_test.hpp>
+/// Define test module name with debug postfix
+#ifdef NDEBUG 
+#  define BOOST_TEST_MODULE test_SymEncDec
+#else
+#  define BOOST_TEST_MODULE test_SymEncDecd
+#endif
 
+
+#include <boost/test/unit_test.hpp>
 #include <SymEncDec/SymEncDec.h>
 #include <SymEncDec/SymEncDecAPI.h>
 #include <string>
