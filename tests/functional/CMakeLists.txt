@@ -20,11 +20,15 @@ foreach(_ftest_file ${_FUNCTIOINAL_TEST_FILES})
   string(REGEX REPLACE "test_" "ftest_" _test_name ${_ftest_file_name})
 
   if(CMAKE_CONFIGURATION_TYPES)
+  set(_tpost_fix d)
     ## Note at the moment, on Windows Py Module can be loaded only in release build. There are problem in debug build
     add_test(NAME ${_test_name} COMMAND  ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} -o junit_suite_name=${_test_name} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} --junitxml=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/${_test_name}.xml CONFIGURATIONS Release)
     ## To be able to run python on 2 configurations platform type, user need to add to PATH the location where python_d is
-    add_test(NAME ${_test_name}_d COMMAND  python_d -m pytest -s ${_ftest_file} -o junit_suite_name=${_test_name} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG} --junitxml=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${_test_name}.xml CONFIGURATIONS Debug)
+    add_test(NAME ${_test_name}${_tpost_fix} COMMAND  python_d -m pytest -s ${_ftest_file} -o junit_suite_name=${_test_name}${_tpost_fix} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG} --junitxml=${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${_test_name}${_tpost_fix}.xml CONFIGURATIONS Debug)
   else()
-    add_test(NAME ${_test_name} COMMAND ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} -o junit_suite_name=${_test_name} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY} --junitxml=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${_test_name}.xml)
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+      set(_tpost_fix d)
+    endif()
+    add_test(NAME ${_test_name}${_tpost_fix} COMMAND ${Python_EXECUTABLE} -m pytest -s ${_ftest_file} -o junit_suite_name=${_test_name}${_tpost_fix} --rootdir=${CMAKE_CURRENT_SOURCE_DIR} --data_dir=${FTEST_DATA_DIR} --module_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY} --junitxml=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${_test_name}${_tpost_fix}.xml)
   endif()
 endforeach()

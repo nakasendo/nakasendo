@@ -52,7 +52,7 @@ BigNumber LGInterpolator::operator()(const BigNumber& xValue){
 BigNumber LGInterpolator::operator()(const int& i, const BigNumber& xValue){
     // this operator is to evaluate the ith basis polynomial at xValue. 
     // sanity check the value of i
-    if ( i < 0 || i > m_Points.size()){
+    if ( i < 0 || i >= m_Points.size()){
         std::stringstream errMsg;
         errMsg << "Invalid basis polynomial requested in LGInterpolator()\t i " << i << " is not between zero and " << m_Points.size () ;
         std::runtime_error err (errMsg.str());

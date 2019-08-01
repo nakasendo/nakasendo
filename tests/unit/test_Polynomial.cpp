@@ -1,4 +1,10 @@
-#define BOOST_TEST_MODULE test_Polynomial
+/// Define test module name with debug postfix
+#ifdef NDEBUG 
+#  define BOOST_TEST_MODULE test_Polynomial
+#else
+#  define BOOST_TEST_MODULE test_Polynomiald
+#endif
+
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/output_test_stream.hpp>
