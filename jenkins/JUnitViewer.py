@@ -171,3 +171,5 @@ msg = get_html_body_email(args.mail_sender, recipients, html_table_str)
 #print(msg.as_string())## Debug log
 server.sendmail(args.mail_sender, recipients, msg.as_string())
 server.quit()
+
+#https://stackoverflow.com/questions/44324335/how-to-get-environment-variable-in-jenkins-email-notification
