@@ -10,8 +10,16 @@ it send a few informations, where most of the code  change information
 stay in the BITBUCKET_PAYLOAD json string. This script help to pull out the detail of those information, i.e destination of
 a pull request, source of a pull request ... etc.
 Note : This script only buid and get information, assuming certain environment variables exist
+TODO : write update bitbucket build status utility. working example is 
+         curl -u sdklibraries:password -H "Content-Type: application/json" -X POST https://api.bitbucket.org/2.0/repositories/cnguyennChain/sdklibraries-chi/commit/7f525c461abbc39f1dc0e69e43c3f25c5d8b5979/statuses/build -d '{"state": "SUCCESSFUL","key": "test manual 2","name": "test manual by curl 3","url": "https://142.93.35.114","description": "This is not a real build"}'
+         curl -u sdklibraries:password -H "Content-Type: application/json" -X POST https://api.bitbucket.org/2.0/repositories/cnguyennChain/sdklibraries-chi/commit/7f525c46/statuses/build -d '{"state": "SUCCESSFUL","key": "test manual 2","name": "test manual by curl 3","url": "https://142.93.35.114","description": "This is not a real build"}'
+examples :
+       Get Pullrequest PAYLOAD manually. Note that pull request payload json send by the bitbucket hook is slightly different than the one get by the rest api
+         curl -u sdklibraries:password -H "Content-Type: application/json" -X GET https://api.bitbucket.org/2.0/repositories/cnguyennChain/sdklibraries-chi/pullrequests/7
+see 
+   https://confluence.atlassian.com/bitbucket/rest-apis-222724129.html     look at the end to see how to authenticate, otherwise use the password
+   https://developer.atlassian.com/bitbucket/api/2/reference/resource/repositories/%7Busername%7D/%7Brepo_slug%7D/commit/%7Bnode%7D/statuses/build
 """
-
 ## From key_path_str separated by ':', return key_path in form of list
 ## Example 'pullrequest:source:repository:links:html:href' will return ['pullrequest','source','repository','links','html','href']
 def _split_key_path(key_path_str):
