@@ -1,4 +1,10 @@
-#define BOOST_TEST_MODULE test_AsymKey
+/// Define test module name with debug postfix
+#ifdef NDEBUG 
+#  define BOOST_TEST_MODULE test_AsymKey
+#else
+#  define BOOST_TEST_MODULE test_AsymKeyd
+#endif
+
 #include <boost/test/unit_test.hpp>
 
 #include <AsymKey/AsymKey.h>

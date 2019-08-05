@@ -1,15 +1,50 @@
-pipeline
-{
-    agent { label 'master' }
+/*
+   Pipeline setting to trigger build on pull request Created/Updated
+   Once trigger, the build jobs will be delegate to multiple slaves
+*/
+
+pipeline {
+    agent none
+
+    /**
+       Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated
+       https://wiki.jenkins.io/display/JENKINS/Bitbucket+Push+And+Pull+Request+Plugin
+       strangely when set pipeline with git repository of the source pull request, it trigger the pr.
+       but if set repository with the destination of the pull request, it doesn't trigger
+     */
+
+    triggers {
+        bitBucketTrigger([
+                [$class: 'BitBucketPPRPullRequestTriggerFilter', actionFilter: [$class: 'BitBucketPPRPullRequestCreatedActionFilter']],
+                [$class: 'BitBucketPPRPullRequestTriggerFilter', actionFilter: [$class: 'BitBucketPPRPullRequestUpdatedActionFilter']]
+        ])
+    }
+
+    /* Start builds in different slaves*/
     stages {
-        stage('build on windows mvsc2017') {
+        stage('Investigate'){
+            agent any
             steps {
-                echo 'Get all env variable'
+                sh 'echo stage investigatioin on master node '
                 sh 'printenv'
-                echo '----------  FINISH environment variables  -------------'
-                sh 'pwd'
-                sh 'pwd'
-                sh 'pwd'
+            }
+        }
+        stage('Build Linux')
+        {
+            agent { label 'slave_vm_Ubuntu18_x64_gcc730'}
+            steps {
+                sh 'echo Build Linux Stage'
+                sh 'printenv'
+                sh 'echo ----------    FINISHED PRINTING ENV VARIABLES   -------------------'
+            }
+        }
+        stage('Build Windows')
+        {
+            agent { label 'slave_vm_win10pro_x64_mvsc2017' }
+            steps {
+                bat 'echo Build Windows Stage'
+                bat 'set'
+                bat 'echo ----------    FINISHED PRINTING ENV VARIABLES   -------------------'
             }
         }
     }
