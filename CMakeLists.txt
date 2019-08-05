@@ -48,6 +48,7 @@ include_directories(depends/json)
 add_subdirectory(depends/secp256k1)
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(examples)
 
 ## On Widows, need to download NSIS https://nsis.sourceforge.io/Download
 ## Possible to do WIX generator for MSI installer

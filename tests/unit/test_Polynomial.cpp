@@ -1,14 +1,33 @@
-#define BOOST_TEST_MODULE test_Polynomial
+/// Define test module name with debug postfix
+#ifdef NDEBUG 
+#  define BOOST_TEST_MODULE test_Polynomial
+#else
+#  define BOOST_TEST_MODULE test_Polynomiald
+#endif
+
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/output_test_stream.hpp>
 
 #include <BigNumbers/BigNumbers.h>
-#include <ThresholdSignatures/Polynomial.h>
+#include <Polynomial/Polynomial.h>
+#include <Polynomial/LGInterpolator.h>
 
 #include <string>
 #include <iostream>
 
+std::vector<BigNumber> getVectorBNX(const int& nbPoint){
+    std::vector<BigNumber> VectorX; 
+    for (int i=0;i<nbPoint;++i){
+        BigNumber num ; 
+        num.One();
+        BigNumber secondNum;
+        secondNum.FromDec(std::to_string(i));
+        num = num + secondNum;
+        VectorX.push_back(num);
+    }
+    return VectorX;
+}
 
 BOOST_AUTO_TEST_SUITE( test_suite_Polynomial )
 
@@ -21,7 +40,7 @@ BOOST_AUTO_TEST_SUITE( test_suite_Polynomial )
 BOOST_AUTO_TEST_CASE( test_polynomial_degree1 )
 {
     // 3 + 2x 
-    std::vector< std::string>  strCoefficients { "3",  "2" } ;     
+    std::vector< std::string>  strCoefficients { "3",  "2" } ;
     Polynomial poly ( strCoefficients, GenerateZero( ) ) ;
 
     long degree = poly.getDegree( ) ;
@@ -42,7 +61,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree1 )
 
     std::ostringstream ss ;
     ss << poly ;
-    BOOST_TEST ( ss.str( ) == "modulo = 0;	polynomial = 3 + 2x" ) ;
+    BOOST_TEST ( ss.str() == "modulo = 0;    polynomial = 3 + 2x" ) ;
 }
 
 
@@ -53,13 +72,13 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree1 )
 BOOST_AUTO_TEST_CASE( test_polynomial_degree2 )
 {
      // 1 + 2x + 3x^2 
-    std::vector< std::string >  strCoefficients { "1",  "2", "3" } ;     
+    std::vector< std::string >  strCoefficients { "1",  "2", "3" } ;
     std::vector< BigNumber >    bnCoefficients ;
 
     for ( auto & element : strCoefficients )
     {
         BigNumber big ;
-	    big.FromDec( element ) ;
+        big.FromDec( element ) ;
         bnCoefficients.push_back( std::move( big ) ) ;
     }
 
@@ -80,7 +99,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2 )
 
     std::ostringstream ss ;
     ss << poly ;
-    BOOST_TEST ( ss.str( ) == "modulo = 0;	polynomial = 1 + 2x + 3x^2" ) ;
+    BOOST_TEST ( ss.str( ) == "modulo = 0;    polynomial = 1 + 2x + 3x^2" ) ;
 }
 
 /* Create a new polynomial using the string constructor
@@ -91,7 +110,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2 )
 BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod )
 {
     // 6 + 7x + 8x^2  [mod 5]
-    std::vector< std::string>  strCoefficients { "6",  "7", "8" } ;     
+    std::vector< std::string>  strCoefficients { "6",  "7", "8" } ;
     BigNumber modulo ;
     modulo.FromDec( "5" ) ;
 
@@ -123,7 +142,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod )
    
     std::ostringstream ss ;
     ss << poly ;
-    BOOST_TEST ( ss.str( ) == "modulo = 5;	polynomial = 1 + 2x + 3x^2" ) ;
+    BOOST_TEST ( ss.str( ) == "modulo = 5;    polynomial = 1 + 2x + 3x^2" ) ;
 }
 
 /* Create a new polynomial using the vector constructor
@@ -133,7 +152,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod )
 BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod2 )
 {
     // 16 + 9x^2  [mod 5]
-    std::vector< std::string>  strCoefficients { "16",  "0", "9" } ;     
+    std::vector< std::string>  strCoefficients { "16",  "0", "9" } ;
     BigNumber modulo ;
     modulo.FromDec( "5" ) ;
 
@@ -142,12 +161,11 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod2 )
     for ( auto & element : strCoefficients )
     {
         BigNumber big ;
-	    big.FromDec( element ) ;
+        big.FromDec( element ) ;
         bnCoefficients.push_back( std::move( big ) ) ;
     }
 
     Polynomial poly ( bnCoefficients, modulo ) ;
-
 
     BigNumber array_0, array_1, array_2;
 
@@ -174,7 +192,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod2 )
 
     std::ostringstream ss ;
     ss << poly ;
-    BOOST_TEST ( ss.str( ) == "modulo = 5;	polynomial = 1 + 0x + 4x^2" ) ;    
+    BOOST_TEST ( ss.str( ) == "modulo = 5;    polynomial = 1 + 0x + 4x^2" ) ;    
 }
 
 
@@ -339,7 +357,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_empty_coeff )
 // Check zero coefficients at highest degree
 BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
 {
-    std::vector< std::string>  strCoefficients { "3",  "0" } ;     
+    std::vector< std::string>  strCoefficients { "3",  "0" } ;
     
     // Polynomial has zero coefficient at the highest degree, returning
     BOOST_CHECK_THROW
@@ -354,7 +372,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
     for ( auto & element : strCoefficients )
     {
         BigNumber big ;
-	    big.FromDec( element ) ;
+        big.FromDec( element ) ;
         bnCoefficients.push_back( std::move( big ) ) ;
     }   
 
@@ -366,6 +384,263 @@ BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
         );         
     
 }
+////
+
+BOOST_AUTO_TEST_CASE( test_Interpolation_degree_3_mod_17 )
+{
+    int degree = 3;
+    BigNumber mod; 
+    mod.FromDec("17"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<BigNumber> fx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+
+    std::vector<BigNumber> x = getVectorBNX(npPoint);
+    
+    for (std::vector<BigNumber>::const_iterator iter = x.begin(); iter !=x.end(); ++ iter){
+        fx.push_back(poly(*iter));
+    }
+
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx; 
+    std::vector<BigNumber>::const_iterator xIter = x.begin(), fxIter = fx.begin (); 
+    for(; xIter != x.end(); ++xIter, ++fxIter){
+        xfx.push_back ( std::pair(*xIter, *fxIter)); 
+    }
+
+    // Pick a number with in the Mod range.
+    BigNumber zero;
+    zero.Zero(); 
+    BigNumber xValue = GenerateRandRange(zero, mod); 
+
+    LGInterpolator interpFunc(xfx, mod);
+
+     for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
+        BigNumber TestVal = interpFunc(testIter->first);
+        BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
+     }
+
+}
+
+BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
+{
+    // degree 100 & a mod of 104729 ( the 10000th prime)
+    int degree = 50;
+    BigNumber mod; 
+    mod.FromDec("104729"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<BigNumber> fx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+
+    std::vector<BigNumber> x = getVectorBNX(npPoint);
+    
+    for (std::vector<BigNumber>::const_iterator iter = x.begin(); iter !=x.end(); ++ iter){
+        fx.push_back(poly(*iter));
+    }
+
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx; 
+    std::vector<BigNumber>::const_iterator xIter = x.begin(), fxIter = fx.begin (); 
+    for(; xIter != x.end(); ++xIter, ++fxIter){
+        xfx.push_back ( std::pair(*xIter, *fxIter)); 
+    }
+
+    // Pick a number with in the Mod range.
+    BigNumber zero;
+    zero.Zero(); 
+    BigNumber xValue = GenerateRandRange(zero, mod); 
+
+    LGInterpolator interpFunc(xfx, mod);
+
+     for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
+        BigNumber TestVal = interpFunc(testIter->first);
+        BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
+     }
+
+}
+BOOST_AUTO_TEST_CASE( test_Interpolation_degree_200_mod_SECP256K1MOD )
+{
+    int degree = 50;
+    BigNumber mod; 
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<BigNumber> fx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+
+    std::vector<BigNumber> x = getVectorBNX(npPoint);
+    
+    for (std::vector<BigNumber>::const_iterator iter = x.begin(); iter !=x.end(); ++ iter){
+        fx.push_back(poly(*iter));
+    }
+
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx; 
+    std::vector<BigNumber>::const_iterator xIter = x.begin(), fxIter = fx.begin (); 
+    for(; xIter != x.end(); ++xIter, ++fxIter){
+        xfx.push_back ( std::pair(*xIter, *fxIter)); 
+    }
+
+    // Pick a number with in the Mod range.
+    BigNumber zero;
+    zero.Zero(); 
+    BigNumber xValue = GenerateRandRange(zero, mod); 
+
+    LGInterpolator interpFunc(xfx, mod);
+
+     for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
+        BigNumber TestVal = interpFunc(testIter->first);
+        BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
+     }
+}
+
+BOOST_AUTO_TEST_CASE( test_Interpolation_empty_coeff )
+{
+
+    std::vector< std::pair<BigNumber,BigNumber > >   bnCoefficients ;      
+    BigNumber Mod; 
+    Mod.Zero(); 
+
+    // Polynomial is empty, returning
+    BOOST_CHECK_THROW
+        ( 
+            LGInterpolator interp ( bnCoefficients, Mod ) ,
+            std::runtime_error  
+        );
+}
+
+BOOST_AUTO_TEST_CASE( test_Interpolation_repeated_coeff )
+{
+    // Chose a polynomial with repeating co-efficients.
+    std::vector< std::pair<BigNumber,BigNumber > >   bnCoefficients ; 
+    BigNumber val1; 
+    val1.FromDec ("12");
+    BigNumber val2 ; 
+    val2.FromDec("7");
+    BigNumber val3; 
+    val3.FromDec ("7");
+    BigNumber val4;
+    val4.FromDec ("2");   
+    BigNumber random; 
+    bnCoefficients.push_back(std::make_pair(val1,random));
+    bnCoefficients.push_back(std::make_pair(val2,random));
+    bnCoefficients.push_back(std::make_pair(val3,random));
+    bnCoefficients.push_back(std::make_pair(val4,random));
+    BigNumber Mod; 
+    Mod.Zero(); 
+
+    // Polynomial has non-unique co-effs, returning
+    BOOST_CHECK_THROW
+        ( 
+            LGInterpolator interp ( bnCoefficients, Mod ) ,
+            std::runtime_error  
+        );
+}
+
+BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_invalid_basis )
+{
+    int degree = 50;
+    BigNumber mod; 
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<BigNumber> fx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+
+    std::vector<BigNumber> x = getVectorBNX(npPoint);
+    
+    for (std::vector<BigNumber>::const_iterator iter = x.begin(); iter !=x.end(); ++ iter){
+        fx.push_back(poly(*iter));
+    }
+
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx; 
+    std::vector<BigNumber>::const_iterator xIter = x.begin(), fxIter = fx.begin (); 
+    for(; xIter != x.end(); ++xIter, ++fxIter){
+        xfx.push_back ( std::pair(*xIter, *fxIter)); 
+    }
+
+    // Pick a number with in the Mod range.
+    BigNumber zero;
+    zero.Zero(); 
+    BigNumber xValue = GenerateRandRange(zero, mod); 
+
+    LGInterpolator interpFunc(xfx, mod);
+    BigNumber Val = interpFunc(xValue);
+    BOOST_CHECK_THROW(
+        BigNumber valBasis = interpFunc(55, xValue),
+        std::runtime_error
+    );
+
+    BOOST_CHECK_THROW(
+        BigNumber valBasis = interpFunc(-1, xValue),
+        std::runtime_error
+    );
+}
+////
+BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_basis )
+{
+    int degree = 3;
+    BigNumber mod; 
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<BigNumber> fx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+
+    std::vector<BigNumber> x = getVectorBNX(npPoint);
+    
+    for (std::vector<BigNumber>::const_iterator iter = x.begin(); iter !=x.end(); ++ iter){
+        fx.push_back(poly(*iter));
+    }
+
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx; 
+    std::vector<BigNumber>::const_iterator xIter = x.begin(), fxIter = fx.begin (); 
+    for(; xIter != x.end(); ++xIter, ++fxIter){
+        xfx.push_back ( std::pair(*xIter, *fxIter)); 
+    }
+
+    // Please refer to - https://en.wikipedia.org/wiki/Lagrange_polynomial
+    // These should all evaluate to 1
+    int index = 0;
+    LGInterpolator interpFunc(xfx, mod);
+    BigNumber one ; 
+    one.One(); 
+    for (std::vector<std::pair<BigNumber, BigNumber> >::const_iterator iter = xfx.begin (); iter != xfx.end(); ++ iter){
+        BigNumber ithVal = interpFunc(index++, iter->first);
+        BOOST_TEST ( ithVal.ToDec () == one.ToDec() );
+    }
+    
+    // These should all evaluate to 0
+    index = 5;
+    BigNumber zero; 
+    zero.Zero(); 
+    for (std::vector<std::pair<BigNumber, BigNumber> >::const_iterator iter = xfx.begin (); iter != xfx.end(); ++ iter){
+        BigNumber ithVal = interpFunc(index--, iter->first);
+        BOOST_TEST ( ithVal.ToDec() == zero.ToDec());
+    }
+
+    
+
+
+
+
+}
+
+////
 BOOST_AUTO_TEST_SUITE_END( ) ;
 
 /* 

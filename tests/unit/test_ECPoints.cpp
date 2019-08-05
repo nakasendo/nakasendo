@@ -1,4 +1,10 @@
-#define BOOST_TEST_MODULE test_ECPoints
+/// Define test module name with debug postfix
+#ifdef NDEBUG 
+#  define BOOST_TEST_MODULE test_ECPoints
+#else
+#  define BOOST_TEST_MODULE test_ECPointsd
+#endif
+
 #include <boost/test/unit_test.hpp>
 
 #include <ECPoint/ECPoint.h>

@@ -1,6 +1,11 @@
-#define BOOST_TEST_MODULE test_BigNumbers
-#include <boost/test/unit_test.hpp>
+/// Define test module name with debug postfix
+#ifdef NDEBUG 
+#  define BOOST_TEST_MODULE test_BigNumbers
+#else
+#  define BOOST_TEST_MODULE test_BigNumbersd
+#endif
 
+#include <boost/test/unit_test.hpp>
 #include <BigNumbers/BigNumbers.h>
 #include <BigNumbers/BigNumbersAPI.h>
 #include <iostream>

@@ -1,6 +1,4 @@
-#include "Polynomial.h"
-
-
+#include <Polynomial/Polynomial.h>
 
 /*
  *  Construct a polynomial from a vector of BigNumber
@@ -167,6 +165,27 @@ Polynomial::Polynomial
     checkValid( ) ;
 }
 
+int Polynomial::getDegree() const
+{
+    return (int)m_coefficients.size() - 1;
+}
+
+BigNumber const& Polynomial::operator[](unsigned int index)const
+{
+    return m_coefficients[index];
+}
+
+const std::vector<BigNumber>& Polynomial::getCoefficients() const
+{
+    return m_coefficients;
+}
+
+size_t Polynomial::length() const
+{
+    return m_coefficients.size();
+}
+
+
 /* Check Valid
  * Ensure the coefficients array conforms to the non-zero rules
  *       - m_coefficienst[0] must be non-zero and positive
@@ -261,13 +280,9 @@ BigNumber Polynomial::operator( ) ( const BigNumber& x ) const
     BigNumber res  = GenerateZero( ) ;
 
     // Horners method for polynomial evaluation
-    for ( 
-            auto itr = m_coefficients.cend( ) - 1  ;  
-            itr >= m_coefficients.begin();  
-            --itr
-        ) 
+    for (auto ritr = m_coefficients.rbegin(); ritr != m_coefficients.rend(); ++ritr) 
     {
-        res = *itr + ( res *  x ) ;
+        res = *ritr + ( res *  x ) ;
     }
 
     if ( !( m_modulo == m_zero ) )
@@ -283,13 +298,14 @@ BigNumber Polynomial::operator( ) ( const BigNumber& x ) const
 /* Friend function operator<<
  * for writing out polynomial in human-friendly form
  */
+
 std::ostream& operator<<( std::ostream &os, const Polynomial& poly )
 {
 
-    os << "modulo = " << poly.m_modulo.ToDec( ) << ";\t" ;
+    os << "modulo = " << poly.m_modulo.ToDec( ) << ";    " ;
     os << "polynomial = " ;
     
-    int numberCoefficients = poly.m_coefficients.size( ) ;
+    const size_t numberCoefficients = poly.m_coefficients.size( ) ;
 
     if ( numberCoefficients > 0 )
     {
