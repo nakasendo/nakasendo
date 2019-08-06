@@ -22,10 +22,12 @@ def pytest_addoption(parser):## hack to make pytest accept arguments
 
 def pytest_configure(config):
     import os, sys
-    arg_module_dir = config.getoption("--module_dir")
-    sys.path = [arg_module_dir] + sys.path
+    arg_module_dir_str = config.getoption("--module_dir")
+    arg_module_dir_list = arg_module_dir_str.split(',')
+    sys.path = arg_module_dir_list + sys.path
     import PyBigNumbers, PyMessageHash, PySymEncDec, PyECPoint, PyAsymKey
     print('conftest.py successfully load all Py Modules')
+    #print(sys.path)
     ## actual_Value = PyBigNumbers.GenerateRandHex(20) ## Try to test using PyBigNumbers
 
 @pytest.fixture
