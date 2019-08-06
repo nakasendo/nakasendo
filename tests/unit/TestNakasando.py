@@ -4,11 +4,16 @@ import json
 import string
 #Please update the PYTHONPATH or use the sys.path.append with the path to 
 #the Nakasando installation
+#sys.path.append('/Users/j.murphy/nchain/SDK/sdklibraries/src/modules')
+#sys.path.append ('/Users/j.murphy/nchain/SDK/build/x64/release')
+sys.path.append('/home/josie/workspace/sdklibraries_josie/src/modules')
+sys.path.append ('/home/josie/workspace/build/x64/release')
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
 import PyMessageHash
 import PyAsymKey
+import PyPolynomial
 import Nakasando
 
 if __name__ == "__main__":
@@ -108,9 +113,7 @@ if __name__ == "__main__":
     print ("EncodedMsgAsHex: %s" % encodedAsHex)
 
     decoded =encoder.Decode(encodedAsHex)
-    print ("Decoded Message %s" % decoded )
-    
-    
+    print ("Decoded Message %s" % decoded )    
     
     mykey = Nakasando.ECKey256K1();
     print (mykey)
@@ -147,3 +150,13 @@ if __name__ == "__main__":
     print(msgFromAlice)
     
     
+
+
+    print("Testing degree Polynomial")
+    testPoly = Nakasando.Polynomial( 69 )
+    print( "P = ", testPoly.getDegree())
+
+    print("Testing randomPolynomial")
+    poly = Nakasando.Polynomial(3)
+    #poly.randomPolynomial(3) 
+    print( "Nakasando Polynomial = ", poly.randomPolynomial(3) )

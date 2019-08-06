@@ -3,11 +3,26 @@ import json
 import string
 #Plese add the path to the library or update the PYTHONPATH
 #sys.path.append ('PATH TO INSTALLATION LIB')
+#sys.path.append ('/Users/j.murphy/nchain/SDK/build/x64/release')
+sys.path.append ('/home/josie/workspace/build/x64/release')
+
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
 import PyMessageHash
 import PyAsymKey
+import PyPolynomial
+
+class Polynomial:
+    def __init__(self, degree):
+        self.degree = degree;
+    def getDegree(self):
+        return PyPolynomial.getDegree();
+    def randomPolynomial(self, degree):
+        return PyPolynomial.randomPolynomial(degree);        
+        #return degree ;
+    def __str__(self):
+        return '{}'.format (self.degree);
 
 class MessageHash:
     def __init__(self, msg):

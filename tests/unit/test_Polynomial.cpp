@@ -212,17 +212,17 @@ BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
 
     modulo.FromDec( "5" ) ; 
 
-    // constuct using degree and modulo 0     
+    // construct using degree and modulo 0     
     Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
 
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 5 ) ;
    
-    // constuct using degree and modulo 12
+    // construct using degree and modulo 12
     modulo.FromDec( "12" ) ; 
     Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 5 ) ;
 
-    // constuct using degree, modulo and fixed a_0
+    // construct using degree, modulo and fixed a_0
     a_0.FromDec( "10" ) ;
     Polynomials.push_back  ( Polynomial( 2, modulo, a_0 ) ) ;
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 2 ) ;

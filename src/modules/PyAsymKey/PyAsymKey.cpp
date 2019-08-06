@@ -238,7 +238,7 @@ static PyMethodDef ModuleMethods[] =
     {"Verify"             , wrap_Verify,METH_VARARGS,"Verify message's signature with public key"},
     {"ShareSecret"        , wrap_ShareSecret,METH_VARARGS,"Calculate shared secret from my private key and their public key"},
     {"DerivePublic"       , wrap_DerivePublic,METH_VARARGS,"Derive public key from a given public key and a additive message"},
-    {"DerivePrivate"     , wrap_DerivePrivate,METH_VARARGS,"Derive pirvate key from a given private key and a additive message"},
+    {"DerivePrivate"      , wrap_DerivePrivate,METH_VARARGS,"Derive private key from a given private key and a additive message"},
     {"SplitKey"           , wrap_SplitKey,METH_VARARGS,"Split a private key into a given number of shares"},
     {"RestoreKey"         , wrap_RestoreKey, METH_VARARGS,"Restore a private key from a given number of shares"},
     {"SetKeyFromPem"       , wrap_SetKeyFromPem, METH_VARARGS,"Sets a key from a PEM format"},
