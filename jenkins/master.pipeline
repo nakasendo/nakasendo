@@ -1,6 +1,5 @@
 /*
-  Pipeline setting to trigger build on pull request Created/Updated
-  Once trigger, the build jobs will be delegate to multiple slaves
+  Pipeline setting to trigger build on pushed to master
   see :
     https://jenkins.io/doc/pipeline/tour/hello-world/
 */
@@ -11,8 +10,8 @@ pipeline {
   /**  Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated. To make it work, it need to be 'build now' manually for a first time */
   triggers {
     bitBucketTrigger([
-      [$class: 'BitBucketPPRPullRequestTriggerFilter', actionFilter: [$class: 'BitBucketPPRPullRequestCreatedActionFilter']],
-      [$class: 'BitBucketPPRPullRequestTriggerFilter', actionFilter: [$class: 'BitBucketPPRPullRequestUpdatedActionFilter']]
+      [$class: 'BitBucketPPRRepositoryTriggerFilter' , actionFilter: [$class: 'BitBucketPPRRepositoryPushActionFilter', allowedBranches: '', triggerAlsoIfTagPush: false]
+      /*,[$class: 'BitBucketPPRPullRequestTriggerFilter', actionFilter: [$class: 'BitBucketPPRPullRequestMergedActionFilter']]*/
     ])
   }
 
@@ -54,11 +53,6 @@ pipeline {
         step([$class: 'WsCleanup'])
         checkout scm
         bat 'git checkout master'
-        bat 'git log -3'
-        bat 'git remote add pr_%BITBUCKET_PULL_REQUEST_ID% %BITBUCKET_PR_SOURCE_REPO%'
-        bat 'git --version'
-        bat 'git fetch pr_%BITBUCKET_PULL_REQUEST_ID% %BITBUCKET_SOURCE_BRANCH%'
-        bat 'git merge pr_%BITBUCKET_PULL_REQUEST_ID%/%BITBUCKET_SOURCE_BRANCH%'
         bat 'git log -5'
 
         /*
@@ -94,27 +88,21 @@ pipeline {
       }
       steps {
         sh 'printenv'
-
         // Merge pull request -------------------------------------------
         step([$class: 'WsCleanup'])
         checkout scm
         sh 'git checkout master'
-        sh 'git log -3'
-        sh 'git remote add pr_$BITBUCKET_PULL_REQUEST_ID $BITBUCKET_PR_SOURCE_REPO'
-        sh 'git --version'
-        sh 'git fetch pr_$BITBUCKET_PULL_REQUEST_ID $BITBUCKET_SOURCE_BRANCH'
-        sh 'git merge pr_$BITBUCKET_PULL_REQUEST_ID/$BITBUCKET_SOURCE_BRANCH'
         sh 'git log -5'
         /*
         // Build Release/Debug -------------------------------------------
         sh 'mkdir $LINUX_RELEASE_BUILD_DIR'
         sh 'mkdir $LINUX_DEBUG_BUILD_DIR'
-        sh 'cd $LINUX_RELEASE_BUILD_DIR ; cmake .. ; make -j4'
-        sh 'cd $LINUX_DEBUG_BUILD_DIR   ; cmake .. ; make -j4'
+        sh 'cd $LINUX_RELEASE_BUILD_DIR ; cmake .. ; make -j4 ;'
+        sh 'cd $LINUX_DEBUG_BUILD_DIR   ; cmake .. ; make -j4 ;'
 
         // Test Release/Debug -------------------------------------------
-        sh 'cd $LINUX_RELEASE_BUILD_DIR ; ctest --output-on-failure'
-        sh 'cd $LINUX_DEBUG_BUILD_DIR   ; ctest --output-on-failure'
+        sh 'cd $LINUX_RELEASE_BUILD_DIR ; ctest --output-on-failure ;'
+        sh 'cd $LINUX_DEBUG_BUILD_DIR   ; ctest --output-on-failure ;'
 
         // Aggregate post build/test results -------------------------------------------
         sh 'python jenkins/Chainkins.py --consolidate_junit --indir_debug=$TESTRESULT_DEBUG_DIR --indir_release=$TESTRESULT_RELEASE_DIR --outdir=$TESTRESULT_JUNIT_DIR'
