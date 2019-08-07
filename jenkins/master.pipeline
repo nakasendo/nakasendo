@@ -10,20 +10,9 @@ pipeline {
   /**  Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated. To make it work, it need to be 'build now' manually for a first time */
   triggers {
     bitBucketTrigger([
-      [$class: 'BitBucketPPRRepositoryTriggerFilter' , actionFilter: [$class: 'BitBucketPPRRepositoryPushActionFilter', allowedBranches: '', triggerAlsoIfTagPush: false]
+      [$class: 'BitBucketPPRRepositoryTriggerFilter' , actionFilter: [$class: 'BitBucketPPRRepositoryPushActionFilter', allowedBranches: '', triggerAlsoIfTagPush: false]]
       /*,[$class: 'BitBucketPPRPullRequestTriggerFilter', actionFilter: [$class: 'BitBucketPPRPullRequestMergedActionFilter']]*/
     ])
-  }
-
-  /* 
-     Set additional environment variables from bitbucket pull request hook
-     TODO : find a way to read parameter build so user can build a PR manually
-  */
-  environment {
-    BITBUCKET_PR_SOURCE_REPO="${sh(script:'python jenkins/Chainkins.py --get_pr_source_repository', returnStdout: true)}"
-    BITBUCKET_PR_DESTINATION_REPO="${sh(script:'python jenkins/Chainkins.py --get_pr_destination_repository', returnStdout: true)}"
-    BITBUCKET_PR_ACTOR="${sh(script:'python jenkins/Chainkins.py --get_bbpayload_info --key_path=pullrequest:author:display_name', returnStdout: true)}"
-    BITBUCKET_PR_TITLE="${sh(script:'python jenkins/Chainkins.py --get_bbpayload_info --key_path=pullrequest:title', returnStdout: true)}"
   }
 
   stages {
