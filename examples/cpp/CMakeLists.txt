@@ -8,22 +8,27 @@
 add_executable(BigNumbersClient BigNumbersClient.cpp)
 target_link_libraries(BigNumbersClient BigNumbers)
 set_property(TARGET BigNumbersClient PROPERTY FOLDER "examples")
+list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersClient.cpp")
 
 add_executable(BigNumbersRandTest BigNumbersRandTest.cpp)
 target_link_libraries(BigNumbersRandTest BigNumbers)
 set_property(TARGET BigNumbersRandTest PROPERTY FOLDER "examples")
+list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersRandTest.cpp")
 
 add_executable(MessageHashClient MessageHashClient.cpp)
 target_link_libraries(MessageHashClient MessageHash)
 set_property(TARGET MessageHashClient PROPERTY FOLDER "examples")
+list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/MessageHashClient.cpp")
 
 add_executable(SymEncDecTest SymEncDecTest.cpp)
 target_link_libraries(SymEncDecTest SymEncDec MessageHash)
 set_property(TARGET SymEncDecTest PROPERTY FOLDER "examples")
+list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecTest.cpp")
 
 add_executable(ECPointTest ECPointTest.cpp)
 target_link_libraries(ECPointTest ECPoint BigNumbers)
 set_property(TARGET ECPointTest PROPERTY FOLDER "examples")
+list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/ECPointTest.cpp")
 
 add_executable(SplitMessage shamirsSecret.cpp)
 target_link_libraries(SplitMessage BigNumbers MessageHash Polynomial SecretSplit)
@@ -33,5 +38,7 @@ add_executable(RecoverMessage RecoverSecret.cpp)
 target_link_libraries(RecoverMessage BigNumbers MessageHash Polynomial SecretSplit)
 set_property(TARGET RecoverMessage PROPERTY FOLDER "examples")
 
-## TODO : 
-## Create a CMakeLists.txt.in or some cmake module to pack with the examples/cpp for users
+#sdkPrintList("cpp_example_files" "${cpp_example_files}")
+foreach(_cpp_file ${cpp_example_files})
+  install(FILES ${_cpp_file} DESTINATION "example/cpp" COMPONENT "Examples cpp")
+endforeach()
