@@ -60,7 +60,7 @@ std::vector<uint8_t>  DecodeBase64Ex (std::vector<uint8_t> toDec){
     }
 
     Base64EncDec encdec;
-    std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(msgPtr,value, strict, err);
+    std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(msgPtr, toDec.size(), value, strict, err);
     std::vector<uint8_t> retVal; 
     std::string strVal; 
     
@@ -221,14 +221,12 @@ MESSAGE_HASH_RETURN_TYPE ListHashFunc ()
         }        
 
         Base64EncDec encdec;       
-        msgPtr.get()[msgPtrApi.size()+1]='\0';
-        std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(msgPtr,value, strict, err);
-        msgSize = value; 
+        std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(msgPtr, msgPtrApi.size(), value, strict, err);
+        msgSize = static_cast<int> (value); 
 
 #ifdef __EMSCRIPTEN__
         return decodedValPtr ;         
 #else        
-
         return decodedValPtr;     
 #endif
     }

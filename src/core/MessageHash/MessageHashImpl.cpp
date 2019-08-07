@@ -18,7 +18,7 @@ namespace {
 void ListHashCallback(const OBJ_NAME *obj, void *arg)
 {
     printf("Digest: %s\n", obj->name);
-    std::unique_ptr<char>  PtrHashFuncName (new char[strlen(obj->name)+1]);
+    std::unique_ptr<char[]>  PtrHashFuncName (new char[strlen(obj->name)+1]);
     sprintf(PtrHashFuncName.get(),"%s", obj->name);
     g_PtrHashFuncList.push_back(std::string(PtrHashFuncName.get()));
 }
@@ -66,7 +66,7 @@ messagePtr MessageHashImpl::HashVal ()
 
 std::string MessageHashImpl::hashValHex ()
 {
-    std::unique_ptr<char>  tmpBuffer (new char[m_MessageHashLength*2+1]); 
+    std::unique_ptr<char[]>  tmpBuffer (new char[m_MessageHashLength*2+1]); 
     for (unsigned int i=0;i<this->m_MessageHashLength; ++i)
     {
         sprintf(&tmpBuffer.get()[i*2],"%02x", m_mPtr.get()[i]);
