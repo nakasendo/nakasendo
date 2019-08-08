@@ -15,6 +15,10 @@
 #include <MessageHash/MessageHashAPI.h>
 #include <MessageHash/Base58EncDec.h>
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 BOOST_AUTO_TEST_SUITE(test_suite_MessageHash)
 
 BOOST_AUTO_TEST_CASE(test_codec_base58_particular_case)// This case has failed on PyMessageHash on Windows (functional test)
@@ -83,15 +87,16 @@ BOOST_AUTO_TEST_CASE(test_codec_base64_particular_case)// This case has failed o
       textPtr.get()[index++] = *iter ;
     }
     const std::string encoded_text = EncodeBase64(textPtr, text.size());
-
     int decodedLen(0);
-    std::unique_ptr<unsigned char[]> decodedptr = DecodeBase64(encoded_text, decodedLen);
-    std::string decoded_text;
-    for(int i=0;i<decodedLen;++i){
+	std::unique_ptr<unsigned char[]> decodedptr = DecodeBase64(encoded_text, decodedLen);
+
+	std::string decoded_text;
+   for(int i=0;i<decodedLen;++i){
       decoded_text.push_back(decodedptr.get()[i]);
-    }
+   }
     BOOST_CHECK(text == decoded_text);
   }
+  
   {
     const std::string text{ "When I was a young man I carried my pack and I lived the free life of a rover" };
     std::unique_ptr<unsigned char[]> textPtr(new unsigned char[text.size()]);
@@ -109,7 +114,11 @@ BOOST_AUTO_TEST_CASE(test_codec_base64_particular_case)// This case has failed o
     }
     BOOST_CHECK(text == decoded_text);
   } 
+  
 }
+
+
 
 /// TODO add a loop : similar test with random inputs : random msg, decode(encode(msg)) should return the message
 BOOST_AUTO_TEST_SUITE_END()
+

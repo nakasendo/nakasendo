@@ -10,11 +10,16 @@
 #include <AsymKey/AsymKey.h>
 #include <AsymKey/AsymKeyAPI.h>
 #include <BigNumbers/BigNumbers.h>
+#include <Polynomial/Polynomial.h>
+#include <SecretSplit/KeyShare.h>
+#include <SecretSplit/SecretSplit.h>
+
 
 #include <string>
 #include <vector>
 #include <utility>
 #include <sstream>
+#include <set>
 
 #include <openssl/objects.h>
 #include <openssl/ec.h>
@@ -354,6 +359,37 @@ BOOST_AUTO_TEST_CASE(test_key_derive_wp0042)
         BOOST_CHECK(alice_derived_pub_key == alice_derived_pub_key_test);
         BOOST_CHECK(bob_derived_pub_key == bob_derived_pub_key_test);
     }
+}
+
+BOOST_AUTO_TEST_CASE(test_private_key_split)
+{
+    AsymKey randomKey;
+    int t=20;
+    int k=100;
+    std::vector<KeyShare> shares = randomKey.split(t,k); 
+
+    //pick 10 different sets of 10 shares and try to recreate the key
+    for (int i=0; i < 100; ++i){
+        std::vector<KeyShare> shareSample;
+        std::set<int> chosenNums; 
+        
+        while (shareSample.size () < t ){
+            int index = rand() % (shares.size()-1) ; 
+            if ( chosenNums.find(index) == chosenNums.end()){
+                chosenNums.insert(index);
+                shareSample.push_back(shares.at(index)); 
+            }
+        }
+        
+        // try to recover the secret
+        
+        AsymKey recoveredkey; 
+        recoveredkey.recover(shareSample);
+        
+        BOOST_TEST (recoveredkey.getPrivateKeyHEX () == randomKey.getPrivateKeyHEX()); 
+        
+    }
+    
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -94,13 +94,13 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
 
 }
 
-unsigned int Base64EncDecImpl::rawBase64Decode (unsigned char * in, unsigned char * out, const int& strict, int* err){
+unsigned int Base64EncDecImpl::rawBase64Decode (unsigned char * in, unsigned char * out, const int& inputlen, const int& strict, int* err){
     unsigned int result=0;
     int x = 0; 
     unsigned char buf[3],*p = in, pad = 0; 
 
     *err = 0 ; 
-    while (!pad){
+	while(!pad){
         switch ((x = Base64::b64revt[*p++])){
             case -3:    // Null terminator
                 if(((p-1) - in) % 4 ) *err = 1 ; 
@@ -156,21 +156,6 @@ unsigned int Base64EncDecImpl::rawBase64Decode (unsigned char * in, unsigned cha
     return result;
 }
 
-unsigned char * Base64EncDecImpl::dec (unsigned char *buf, size_t& len, int strict, int* err){
-    unsigned char * outbuf = new unsigned char[3 * strlen((char*)buf) / 4 + 1];
-    if (!outbuf){
-        *err = 3 ; 
-        len = 0;
-        return nullptr;
-    }
-    len = rawBase64Decode(buf, outbuf, strict, err);
-    if(*err){        
-        delete [] outbuf;
-        len = 0; 
-        return nullptr;
-    }
-    return outbuf; 
-}
 
 
 messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, const int& wrap, int& sizeEncoded){    
@@ -181,8 +166,6 @@ messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, c
         for (int i=0; i<sizeAllocated;++i){
             msgPtr.get()[i]=retValPtr[i];
         }        
-        //add in the terminator character
-        msgPtr.get()[sizeAllocated]='0';
         delete [] retValPtr;
         sizeEncoded = sizeAllocated-1; 
         return msgPtr;
@@ -193,16 +176,15 @@ messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, c
     }     
 }
 
-messagePtr Base64EncDecImpl::decode (const messagePtr& buf, size_t& len, int strict, int* err){    
-       //unsigned char * retValPtr = dec(buf.get(),len, strict,err );       
+messagePtr Base64EncDecImpl::decode (const messagePtr& buf, const int& inputlen, size_t& len, int strict, int* err){         
        ///
-    unsigned char * outbuf = new unsigned char[3 * strlen((char*)buf.get()) / 4 + 1];
+    unsigned char * outbuf = new unsigned char[3 * inputlen / 4 + 1];
     if (!outbuf){
         *err = 3 ; 
         len = 0;
         return nullptr;
     }
-    len = rawBase64Decode(buf.get(), outbuf, strict, err);
+    len = rawBase64Decode(buf.get(), outbuf,inputlen, strict, err);
     if(*err){        
         delete [] outbuf;
         len = 0; 

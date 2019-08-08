@@ -26,7 +26,7 @@ add_library(AsymKey ${LIBS_BUILD_TYPE} ${ASYM_KEY_SOURCE_FILES})
 if(WIN32) #https://github.com/openssl/openssl/pull/1062
   target_link_libraries(AsymKey crypt32 ws2_32)
 endif()
-target_link_libraries(AsymKey OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} BigNumbers MessageHash)
+target_link_libraries(AsymKey OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} BigNumbers MessageHash Polynomial SecretSplit)
 target_compile_definitions(AsymKey PRIVATE EXPORT_AsymKey)
 set_property(TARGET AsymKey PROPERTY FOLDER "core")
 sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST AsymKey)
