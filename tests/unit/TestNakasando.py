@@ -4,12 +4,11 @@ import json
 import string
 #Please update the PYTHONPATH or use the sys.path.append with the path to 
 #the Nakasando installation
-sys.path.append('/Users/j.murphy/nchain/SDK/sdklibraries/src/modules')
-sys.path.append ('/Users/j.murphy/nchain/SDK/build/x64/release')
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
 import PyMessageHash
+import PyAsymKey
 import Nakasando
 
 if __name__ == "__main__":
@@ -110,3 +109,41 @@ if __name__ == "__main__":
 
     decoded =encoder.Decode(encodedAsHex)
     print ("Decoded Message %s" % decoded )
+    
+    
+    
+    mykey = Nakasando.ECKey256K1();
+    print (mykey)
+    print ("derive a publci key..")
+    myderivedKey = mykey.derivePublicKey("Using this message")
+    print(myderivedKey)
+    shares = mykey.SplitKey(3,6);
+
+    print ('And now recover')
+    recoveredKey = Nakasando.ECKey256K1()
+    recoveredKey.RecoverKey(shares)
+    print (recoveredKey)
+    
+    
+    
+    
+    #Sign a msessage
+    msg = 'The quick brown fox jumped over the lazy dog'
+    sig = mykey.sign(msg);
+    print(sig)
+    verifyIt = Nakasando.verify(msg, mykey.pubKey, sig[0], sig[1])
+    if (verifyIt == True):
+        print ('msg verified')
+        
+    #generate a shared secret
+    
+    AliceKey = Nakasando.ECKey256K1();
+    BobsKey = Nakasando.ECKey256K1();
+    
+    msgFromBob = BobsKey.CalculateSharedSecret(AliceKey.pubKey); 
+    msgFromAlice = AliceKey.CalculateSharedSecret(BobsKey.pubKey);
+    
+    print(msgFromBob)
+    print(msgFromAlice)
+    
+    

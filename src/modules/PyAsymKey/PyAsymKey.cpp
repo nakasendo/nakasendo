@@ -1,9 +1,13 @@
 #include <Python.h>
 #include <string>
 #include <iostream>
+#include <vector>
+#include <sstream>
+#include <regex>
 #include <AsymKey/AsymKeyAPI.h>
 #include <AsymKey/AsymKey.h>
-
+#include <BigNumbers/BigNumbers.h>
+#include <SecretSplit/KeyShare.h>
 
 struct module_state {
     PyObject *error;
@@ -148,6 +152,81 @@ static PyObject* wrap_DerivePrivate(PyObject* self, PyObject *args)
     return Py_BuildValue("s", derived_key_PEM.c_str());
 }
 
+static PyObject* wrap_SplitKey(PyObject* self, PyObject *args)
+{
+    char* cPrivateKey = nullptr;
+    int ThresholdNumber(0);
+    int TotalNumberOfShares(0);
+
+    if (!PyArg_ParseTuple(args, "sii", &cPrivateKey, &ThresholdNumber, &TotalNumberOfShares))
+        return NULL;
+
+    const std::string private_key_pem(cPrivateKey);
+
+
+    AsymKey private_key;
+    private_key.setPEMPrivateKey(private_key_pem);
+
+    std::vector<KeyShare> shares = private_key.split(ThresholdNumber, TotalNumberOfShares);
+    //std::stringstream shareBuilder;
+    PyObject *pyList, *item;
+    int i;
+    pyList = PyList_New(shares.size());
+    for(std::vector<KeyShare>::const_iterator iter = shares.begin(); iter != shares.end(); ++ iter ){
+        std::string itemJson = keyshare_to_json(*iter);
+        item = PyUnicode_FromStringAndSize(itemJson.c_str(),itemJson.length());
+        PyList_SetItem(pyList, i,item);
+        ++ i;
+    }
+    return pyList;
+}
+static PyObject* wrap_RestoreKey(PyObject* self, PyObject *args)
+{
+    char* sharesAsStr = nullptr;
+
+    if (!PyArg_ParseTuple(args, "s", &sharesAsStr))
+        return NULL;
+ 
+    std::string inputval(sharesAsStr);
+    std::regex reg("\\;");
+    std::sregex_token_iterator iter(inputval.begin(), inputval.end(), reg, -1);
+    std::sregex_token_iterator end;
+    std::vector<std::string> vec(iter, end);
+    std::vector<KeyShare> shares;
+    for(std::vector<std::string>::const_iterator iter = vec.begin(); iter != vec.end(); ++ iter){
+        shares.push_back(keyshare_from_json(*iter));
+    }
+
+    AsymKey private_key;
+    try{
+        private_key.recover(shares);
+    }
+    catch(std::exception& err){
+        return Py_BuildValue("ss", err.what(), err.what());
+    }
+    return Py_BuildValue("ss", private_key.getPublicKeyPEM().c_str(),private_key.getPrivateKeyPEM().c_str());
+}
+
+static PyObject* wrap_SetKeyFromPem(PyObject* self, PyObject *args)
+{
+    char* cPrivateKey = nullptr;
+
+    if (!PyArg_ParseTuple(args, "s", &cPrivateKey))
+        return NULL;
+
+    const std::string private_key_pem(cPrivateKey);
+
+    AsymKey private_key;
+    private_key.setPEMPrivateKey(private_key_pem);
+    if (private_key.is_valid()){
+        return Py_BuildValue("ss",private_key.getPublicKeyPEM().c_str(), private_key.getPrivateKeyPEM().c_str());
+    }else{
+        std::string val1, val2; 
+        return Py_BuildValue("ss",std::string().c_str(), std::string().c_str());
+    }
+
+}
+
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
@@ -160,6 +239,9 @@ static PyMethodDef ModuleMethods[] =
     {"ShareSecret"        , wrap_ShareSecret,METH_VARARGS,"Calculate shared secret from my private key and their public key"},
     {"DerivePublic"       , wrap_DerivePublic,METH_VARARGS,"Derive public key from a given public key and a additive message"},
     {"DerivePrivate"     , wrap_DerivePrivate,METH_VARARGS,"Derive pirvate key from a given private key and a additive message"},
+    {"SplitKey"           , wrap_SplitKey,METH_VARARGS,"Split a private key into a given number of shares"},
+    {"RestoreKey"         , wrap_RestoreKey, METH_VARARGS,"Restore a private key from a given number of shares"},
+    {"SetKeyFromPem"       , wrap_SetKeyFromPem, METH_VARARGS,"Sets a key from a PEM format"},
     {NULL, NULL, 0, NULL},
 };
  

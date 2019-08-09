@@ -3,11 +3,11 @@ import json
 import string
 #Plese add the path to the library or update the PYTHONPATH
 #sys.path.append ('PATH TO INSTALLATION LIB')
-sys.path.append ('/Users/j.murphy/nchain/SDK/build/x64/release')
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
 import PyMessageHash
+import PyAsymKey
 
 class MessageHash:
     def __init__(self, msg):
@@ -108,4 +108,42 @@ class ECPoint:
         return False
     def __str__(self):
         return self.value
+        
+        
+class ECKey256K1:
+    def __init__ (self):
+        self.pubKey, self.priKey = PyAsymKey.GenerateKeyPairPEM(); 
+    
+    def FromPEMStr (self, keyPemForm):
+        self.pubKey, self.priKey = PyAsymKey.SetKeyFromPem(keyPemForm);
+        pass
+        
+    def derivePublicKey(self, msg):
+        return PyAsymKey.DerivePublic(self.pubKey, msg)
+        
+    def SplitKey(self,threshold=10,shares=100):
+        return PyAsymKey.SplitKey(self.priKey, threshold, shares)
+               
+    def RecoverKey(self, shares):
+        if(len(shares) < 2):
+            return ;
+        ListAsStr = ";".join(str(x) for x in shares)
+        self.pubKey, self.priKey = PyAsymKey.RestoreKey(ListAsStr)
+        pass
+        
+        
+    def sign(self, msg):
+        return PyAsymKey.Sign ( msg, self.priKey)
+        
+        
+    def CalculateSharedSecret(self, pubkey):
+        return PyAsymKey.ShareSecret(self.priKey, pubkey)
+    
+    def __str__(self):
+        return 'Please take caution: Keys are valuable material\n PubKey: {} \t Private key: {}'.format (self.pubKey, self.priKey)
+      
+def verify(msg, pubkey, rval, sval):
+    return PyAsymKey.Verify(msg, pubkey, rval,sval)  
+    
+
 

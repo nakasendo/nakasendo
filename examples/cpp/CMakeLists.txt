@@ -25,5 +25,13 @@ add_executable(ECPointTest ECPointTest.cpp)
 target_link_libraries(ECPointTest ECPoint BigNumbers)
 set_property(TARGET ECPointTest PROPERTY FOLDER "examples")
 
+add_executable(SplitMessage shamirsSecret.cpp)
+target_link_libraries(SplitMessage BigNumbers MessageHash Polynomial SecretSplit)
+set_property(TARGET SplitMessage PROPERTY FOLDER "examples")
+
+add_executable(RecoverMessage RecoverSecret.cpp)
+target_link_libraries(RecoverMessage BigNumbers MessageHash Polynomial SecretSplit)
+set_property(TARGET RecoverMessage PROPERTY FOLDER "examples")
+
 ## TODO : 
 ## Create a CMakeLists.txt.in or some cmake module to pack with the examples/cpp for users

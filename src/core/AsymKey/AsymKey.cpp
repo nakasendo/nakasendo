@@ -1,6 +1,9 @@
 #include <AsymKey/AsymKey.h>
 #include <AsymKey/AsymKeyImpl.h>
 
+#include <BigNumbers/BigNumbers.h>
+#include <SecretSplit/KeyShare.h>
+
 AsymKey::~AsymKey() = default;
 AsymKey::AsymKey(AsymKey&& obj) noexcept = default;
 AsymKey& AsymKey::operator=(AsymKey&& obj) noexcept = default;
@@ -110,6 +113,15 @@ AsymKey AsymKey::derive(const std::string& crAdditiveMsg) const
 std::pair<std::string, std::string> AsymKey::sign(const std::string& crMsg)const
 {
     return m_pImpl->sign(crMsg);
+}
+
+// split the key into multiple parts
+std::vector<KeyShare> AsymKey::split (const int& minThreshold, const int& numShares){
+    return m_pImpl->split (minThreshold, numShares);
+}
+// recover a key from multiple shares
+void AsymKey::recover (const std::vector<KeyShare>& keyshares){
+    m_pImpl->recover(keyshares);
 }
 
 bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs)
