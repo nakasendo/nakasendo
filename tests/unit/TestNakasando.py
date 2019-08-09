@@ -150,13 +150,35 @@ if __name__ == "__main__":
     print(msgFromAlice)
     
     
+    # Test1 randomPolynomial( degree, modulo )
+    # Test2 randomPolynomial( degree, modulo, fixed a_0 )
+    # Test3 randomPolynomial( degree, modulo, min, max )
 
 
     print("Testing degree Polynomial")
-    testPoly = Nakasando.Polynomial( 69 )
+    testPoly = Nakasando.Polynomial( 69, "0" )
     print( "P = ", testPoly.getDegree())
 
-    print("Testing randomPolynomial")
-    poly = Nakasando.Polynomial(3)
-    #poly.randomPolynomial(3) 
-    print( "Nakasando Polynomial = ", poly.randomPolynomial(3) )
+    #Test1
+    print("Testing randomPolynomial (degree, modulo) ")
+    degree = 3
+    modulo = "17"
+    poly = Nakasando.Polynomial( degree, modulo )
+    print ( "Nakasando Polynomial = ", poly.randomPolynomial( ) )
+
+    #Test2
+    print("Testing randomPolynomialFixed_a_0 (degree, modulo, fixed a_0) ")
+    degree = 3
+    modulo = "17"
+    a_0 = "5"
+    poly = Nakasando.Polynomial( degree, modulo )
+    print ( "Nakasando Polynomial = ", poly.randomPolynomialFixed_a_0(a_0) )
+
+    #Test3
+    print("Testing randomPolynomialMinMax (degree, modulo, min, max) ")
+    degree = 3
+    modulo = "0"
+    min = "0"
+    max = "100"
+    poly = Nakasando.Polynomial( degree, modulo )
+    print ( "Nakasando Polynomial = ", poly.randomPolynomialMinMax(min, max) )
