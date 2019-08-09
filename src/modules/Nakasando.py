@@ -14,13 +14,19 @@ import PyAsymKey
 import PyPolynomial
 
 class Polynomial:
-    def __init__(self, degree):
+    def __init__(self, degree, modulo ):
         self.degree = degree;
+        self.modulo = modulo;
     def getDegree(self):
         return PyPolynomial.getDegree();
-    def randomPolynomial(self, degree):
-        return PyPolynomial.randomPolynomial(degree);        
-        #return degree ;
+    def randomPolynomial(self):
+        return PyPolynomial.randomPolynomial(self.degree, self.modulo);   
+    def randomPolynomialFixed_a_0(self, a_0):
+        return PyPolynomial.randomPolynomialFixed_a_0 \
+            (self.degree, self.modulo, a_0)
+    def randomPolynomialMinMax(self, min, max):
+        return PyPolynomial.randomPolynomialMinMax \
+            (self.degree, self.modulo, min, max)            
     def __str__(self):
         return '{}'.format (self.degree);
 
