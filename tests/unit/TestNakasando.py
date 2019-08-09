@@ -163,16 +163,16 @@ if __name__ == "__main__":
     print("Testing randomPolynomial (degree, modulo) ")
     degree = 3
     modulo = "17"
-    poly = Nakasando.Polynomial( degree, modulo )
-    print ( "Nakasando Polynomial = ", poly.randomPolynomial( ) )
+    poly1 = Nakasando.Polynomial( degree, modulo )
+    print ( "Nakasando Polynomial = ", poly1.randomPolynomial( ) )
 
     #Test2
     print("Testing randomPolynomialFixed_a_0 (degree, modulo, fixed a_0) ")
     degree = 3
     modulo = "17"
     a_0 = "5"
-    poly = Nakasando.Polynomial( degree, modulo )
-    print ( "Nakasando Polynomial = ", poly.randomPolynomialFixed_a_0(a_0) )
+    poly2 = Nakasando.Polynomial( degree, modulo )
+    print ( "Nakasando Polynomial = ", poly2.randomPolynomialFixed_a_0(a_0) )
 
     #Test3
     print("Testing randomPolynomialMinMax (degree, modulo, min, max) ")
@@ -180,5 +180,15 @@ if __name__ == "__main__":
     modulo = "0"
     min = "0"
     max = "100"
-    poly = Nakasando.Polynomial( degree, modulo )
-    print ( "Nakasando Polynomial = ", poly.randomPolynomialMinMax(min, max) )
+    poly3 = Nakasando.Polynomial( degree, modulo )
+    print ( "Nakasando Polynomial = ", poly3.randomPolynomialMinMax(min, max) )
+
+    #Test evaluate function
+    print("Testing evaluate function")
+    x = "2"
+    
+    print ("value for x = %s is %s" % ( x, poly1(x) ) )
+
+    #Test creating from list []
+
+

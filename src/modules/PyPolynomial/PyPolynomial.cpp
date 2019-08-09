@@ -138,6 +138,54 @@ static PyObject* wrap_RandomPolynomialMinMax(PyObject* self, PyObject *args)
 }
 
 
+// Evaluate the polynomial for x value 
+static PyObject* wrap_Evaluate(PyObject* self, PyObject *args) 
+{ 
+    PyObject *obj ;
+    char * x ;
+
+    if ( !PyArg_ParseTuple( args, "Os", &obj, &x ) )
+        return NULL;
+
+    PyObject *iter = PyObject_GetIter( obj ) ;
+    if ( !iter ) 
+        return NULL;
+
+    std::vector< std::string > strCoefficients ;
+    int index_i ( 0 ) ;
+    while ( true ) 
+    {
+        PyObject *next = PyIter_Next( iter ) ;
+        if ( !next ) 
+        {
+            // nothing left in the iterator 
+            break;
+        }
+
+        char * argA ;
+        if ( !PyArg_Parse (next, "s", &argA ) )  
+        {
+            return NULL ;
+        }
+        strCoefficients.push_back( argA ) ;
+        
+    }
+
+    // create the polynomial and evaluate for x
+    Polynomial poly = Polynomial( strCoefficients, GenerateZero( ) ) ;
+
+    // <TODO> remove this (here for debugging)
+    std::cout << "poly = " << poly << std::endl; 
+    BigNumber eval, fx ;
+    fx.FromDec( x ) ;
+    
+    eval = poly( fx ) ;
+
+    return Py_BuildValue( "s", eval.ToDec( ).c_str() ) ;
+}
+
+
+
 static PyMethodDef ModuleMethods[] =
 {
     {"getDegree",wrap_getDegree,METH_VARARGS,"degree of polynomial"},    
@@ -145,7 +193,8 @@ static PyMethodDef ModuleMethods[] =
     {"randomPolynomialFixed_a_0",wrap_RandomPolynomialFixed_a_0,METH_VARARGS,  
         "create a random polynomial with fixed a_0"},    
     {"randomPolynomialMinMax",wrap_RandomPolynomialMinMax,METH_VARARGS,  
-        "create a random polynomial with range of min..max"},         
+        "create a random polynomial with range of min..max"},      
+    {"evaluate",wrap_Evaluate,METH_VARARGS,"evaluate polynomial for x"},      
     {NULL, NULL, 0, NULL},
 };
  

@@ -17,18 +17,24 @@ class Polynomial:
     def __init__(self, degree, modulo ):
         self.degree = degree;
         self.modulo = modulo;
+        self.coefficients = []
     def getDegree(self):
         return PyPolynomial.getDegree();
     def randomPolynomial(self):
-        return PyPolynomial.randomPolynomial(self.degree, self.modulo);   
+        self.coefficients = PyPolynomial.randomPolynomial(self.degree, self.modulo);   
+        return self.coefficients
     def randomPolynomialFixed_a_0(self, a_0):
-        return PyPolynomial.randomPolynomialFixed_a_0 \
+        self.coefficients = PyPolynomial.randomPolynomialFixed_a_0 \
             (self.degree, self.modulo, a_0)
+        return self.coefficients
     def randomPolynomialMinMax(self, min, max):
-        return PyPolynomial.randomPolynomialMinMax \
+        self.coefficients = PyPolynomial.randomPolynomialMinMax \
             (self.degree, self.modulo, min, max)            
+        return self.coefficients
     def __str__(self):
         return '{}'.format (self.degree);
+    def __call__(self, x):
+        return PyPolynomial.evaluate(self.coefficients, x)
 
 class MessageHash:
     def __init__(self, msg):
