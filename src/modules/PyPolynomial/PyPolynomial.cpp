@@ -15,34 +15,40 @@ struct module_state {
 static struct module_state _state;
 #endif
 
-static PyObject* wrap_getDegree(PyObject* self, PyObject *args){
+// Create Vector from python list 
+std::vector< std::string > createVector( PyObject* obj )
+{
+    std::vector< std::string > tmpVec ;
 
-    int dummySize ( 99 ) ; 
+    PyObject *iter = PyObject_GetIter( obj ) ;
+    if ( !iter ) 
+        return tmpVec;
 
-    return Py_BuildValue( "i", dummySize ) ;
+    std::vector< std::string > strCoefficients ;
+    int index_i ( 0 ) ;
+    while ( true ) 
+    {
+        PyObject *next = PyIter_Next( iter ) ;
+        if ( !next ) 
+        {
+            // nothing left in the iterator 
+            break;
+        }
+
+        char * argA ;
+        if ( !PyArg_Parse (next, "s", &argA ) )  
+        {
+            return tmpVec ;
+        }
+        tmpVec.push_back( argA ) ;
+        
+    }
+    return tmpVec ;
 }
-
-
-// RandomPolynomial with degree and modulo 
-static PyObject* wrap_RandomPolynomial(PyObject* self, PyObject *args) 
-{ 
-
-    int degree ;
-    char * argB ;
-
-    if (!PyArg_ParseTuple(args, "is", &degree, &argB ))
-        return NULL;
-
-    // constuct a polynomial
-    BigNumber modulo ;
-    modulo.FromDec( argB ) ;
-
-
-    // construct using degree and modulo 0     
-    Polynomial poly = Polynomial( degree, modulo ) ;
-
-    // <TODO> remove this (here for debugging)
-    std::cout << "poly = " << poly << std::endl; 
+#// Create python list from Polynomial object
+PyObject * createList(const Polynomial& poly )
+{
+    int degree = poly.getDegree( ) ;
 
     int numberCoeffs    = degree + 1 ;
     Py_ssize_t len      = numberCoeffs ;
@@ -56,13 +62,31 @@ static PyObject* wrap_RandomPolynomial(PyObject* self, PyObject *args)
         std::string  item = poly[i].ToDec() ;
         PyList_SET_ITEM(list, i, Py_BuildValue("s",item.c_str() ) ) ;
     }
-    return list ;
+    return list ;     
+}
+
+// RandomPolynomial with degree and modulo 
+static PyObject* wrap_RandomPolynomial(PyObject* self, PyObject *args) 
+{ 
+    int degree ;
+    char * argB ;
+
+    if (!PyArg_ParseTuple(args, "is", &degree, &argB ))
+        return NULL;
+
+    BigNumber modulo ;
+    modulo.FromDec( argB ) ;
+
+    // construct using degree and modulo 0     
+    Polynomial poly = Polynomial( degree, modulo ) ;
+
+    return createList(poly) ;
+
 }
 
 // randomPolynomial with degree, modulo and fixed a_0term 
 static PyObject* wrap_RandomPolynomialFixed_a_0(PyObject* self, PyObject *args) 
 { 
-
     int degree ;
     char * argB ;
     char * argC ;
@@ -70,37 +94,19 @@ static PyObject* wrap_RandomPolynomialFixed_a_0(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "iss", &degree, &argB, &argC ))
         return NULL;
 
-    // constuct a polynomial
     BigNumber modulo, a_0 ;
     modulo.FromDec( argB ) ;
     a_0.FromDec( argC ) ;
 
-
     // construct using degree, modulo and fixed a_0 term  
     Polynomial poly = Polynomial( degree, modulo, a_0 ) ;
 
-    // <TODO> remove this (here for debugging)
-    std::cout << "poly = " << poly << std::endl; 
-
-    int numberCoeffs    = degree + 1 ;
-    Py_ssize_t len      = numberCoeffs ;
-
-    PyObject *list = PyList_New( len ) ;
-    if ( !list )
-        return NULL ;
-
-    for (auto i = 0; i < numberCoeffs; ++i  )
-    {
-        std::string  item = poly[i].ToDec() ;
-        PyList_SET_ITEM(list, i, Py_BuildValue("s",item.c_str() ) ) ;
-    }
-    return list ;
+    return createList(poly) ;
 }
 
 // randomPolynomial with degree, modulo and fixed a_0term 
 static PyObject* wrap_RandomPolynomialMinMax(PyObject* self, PyObject *args) 
 { 
-
     int degree ;
     char * argB ;
     char * argC ;
@@ -109,32 +115,48 @@ static PyObject* wrap_RandomPolynomialMinMax(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "isss", &degree, &argB, &argC , &argD))
         return NULL;
 
-    // constuct a polynomial
     BigNumber modulo, min, max ;
     modulo.FromDec( argB ) ;
     min.FromDec( argC ) ;
     max.FromDec( argD ) ;
 
-
     // construct using degree, modulo and fixed a_0 term  
     Polynomial poly = Polynomial( degree, modulo, min, max ) ;
 
-    // <TODO> remove this (here for debugging)
-    std::cout << "poly = " << poly << std::endl; 
+    return createList(poly) ;
+}
 
-    int numberCoeffs    = degree + 1 ;
-    Py_ssize_t len      = numberCoeffs ;
+static PyObject* wrap_InitFromList(PyObject* self, PyObject *args)
+{
+    PyObject *obj ;
 
-    PyObject *list = PyList_New( len ) ;
-    if ( !list )
-        return NULL ;
+    if ( !PyArg_ParseTuple( args, "O", &obj ) )
+        return NULL;
 
-    for (auto i = 0; i < numberCoeffs; ++i  )
-    {
-        std::string  item = poly[i].ToDec() ;
-        PyList_SET_ITEM(list, i, Py_BuildValue("s",item.c_str() ) ) ;
-    }
-    return list ;
+    std::vector< std::string > strCoefficients = createVector( obj ) ;
+
+    // create the polynomial from vector of strings
+    Polynomial poly = Polynomial( strCoefficients, GenerateZero( ) ) ;
+   
+    return createList(poly) ;
+}
+
+static PyObject* wrap_InitFromListModulo(PyObject* self, PyObject *args)
+{
+    PyObject *obj ;
+    char * argA ;
+
+    if ( !PyArg_ParseTuple( args, "Os", &obj, &argA ) )
+        return NULL;
+
+    std::vector< std::string > strCoefficients = createVector( obj ) ;
+    BigNumber modulo ;
+    modulo.FromDec( argA ) ;
+
+    // create the polynomial from vector of strings, and modulo
+    Polynomial poly = Polynomial( strCoefficients, modulo ) ;
+    
+    return createList(poly) ;
 }
 
 
@@ -174,8 +196,6 @@ static PyObject* wrap_Evaluate(PyObject* self, PyObject *args)
     // create the polynomial and evaluate for x
     Polynomial poly = Polynomial( strCoefficients, GenerateZero( ) ) ;
 
-    // <TODO> remove this (here for debugging)
-    std::cout << "poly = " << poly << std::endl; 
     BigNumber eval, fx ;
     fx.FromDec( x ) ;
     
@@ -188,13 +208,15 @@ static PyObject* wrap_Evaluate(PyObject* self, PyObject *args)
 
 static PyMethodDef ModuleMethods[] =
 {
-    {"getDegree",wrap_getDegree,METH_VARARGS,"degree of polynomial"},    
     {"randomPolynomial",wrap_RandomPolynomial,METH_VARARGS,"create a random polynomial"},    
     {"randomPolynomialFixed_a_0",wrap_RandomPolynomialFixed_a_0,METH_VARARGS,  
         "create a random polynomial with fixed a_0"},    
     {"randomPolynomialMinMax",wrap_RandomPolynomialMinMax,METH_VARARGS,  
         "create a random polynomial with range of min..max"},      
-    {"evaluate",wrap_Evaluate,METH_VARARGS,"evaluate polynomial for x"},      
+    {"evaluate",wrap_Evaluate,METH_VARARGS,"evaluate polynomial for x"},     
+    {"initFromList",wrap_InitFromList, METH_VARARGS,"create a Polynomial from a list"}, 
+    {"initFromListModulo",wrap_InitFromListModulo, METH_VARARGS,
+        "create a Polynomial from a list with modulo"}, 
     {NULL, NULL, 0, NULL},
 };
  
