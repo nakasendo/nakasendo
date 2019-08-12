@@ -13,29 +13,6 @@ import PyMessageHash
 import PyAsymKey
 import PyPolynomial
 
-class Polynomial:
-    def __init__(self, degree, modulo ):
-        self.degree = degree;
-        self.modulo = modulo;
-        self.coefficients = []
-    def getDegree(self):
-        return PyPolynomial.getDegree();
-    def randomPolynomial(self):
-        self.coefficients = PyPolynomial.randomPolynomial(self.degree, self.modulo);   
-        return self.coefficients
-    def randomPolynomialFixed_a_0(self, a_0):
-        self.coefficients = PyPolynomial.randomPolynomialFixed_a_0 \
-            (self.degree, self.modulo, a_0)
-        return self.coefficients
-    def randomPolynomialMinMax(self, min, max):
-        self.coefficients = PyPolynomial.randomPolynomialMinMax \
-            (self.degree, self.modulo, min, max)            
-        return self.coefficients
-    def __str__(self):
-        return '{}'.format (self.degree);
-    def __call__(self, x):
-        return PyPolynomial.evaluate(self.coefficients, x)
-
 class MessageHash:
     def __init__(self, msg):
         self.message = msg;
@@ -172,5 +149,66 @@ class ECKey256K1:
 def verify(msg, pubkey, rval, sval):
     return PyAsymKey.Verify(msg, pubkey, rval,sval)  
     
+
+class Polynomial:
+    def __init__(self, degree, modulo ):
+        self.degree = degree;
+        self.modulo = modulo;
+        self.coefficients = []
+
+    @classmethod
+    def initRandom(cls, degree, modulo):
+        obj = cls(degree, modulo)
+        obj.coefficients = PyPolynomial.randomPolynomial(degree, modulo);   
+        return obj
+
+    @classmethod
+    def initRandomFixed_a_0(cls, degree, modulo, a_0):
+        obj = cls(degree, modulo )
+        obj.coefficients = PyPolynomial.randomPolynomialFixed_a_0 \
+            (degree, modulo, a_0)
+        return obj
+
+    @classmethod
+    def initRandomMinMax(cls, degree, modulo, min, max):
+        obj = cls( degree, modulo )
+        obj.coefficients = PyPolynomial.randomPolynomialMinMax \
+            (degree, modulo, min, max)            
+        return obj
+
+    @classmethod
+    def initFromList( cls, coeffs ) :
+        obj = cls(len(coeffs), 0) 
+        obj.coefficients = PyPolynomial.initFromList( coeffs ) ;
+        return obj
+ 
+    @classmethod
+    def initFromListModulo( cls, coeffs, modulo ) :
+        obj = cls(len(coeffs), modulo) 
+        obj.coefficients = PyPolynomial.initFromListModulo( coeffs, modulo ) ;
+        return obj
+
+    def __str__(self):
+        prettyStr = ""
+        numberCoeffs = len(self.coefficients)
+        if (numberCoeffs > 0 ) :
+            prettyStr = self.coefficients[0] ;
+            if (numberCoeffs > 1 ) :
+                prettyStr += " + "
+                prettyStr += self.coefficients[ 1 ]
+                prettyStr += "x"
+                if (numberCoeffs > 2 ):
+                    for i in range ( 2, numberCoeffs) :
+                        prettyStr += " + "
+                        prettyStr += self.coefficients[i]
+                        prettyStr += "x^"
+                        prettyStr += str(i)
+
+        return "degree: {0}, modulo: {1}, coefficients: {2}".format \
+            (self.degree, self.modulo, prettyStr)
+
+
+    def __call__(self, x):
+        return PyPolynomial.evaluate(self.coefficients, x)
 
 
