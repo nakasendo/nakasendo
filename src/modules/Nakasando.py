@@ -1,11 +1,8 @@
 import sys
 import json
 import string
-#Plese add the path to the library or update the PYTHONPATH
-#sys.path.append ('PATH TO INSTALLATION LIB')
-#sys.path.append ('/Users/j.murphy/nchain/SDK/build/x64/release')
-sys.path.append ('/home/josie/workspace/build/x64/release')
-
+#Please update the PYTHONPATH or use the sys.path.append with the path to 
+#the Nakasando installation
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
