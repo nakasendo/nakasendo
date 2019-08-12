@@ -15,9 +15,6 @@
 #include <MessageHash/MessageHashAPI.h>
 #include <MessageHash/Base58EncDec.h>
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-//#include <crtdbg.h>
 
 BOOST_AUTO_TEST_SUITE(test_suite_MessageHash)
 

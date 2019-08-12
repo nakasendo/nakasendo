@@ -4,10 +4,6 @@ import json
 import string
 #Please update the PYTHONPATH or use the sys.path.append with the path to 
 #the Nakasando installation
-#sys.path.append('/Users/j.murphy/nchain/SDK/sdklibraries/src/modules')
-#sys.path.append ('/Users/j.murphy/nchain/SDK/build/x64/release')
-sys.path.append('/home/josie/workspace/sdklibraries_josie/src/modules')
-sys.path.append ('/home/josie/workspace/build/x64/release')
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
