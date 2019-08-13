@@ -29,6 +29,7 @@ add_subdirectory(PyBigNumbers)
 add_subdirectory(PyMessageHash)
 add_subdirectory(PySymEncDec)
 add_subdirectory(PyECPoint)
+add_subdirectory(PyPolynomial)
 
 ## build wasm modules
 ## See ${CMAKE_CURRENT_SOURCE_DIR}/WasmTools.cmake header to see how to install/setup for WASM

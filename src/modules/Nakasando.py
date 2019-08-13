@@ -1,13 +1,14 @@
 import sys
 import json
 import string
-#Plese add the path to the library or update the PYTHONPATH
-#sys.path.append ('PATH TO INSTALLATION LIB')
+#Please update the PYTHONPATH or use the sys.path.append with the path to 
+#the Nakasando installation
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
 import PyMessageHash
 import PyAsymKey
+import PyPolynomial
 
 class MessageHash:
     def __init__(self, msg):
@@ -145,5 +146,66 @@ class ECKey256K1:
 def verify(msg, pubkey, rval, sval):
     return PyAsymKey.Verify(msg, pubkey, rval,sval)  
     
+
+class Polynomial:
+    def __init__(self, degree, modulo ):
+        self.degree = degree;
+        self.modulo = modulo;
+        self.coefficients = []
+
+    @classmethod
+    def initRandom(cls, degree, modulo):
+        obj = cls(degree, modulo)
+        obj.coefficients = PyPolynomial.randomPolynomial(degree, modulo);   
+        return obj
+
+    @classmethod
+    def initRandomFixed_a_0(cls, degree, modulo, a_0):
+        obj = cls(degree, modulo )
+        obj.coefficients = PyPolynomial.randomPolynomialFixed_a_0 \
+            (degree, modulo, a_0)
+        return obj
+
+    @classmethod
+    def initRandomMinMax(cls, degree, modulo, min, max):
+        obj = cls( degree, modulo )
+        obj.coefficients = PyPolynomial.randomPolynomialMinMax \
+            (degree, modulo, min, max)            
+        return obj
+
+    @classmethod
+    def initFromList( cls, coeffs ) :
+        obj = cls(len(coeffs), 0) 
+        obj.coefficients = PyPolynomial.initFromList( coeffs ) ;
+        return obj
+ 
+    @classmethod
+    def initFromListModulo( cls, coeffs, modulo ) :
+        obj = cls(len(coeffs), modulo) 
+        obj.coefficients = PyPolynomial.initFromListModulo( coeffs, modulo ) ;
+        return obj
+
+    def __str__(self):
+        prettyStr = ""
+        numberCoeffs = len(self.coefficients)
+        if (numberCoeffs > 0 ) :
+            prettyStr = self.coefficients[0] ;
+            if (numberCoeffs > 1 ) :
+                prettyStr += " + "
+                prettyStr += self.coefficients[ 1 ]
+                prettyStr += "x"
+                if (numberCoeffs > 2 ):
+                    for i in range ( 2, numberCoeffs) :
+                        prettyStr += " + "
+                        prettyStr += self.coefficients[i]
+                        prettyStr += "x^"
+                        prettyStr += str(i)
+
+        return "degree: {0}, modulo: {1}, coefficients: {2}".format \
+            (self.degree, self.modulo, prettyStr)
+
+
+    def __call__(self, x):
+        return PyPolynomial.evaluate(self.coefficients, x)
 
 
