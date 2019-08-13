@@ -124,6 +124,7 @@ macro(sdkInitCMake)
   sdkSetOutputDirectories()
   sdkSetBuildVersion()
   sdkDefineDynamicAPI()
+  install(FILES "${SDK_VERSION_HPP}" DESTINATION "include" COMPONENT Files)
 
   ## Precalculate variable for installation
   sdkGetInstallRootDir(_install_root_dir)
