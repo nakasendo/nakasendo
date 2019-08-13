@@ -175,7 +175,7 @@ class Polynomial:
 
     @classmethod
     def initFromList( cls, coeffs ) :
-        obj = cls(len(coeffs), 0) 
+        obj = cls(len(coeffs), "0") 
         obj.coefficients = PyPolynomial.initFromList( coeffs ) ;
         return obj
  
@@ -206,6 +206,20 @@ class Polynomial:
 
 
     def __call__(self, x):
-        return PyPolynomial.evaluate(self.coefficients, x)
+        return PyPolynomial.evaluate(self.coefficients, x, self.modulo)
 
+class LGInterpolator:
+    def __init__(self, xfx, modulo ):
+        self.points = xfx
+        self.modulo = modulo
+
+    def __call__(self, xValue, basisValue=None) :
+        if basisValue is None :
+            return PyPolynomial.LGInterpolatorFull( self.points, self.modulo, xValue )
+
+        return PyPolynomial.LGInterpolatorSingle( self.points, self.modulo, xValue, basisValue)
+        
+
+    def __str__(self):
+        return "points: {0}, modulo: {1}".format (self.points, self.modulo)
 

@@ -2,6 +2,7 @@
 import sys
 import json
 import string
+import random
 #Please update the PYTHONPATH or use the sys.path.append with the path to 
 #the Nakasando installation
 import PyBigNumbers
@@ -32,17 +33,17 @@ if __name__ == "__main__":
     print ("ECPointC (ECPointA + ECPointB) output %s " % ECPointC)
 
 
-    print ("Testing multiplication (2 paramters)... ")
+    print ("Testing multiplication (2 parameters)... ")
     BigNumScalerA = Nakasando.BigNum()
     ECPointG = Nakasando.ECPoint(); 
 
     ECPointRes = ECPointG.multipleScalar(BigNumScalerA)
     print("Multiplication res: %s " % ECPointRes)
 
-    print ("Testing multiplication (3 paramters)... ")
+    print ("Testing multiplication (3 parameters)... ")
     BigNumScalerB = Nakasando.BigNum()
     ECPointRes1 = ECPointG.multipltScalarEx(BigNumScalerA,BigNumScalerB)
-    print ( "3 param Multiplicatin res: %s " % ECPointRes1)
+    print ( "3 param Multiplication res: %s " % ECPointRes1)
 
     ECPointFromRes1 =Nakasando.ECPoint()
     if (ECPointFromRes1.IsPointOnCurve() == True):
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     
     mykey = Nakasando.ECKey256K1();
     print (mykey)
-    print ("derive a publci key..")
+    print ("derive a public key..")
     myderivedKey = mykey.derivePublicKey("Using this message")
     print(myderivedKey)
     shares = mykey.SplitKey(3,6);
@@ -198,3 +199,37 @@ if __name__ == "__main__":
     #and evaluate for x=1
     x = "7"
     print ("value for x = %s is %s" % ( x, poly5(x) ) )
+
+
+    #Test Interpolation
+    print("\n\nTesting Interpolation, create object with degree=3, mod=17")
+    # using poly1, setup xfx
+    margin = 2 
+    npPoint = poly1.degree + 1 + margin 
+    vectorX = []
+    for x in range( npPoint ) :   
+        firstNum = 1 
+        secondNum = x
+        firstNum = firstNum + secondNum
+        vectorX.append(firstNum)
+
+    xfx = []
+    for x in vectorX :
+        xfx.append( (x, poly1(str(x))))
+    
+    #create interpolator
+    lgInterpolator = Nakasando.LGInterpolator( xfx, poly1.modulo ) 
+    print ("lgInterpolator = ", lgInterpolator )
+
+    xValue      = random.randint( 0, int(lgInterpolator.modulo) - 1 )
+    basisPoint  = random.randint( 0, len(lgInterpolator.points) - 1 )
+
+    
+    value = lgInterpolator( str(xValue)) 
+    print ("Full LG Interpolation evaluation for xValue=%s is %s" % (xValue, value ) )
+    valBasis = lgInterpolator( str(xValue), str(basisPoint) )
+    print ("LG Interpolation evaluation for %sth basis point where xValue=%s is %s" % \
+        (basisPoint, xValue, valBasis ) )
+
+    
+
