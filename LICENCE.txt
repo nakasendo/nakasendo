@@ -2,13 +2,13 @@ NCHAIN OPEN BITCOIN SV LICENSE
 Effective Date:  May 21, 2019
 This license governs use of the accompanying software (the Software) provided as part of the SDK Libraries project initiated by nChain.  If you use the Software, you accept this license.  If you do not accept the license, do not use the Software.  This license applies to any person or entity that downloads, reproduces or obtains the Software on or after the Effective Date stated above.
 
-1. Definitions 
+1. Definitions
 
 The term "contribution" is the original Software, or any additions or changes to the Software. A "contributor" is any person that distributes its contribution under this license.  "Licensed patents" are a contributor's patents or claimed patents that read directly on its contribution to the Software (but licensed patents do not include a contributors patents or claimed patents that do not read directly on its contribution to the Software.) 
 
 2. Grant of Rights 
 
-(A) Copyright Grant.  Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create. 
+(A) Copyright Grant. Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create. 
 
 (B) Patent Grant.  Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the Software or derivative works of the contribution in the Software. 
 

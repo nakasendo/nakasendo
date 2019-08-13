@@ -12,8 +12,6 @@
 class Polynomial_API Polynomial
 {
   public:
-    // <todo> Do we want to use move semantics here?
-    //Polynomial( stsd::vector< BigNumber >&& coefficients, BigNumber groupModulo )
 
     // construct from BigNumber vector
     Polynomial( std::vector< BigNumber >& coefficients, const BigNumber& modulo );
