@@ -9,6 +9,7 @@ import PyECPoint
 import PySymEncDec
 import PyMessageHash
 import PyAsymKey
+import PyPolynomial
 import Nakasando
 
 if __name__ == "__main__":
@@ -108,9 +109,7 @@ if __name__ == "__main__":
     print ("EncodedMsgAsHex: %s" % encodedAsHex)
 
     decoded =encoder.Decode(encodedAsHex)
-    print ("Decoded Message %s" % decoded )
-    
-    
+    print ("Decoded Message %s" % decoded )    
     
     mykey = Nakasando.ECKey256K1();
     print (mykey)
@@ -147,3 +146,55 @@ if __name__ == "__main__":
     print(msgFromAlice)
     
     
+    # Test1 randomPolynomial( degree, modulo )
+    # Test2 randomPolynomial( degree, modulo, fixed a_0 )
+    # Test3 randomPolynomial( degree, modulo, min, max )
+    # Test4 evalute for x=2
+    # Test5 create polynomial from list
+
+
+    #Test1
+    print("Testing initRandom (degree, modulo) ")
+    degree = 3
+    modulo = "17"
+    poly1 = Nakasando.Polynomial.initRandom( degree, modulo )
+    print ( "Nakasando Polynomial = ", poly1 )
+
+    #Test2
+    print("Testing initRandomFixed_a_0 (degree, modulo, fixed a_0) ")
+    degree = 3
+    modulo = "17"
+    a_0 = "5"
+    poly2 = Nakasando.Polynomial.initRandomFixed_a_0( degree, modulo, a_0 )
+    print ( "Nakasando Polynomial = ", poly2 )
+
+    #Test3
+    print("Testing initRandomMinMax (degree, modulo, min, max) ")
+    degree = 3
+    modulo = "0"
+    min = "0"
+    max = "100"
+    poly3 = Nakasando.Polynomial.initRandomMinMax( degree, modulo, min, max )
+    print( "Nakasando Polynomial = ", poly3 )
+
+    #Test4 evaluate function
+    print("Testing evaluate function")
+    x = "2"
+    print ("value for x = %s is %s" % ( x, poly1(x) ) )
+
+    #Test5 creating from list []
+    print ("Testing create from list [1, 2, 3]")
+    poly4 = ( Nakasando.Polynomial.initFromList( ["1", "2", "3"] ) )
+    print( "Nakasando Polynomial = ", poly4 )
+    #and evaluate for x=1
+    x = "1"
+    print ("value for x = %s is %s" % ( x, poly4(x) ) )
+
+    #Test6 creating from list [] with modulo
+    print ("Testing create from list [6, 7, 8], mod=5")
+    modulo = "5"
+    poly5 = ( Nakasando.Polynomial.initFromListModulo( ["6", "7", "8"], modulo ) )
+    print( "Nakasando Polynomial = ", poly5 )
+    #and evaluate for x=1
+    x = "7"
+    print ("value for x = %s is %s" % ( x, poly5(x) ) )
