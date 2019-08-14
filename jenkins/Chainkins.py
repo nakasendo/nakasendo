@@ -82,7 +82,7 @@ if args.consolidate_junit is not None and args.consolidate_junit:
     out_dir = pathlib.Path(args.outdir)
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
-    xml_debug = junithelper.get_consolidated_junitxml(test_result_dir_debug)
+    xml_debug = junithelper.get_consolidated_junitxml(test_result_dir_debug, 'd')
     xml_debug.write(out_dir / 'all_test_debug.xml')
     ## aggregate all test results in release mode
     test_result_dir_release = pathlib.Path(args.indir_release)
@@ -101,7 +101,7 @@ if args.consolidate_html is not None and args.consolidate_html:
     out_dir = pathlib.Path(args.outdir)
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
-    xml_debug = junithelper.get_consolidated_junitxml(test_result_dir_debug)
+    xml_debug = junithelper.get_consolidated_junitxml(test_result_dir_debug, 'd')
     ## aggregate all test results in release mode
     test_result_dir_release = pathlib.Path(args.indir_release)
     xml_release = junithelper.get_consolidated_junitxml(test_result_dir_release)
@@ -145,7 +145,7 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
-    xml_debug = junithelper.get_consolidated_junitxml(test_result_dir_debug)
+    xml_debug = junithelper.get_consolidated_junitxml(test_result_dir_debug, 'd')
     ## aggregate all test results in release mode
     test_result_dir_release = pathlib.Path(args.indir_release)
     xml_release = junithelper.get_consolidated_junitxml(test_result_dir_release)
