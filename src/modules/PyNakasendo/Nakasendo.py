@@ -2,7 +2,7 @@ import sys
 import json
 import string
 #Please update the PYTHONPATH or use the sys.path.append with the path to 
-#the Nakasando installation
+#the Nakasendo installation
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
