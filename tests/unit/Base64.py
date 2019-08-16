@@ -3,14 +3,14 @@ import sys
 import json
 import string
 #Please update the PYTHONPATH or use the sys.path.append with the path to 
-#the Nakasando installation
+#the Nakasendo installation
 sys.path.append('/users/j.murphy/nchain/SDK/sdklibraries/src/modules')
 sys.path.append ('/users/j.murphy/nchain/SDK/build/x64/release')
 import PyBigNumbers
 import PyECPoint
 import PySymEncDec
 import PyMessageHash
-import Nakasando
+import Nakasendo
 
 if __name__ == "__main__":
     print ("starting.....")
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     print ("Testing Base64..Encoding")
     msgToEncode = 'Development team'
     for x in range(1,10):
-        myMsgHash = Nakasando.MessageHash(msgToEncode)
+        myMsgHash = Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base64Encode()
         #print (encoded)
         if (encoded != 'RGV2ZWxvcG1lbnQgdGVhbQA='):
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         #print (decoded)
     msgToEncode = 'Research team'
     for x in range (1,10):
-        myMsgHash = Nakasando.MessageHash(msgToEncode)
+        myMsgHash = Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base64Encode()
         #print(encoded)
         if (encoded != 'UmVzZWFyY2ggdGVhbQA='):
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         
     msgToEncode = 'nChain Limited UK branch is fast growing in FinTech industry'
     for x in range (1,10):
-        myMsgHash = Nakasando.MessageHash(msgToEncode)
+        myMsgHash = Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base64Encode()
         #print(encoded)
         if (encoded != 'bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5AD=='):

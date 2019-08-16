@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <Polynomial/Polynomial.h>
+#include <Polynomial/LGInterpolator.h>
 
 struct module_state {
     PyObject *error;
@@ -14,6 +15,11 @@ struct module_state {
 #define GETSTATE(m) (&_state)
 static struct module_state _state;
 #endif
+
+/***********************************************************
+ * Helper functions
+ ************************************************************/
+
 
 // Create Vector from python list 
 std::vector< std::string > createVector( PyObject* obj )
@@ -45,7 +51,42 @@ std::vector< std::string > createVector( PyObject* obj )
     }
     return tmpVec ;
 }
-#// Create python list from Polynomial object
+
+
+// Create Vector of Pairs from python list 
+std::vector<std::pair<BigNumber, BigNumber> > createVectorPairs( PyObject* obj )
+{
+    std::vector<std::pair<BigNumber, BigNumber> > tmpVec ;
+    
+    PyObject *iter = PyObject_GetIter( obj ) ;
+    if ( !iter ) 
+        return tmpVec;
+
+    while ( true ) 
+    {
+        PyObject *next = PyIter_Next( iter ) ;
+        if ( !next ) 
+        {
+            // nothing left in the iterator 
+            break;
+        }
+
+        int argA ;
+        char * argB ;
+        if ( !PyArg_ParseTuple (next, "is", &argA, &argB ) )  
+        {
+            return tmpVec ;
+        }
+        BigNumber a, b ;
+        a.FromDec( std::to_string( argA ) ) ;
+        b.FromDec( argB ) ;
+
+        tmpVec.push_back( std::make_pair( a, b ) ) ;        
+    }
+    return tmpVec;
+}
+
+// Create python list from Polynomial object
 PyObject * createList(const Polynomial& poly )
 {
     int degree = poly.getDegree( ) ;
@@ -64,6 +105,10 @@ PyObject * createList(const Polynomial& poly )
     }
     return list ;     
 }
+
+/***********************************************************
+ * Polynomial wrappers
+ ************************************************************/
 
 // RandomPolynomial with degree and modulo 
 static PyObject* wrap_RandomPolynomial(PyObject* self, PyObject *args) 
@@ -164,47 +209,79 @@ static PyObject* wrap_InitFromListModulo(PyObject* self, PyObject *args)
 static PyObject* wrap_Evaluate(PyObject* self, PyObject *args) 
 { 
     PyObject *obj ;
-    char * x ;
+    char * argA ;
+    char * argB ;
 
-    if ( !PyArg_ParseTuple( args, "Os", &obj, &x ) )
+    if ( !PyArg_ParseTuple( args, "Oss", &obj, &argA, &argB ) )
         return NULL;
 
-    PyObject *iter = PyObject_GetIter( obj ) ;
-    if ( !iter ) 
-        return NULL;
+    std::vector< std::string > strCoefficients = createVector( obj ) ;
+ 
+    BigNumber fx, modulo, eval ;
+    fx.FromDec      ( argA ) ;
+    modulo.FromDec  ( argB ) ;
 
-    std::vector< std::string > strCoefficients ;
-    int index_i ( 0 ) ;
-    while ( true ) 
-    {
-        PyObject *next = PyIter_Next( iter ) ;
-        if ( !next ) 
-        {
-            // nothing left in the iterator 
-            break;
-        }
+   // create the polynomial and evaluate for x
+    Polynomial poly = Polynomial( strCoefficients, modulo ) ;
 
-        char * argA ;
-        if ( !PyArg_Parse (next, "s", &argA ) )  
-        {
-            return NULL ;
-        }
-        strCoefficients.push_back( argA ) ;
-        
-    }
-
-    // create the polynomial and evaluate for x
-    Polynomial poly = Polynomial( strCoefficients, GenerateZero( ) ) ;
-
-    BigNumber eval, fx ;
-    fx.FromDec( x ) ;
-    
     eval = poly( fx ) ;
 
     return Py_BuildValue( "s", eval.ToDec( ).c_str() ) ;
 }
 
+/***********************************************************
+ *  Interpolation wrappers
+ ************************************************************/
 
+// LGInterpolator, evaluate the ith basis polynomial at xValue
+static PyObject* wrap_LGInterpolatorSingle(PyObject* self, PyObject *args) 
+{ 
+    PyObject *obj ;
+    char * argA ;
+    char * argB ;
+    char * basisPoint ;
+
+    if ( !PyArg_ParseTuple( args, "Osss", &obj, &argA, &argB, &basisPoint ) )
+        return NULL;
+
+    BigNumber xValue, modulo  ;
+    modulo.FromDec      ( argA ) ;
+    xValue.FromDec      ( argB ) ;
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx = createVectorPairs( obj ) ;
+
+    LGInterpolator lgInterpolator ( xfx, modulo ) ;
+    BigNumber val = lgInterpolator( std::stoi(basisPoint), xValue ) ;
+
+    return Py_BuildValue( "s", val.ToDec( ).c_str() ) ;  
+}
+
+// LGInterpolator with degree and modulo 
+static PyObject* wrap_LGInterpolatorFull(PyObject* self, PyObject *args) 
+{ 
+    PyObject *obj ;
+    char * argA ;
+    char * argB ;
+
+    if ( !PyArg_ParseTuple( args, "Oss", &obj, &argA, &argB ) )
+        return NULL;
+
+    BigNumber xValue, modulo ;
+    modulo.FromDec( argA ) ;
+    xValue.FromDec( argB ) ;
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx = createVectorPairs( obj ) ;
+
+    LGInterpolator lgInterpolator ( xfx, modulo ) ;
+    BigNumber val = lgInterpolator( xValue ) ;
+
+    return Py_BuildValue( "s", val.ToDec( ).c_str() ) ;  
+}
+
+
+/***********************************************************
+ * Python glue
+ ************************************************************/
 
 static PyMethodDef ModuleMethods[] =
 {
@@ -217,6 +294,10 @@ static PyMethodDef ModuleMethods[] =
     {"initFromList",wrap_InitFromList, METH_VARARGS,"create a Polynomial from a list"}, 
     {"initFromListModulo",wrap_InitFromListModulo, METH_VARARGS,
         "create a Polynomial from a list with modulo"}, 
+    {"LGInterpolatorSingle",wrap_LGInterpolatorSingle, METH_VARARGS,
+        "Lagrange Interpolator full evaluation"}, 
+    {"LGInterpolatorFull",wrap_LGInterpolatorFull, METH_VARARGS,
+        "Lagrange Interpolator for a single point"},         
     {NULL, NULL, 0, NULL},
 };
  

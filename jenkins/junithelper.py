@@ -25,13 +25,30 @@ def _percentage_to_hex_color(passed_percentage):# percentage passed
     color_str = '#{}'.format(color_vector[failed_color_index])
     return color_str
 
-def get_consolidated_junitxml(result_dir_path):
+def _append_testname_postfix(junit_xml, test_name_postfix):
+    for child in junit_xml:
+        if type(child) is junitparser.TestSuite:
+            _append_testname_postfix(child, test_name_postfix)
+        if type(child) is junitparser.TestCase:
+            child.name += test_name_postfix
+            child.classname += test_name_postfix
+
+
+def get_consolidated_junitxml(result_dir_path, test_name_postfix=''):
     xml_file_list = sorted(result_dir_path.glob('*test*.xml'))
     #print('\n'.join(xml_file_list))
     junit_xml = junitparser.JUnitXml()
     for xml_file in xml_file_list:
-        test_suite = junitparser.JUnitXml.fromfile(xml_file)
-        junit_xml.add_testsuite(test_suite)
+        test_results = junitparser.JUnitXml.fromfile(xml_file)
+        is_test_suites = False ## case where in the xml file is a test_suites (multiple test_suite)
+        for suite in test_results.testsuites():
+            junit_xml.add_testsuite(suite)
+            is_test_suites=True
+        if not is_test_suites:
+            junit_xml.add_testsuite(test_results)
+
+    if test_name_postfix is not None:
+        _append_testname_postfix(junit_xml, test_name_postfix)
     return junit_xml
 
 def _get_html_table(xml_junit):
