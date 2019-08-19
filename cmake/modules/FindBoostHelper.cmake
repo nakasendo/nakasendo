@@ -22,9 +22,15 @@ set(FindBoostHelper_Include TRUE)
 function(presetBoostVariable)##########################################################################
   set(boost_MINIMUM_REQUIRED 1.63 CACHE INTERNAL "Preset variable to find boost" FORCE)
   ## http://stackoverflow.com/questions/6646405/how-do-you-add-boost-libraries-in-cmakelists-txt
-  set(Boost_USE_STATIC_LIBS OFF CACHE BOOL "Preset variable to find boost" FORCE)
+  if(NOT Boost_USE_STATIC_LIBS)
+    set(Boost_USE_STATIC_LIBS ON CACHE BOOL "Preset variable to find boost" FORCE)
+  endif()
+  if(NOT Boost_USE_STATIC_RUNTIME)
   set(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "Preset variable to find boost" FORCE)
-  set(Boost_USE_MULTITHREADED ON CACHE BOOL "Preset variable to find boost" FORCE)
+  endif()
+  if(NOT Boost_USE_MULTITHREADED)
+    set(Boost_USE_MULTITHREADED ON CACHE BOOL "Preset variable to find boost" FORCE)
+  endif()
 endfunction()
 
 #### Linking with found boost

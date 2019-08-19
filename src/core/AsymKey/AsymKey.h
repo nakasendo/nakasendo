@@ -12,8 +12,10 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 class AsymKeyImpl; 
+class KeyShare; 
 
 class AsymKey_API AsymKey
 {
@@ -53,6 +55,13 @@ class AsymKey_API AsymKey
 
         /// Sign the message, return <r,s>  component
         std::pair<std::string, std::string> sign(const std::string& crMsg) const;
+
+        // split the key into multiple parts
+        std::vector<KeyShare> split (const int&, const int&);
+        // recover a key from multiple shares
+        void recover (const std::vector<KeyShare>& ); 
+        
+
 
     private:
 

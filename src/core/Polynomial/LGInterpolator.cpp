@@ -39,12 +39,19 @@ BigNumber LGInterpolator::operator()(const BigNumber& xValue){
     const int n = m_Points.size(); 
     BigNumber k; 
     BigNumber mul;
+    BigNumber testZero;
+    testZero.Zero(); 
     k.Zero(); 
     mul.One(); 
+
     for (int i=0;i<n;++i){
         mul = evalLi(i, xValue);
-        BigNumber completeTerm = Mul_mod(mul, m_Points.at(i).second, m_modulo);
-        k = Add_mod (k,completeTerm,m_modulo);       
+        BigNumber completeTerm ;
+        (m_modulo ==  testZero) ? completeTerm = mul * m_Points.at(i).second
+        : completeTerm = Mul_mod(mul, m_Points.at(i).second, m_modulo);
+        
+        (m_modulo == testZero) ? k = k + completeTerm : k = Add_mod (k,completeTerm,m_modulo);       
+
     }
     return k;
 }
@@ -64,13 +71,22 @@ BigNumber LGInterpolator::operator()(const int& i, const BigNumber& xValue){
 BigNumber LGInterpolator::evalLi (const int& i, const BigNumber& xValue){
     BigNumber mul;
     mul.One();
+    BigNumber testZero;
+    testZero.Zero(); 
     for(int j=0;j<m_Points.size();++j){
             if( j!=i){
                 try{
-                    BigNumber BNNumeratorTerm1 = Sub_mod( xValue, m_Points.at(j).first, m_modulo);                
-                    BigNumber BNDenominatorTerm1 = Sub_mod(m_Points.at(i).first, m_Points.at(j).first, m_modulo);
-                    BigNumber div = Div_mod(BNNumeratorTerm1,BNDenominatorTerm1,m_modulo);
-                    mul = Mul_mod(mul,div,m_modulo);
+                    BigNumber BNNumeratorTerm1; BNNumeratorTerm1.Zero(); 
+                    BigNumber BNDenominatorTerm1; BNDenominatorTerm1.One(); 
+                    BigNumber div; div.Zero();  
+                    (m_modulo == testZero) ?  BNNumeratorTerm1 = xValue - m_Points.at(j).first 
+                                            : BNNumeratorTerm1 = Sub_mod( xValue, m_Points.at(j).first, m_modulo);                
+                    (m_modulo == testZero) ?  BNDenominatorTerm1 = m_Points.at(i).first - m_Points.at(j).first
+                                            : BNDenominatorTerm1 = Sub_mod(m_Points.at(i).first, m_Points.at(j).first, m_modulo);
+                    (m_modulo == testZero) ? div =  BNNumeratorTerm1 / BNDenominatorTerm1
+                                            : div = Div_mod(BNNumeratorTerm1,BNDenominatorTerm1,m_modulo);
+                    (m_modulo == testZero) ? mul = mul * div 
+                                            : mul = Mul_mod(mul,div,m_modulo);
                 }
                 catch (std::exception& e){
                     std::stringstream errStr ; 

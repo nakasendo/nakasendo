@@ -15,6 +15,7 @@
 
 #include <string>
 #include <iostream>
+#include <cmath>
 
 std::vector<BigNumber> getVectorBNX(const int& nbPoint){
     std::vector<BigNumber> VectorX; 
@@ -54,10 +55,6 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree1 )
     
     BOOST_TEST  ( eval_at_0.ToDec() == "3"  ) ;
     BOOST_TEST  ( eval_at_1.ToDec() == "5"  ) ;
-
-    //std::cout << "Sanity check:" << std::endl ;
-    //std::cout << "eval_at_0 = " << eval_at_0.ToDec( ) << std::endl ;
-    //std::cout << "eval_at_1 = " << eval_at_1.ToDec( ) << std::endl ;
 
     std::ostringstream ss ;
     ss << poly ;
@@ -197,7 +194,6 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod2 )
 
 
 /* Create a new plynomial using the random number constructor
- * <todo> put these tests into BOOST_CHECK | BOOST_TEST
  *   test for - a_0 is not zero
  *            - last coefficient is not zero
  *            - degree of coefficient is as expected
@@ -212,17 +208,17 @@ BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
 
     modulo.FromDec( "5" ) ; 
 
-    // constuct using degree and modulo 0     
+    // construct using degree and modulo 0     
     Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
 
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 5 ) ;
    
-    // constuct using degree and modulo 12
+    // construct using degree and modulo 12
     modulo.FromDec( "12" ) ; 
     Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 5 ) ;
 
-    // constuct using degree, modulo and fixed a_0
+    // construct using degree, modulo and fixed a_0
     a_0.FromDec( "10" ) ;
     Polynomials.push_back  ( Polynomial( 2, modulo, a_0 ) ) ;
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 2 ) ;
@@ -236,8 +232,6 @@ BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
             ++poly 
         )
     {
-        //std::cout << "Poly:\t" << *poly << "\tdegree = " << poly->getDegree( ) << std::endl ;
-
         // test a_0 is not zero
         BOOST_CHECK( !( (*poly)[0] == GenerateZero( ) ) ) ;
         // test last term is not zero
@@ -246,6 +240,137 @@ BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
     } 
 }
 
+
+/***********************************************************
+ *  Stress testing
+ ************************************************************/
+
+/* Polynomial Stress Test 1
+ *
+ * Working with modulo 17 :
+ * generate randomly an polynomial of degree 3,
+ * generate randomly x mod 17.
+ * evaluate the polynomial at x.
+ * Test the evaluated value is between zero and 16.
+ * Wrap all those steps inside a loop 200 iterations.
+*/
+BOOST_AUTO_TEST_CASE( test_polynomial_stress_1 )
+{
+
+    BigNumber modulo, min, max ;
+    modulo.FromDec( "17" ) ;
+    
+    BigNumber minusOne (GenerateZero( ) ) ;
+    --minusOne ;
+
+    for ( auto i = 0 ; i < 200 ; ++i )
+    {
+        // default min and max value
+        Polynomial poly1 ( Polynomial( 3, modulo ) ) ;
+
+        // user defined min and max values
+        min.FromDec( "0" ) ;
+        max.FromDec( "100" ) ;
+        Polynomial poly2 ( Polynomial( 3, modulo, min, max ) ) ;
+
+        BigNumber randomX ( GenerateRandRange( min, max ) ) ;
+        randomX = randomX % modulo ;
+
+        // evaluate polynomial at x
+        BigNumber eval_randomX1 ( poly1( randomX ) ) ;
+        BigNumber eval_randomX2 ( poly2( randomX ) ) ;
+
+        BOOST_CHECK ( eval_randomX1 > minusOne ) ;
+        BOOST_CHECK ( eval_randomX1 < modulo ) ;
+        BOOST_CHECK ( eval_randomX2 > minusOne ) ;
+        BOOST_CHECK ( eval_randomX2 < modulo ) ;        
+    }
+}
+
+/* Polynomial Stress Test 2
+ * 
+ * Working with no modulo (a 'normal' polynomial)
+ * Generate random polynomial of degree 3, 
+ * with coefficients less than 10. 
+ * 
+ * Choose random x of less than 100. 
+ * 
+ * Manually calculate the value of polynomial 
+ * using normal C++ arithmetic calculation : 
+ * a + bx + cx^2 + dx^3
+ * 
+ * Use Polynomial class to evaluate polynomial, 
+ * compare the output to the manual calculation
+ * 
+ * Repeat for 200 iterations
+ */
+BOOST_AUTO_TEST_CASE( test_polynomial_stress_2 )
+{
+    BigNumber min, max, max_x ;
+    min = GenerateZero( ) ;
+    max.FromDec( "10" ) ;
+    int x (3) ;
+    max_x.FromDec( "100" ) ;
+
+    for ( auto counter = 0; counter < 200; ++counter )
+    {
+        // polynomial with degree 3, not using modulo, with defined min and max
+        Polynomial poly( 3, GenerateZero( ), min, max ) ; 
+        BigNumber randomX ( GenerateRandRange( min, max_x ) ) ;
+
+        // evaluate manually converting to integer
+        int result = std::stoi( poly[0].ToDec( ) ) ;  
+        int power = 1 ;  
+
+        for ( auto i = 1 ; i <= poly.getDegree() ; ++i, ++power )
+        {
+            int coefficient (std::stoi( poly[i].ToDec( ) ) ) ;
+            result = result + ( coefficient * std::pow(x,power ) ) ;
+        }
+
+        // convert to string format
+        std::string result_manual ( std::to_string( result ) ) ;
+
+        // evaluate using polynomial()
+        BigNumber fx, result_p  ;
+        fx.FromDec( std::to_string( x ) ) ; 
+        result_p = poly( fx ) ;
+    
+        // convert ot string format
+        std::string result_polynomial ( result_p.ToDec( ) ) ;
+
+        // compare manual with polynomial
+        BOOST_TEST( result_manual == result_polynomial ) ;
+    }
+}
+
+/* Polynomial Stress Test 3
+ * use modulo=“FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE BAAEDCE6 AF48A03B BFD25E8C D0364141” 
+ * (this is the order of elliptic curve)
+ * 
+ * Used degree 3, set max to be modulo + 1
+ * Choose random x and evaluate polynomial. 
+ * Ensure evaluated x is less than modulo. 
+ */
+BOOST_AUTO_TEST_CASE( test_polynomial_stress_3 )
+{
+    BigNumber modulo, min, max ;
+    modulo.FromHex( "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141") ;
+    min = GenerateZero( ) ;
+    max = modulo ;
+    ++max ;
+
+    for ( auto i = 0; i < 200; ++i )
+    {
+        Polynomial poly ( 3, modulo, min, max ) ;
+        BigNumber randomX ( GenerateRandRange( min, max ) ) ;
+
+        BigNumber eval_x ;
+        eval_x = poly( randomX ) ;
+
+        BOOST_CHECK( eval_x < modulo ) ;
+    }
+}
 
 /***********************************************************
  *  Error testing
@@ -384,8 +509,13 @@ BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
         );         
     
 }
-////
 
+
+/***********************************************************
+ *  Interpolation testing
+ ************************************************************/
+
+// Test creation of LGInterpolator object of degree 3, modulo 17
 BOOST_AUTO_TEST_CASE( test_Interpolation_degree_3_mod_17 )
 {
     int degree = 3;
@@ -393,6 +523,7 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_3_mod_17 )
     mod.FromDec("17"); 
 
     Polynomial poly(degree, mod);
+
     std::vector<BigNumber> fx; 
 
     int margin = 2 ;
@@ -404,27 +535,24 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_3_mod_17 )
         fx.push_back(poly(*iter));
     }
 
-
     std::vector<std::pair<BigNumber, BigNumber> > xfx; 
     std::vector<BigNumber>::const_iterator xIter = x.begin(), fxIter = fx.begin (); 
     for(; xIter != x.end(); ++xIter, ++fxIter){
         xfx.push_back ( std::pair(*xIter, *fxIter)); 
     }
 
-    // Pick a number with in the Mod range.
-    BigNumber zero;
-    zero.Zero(); 
-    BigNumber xValue = GenerateRandRange(zero, mod); 
-
     LGInterpolator interpFunc(xfx, mod);
 
-     for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
+    for( auto testIter = xfx.begin(); 
+        testIter != xfx.end(); 
+        ++ testIter)
+    {
         BigNumber TestVal = interpFunc(testIter->first);
         BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
-     }
-
+    }
 }
 
+// Test creation of LGInterpolator object of degree 100, modulo 104729
 BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
 {
     // degree 100 & a mod of 104729 ( the 10000th prime)
@@ -451,11 +579,6 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
         xfx.push_back ( std::pair(*xIter, *fxIter)); 
     }
 
-    // Pick a number with in the Mod range.
-    BigNumber zero;
-    zero.Zero(); 
-    BigNumber xValue = GenerateRandRange(zero, mod); 
-
     LGInterpolator interpFunc(xfx, mod);
 
      for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
@@ -464,6 +587,8 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
      }
 
 }
+
+// Test creation of LGInterpolator object of degree 200, modulo SECP256K1MOD
 BOOST_AUTO_TEST_CASE( test_Interpolation_degree_200_mod_SECP256K1MOD )
 {
     int degree = 50;
@@ -488,11 +613,6 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_200_mod_SECP256K1MOD )
     for(; xIter != x.end(); ++xIter, ++fxIter){
         xfx.push_back ( std::pair(*xIter, *fxIter)); 
     }
-
-    // Pick a number with in the Mod range.
-    BigNumber zero;
-    zero.Zero(); 
-    BigNumber xValue = GenerateRandRange(zero, mod); 
 
     LGInterpolator interpFunc(xfx, mod);
 
@@ -633,17 +753,7 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_basis )
         BOOST_TEST ( ithVal.ToDec() == zero.ToDec());
     }
 
-    
-
-
-
-
 }
 
-////
 BOOST_AUTO_TEST_SUITE_END( ) ;
 
-/* 
-    <todo>
-Add large tests (see Chi's comments)
- */

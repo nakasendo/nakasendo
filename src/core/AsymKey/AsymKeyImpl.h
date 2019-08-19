@@ -4,11 +4,14 @@
 #include<memory>
 #include<string>
 #include<utility>
+#include<vector>
 
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/ec.h>
 #include <openssl/pem.h>
+
+class KeyShare; 
 
 class AsymKeyImpl
 {
@@ -46,6 +49,11 @@ public:
 
     /// Sign the message, return <r,s>  component
     std::pair<std::string, std::string> sign(const std::string& crMsg) const;
+
+    // split the key into multiple parts
+    std::vector<KeyShare> split (const int&, const int&);
+    // recover a key from multiple shares
+    void recover (const std::vector<KeyShare>& ); 
 
 private:
     using EC_KEY_ptr = std::unique_ptr< EC_KEY, decltype(&EC_KEY_free)   >;

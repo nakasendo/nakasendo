@@ -1,6 +1,9 @@
 #include <AsymKey/AsymKeyImpl.h>
 #include <MessageHash/MessageHash.h>
 #include <BigNumbers/BigNumbers.h>
+#include <Polynomial/Polynomial.h>
+#include <SecretSplit/KeyShare.h>
+#include <SecretSplit/SecretSplit.h>
 
 #include <openssl/ec.h>      // for EC_GROUP_new_by_curve_name, EC_GROUP_free, EC_KEY_new, EC_KEY_set_group, EC_KEY_generate_key, EC_KEY_free
 #include <openssl/ecdsa.h>   // for ECDSA_do_sign, ECDSA_do_verify
@@ -453,6 +456,47 @@ std::pair<std::string, std::string> AsymKeyImpl::sign(const std::string& crMsg)c
     const std::string s_hex_str(sStr.get());
 
     return std::move(std::make_pair(std::move(r_hex_str), std::move(s_hex_str)));
+}
+
+// split the key into multiple parts
+std::vector<KeyShare> AsymKeyImpl::split (const int& threshold, const int& maxshares){
+    BigNumber mod; 
+    // from secp256k1 curve
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
+/// Get private key
+    const BIGNUM* my_private_key = EC_KEY_get0_private_key(m_key.get());  
+    if (my_private_key == nullptr)
+        throw std::runtime_error("Unable to get private key");
+
+    char *charVal= BN_bn2hex(my_private_key);
+    std::string val = charVal;
+    OPENSSL_free(charVal);
+    BigNumber bignum;
+    bignum.FromHex(val); 
+    
+
+    int degree = threshold-1;
+    Polynomial poly(degree, mod,bignum);
+    std::vector<KeyShare> shares = make_shared_secret (poly, threshold,maxshares);
+    
+    return shares; 
+}
+// recover a key from multiple shares
+void AsymKeyImpl::recover (const std::vector<KeyShare>& shares){
+    BigNumber mod; 
+    // from secp256k1 curve
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
+    BigNumber secret; 
+    secret.Zero(); 
+    try
+    {
+        secret = RecoverSecret(shares, mod); 
+        setHEXPrivateKey (secret.ToHex());
+    }
+    catch(std::exception& err){
+        throw;
+    }
+    return ;
 }
 
 bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs)
