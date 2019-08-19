@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<!--  Use Python, go to this directory and run
+        python -m http.server
+      Then open browser with http://localhost:8000
+-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <script src="WASMBigNumbers.js"></script>
+    <script src="WASMMessageHash.js"></script>
+    <script type="text/javascript">
+        function addFromHexOnClick(form) {
+            var argA = form.AddInputArgA.value;
+            var argB = form.AddInputArgB.value;
+            form.addOutput.value = addFromHex(argA, argB);
+        }
+
+        function mulmodFromHexOnClick(form) {
+            form.multiplymodOutput.value = MulModHex(form.MulInputArgA.value, form.MulInputArgB.value, form.MulModArg.value);
+        }
+    </script>
+</head>
+
+<body>
+    <FORM>
+        <h2>Add Large Numbers</h2> Enter values please:
+        <Input NAME="AddInputArgA" VALUE="0" maxlength="256" SIZE=15>
+        <Input NAME="AddInputArgB" VALUE="0" maxlength="256" SIZE=15>
+        <INPUT NAME="add" VALUE="ADD" TYPE=BUTTON onClick=addFromHexOnClick(this.form)>
+        <p>
+            Result:<INPUT NAME="addOutput" READONLY SIZE=15>
+        </p>
+        <h2>Multiply Large Numbers (with a mod)</h2> Enter values please:
+        <Input NAME="MulInputArgA" VALUE="0" maxlength="256" SIZE=15>
+        <Input NAME="MulInputArgB" VALUE="0" maxlength="256" SIZE=15>
+        <Input NAME="MulModArg" VALUE="0" maxlength="256" SIZE=15>
+         <INPUT NAME="multiplymod" VALUE="Multiply With Mod" TYPE=BUTTON onClick=mulmodFromHexOnClick(this.form)>
+         <p>
+             Result:<INPUT NAME="multiplymodOutput" READONLY SIZE=15>
+         </p>
+    </FORM>
+</body>
+
+</html>
