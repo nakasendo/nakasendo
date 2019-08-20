@@ -13,7 +13,7 @@ class Base64EncDecImpl
         explicit Base64EncDecImpl ();
         ~Base64EncDecImpl(); 
         messagePtr encode (const messagePtr&, const size_t&, const int&, int&);
-        messagePtr decode (const messagePtr&, size_t&, int,  int*) ; 
+        messagePtr decode (const messagePtr&, const int&, size_t&, int,  int*) ; 
 
     private:
 
@@ -25,8 +25,7 @@ class Base64EncDecImpl
         Base64EncDecImpl& operator= (const Base64EncDecImpl&&);
 
         unsigned char * enc (unsigned char *, size_t, int, int&);
-        unsigned char * dec (unsigned char *, size_t&, int, int*);
-        unsigned int rawBase64Decode (unsigned char *, unsigned char *, const int&, int*);
+        unsigned int rawBase64Decode (unsigned char *, unsigned char *, const int&, const int&, int*);
 };
 
 

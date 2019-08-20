@@ -56,10 +56,6 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree1 )
     BOOST_TEST  ( eval_at_0.ToDec() == "3"  ) ;
     BOOST_TEST  ( eval_at_1.ToDec() == "5"  ) ;
 
-    //std::cout << "Sanity check:" << std::endl ;
-    //std::cout << "eval_at_0 = " << eval_at_0.ToDec( ) << std::endl ;
-    //std::cout << "eval_at_1 = " << eval_at_1.ToDec( ) << std::endl ;
-
     std::ostringstream ss ;
     ss << poly ;
     BOOST_TEST ( ss.str() == "modulo = 0;    polynomial = 3 + 2x" ) ;
@@ -212,17 +208,17 @@ BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
 
     modulo.FromDec( "5" ) ; 
 
-    // constuct using degree and modulo 0     
+    // construct using degree and modulo 0     
     Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
 
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 5 ) ;
    
-    // constuct using degree and modulo 12
+    // construct using degree and modulo 12
     modulo.FromDec( "12" ) ; 
     Polynomials.push_back ( Polynomial ( 5, modulo ) ) ;
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 5 ) ;
 
-    // constuct using degree, modulo and fixed a_0
+    // construct using degree, modulo and fixed a_0
     a_0.FromDec( "10" ) ;
     Polynomials.push_back  ( Polynomial( 2, modulo, a_0 ) ) ;
     BOOST_TEST( Polynomials.back( ).getDegree( ) == 2 ) ;
@@ -519,6 +515,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
  *  Interpolation testing
  ************************************************************/
 
+// Test creation of LGInterpolator object of degree 3, modulo 17
 BOOST_AUTO_TEST_CASE( test_Interpolation_degree_3_mod_17 )
 {
     int degree = 3;
@@ -526,6 +523,7 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_3_mod_17 )
     mod.FromDec("17"); 
 
     Polynomial poly(degree, mod);
+
     std::vector<BigNumber> fx; 
 
     int margin = 2 ;
@@ -543,21 +541,18 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_3_mod_17 )
         xfx.push_back ( std::pair(*xIter, *fxIter)); 
     }
 
-    // Pick a number with in the Mod range.
-    BigNumber zero;
-    zero.Zero(); 
-    BigNumber xValue = GenerateRandRange(zero, mod); 
-
     LGInterpolator interpFunc(xfx, mod);
 
-     for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
+    for( auto testIter = xfx.begin(); 
+        testIter != xfx.end(); 
+        ++ testIter)
+    {
         BigNumber TestVal = interpFunc(testIter->first);
         BOOST_TEST (TestVal.ToDec() == testIter->second.ToDec());
-     }
-
+    }
 }
 
-
+// Test creation of LGInterpolator object of degree 100, modulo 104729
 BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
 {
     // degree 100 & a mod of 104729 ( the 10000th prime)
@@ -584,11 +579,6 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
         xfx.push_back ( std::pair(*xIter, *fxIter)); 
     }
 
-    // Pick a number with in the Mod range.
-    BigNumber zero;
-    zero.Zero(); 
-    BigNumber xValue = GenerateRandRange(zero, mod); 
-
     LGInterpolator interpFunc(xfx, mod);
 
      for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = xfx.begin(); testIter != xfx.end(); ++ testIter){
@@ -597,6 +587,8 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
      }
 
 }
+
+// Test creation of LGInterpolator object of degree 200, modulo SECP256K1MOD
 BOOST_AUTO_TEST_CASE( test_Interpolation_degree_200_mod_SECP256K1MOD )
 {
     int degree = 50;
@@ -621,11 +613,6 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_200_mod_SECP256K1MOD )
     for(; xIter != x.end(); ++xIter, ++fxIter){
         xfx.push_back ( std::pair(*xIter, *fxIter)); 
     }
-
-    // Pick a number with in the Mod range.
-    BigNumber zero;
-    zero.Zero(); 
-    BigNumber xValue = GenerateRandRange(zero, mod); 
 
     LGInterpolator interpFunc(xfx, mod);
 

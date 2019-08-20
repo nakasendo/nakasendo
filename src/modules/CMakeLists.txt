@@ -7,8 +7,8 @@
 
 ## Python requires a file __init__.py to recognize the directory contains py modules
 if(CMAKE_CONFIGURATION_TYPES)
-  file(TOUCH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/__init__.py")
-  file(TOUCH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/__init__.py")
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/__init__.py.in" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/__init__.py")
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/__init__.py.in" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/__init__.py")
   install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/__init__.py" CONFIGURATIONS Debug DESTINATION lib COMPONENT PyModules)
   install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/__init__.py" CONFIGURATIONS Release DESTINATION lib COMPONENT PyModules)
 
@@ -17,7 +17,7 @@ if(CMAKE_CONFIGURATION_TYPES)
   set(PY_MODULES_RUNTIME_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/PyModuleLoadHelper.py.in" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/PyModuleLoadHelper.py")
 else()
-  file(TOUCH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/__init__.py")
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/__init__.py.in" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/__init__.py")
   install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/__init__.py" DESTINATION lib COMPONENT PyModules)
 
   set(PY_MODULES_RUNTIME_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
@@ -29,16 +29,17 @@ add_subdirectory(PyBigNumbers)
 add_subdirectory(PyMessageHash)
 add_subdirectory(PySymEncDec)
 add_subdirectory(PyECPoint)
+add_subdirectory(PyPolynomial)
 
 ## build wasm modules
 ## See ${CMAKE_CURRENT_SOURCE_DIR}/WasmTools.cmake header to see how to install/setup for WASM
 if(NOT DEFINED ENV{OPENSSL_WASM_ROOT_DIR})
-  message(STATUS "SDK WARNS : emsdk and openssl-wasm is not installed, modules for WASM will not be built")
+  message(FATAL_ERROR "SDK ERROR : openssl-wasm binaries not found. Define environment variable OPENSSL_WASM_ROOT_DIR pointing to the installed wasm-openssl.")
 else()
   include(WasmTools.cmake)
   sdkHelpFindEMCC()
   if(NOT emcc_FOUND)
-    message(STATUS "SDK WARNS : emcc not found, modules for WASM will not be built. Try to add the location of emcc to environment variable PATH")
+    message(FATAL_ERROR "SDK ERROR : emsdk 1.38.30 is required to build WASM modules. Try to add the location of emcc to environment variable PATH")
   else()
     build_wasm_modules(${SDK_CORE_COMPONENT_LIST})
   endif()
