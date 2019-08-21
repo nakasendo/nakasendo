@@ -9,17 +9,6 @@
 #include <memory>
 
 #ifdef __EMSCRIPTEN__
-#include "utils/emscriptBindings.h"
-#endif
-
-//#ifdef __EMSCRIPTEN__
-//EMSCRIPTEN_KEEPALIVE
-//#endif
-//std::vector<uint8_t> returnEmptyVector () {
-//  std::vector<uint8_t> v;
-//  return v;
-//}
-#ifdef __EMSCRIPTEN__
 EMSCRIPTEN_KEEPALIVE
 #endif 
 std::vector<uint8_t>  EncodeBase64Ex (const std::vector<uint8_t>& toEnc){
