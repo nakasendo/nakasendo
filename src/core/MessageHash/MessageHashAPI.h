@@ -15,9 +15,6 @@ EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> EncodeBase58Ex (std::vector<uint8_t>);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> DecodeBase58Ex (std::vector<uint8_t>);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> EncodeBase58CheckEx (std::vector<uint8_t>);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> DecodeBase58CheckEx (std::vector<uint8_t>);
-//EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> returnEmptyVector ();
-
-
 
 #define MESSAGE_HASH_RETURN_TYPE EMSCRIPTEN_KEEPALIVE const char *
 #define MessageHash_C_API MessageHash_API extern "C"

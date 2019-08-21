@@ -12,8 +12,11 @@
 #define BIGNUM_RETURN_TYPE EMSCRIPTEN_KEEPALIVE const char *
 #define BigNumbers_C_API extern "C" BigNumbers_API
 
+#include <emscripten.h>
+#include <emscripten/bind.h>
+EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> returnEmptyVector();
 
-EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> addFromHexEx(const std::vector<uint8_t>&, const std::vector<uint8_t>&); 
+EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> addFromHexEx(const std::vector<uint8_t>&, const std::vector<uint8_t>&);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> addFromDecEx(const std::vector<uint8_t>&, const std::vector<uint8_t>&);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> subFromHexEx(const std::vector<uint8_t>&, const std::vector<uint8_t>&);
 EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> subFromDecEx(const std::vector<uint8_t>&, const std::vector<uint8_t>&);
