@@ -26,6 +26,7 @@ class Base64EncDecImpl
 
         unsigned char * enc (unsigned char *, size_t, int, int&);
         unsigned int rawBase64Decode (unsigned char *, unsigned char *, const int&, const int&, int*);
+
 };
 
 
