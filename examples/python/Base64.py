@@ -22,7 +22,7 @@ if __name__ == "__main__":
         myMsgHash = Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base64Encode()
         #print (encoded)
-        if (encoded != 'RGV2ZWxvcG1lbnQgdGVhbQA='):
+        if (encoded != 'RGV2ZWxvcG1lbnQgdGVhbQ=='):
             print ("WEIRDNESS")
         decoded = myMsgHash.Bas64Decode(encoded)
         #print (decoded)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         myMsgHash = Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base64Encode()
         #print(encoded)
-        if (encoded != 'UmVzZWFyY2ggdGVhbQA='):
+        if (encoded != 'UmVzZWFyY2ggdGVhbQ=='):
             print ('WEIRDNESS')
         decoded = myMsgHash.Bas64Decode(encoded)
         #print(decoded)
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         myMsgHash = Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base64Encode()
         #print(encoded)
-        if (encoded != 'bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5AD=='):
+        if (encoded != 'bkNoYWluIExpbWl0ZWQgVUsgYnJhbmNoIGlzIGZhc3QgZ3Jvd2luZyBpbiBGaW5UZWNoIGluZHVzdHJ5'):
             print ('WEIRDNESS')
             print (encoded)
         decoded = myMsgHash.Bas64Decode(encoded)
