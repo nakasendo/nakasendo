@@ -1,6 +1,6 @@
 set WASM_BITCODE_FILE=%1
-set WASM_OUTPUT_FILE=%2
-echo -- Emscripten Build files : [%WASM_BITCODE_FILE%]
-cmd /c ${emcc_EXECUTABLE} ${WASM_LIST_CPP_FILES} -lssl -lcrypto -L ${OPENSSL_WASM_ROOT_CMAKE_DIR}/lib -I ${OPENSSL_WASM_ROOT_CMAKE_DIR}/include -I ${CMAKE_SOURCE_DIR}/depends/json -I ${CMAKE_SOURCE_DIR}/src/core -I ${SDK_GENERATED_HPP_DIR} -std=c++11 -s WASM=1 -s EXPORT_ALL=1 -o %WASM_BITCODE_FILE%
-echo -- Emscripten Build files : [%WASM_OUTPUT_FILE%]
-cmd /c ${emar_EXECUTABLE} r %WASM_OUTPUT_FILE% %WASM_BITCODE_FILE%
+set JS_OUTPUT_FILE=%2
+echo -- Emscripten Build bitcode file (disabled): [%WASM_BITCODE_FILE%]
+REM cmd /c ${emcc_EXECUTABLE} -Os -std=c++11 -Wall --bind ${WASM_LIST_CPP_FILES} -lssl -lcrypto -L ${OPENSSL_WASM_ROOT_CMAKE_DIR}/lib -I ${OPENSSL_WASM_ROOT_CMAKE_DIR}/include -I ${CMAKE_SOURCE_DIR}/depends/json -I ${CMAKE_SOURCE_DIR}/src/core -I ${SDK_GENERATED_HPP_DIR} -s USE_PTHREADS=1 -s WASM=0 -s EXPORT_ALL=1 -s "EXTRA_EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap']" -o %WASM_BITCODE_FILE%
+echo -- Emscripten Build javascript file : [%JS_OUTPUT_FILE%]
+cmd /c ${emcc_EXECUTABLE} -Os -std=c++11 -Wall --bind ${WASM_LIST_CPP_FILES} -lssl -lcrypto -L ${OPENSSL_WASM_ROOT_CMAKE_DIR}/lib -I ${OPENSSL_WASM_ROOT_CMAKE_DIR}/include -I ${CMAKE_SOURCE_DIR}/depends/json -I ${CMAKE_SOURCE_DIR}/src/core -I ${SDK_GENERATED_HPP_DIR} -s USE_PTHREADS=1 -s WASM=0 -s EXPORT_ALL=1 -s "EXTRA_EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap']" -s SINGLE_FILE=1 -o %JS_OUTPUT_FILE%

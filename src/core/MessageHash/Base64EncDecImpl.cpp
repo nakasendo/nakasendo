@@ -51,18 +51,14 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
         if (len%57) toalloc++ ; 
     }
     unsigned char * p , * output ;
-    //sizeAllocated = ((len/3) + (mod ? 1 : 0)) * 4 + 1;
     sizeAllocated = ((len/3) + (mod ? 1 : 0)) * 4 +1;
     p = output = new unsigned char[sizeAllocated];
-
-    //std::cout << "len: " << len << "\tmod: " << mod << "\ttoalloc: " << toalloc << "\tsizeAllocated variable: " << sizeAllocated << std::endl;
-    //p = output = new unsigned char[toalloc];
-    int numIncs (0); 
+    
     while ( i < (len-mod)){
-        *p++ = Base64::b64table[input[i++] >> 2];++numIncs; 
-        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4))& 0x3f]; ++numIncs;
-        *p++ = Base64::b64table[((input[i] << 2) | (input[i+1] >> 6))& 0x3f]; ++numIncs; 
-        *p++ = Base64::b64table[input[i+1] & 0x3f]; ++numIncs;
+        *p++ = Base64::b64table[input[i++] >> 2]; 
+        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4))& 0x3f];
+        *p++ = Base64::b64table[((input[i] << 2) | (input[i+1] >> 6))& 0x3f];
+        *p++ = Base64::b64table[input[i+1] & 0x3f];
         i += 2 ; 
         if (wrap && !(i%57)) *p++ = '\n'; 
     }
@@ -74,18 +70,22 @@ unsigned char * Base64EncDecImpl::enc (unsigned char * input, size_t len, int wr
     }
     else{        
         
-        *p++ = Base64::b64table[input[i++] >> 2];   ++numIncs; 
-        *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4)) & 0x3f]; ++numIncs; 
+        *p++ = Base64::b64table[input[i++] >> 2]; 
+        if(i == len){
+            *p++ = Base64::b64table[(input[i-1] << 4)& 0x3f];
+        }else{
+            *p++ = Base64::b64table[((input[i-1] << 4) | (input[i] >> 4)) & 0x3f]; 
+        }
         if(mod == 1){
-            *p++ = '='; ++numIncs; 
-            *p++ = '=';++numIncs; 
+            *p++ = '='; 
+            *p++ = '=';
             if(wrap) *p++ = '\n'; 
             *p = 0 ; 
             return output; 
         }
         else{
-            *p++ = Base64::b64table[(input[i] << 2) & 0x3f]; ++numIncs; 
-            *p++ = '='; ++numIncs;
+            *p++ = Base64::b64table[(input[i] << 2) & 0x3f];
+            *p++ = '='; 
             if(wrap) *p++ = '\n';
             *p=0; 
             return output;           
@@ -101,6 +101,7 @@ unsigned int Base64EncDecImpl::rawBase64Decode (unsigned char * in, unsigned cha
 
     *err = 0 ; 
 	while(!pad){
+
         switch ((x = Base64::b64revt[*p++])){
             case -3:    // Null terminator
                 if(((p-1) - in) % 4 ) *err = 1 ; 
@@ -156,8 +157,6 @@ unsigned int Base64EncDecImpl::rawBase64Decode (unsigned char * in, unsigned cha
     return result;
 }
 
-
-
 messagePtr Base64EncDecImpl::encode (const messagePtr& buf, const size_t& len, const int& wrap, int& sizeEncoded){    
     int sizeAllocated=0;
     unsigned char * retValPtr =  enc (buf.get(), len, wrap, sizeAllocated);
@@ -184,6 +183,7 @@ messagePtr Base64EncDecImpl::decode (const messagePtr& buf, const int& inputlen,
         len = 0;
         return nullptr;
     }
+
     len = rawBase64Decode(buf.get(), outbuf,inputlen, strict, err);
     if(*err){        
         delete [] outbuf;
@@ -205,20 +205,5 @@ messagePtr Base64EncDecImpl::decode (const messagePtr& buf, const int& inputlen,
            return msgPtr;
        }
 }
-#if 0
-messagePtr Base64EncDecImpl::decode (const messagePtr& buf, size_t& len, int strict, int* err){    
-       unsigned char * retValPtr = dec(buf.get(),len, strict,err );       
-       if (len == 0){
-           delete [] retValPtr;
-           return nullptr; 
-       }else{
-           messagePtr msgPtr(new unsigned char[len]);
-           for (unsigned int i=0;i<len;++i){
-               msgPtr.get()[i]= retValPtr[i];
-           }
-           delete [] retValPtr;
-           return msgPtr;
-       }
-}
-#endif
+
 

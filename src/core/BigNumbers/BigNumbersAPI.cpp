@@ -15,6 +15,20 @@
 #endif
 
 #ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> returnEmptyVector() {
+    std::vector<uint8_t> v;
+    return v;
+}
+
+EMSCRIPTEN_BINDINGS(moduleUtils) {
+
+    emscripten::function("returnEmptyVector", &returnEmptyVector);
+    emscripten::register_vector<uint8_t>("std::vector<uint8_t>");
+
+}
+#endif
+
+#ifdef __EMSCRIPTEN__
     #define _HELP_RETURN_HEX(bnVar) return bnVar.ToHex().c_str();
     #define _HELP_RETURN_DEC(bnVar) return bnVar.ToDec().c_str();
 #else
