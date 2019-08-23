@@ -7,7 +7,7 @@
 
 ## Copy the file FindSDKLibraries.cmake to the $source_directory, or to the $source_directory/cmake
 ## Define the variable SDKLIBRARIES_ROOT either by
-##   - defining environment variable
+##   - defining environment variable (recommended)
 ##   - or adding -DSDKLIBRARIES_ROOT=/absolute/path/to/installed/sdklibraries to your cmake  command
 ##
 ## On windows
@@ -19,6 +19,9 @@
 
 
 cmake_minimum_required(VERSION 3.12)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 project(example-sdklibraries)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake")
