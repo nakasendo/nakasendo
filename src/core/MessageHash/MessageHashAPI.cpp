@@ -49,7 +49,9 @@ std::vector<uint8_t>  DecodeBase64Ex (std::vector<uint8_t> toDec){
     }
 
     Base64EncDec encdec;
+
     std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(msgPtr, toDec.size(), value, strict, err);
+
     std::vector<uint8_t> retVal; 
     std::string strVal; 
     

@@ -167,11 +167,6 @@ std::cout << "\n======================================================\n";
     resDiv = aValMul/bValMul;
     std::cout << aValMul.ToDec() << " / " << bValMul.ToDec() << " = " << resDiv.ToDec() << std::endl;
 
-    aValMul.FromDec("100");
-    bValMul.FromDec("0");
-    resMul = aValMul / bValMul;
-    std::cout << resMul.ToDec() << std::endl;
-
     return 0;
 }
 
