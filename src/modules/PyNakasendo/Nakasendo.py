@@ -119,6 +119,9 @@ class ECKey256K1:
         self.pubKey, self.priKey = PyAsymKey.SetKeyFromPem(keyPemForm);
         pass
         
+    def derivePrivateKey(self,msg):
+        return PyAsymKey.DerivePrivate(self.priKey, msg)
+        
     def derivePublicKey(self, msg):
         return PyAsymKey.DerivePublic(self.pubKey, msg)
         
