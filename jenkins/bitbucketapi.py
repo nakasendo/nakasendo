@@ -28,12 +28,29 @@ def _split_key_path(key_path_str):
 ## Transform the html bitbucket link :
 ## From format : https://bitbucket.org/username/reponame"
 ## TO format   : git@bitbucket.org:username/reponame.git"
-def _transform_git_html_to_ssh(html_link):
-    parts = html_link.split('/')
+def _transform_git_http_to_ssh(http_link):
+    parts = http_link.split('/')
     if parts and len(parts)>2:
         username = parts[-2]
         reponame = parts[-1]
         return 'git@bitbucket.org:{}/{}.git'.format(username,reponame)
+    return None
+
+## Transform the ssh bitbucket url :
+## FROM format   : git@bitbucket.org:username/reponame.git"
+## TO     format : https://bitbucket.org/username/reponame"
+def transform_git_ssh_to_http(ssh_url):
+    username=''
+    reponame = ''
+    parts = ssh_url.split('/')
+    if parts and len(parts)==2:
+        part_0 = parts[0] # git@bitbucket.org:username
+        username_parts = part_0.split(':')
+        username=username_parts[1]
+        part_1 = parts[1] # reponame.git
+        reponame_parts =  part_1.split('.')
+        reponame = reponame_parts[0]
+        return 'https://bitbucket.org/{}/{}'.format(username,reponame)
     return None
 
 ## Transform the html bitbucket link :
@@ -88,7 +105,7 @@ def get_BITBUCKET_PR_source_ssh():
     source_repo_html_key_path_str ='pullrequest:source:repository:links:html:href'
     source_repo_html_key_path = _split_key_path(source_repo_html_key_path_str)
     source_repo_html = _get_json_data(json_obj, source_repo_html_key_path)
-    source_repo_ssh = _transform_git_html_to_ssh(source_repo_html)
+    source_repo_ssh = _transform_git_http_to_ssh(source_repo_html)
     if not source_repo_ssh:
         raise Exception("Error get_BITBUCKET_PR_source_ssh")
     return source_repo_ssh
@@ -103,7 +120,7 @@ def get_BITBUCKET_PR_destination_ssh():
     destination_repo_html_key_path_str ='pullrequest:destination:repository:links:html:href'
     destination_repo_html_key_path = _split_key_path(destination_repo_html_key_path_str)
     destination_repo_html = _get_json_data(json_obj, destination_repo_html_key_path)
-    destination_repo_ssh = _transform_git_html_to_ssh(destination_repo_html)
+    destination_repo_ssh = _transform_git_http_to_ssh(destination_repo_html)
     if not destination_repo_ssh:
         raise Exception("Error get_BITBUCKET_PR_destination_ssh")
     return destination_repo_ssh
@@ -270,11 +287,17 @@ def test__split_key_path():
     assert (split_key_path[5] == 'href')
     #print(split_key_path)
 
-def test__transform_git_html_to_ssh():
+def test__transform_git_http_to_ssh():
     example_git_http = 'https://bitbucket.org/username/reponame'
-    git_ssh=_transform_git_html_to_ssh(example_git_http)
+    git_ssh=_transform_git_http_to_ssh(example_git_http)
     assert (git_ssh == 'git@bitbucket.org:username/reponame.git')
     #print(git_ssh)
+
+def test_transform_git_ssh_to_http():
+    example_git_ssh = 'git@bitbucket.org:username/reponame.git'
+    git_http=transform_git_ssh_to_http(example_git_ssh)
+    assert (git_http == 'https://bitbucket.org/username/reponame')
+    #print(git_http)
 
 def test__get_json_data():
     example_json_str = '{"foo":{"bar":"hello bar","identity":{"name":"hello foo","age":"12"}}}'
@@ -341,7 +364,8 @@ def test_get_bitbucket_buildstatus_query():
 
 if __name__ == '__main__':
     test__split_key_path()
-    test__transform_git_html_to_ssh()
+    test__transform_git_http_to_ssh()
+    test_transform_git_ssh_to_http()
     test__get_json_data()
     test_get_BITBUCKET_PAYLOAD_info()
     test_get_BITBUCKET_PR_source_ssh()

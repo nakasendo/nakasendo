@@ -3,6 +3,9 @@
   see :
     https://jenkins.io/doc/pipeline/tour/hello-world/
 */
+
+def jTools
+
 pipeline {
   agent any
   options { disableConcurrentBuilds() }
@@ -16,87 +19,117 @@ pipeline {
   }
 
   stages {
+    // Setting common environment variables -----------------------------------------------------------------------------------------
     stage('Environment variable on jenkins master'){
       agent any
       steps {
-        sh 'printenv'
+        //sh 'printenv'
+        echo 'master echo'
+        script {
+          jTools = load("${env.WORKSPACE}/jenkins/jTools.groovy")
+
+          // Dump some environment variables to groovy then load it
+          sh "echo env.jBUILD_DIRNAME=\\\"build\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+          sh "echo env.jBUILD_DIRNAME_RELEASE=\\\"buildrelease\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+          sh "echo env.jBUILD_DIRNAME_DEBUG=\\\"builddebug\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+          sh "echo env.jPOSTBUILD_DIRNAME=\\\"buildpost\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+          sh "echo env.GIT_COMMIT_SHORT=\\\"\$(python jenkins/Chainkins.py --get_short_hash --git_hash=${env.GIT_COMMIT})\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+          if (!env.BITBUCKET_PAYLOAD) {// If BITBUCKET_PAYLOAD is not defined, then the build is manually triggered by a user
+            wrap([$class: 'BuildUser']) {
+              sh "echo env.jBUILD_TRIGGER=\\\"\$BUILD_USER\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+              sh "echo env.jEMAIL_TO_SEND=\\\"\$(python jenkins/Chainkins.py --fix_nchain_email --email=$BUILD_USER_EMAIL)\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+              //sh "echo env.jEMAIL_TO_SEND=\\\"\$(python jenkins/Chainkins.py --fix_nchain_email --email=$BUILD_USER_EMAIL),cc:j.murphy@nchain.com,cc:c.nguyen@nchain.com,cc:j.wilden@nchain.com,cc:c.battini@nchain.com,cc:d.edunfunke@nchain.com\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+            }
+          }
+          else{
+              sh "echo env.jBUILD_TRIGGER=\\\"Bitbucket webhook\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+              sh "echo env.jEMAIL_TO_SEND=\\\"j.murphy@nchain.com,c.nguyen@nchain.com,j.wilden@nchain.com,c.battini@nchain.com,d.edunfunke@nchain.com,cc:r.balagourouche@nchain.com,cc:m.rae@nchain.com,cc:p.foster@nchain.com\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+          }
+
+          //sh "cat ${env.WORKSPACE}/jenkins/master_env.groovy"
+          jENV = load("${env.WORKSPACE}/jenkins/master_env.groovy")
+        }
       }
+
+      post { always { deleteDir() } }
     }
 
-    // Build on Windows -----------------------------------------------------
+
+    // Build on Windows -----------------------------------------------------------------------------------------------------------
     stage('Win Build'){
       agent { label 'slave_vm_win10pro_x64_mvsc2017' }
+      options { skipDefaultCheckout true }
       environment {
-        WINDOWS_BUILD_DIR="${env.WORKSPACE+'\\build'}"
-        POSTBUILD_DIR="${env.WORKSPACE+'\\postbuild'}"
-        TESTRESULT_RELEASE_DIR="${env.WINDOWS_BUILD_DIR+'\\x64\\release'}"
-        TESTRESULT_DEBUG_DIR="${env.WINDOWS_BUILD_DIR+'\\x64\\debug'}"
-        TESTRESULT_JUNIT_DIR="${env.WORKSPACE+'\\testresult\\junit'}"
-        TESTRESULT_HTML_DIR="${env.WORKSPACE+'\\testresult\\html'}"
-
+        // Set environment variable for the windows build --------
+        BUILD_DIR="${env.WORKSPACE}\\${env.jBUILD_DIRNAME}"
+        POSTBUILD_DIR="${env.WORKSPACE}\\${env.jPOSTBUILD_DIRNAME}"
+        TESTRESULT_DIR_RELEASE="${env.BUILD_DIR}\\x64\\release"
+        TESTRESULT_DIR_DEBUG="${env.BUILD_DIR}\\x64\\debug"
       }
       steps {
-        bat 'set'
-
-        // Merge pull request -------------------------------------------
         step([$class: 'WsCleanup'])
         checkout scm
-        bat 'git checkout master'
-        bat 'git log -5'
+        script {
+            echo "foo = ${env.jSLAVE_FOO}"
+            //jTools.build_on_windows()
+        }
+      }
 
-        /*
-        // Build Release/Debug -------------------------------------------
-        bat 'mkdir %WINDOWS_BUILD_DIR%'
-        bat 'cd %WINDOWS_BUILD_DIR%'
-        bat 'cmake %WORKSPACE% -G"Visual Studio 15 2017" -A x64'
-        bat 'cmake --build . --target ALL_BUILD --config Debug'
-        bat 'cmake --build . --target ALL_BUILD --config Release'
+      post {
+        always {
+          script{
+            // Aggregate post build/test results -------------------------------------------
+            bat 'python jenkins/Chainkins.py --consolidate_junit --indir_debug=%TESTRESULT_DIR_DEBUG% --indir_release=%TESTRESULT_DIR_RELEASE% --outdir=%POSTBUILD_DIR%'
+            bat 'python jenkins/Chainkins.py --consolidate_html --indir_debug=%TESTRESULT_DIR_DEBUG% --indir_release=%TESTRESULT_DIR_RELEASE% --outdir=%POSTBUILD_DIR%'
+            bat 'python jenkins/Chainkins.py --dump_mainrepo_email_html --indir_debug=%TESTRESULT_DIR_DEBUG% --indir_release=%TESTRESULT_DIR_RELEASE% --outdir=%POSTBUILD_DIR%'
 
-        // Test Release/Debug -------------------------------------------
-        bat 'ctest --output-on-failure -C Release'
-        bat 'ctest --output-on-failure -C Debug'
-
-        // Aggregate post build/test results -------------------------------------------
-        bat 'python jenkins/Chainkins.py --consolidate_junit --indir_debug=%TESTRESULT_DEBUG_DIR% --indir_release=%TESTRESULT_RELEASE_DIR% --outdir=%TESTRESULT_JUNIT_DIR%'
-        bat 'python jenkins/Chainkins.py --consolidate_html --indir_debug=%TESTRESULT_DEBUG_DIR% --indir_release=%TESTRESULT_RELEASE_DIR% --outdir=%TESTRESULT_HTML_DIR%'
-        */
+            emailext ( // TODO send html msg to slack sdk channel
+              to: "${env.jEMAIL_TO_SEND}",
+              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} ${env.GIT_BRANCH}[${env.GIT_COMMIT_SHORT}]",
+              body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
+            )
+          }
+        }
       }
     }
 
-    // Build on Linux -----------------------------------------------------
+
+    // Build on Linux ---------------------------------------------------------------------------------------------------------------
     stage('Linux build'){
       agent { label 'slave_vm_Ubuntu18_x64_gcc730'}
-      environment {
-        LINUX_RELEASE_BUILD_DIR="${env.WORKSPACE+'/buildrelease'}"
-        LINUX_DEBUG_BUILD_DIR="${env.WORKSPACE+'/builddebug'}"
-        POSTBUILD_DIR="${env.WORKSPACE+'/postbuild'}"
-        TESTRESULT_RELEASE_DIR="${env.LINUX_RELEASE_BUILD_DIR+'/x64/release'}"
-        TESTRESULT_DEBUG_DIR="${env.LINUX_DEBUG_BUILD_DIR+'/x64/debug'}"
-        TESTRESULT_JUNIT_DIR="${env.WORKSPACE+'/testresult/junit'}"
-        TESTRESULT_HTML_DIR="${env.WORKSPACE+'/testresult/html'}"
+      options { skipDefaultCheckout true }
+      environment { 
+        // Set environment variable for the linux build -----------------
+        BUILD_DIR_RELEASE="${env.WORKSPACE}/${env.jBUILD_DIRNAME_RELEASE}"
+        BUILD_DIR_DEBUG="${env.WORKSPACE}/${env.jBUILD_DIRNAME_DEBUG}"
+        POSTBUILD_DIR="${env.WORKSPACE}/${env.jPOSTBUILD_DIRNAME}"
+        TESTRESULT_DIR_RELEASE="${env.BUILD_DIR_RELEASE}/x64/release"
+        TESTRESULT_DIR_DEBUG="${env.BUILD_DIR_DEBUG}/x64/debug"
       }
       steps {
-        sh 'printenv'
-        // Merge pull request -------------------------------------------
         step([$class: 'WsCleanup'])
         checkout scm
-        sh 'git checkout master'
-        sh 'git log -5'
-        /*
-        // Build Release/Debug -------------------------------------------
-        sh 'mkdir $LINUX_RELEASE_BUILD_DIR'
-        sh 'mkdir $LINUX_DEBUG_BUILD_DIR'
-        sh 'cd $LINUX_RELEASE_BUILD_DIR ; cmake .. ; make -j4 ;'
-        sh 'cd $LINUX_DEBUG_BUILD_DIR   ; cmake .. ; make -j4 ;'
+        script {
+            echo "foo = ${env.jSLAVE_FOO}"
+            //jTools.build_on_linux()
+        }
+      }
 
-        // Test Release/Debug -------------------------------------------
-        sh 'cd $LINUX_RELEASE_BUILD_DIR ; ctest --output-on-failure ;'
-        sh 'cd $LINUX_DEBUG_BUILD_DIR   ; ctest --output-on-failure ;'
+      post {
+        always {
+          script{
+            // Aggregate post build/test results -------------------------------------------
+            sh 'python jenkins/Chainkins.py --consolidate_junit --indir_debug=$TESTRESULT_DIR_DEBUG --indir_release=$TESTRESULT_DIR_RELEASE --outdir=$POSTBUILD_DIR'
+            sh 'python jenkins/Chainkins.py --consolidate_html --indir_debug=$TESTRESULT_DIR_DEBUG --indir_release=$TESTRESULT_DIR_RELEASE --outdir=$POSTBUILD_DIR'
+            sh 'python jenkins/Chainkins.py --dump_mainrepo_email_html --indir_debug=$TESTRESULT_DIR_DEBUG --indir_release=$TESTRESULT_DIR_RELEASE --outdir=$POSTBUILD_DIR'
 
-        // Aggregate post build/test results -------------------------------------------
-        sh 'python jenkins/Chainkins.py --consolidate_junit --indir_debug=$TESTRESULT_DEBUG_DIR --indir_release=$TESTRESULT_RELEASE_DIR --outdir=$TESTRESULT_JUNIT_DIR'
-        sh 'python jenkins/Chainkins.py --consolidate_html --indir_debug=$TESTRESULT_DEBUG_DIR --indir_release=$TESTRESULT_RELEASE_DIR --outdir=$TESTRESULT_HTML_DIR'
-         */
+            emailext ( // TODO send html msg to slack sdk channel
+              to: "${env.jEMAIL_TO_SEND}",
+              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} ${env.GIT_BRANCH}[${env.GIT_COMMIT_SHORT}]",
+              body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
+            )
+          }
+        }
       }
     }
   }
