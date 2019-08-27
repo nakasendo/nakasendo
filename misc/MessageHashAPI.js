@@ -1,21 +1,16 @@
 
 function HashMsgSHA256API (argHash){
-  const hashsha256func = Module.cwrap('HashMsgSHA256Test','string',['string']);
   var argLen = lengthBytesUTF8(argHash); 
   var strOnHeap = _malloc(argLen+1);
   stringToUTF8(argHash, strOnHeap, argLen+1);
-    console.log(strOnHeap);
- // var res = hashsha256func(strOnHeap); 
-    var res = Module.ccall('HashMsgSHA256Test','string',['number'],[strOnHeap]);
-    _free(strOnHeap);
-  return res;
+  var res = Module['HashMsgSHA256'](argHash.toString());
+  _free (strOnHeap);
+ 
+  var str1 = res;
+
+  return str1;
 }
   
-function HashMsg (argHash, argHashFunc){
-  const hashfunc = Module.cwrap('HashMsg','string',['string']);
-  var res = hashfunc(argHash, argHashFunc);
-  return res;
-}
 
 function ListHashFunc(){
   const listhashfunc = Module.cwrap('ListHashFunc','string',[]);
@@ -24,13 +19,6 @@ function ListHashFunc(){
 }
 
 function EncodeBase64(argToEncode){
-    const encodebase64 = Module.cwrap('EncodeBase64','string',['string']);
-    var argLen = lengthBytesUTF8(argToEncode); 
-    console.log(argLen);
-    var strOnHeap = _malloc(argLen+1);
-    stringToUTF8(argToEncode, strOnHeap, argLen+1);
-    console.log(strOnHeap);
-    let res = Module.ccall('EncodeBase64','string',['number','number'],[strOnHeap,argLen]);
 
     var buf = new ArrayBuffer(argToEncode.length);
     var bufview8 = new Uint8Array(buf); 
@@ -44,17 +32,15 @@ function EncodeBase64(argToEncode){
     
     var outputVec =Module['EncodeBase64Ex'](inputVec); 
     
-    str1 = ""
+    var str1 = ""
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
-    }
-    _free(strOnHeap);       
-    
-
-    delete buf;
-    delete bufview8;
-    delete inputVec;
-    delete outputVec;
+    }    
+   
+	buf=null; 
+    bufview8=null;
+    inputVec=null;
+    outputVec=null;
     return str1;
 }
 
@@ -68,35 +54,26 @@ function PassStrViaMemory(argToPass){
 }
 
 function DecodeBase64(argToDecode){
-    //const decodebase64 = Module.cwrap('DecodeBase64','string',['string']);
-    //var res = decodebase64(argToDecode);
-    var argLen = lengthBytesUTF8(argToDecode);
-    console.log (argLen); 
-    var strOnHeap = _malloc(argLen+1); 
-    stringToUTF8(argToDecode, strOnHeap, argLen+1);
-    var res = Module.ccall('DecodeBase64','string',['number','number'],[strOnHeap,argLen]);
-    console.log(lengthBytesUTF8(res)); 
-    _free (strOnHeap); 
     var buf = new ArrayBuffer(argToDecode.length);
     var bufview8 = new Uint8Array(buf); 
     for( var i=0,strLen=argToDecode.length; i < strLen; i++){
         bufview8[i] = argToDecode.charCodeAt(i); 
     } 
 
-     var inputVec = Module['returnEmptyVector'](); 
+    var inputVec = Module['returnEmptyVector'](); 
     for (var j = 0; j<bufview8.length; ++j){
         inputVec.push_back(bufview8[j]); 
     }
     var outputVec =Module['DecodeBase64Ex'](inputVec); 
     
-    str1 = ""
+    var str1 = ""
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
-    delete buf;
-    delete bufview8;
-    delete inputVec;
-    delete outputVec;
+    buf=null;
+    bufview8=null;
+    inputVec=null;
+    outputVec=null;
     return str1;
 }
 
@@ -113,15 +90,15 @@ function EncodeBase58(argToEncode){
     
     var outputVec =Module['EncodeBase58Ex'](inputVec); 
     
-    str1 = ""
+    var str1 = ""
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
-    
-    delete buf;
-    delete bufview8;
-    delete inputVec;
-    delete outputVec;
+   
+    buf=null;
+    bufview8=null;
+    inputVec=null;
+    outputVec=null;
     return str1;
 }
 
@@ -133,21 +110,21 @@ function DecodeBase58(argToDecode){
         bufview8[i] = argToDecode.charCodeAt(i); 
     } 
 
-     var inputVec = Module['returnEmptyVector'](); 
+    var inputVec = Module['returnEmptyVector'](); 
     for (var j = 0; j<bufview8.length; ++j){
         inputVec.push_back(bufview8[j]); 
     }
     
     var outputVec =Module['DecodeBase58Ex'](inputVec); 
     
-    str1 = ""
+    var str1 = ""
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
-    delete buf;
-    delete bufview;
-    delete inputVec;
-    delete outputVec;
+    buf=null;
+    bufview=null;
+    inputVec=null;
+    outputVec=null;
     return str1;
 }
 
@@ -164,15 +141,15 @@ function EncodeBase58Checked(argToEncode){
     
     var outputVec =Module['EncodeBase58CheckEx'](inputVec); 
     
-    str1 = ""
+    var str1 = ""
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
     
-    delete buf;
-    delete bufview8;
-    delete inputVec;
-    delete outputVec;
+    buf=null;
+    bufview8=null;
+    inputVec=null;
+    outputVec=null;
     return str1;
 }
 
@@ -184,21 +161,21 @@ function DecodeBase58Checked(argToDecode){
         bufview8[i] = argToDecode.charCodeAt(i); 
     } 
 
-     var inputVec = Module['returnEmptyVector'](); 
+    var inputVec = Module['returnEmptyVector'](); 
     for (var j = 0; j<bufview8.length; ++j){
         inputVec.push_back(bufview8[j]); 
     }
     
     var outputVec =Module['DecodeBase58CheckEx'](inputVec); 
     
-    str1 = ""
+    var str1 = ""
     for ( var len = 0; len < outputVec.size(); ++len){
         str1 = str1 + String.fromCharCode(outputVec.get(len) ); 
     }
-    delete buf;
-    delete bufview8;
-    delete inputVec;
-    delete outputVec;
+    buf=null;
+    bufview8=null;
+    inputVec=null;
+    outputVec=null;
     return str1;
 }
 function StrConCat(a,b) {
