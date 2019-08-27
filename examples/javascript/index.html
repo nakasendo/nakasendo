@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<!--  Use Python, go to this directory and run
+        python -m http.server
+      Then open browser with http://localhost:8000
+-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <script src="WASMBigNumbers.js"></script>
+    <script type="text/javascript">
+
+        function addFromHex (arga, argb)
+        {
+          //const addFromHexFunc = Module.cwrap('addFromHex','string',['string','string']);
+          //var res = addFromHexFunc(arga, argb);
+          //return res; 
+            var bufa = new ArrayBuffer(arga.length);
+            var bufview8a = new Uint8Array(bufa); 
+            for( var i=0,strLen=arga.length; i < strLen; i++){
+                bufview8a[i] = arga.charCodeAt(i); 
+            } 
+            var bufb = new ArrayBuffer(argb.length);
+            var bufview8b = new Uint8Array(bufb); 
+            for( var i=0,strLen=argb.length; i < strLen; i++){
+                bufview8b[i] = argb.charCodeAt(i); 
+            } 
+
+            var inputVecA = Module['returnEmptyVector'](); 
+            for (var j = 0; j<bufview8a.length; ++j){
+                inputVecA.push_back(bufview8a[j]); 
+            }
+            var inputVecB = Module['returnEmptyVector'](); 
+            for (var j = 0; j<bufview8b.length; ++j){
+                inputVecB.push_back(bufview8b[j]); 
+            }
+            var outputVec =Module['addFromHexEx'](inputVecA,inputVecB); 
+            strRes = ""
+            for (var k=0;k<outputVec.size();++k){
+                strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
+            }
+
+            delete bufa; 
+            delete bufview8a;
+
+            delete bufb; 
+            delete bufview8b;
+            delete outputVec;
+            delete inputVecA;
+            delete inputVecB;
+            return strRes;
+        }
+
+
+        function multiplyFromHex(arga, argb)
+        {
+            var bufa = new ArrayBuffer(arga.length);
+            var bufview8a = new Uint8Array(bufa); 
+            for( var i=0,strLen=arga.length; i < strLen; i++){
+                bufview8a[i] = arga.charCodeAt(i); 
+            } 
+
+            var bufb = new ArrayBuffer(argb.length);
+            var bufview8b = new Uint8Array(bufb); 
+            for( var i=0,strLen=argb.length; i < strLen; i++){
+                bufview8b[i] = argb.charCodeAt(i); 
+            } 
+
+            var inputVecA = Module['returnEmptyVector'](); 
+            for (var j = 0; j<bufview8a.length; ++j){
+                inputVecA.push_back(bufview8a[j]); 
+            }
+            var inputVecB = Module['returnEmptyVector'](); 
+            for (var j = 0; j<bufview8b.length; ++j){
+                inputVecB.push_back(bufview8b[j]); 
+            }
+            var outputVec =Module['multiplyFromHexEx'](inputVecA,inputVecB); 
+            strRes = ""
+            for (var k=0;k<outputVec.size();++k){
+                strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
+            }
+
+            delete bufa; 
+            delete bufview8a;
+
+            delete bufb; 
+            delete bufview8b;
+            delete outputVec;
+            delete inputVecA;
+            delete inputVecB;
+
+            return strRes;
+        }
+
+
+        function addFromHexOnClick(form) {
+            var argA = form.AddInputArgA.value;
+            var argB = form.AddInputArgB.value;
+            var result = addFromHex(argA, argB);
+            form.addOutput.value = result
+        }
+
+        function mulFromHexOnClick(form) {
+            var argA = form.MulInputArgA.value;
+            var argB = form.MulInputArgB.value;
+            var result = multiplyFromHex(argA, argB);
+            form.mulOutput.value = result
+        }
+    </script>
+</head>
+
+<body>
+    <FORM>
+        <h2>Add Large Numbers</h2> Enter values please:
+        <Input NAME="AddInputArgA" VALUE="0" maxlength="256" SIZE=15>
+        <Input NAME="AddInputArgB" VALUE="0" maxlength="256" SIZE=15>
+        <INPUT NAME="add" VALUE="ADD" TYPE=BUTTON onClick=addFromHexOnClick(this.form)>
+        <p>
+        Result:<INPUT NAME="addOutput" READONLY SIZE=15>
+        </p>
+        <h2>Multiply Large Number</h2> Enter values please:
+        <Input NAME="MulInputArgA" VALUE="0" maxlength="256" SIZE=15>
+        <Input NAME="MulInputArgB" VALUE="0" maxlength="256" SIZE=15>
+        <INPUT NAME="add" VALUE="MUL" TYPE=BUTTON onClick=mulFromHexOnClick(this.form)>
+        <p>
+        Result:<INPUT NAME="mulOutput" READONLY SIZE=15>
+        </p>
+    </FORM>
+</body>
+
+</html>

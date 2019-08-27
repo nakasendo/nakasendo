@@ -1,4 +1,4 @@
-#include <Python.h>
+ #include <Python.h>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -170,7 +170,7 @@ static PyObject* wrap_SplitKey(PyObject* self, PyObject *args)
     std::vector<KeyShare> shares = private_key.split(ThresholdNumber, TotalNumberOfShares);
     //std::stringstream shareBuilder;
     PyObject *pyList, *item;
-    int i;
+    int i=0;
     pyList = PyList_New(shares.size());
     for(std::vector<KeyShare>::const_iterator iter = shares.begin(); iter != shares.end(); ++ iter ){
         std::string itemJson = keyshare_to_json(*iter);

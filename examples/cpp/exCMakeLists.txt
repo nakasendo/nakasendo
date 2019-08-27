@@ -1,0 +1,46 @@
+#################################################################
+#  Date             12/04/2019                                  #
+#  Author           nChain's employees                          #
+#                                                               #
+#  Copyright (c) 2019 nChain Limited. All rights reserved       #
+#################################################################
+
+## Copy the file FindSDKLibraries.cmake to the $source_directory, or to the $source_directory/cmake
+## Define the variable SDKLIBRARIES_ROOT either by
+##   - defining environment variable (recommended)
+##   - or adding -DSDKLIBRARIES_ROOT=/absolute/path/to/installed/sdklibraries to your cmake  command
+##
+## On windows
+##   cmake -G"Visual Studio 15 2017" -A x64 ..\cpp -DSDKLIBRARIES_ROOT=\absolute\path\to\installed\sdklibraries
+##
+## On Linux
+##    cmake ../cpp -DSDKLIBRARIES_ROOT=/absolute/path/to/installed/sdklibraries
+##
+
+
+cmake_minimum_required(VERSION 3.12)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+project(example-sdklibraries)
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake")
+
+find_package(SDKLibraries REQUIRED)
+
+set(sdklibraries_cpp_examples
+  BigNumbersClient.cpp
+  BigNumbersRandTest.cpp
+  MessageHashClient.cpp
+  SymEncDecTest.cpp
+  ECPointTest.cpp
+  shamirsSecret.cpp
+  RecoverSecret.cpp
+)
+
+include_directories(${SDKLibraries_INCLUDE_DIR})
+foreach(_cpp_example_file ${sdklibraries_cpp_examples})
+  string(REPLACE ".cpp" "" target_name ${_cpp_example_file})
+  add_executable(${target_name} "${CMAKE_SOURCE_DIR}/${_cpp_example_file}")
+  target_link_libraries(${target_name} ${SDKLibraries_LIBRARIES})
+endforeach()

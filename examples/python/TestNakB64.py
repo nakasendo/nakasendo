@@ -1,22 +1,31 @@
 #!/usr/bin/env python3
+import os
 import sys
 import json
-import string
-#Please update the PYTHONPATH or use the sys.path.append with the path to 
-#the Nakasando installation
-sys.path.append('/users/j.murphy/nchain/SDK/sdklibraries/src/modules')
-sys.path.append ('/users/j.murphy/nchain/SDK/build/x64/release')
-import PyBigNumbers
-import PyECPoint
-import PySymEncDec
-import PyMessageHash
-import Nakasando
+import pathlib
 
+## Try to prepend the $SDKLIBRARIES_ROOT to the system path
+if 'SDKLIBRARIES_ROOT' in os.environ:
+    sdk_libraries_root = pathlib.Path(os.environ['SDKLIBRARIES_ROOT'])
+    sdk_libraries_lib_dir_str = str(sdk_libraries_root/ 'lib')
+    sys.path = [sdk_libraries_lib_dir_str] + sys.path
+    print('Found SDKLIBRARIES_ROOT="{}"'.format(str(sdk_libraries_root)))
+    print('Modules directory      ="{}"'.format(sdk_libraries_lib_dir_str))
 
+try:
+    import PyBigNumbers
+    import PyECPoint
+    import PySymEncDec
+    import PyMessageHash
+    import Nakasendo
+except ImportError as e:
+    print('Error while loading SDKLibraries python modules {}'.format(e.message))
+    print('Try to define environment variable SDKLIBRARIES_ROOT pointing to the location of installed SDKLibraries or add this to PYTHONPATH')
+    raise ImportError('Unable to load SDKLibraries python modules')
 
 def DoEncodeDecode (msgToEncode, encodedMsg):
     for x in range (1,10):
-        myMsgHash =  Nakasando.MessageHash(msgToEncode)
+        myMsgHash =  Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base64Encode()
         if (encoded != encodedMsg):
             print ('API ENCODE PANIC %s is not equal to %s' % (encoded, encodedMsg))
@@ -29,7 +38,7 @@ def DoEncodeDecode (msgToEncode, encodedMsg):
         
 def DoEncodeDecodeB58 (msgToEncode, encodedMsg):
     for x in range (1,10):
-        myMsgHash = Nakasando.MessageHash(msgToEncode)
+        myMsgHash = Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base58Encode()
         if(encoded != encodedMsg):
             print ('API ENCODE 58 panic %s is not equal to %s' % (encoded, encodedMsg))
@@ -39,7 +48,7 @@ def DoEncodeDecodeB58 (msgToEncode, encodedMsg):
             
 def DoEncodeDecodeB58Checked (msgToEncode, encodedMsg):
     for x in range (1,10):
-        myMsgHash = Nakasando.MessageHash(msgToEncode)
+        myMsgHash = Nakasendo.MessageHash(msgToEncode)
         encoded = myMsgHash.Base58CheckedEncode()
         if(encoded != encodedMsg):
             print ('API ENCODE 58 Checked panic %s is not equal to %s' % (encoded, encodedMsg))
