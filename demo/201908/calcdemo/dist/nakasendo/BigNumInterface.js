@@ -807,7 +807,7 @@ function DivModHex(arga, argb,argc){
 // Currently implemented in JavaScript by forwarding directly to low level function
 // Consider implementing it by forwarding to C++ class
 // Consider storing value in C++ to avoid copying around (also for low level functions)
-export class BigNumber
+export class BigNumber // Decimal  representation
  {
     constructor(theValue = "0") {
         this.value = theValue;
