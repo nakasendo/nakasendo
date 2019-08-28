@@ -25,8 +25,7 @@ std::vector<uint8_t>  EncodeBase64Ex (const std::vector<uint8_t>& toEnc){
     std::vector<uint8_t> retVal; 
     std::string testRetStr; 
     std::unique_ptr<unsigned char[]> retValPtr =  encdec.encode (msgPtr, toEnc.size(), 0, sizeEncodedBuffer);
-    // We don't want the null terminator now
-    for(int i=0;i<(sizeEncodedBuffer-1);++i){
+    for(int i=0;i<(sizeEncodedBuffer);++i){
         retVal.push_back(retValPtr.get()[i]);
         testRetStr.push_back (retValPtr.get()[i]);
     }   
@@ -49,12 +48,11 @@ std::vector<uint8_t>  DecodeBase64Ex (std::vector<uint8_t> toDec){
     }
 
     Base64EncDec encdec;
-
     std::unique_ptr<unsigned char[]> decodedValPtr = encdec.decode(msgPtr, toDec.size(), value, strict, err);
 
     std::vector<uint8_t> retVal; 
     std::string strVal; 
-    
+
     if (decodedValPtr != nullptr){
         for (int i=0; i<value;++i){
             retVal.push_back(decodedValPtr.get()[i]);
@@ -100,6 +98,21 @@ std::vector<uint8_t> EncodeBase58CheckEx (std::vector<uint8_t> toEnc){
     }
     return retVal; 
 }
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE  std::string
+#else
+MESSAGE_HASH_RETURN_TYPE 
+#endif
+HashMsgSHA256 (const std::string& msg)
+    {
+         MessageHash hashMess;
+         hashMess.HashSha256 (msg);
+#ifdef __EMSCRIPTEN__
+        return hashMess.HashHex() ; 
+#else
+         return hashMess.HashHex ();
+#endif         
+    }
 
 #ifdef __EMSCRIPTEN__
 EMSCRIPTEN_KEEPALIVE 
@@ -122,6 +135,7 @@ EMSCRIPTEN_BINDINGS(moduleHash) {
     emscripten::function("DecodeBase58Ex", &DecodeBase58Ex);
     emscripten::function("EncodeBase58CheckEx", &EncodeBase58CheckEx);
     emscripten::function("DecodeBase58CheckEx", &DecodeBase58CheckEx);  
+    emscripten::function("HashMsgSHA256", &HashMsgSHA256);
   
 }
 #endif
@@ -136,16 +150,7 @@ MESSAGE_HASH_RETURN_TYPE HashMsgSHA256Test (char * msg){
 #endif             
 }
 
-MESSAGE_HASH_RETURN_TYPE HashMsgSHA256 (const std::string& msg)
-    {
-         MessageHash hashMess;
-         hashMess.HashSha256 (msg);
-#ifdef __EMSCRIPTEN__
-        return hashMess.HashHex().c_str(); 
-#else
-         return hashMess.HashHex ();
-#endif         
-    }
+
 
 MESSAGE_HASH_RETURN_TYPE HashMsg (const std::string& msg, const std::string& hashContext)
     {

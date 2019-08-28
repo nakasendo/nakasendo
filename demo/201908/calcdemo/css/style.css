@@ -1,0 +1,156 @@
+/* Some personal resets */
+html {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+
+:root {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+input {
+    width: 100%;    
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  outline: none;
+  appearance: none;
+  text-align: left;
+  /* min-height: 4.5em; */
+}
+
+@media (min-height: 1000px) {
+    button {
+        min-height: 4.5em;
+    }
+}
+
+html
+{
+    font-size: 175%;
+    font-weight: 300;
+    line-height: 1.3;
+}
+
+body {
+    align-items: center;
+    background-image: linear-gradient(236deg, #74ebd5, #acb6e5); 
+    display: flex;
+    height: 100vh;
+    justify-content: center;        
+}
+
+.container {
+    max-width: 50em;
+}
+
+.calculator {
+    border-radius: 12px;
+    box-shadow: 0 0 40px 0px rgba(0, 0, 0, 0.15);
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0.1em;
+    max-width: 45em;
+    overflow: hidden;
+}
+
+.display {
+    background-color: #222222;
+    color: #fff;
+    font-size: 1.114285714em;
+    padding: 0.5em 0.5em;
+    text-align: right;        
+}
+
+input.display {
+    height: 78px;
+}
+
+.display .size30 {
+    font-size: 0.8em;
+}
+ 
+.display .size60 {
+    font-size: 0.5em;    
+}
+
+.display .size90 {
+    font-size: 0.28em;    
+}
+.display .size185 {
+    font-size: 0.1em;    
+}
+
+.info {
+    background-color: #222222;
+    color: #ccc;
+    font-size: 0.6em;
+    padding: 0.5em 0.5em;
+    text-align: right;
+}
+
+.keys { 
+    background-color: #999;
+    display: grid;
+    grid-gap: 1px;
+    grid-template-columns: repeat(4, 1fr);            
+}
+
+.keys > * {
+    background-color: #fff;
+    padding: 0.5em 3.25em;
+    position: relative;
+    text-align: center;
+  }
+  
+  .keys > *:active::before,
+  .keys > .is-depressed::before {
+    background-color: rgba(0, 0, 0, 0.2);
+    bottom: 0;
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.5) inset;
+    content: "";
+    left: 0;
+    opacity: 0.3;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
+  }
+
+  .operator {
+    background-color: #eee;
+  }
+  
+  .equal {
+    background-image: linear-gradient(to bottom, #fe886a, #ff7033);
+    grid-column: -2;
+    grid-row: 2 / span 4;
+  }
+  
+
+  
