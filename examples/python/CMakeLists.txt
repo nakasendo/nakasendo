@@ -8,5 +8,5 @@
 file(GLOB py_example_files "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
 
 foreach(_py_file ${py_example_files})
-  install(FILES ${_py_file} DESTINATION "example/python" COMPONENT "Examples python")
+  install(FILES ${_py_file} DESTINATION "example/python" COMPONENT "Examples")
 endforeach()
