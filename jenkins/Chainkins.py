@@ -7,6 +7,11 @@ import jenkinsapi
 import bitbucketapi
 import junithelper
 
+import requests
+from requests.auth import HTTPBasicAuth
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) #https://stackoverflow.com/questions/27981545/suppress-insecurerequestwarning-unverified-https-request-is-being-made-in-pytho
+
 '''
 Python script helping jenkins build.
 It can parse additional hidden information from bitbucket api, jenkins api
@@ -34,6 +39,9 @@ parser.add_argument(     '--key_path' , help='Key path \':\'-separated to query 
 parser.add_argument(     '--get_short_hash'                , dest='get_short_hash'               , action='store_true' , help='Get short git hash from long. Requires --git_hash')
 parser.add_argument(     '--git_hash' , help='Full Git Hash')
 
+parser.add_argument(     '--get_http_repo'                 , dest='get_http_repo'               , action='store_true' , help='Get http repo url from ssh repo url. Requires --ssh_repo')
+parser.add_argument(     '--ssh_repo' , help='Repository ssh url')
+
 parser.add_argument(     '--fix_nchain_email'              , dest='fix_nchain_email'               , action='store_true' , help='Fix nchain email. Requires --email')
 parser.add_argument(     '--email' , help='Email address that might contain error username@nchain.com@nchain.com')
 
@@ -45,7 +53,12 @@ parser.add_argument(     '--indir_debug'   , help='Directory containing all JUni
 parser.add_argument(     '--indir_release' , help='Directory containing all JUnit xml test results for release build')
 parser.add_argument(     '--outdir'        , help='Output directory where <all_junit_release.xml,all_junit_debug.xml> or  all_junit.html will be store')
 
-
+parser.add_argument(     '--update_bitbucket_build_status' , dest='update_bitbucket_build_status', action='store_true' , help='Update bitbucket build status through rest API. Requires --bb_username --bb_password --target_repo --target_commit --jenkins_status')
+parser.add_argument(     '--bb_username'   , help='Bitbucket credential username')
+parser.add_argument(     '--bb_password'   , help='Bitbucket credential password')
+parser.add_argument(     '--target_repo'   , help='Bitbucket http repository url')
+parser.add_argument(     '--target_commit' , help='Bitbucket commit')
+parser.add_argument(     '--jenkins_status', help='Jenkins build status. It will be transformed to the appropriated Bitbucket build status')
 
 args = parser.parse_args()
 
@@ -106,6 +119,17 @@ if args.fix_nchain_email is not None and args.fix_nchain_email:
         print(error_email)
         sys.exit(0)
     print('{}@{}'.format(parts[0],parts[1]))
+    sys.exit(0)
+
+if args.get_http_repo is not None and args.get_http_repo:
+    ##   python Chainkins.py --get_http_repo --ssh_repo=git@bitbucket.org:username/reponame.git
+    if args.ssh_repo is None:
+        print("Get http repo requires --ssh_repo")
+        parser.print_help()
+        sys.exit(2)
+    _ssh_repo = args.ssh_repo
+    _http_repo = bitbucketapi.transform_git_ssh_to_http(_ssh_repo)
+    print(_http_repo)
     sys.exit(0)
 
 if args.consolidate_junit is not None and args.consolidate_junit:
@@ -172,11 +196,12 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
     except OSError:
         pr_author_name = 'Unknown'
 
-    source_repo_ssh =''
+    source_repo_http =''
     try:
         source_repo_ssh = bitbucketapi.get_BITBUCKET_PR_source_ssh()
+        source_repo_http = bitbucketapi.transform_git_ssh_to_http(source_repo_ssh)
     except OSError:
-        source_repo_ssh = 'Unknown'
+        source_repo_http = 'Unknown'
 
     pr_tip_commit_hash =''
     try:
@@ -197,7 +222,7 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
     html_email_content += 'Pull Request author : <b>{}</b><br>\n'.format(pr_author_name)
     html_email_content += 'Commit Hash         : [{}]<br><br>\n\n'.format(pr_tip_commit_hash)
     html_email_content += 'Jenkins Log <a href="{}/consoleFull">Build #{}</a> on {}<br>'.format(jBUILD_URL, jBUILD_NUMBER, jJENKINS_SLAVE_OS)
-    html_email_content += '<a href={}">Bitbucket</a> Repository <i>{}</i>   b[<b>{}</b>]<br><br><br>'.format(jBITBUCKET_PULL_REQUEST_LINK, source_repo_ssh, jBITBUCKET_SOURCE_BRANCH)
+    html_email_content += '<a href={}">Bitbucket</a> Repository <i>{}</i>   b[<b>{}</b>]<br><br><br>'.format(jBITBUCKET_PULL_REQUEST_LINK, source_repo_http, jBITBUCKET_SOURCE_BRANCH)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
@@ -224,23 +249,22 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     out_dir = pathlib.Path(args.outdir)
 
     ### Get information from tip commit
-    build_commit_hash = os.environ['GIT_COMMIT'] if 'GIT_COMMIT' in os.environ else 'jGIT_COMMIT'
     build_branch = os.environ['GIT_BRANCH'] if 'GIT_BRANCH' in os.environ else 'jGIT_BRANCH'
     build_repo = os.environ['GIT_URL'] if 'GIT_URL' in os.environ else 'jGIT_URL'
     ## Get other environment variables
     jBUILD_TRIGGER = os.environ['jBUILD_TRIGGER'] if 'jBUILD_TRIGGER' in os.environ else 'Unknown trigger author'
-    jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'jBUILD_URL'
+    jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'jRUN_DISPLAY_URL'
     jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
     jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
-    jBITBUCKET_HTTP_URL = bitbucketapi.transform_git_ssh_to_http(os.environ['GIT_URL']) if os.environ['GIT_URL'] else'Unknown repository link'
+    jTARGET_REPO_HTTP = os.environ['jTARGET_REPO_HTTP'] if 'jTARGET_REPO_HTTP' in os.environ else 'Unknown target repository url'
+    jTARGET_COMMIT = os.environ['jTARGET_COMMIT'] if 'jTARGET_COMMIT' in os.environ else 'Unknown target commit hash'
 
     ### Building email content ################################################
     html_email_content=''
-    html_email_content += 'Build Triggered by  : <i>{}</i><br><br>\n'.format(jBUILD_TRIGGER)
+    html_email_content += '<a href={}>Build #{}</a> triggered by : <i>{}</i><br><br>\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER, jBUILD_TRIGGER)
     html_email_content += 'Branch              : <b>{}</b><br>\n'.format(build_branch)
-    html_email_content += 'Repository          : <b>{}</b><br>\n'.format(jBITBUCKET_HTTP_URL)
-    html_email_content += 'Commit Hash         : [<b>{}</b>]<br><br>\n\n'.format(build_commit_hash)
-
+    html_email_content += 'Repository          : <b>{}</b><br>\n'.format(jTARGET_REPO_HTTP)
+    html_email_content += 'Commit Hash         : [<b>{}</b>]<br><br>\n\n'.format(jTARGET_COMMIT)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
@@ -253,4 +277,28 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     with out_file.open("w", encoding="utf-8") as f:
         f.write(html_email_content)
     print('Chainkins successfully dump pull request email test results file {}'.format(str(out_file)))
+    sys.exit(0)
+
+if args.update_bitbucket_build_status is not None and args.update_bitbucket_build_status:
+    ## Assume environment variable BUILD_URL and BUILD_NUMBER are set
+    ##   python Chainkins.py --update_bitbucket_build_status --bb_username=sdklibraries --bb_password=ppp --target_repo=https://bitbucket.org/nch-atlassian/sdklibraries --target_commit=cd64e137c4d2b58de55d625dc9285ee257aaa69e --jenkins_status=NOT_BUILT
+    ## Jenkins build status   : SUCCESS    UNSTABLE  ABORTED   FAILURE    NOT_BUILT
+    ## Bitbucket build status : SUCCESSFUL           STOPPED   FAILED    INPROGRESS
+    if args.bb_username is None or args.bb_password is None or args.target_repo is None or args.target_commit is None or args.jenkins_status is None:
+        print('Update bitbucket build status requires --bb_username --bb_password --target_repo --target_commit --jenkins_status')
+        parser.print_help()
+        sys.exit(2)
+    ## create output directory if not exist
+    jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'jBUILD_URL'
+    jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
+    jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
+    bitbucket_build_status = bitbucketapi.get_bitbucket_status(args.jenkins_status)
+    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.bb_username, args.bb_password, args.target_repo, args.target_commit, jJENKINS_SLAVE_OS, bitbucket_build_status, jBUILD_URL, jBUILD_NUMBER)
+
+    response = requests.post(query_url, auth=HTTPBasicAuth(args.bb_username, args.bb_password), headers={'Content-Type': 'application/json'}, data=query_data, verify=False)
+    response_str = response.content.decode('utf-8')
+    #print('query_url  [{}]'.format(query_url))
+    #print('query_data [{}]'.format(query_data))
+    #print('response str\n{}'.format(response_str))
+    print('\n{}\n'.format(response_str))
     sys.exit(0)

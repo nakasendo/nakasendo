@@ -1,7 +1,7 @@
 /*
-  Pipeline setting to trigger build on pushed to master
-  see :
-    https://jenkins.io/doc/pipeline/tour/hello-world/
+   The master pipeline aim to build for every change on the main repository. It can build on any branch that is specified in the jenkins job configuration
+   The build is normally kicked off by bitbucket push to the repository. User can also manually kickoff the build by 'Build Now'
+   User can also clone the jenkins pipeline job, modify the configuration so it can build on their repository, their branch
 */
 
 def jTools
@@ -10,7 +10,7 @@ pipeline {
   agent any
   options { disableConcurrentBuilds() }
 
-  /**  Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated. To make it work, it need to be 'build now' manually for a first time */
+  // Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated. To make it work, it need to be 'build now' manually for a first time
   triggers {
     bitBucketTrigger([
       [$class: 'BitBucketPPRRepositoryTriggerFilter' , actionFilter: [$class: 'BitBucketPPRRepositoryPushActionFilter', allowedBranches: '', triggerAlsoIfTagPush: false]]
@@ -19,8 +19,8 @@ pipeline {
   }
 
   stages {
-    // Setting common environment variables -----------------------------------------------------------------------------------------
-    stage('Environment variable on jenkins master'){
+    // Setting common environment variables for the whole pipeline -----------------------------------------------------------------------
+    stage('MASTER ENV'){
       agent any
       steps {
         //sh 'printenv'
@@ -28,17 +28,23 @@ pipeline {
         script {
           jTools = load("${env.WORKSPACE}/jenkins/jTools.groovy")
 
-          // Dump some environment variables to groovy then load it
+          // Variables used for updating bitbucket status and email post build
+          sh "echo env.jTARGET_REPO_HTTP=\\\"\$(python jenkins/Chainkins.py --get_http_repo --ssh_repo=${env.GIT_URL})\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+          sh "echo env.jTARGET_COMMIT=\\\"${env.GIT_COMMIT}\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+
+          // Variables used for build/postbuild directories
           sh "echo env.jBUILD_DIRNAME=\\\"build\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
           sh "echo env.jBUILD_DIRNAME_RELEASE=\\\"buildrelease\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
           sh "echo env.jBUILD_DIRNAME_DEBUG=\\\"builddebug\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
           sh "echo env.jPOSTBUILD_DIRNAME=\\\"buildpost\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+
+          // Variables used for post build email
           sh "echo env.GIT_COMMIT_SHORT=\\\"\$(python jenkins/Chainkins.py --get_short_hash --git_hash=${env.GIT_COMMIT})\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
           if (!env.BITBUCKET_PAYLOAD) {// If BITBUCKET_PAYLOAD is not defined, then the build is manually triggered by a user
             wrap([$class: 'BuildUser']) {
               sh "echo env.jBUILD_TRIGGER=\\\"\$BUILD_USER\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+              // The manual build kickoff will send email to the only user who has kickoff the build.
               sh "echo env.jEMAIL_TO_SEND=\\\"\$(python jenkins/Chainkins.py --fix_nchain_email --email=$BUILD_USER_EMAIL)\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
-              //sh "echo env.jEMAIL_TO_SEND=\\\"\$(python jenkins/Chainkins.py --fix_nchain_email --email=$BUILD_USER_EMAIL),cc:j.murphy@nchain.com,cc:c.nguyen@nchain.com,cc:j.wilden@nchain.com,cc:c.battini@nchain.com,cc:d.edunfunke@nchain.com\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
             }
           }
           else{
@@ -56,7 +62,7 @@ pipeline {
 
 
     // Build on Windows -----------------------------------------------------------------------------------------------------------
-    stage('Win Build'){
+    stage('Window Build'){
       agent { label 'slave_vm_win10pro_x64_mvsc2017' }
       options { skipDefaultCheckout true }
       environment {
@@ -65,13 +71,21 @@ pipeline {
         POSTBUILD_DIR="${env.WORKSPACE}\\${env.jPOSTBUILD_DIRNAME}"
         TESTRESULT_DIR_RELEASE="${env.BUILD_DIR}\\x64\\release"
         TESTRESULT_DIR_DEBUG="${env.BUILD_DIR}\\x64\\debug"
+        CHAINKINS_FILE="${env.WORKSPACE}\\jenkins\\Chainkins.py"
       }
       steps {
         step([$class: 'WsCleanup'])
         checkout scm
         script {
-            echo "foo = ${env.jSLAVE_FOO}"
-            //jTools.build_on_windows()
+            bat 'set'
+
+            // Update bitbucket build status (in process)
+            withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
+              bat "python %CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT"
+            }
+
+            jTools.build_on_windows()
+            jTools.runtest_on_windows()
         }
       }
 
@@ -83,11 +97,18 @@ pipeline {
             bat 'python jenkins/Chainkins.py --consolidate_html --indir_debug=%TESTRESULT_DIR_DEBUG% --indir_release=%TESTRESULT_DIR_RELEASE% --outdir=%POSTBUILD_DIR%'
             bat 'python jenkins/Chainkins.py --dump_mainrepo_email_html --indir_debug=%TESTRESULT_DIR_DEBUG% --indir_release=%TESTRESULT_DIR_RELEASE% --outdir=%POSTBUILD_DIR%'
 
+            junit "${env.jPOSTBUILD_DIRNAME}/*junit*.xml"
+
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} ${env.GIT_BRANCH}[${env.GIT_COMMIT_SHORT}]",
+              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} [${env.GIT_COMMIT_SHORT}] on ${env.GIT_BRANCH}",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
+
+            // Update bitbucket build status
+            withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
+              bat "python %CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}"
+            }
           }
         }
       }
@@ -95,7 +116,7 @@ pipeline {
 
 
     // Build on Linux ---------------------------------------------------------------------------------------------------------------
-    stage('Linux build'){
+    stage('Linux Build'){
       agent { label 'slave_vm_Ubuntu18_x64_gcc730'}
       options { skipDefaultCheckout true }
       environment { 
@@ -105,13 +126,21 @@ pipeline {
         POSTBUILD_DIR="${env.WORKSPACE}/${env.jPOSTBUILD_DIRNAME}"
         TESTRESULT_DIR_RELEASE="${env.BUILD_DIR_RELEASE}/x64/release"
         TESTRESULT_DIR_DEBUG="${env.BUILD_DIR_DEBUG}/x64/debug"
+        CHAINKINS_FILE="${env.WORKSPACE}/jenkins/Chainkins.py"
       }
       steps {
         step([$class: 'WsCleanup'])
         checkout scm
         script {
-            echo "foo = ${env.jSLAVE_FOO}"
-            //jTools.build_on_linux()
+            sh 'printenv'
+
+            // Update bitbucket build status (in process)
+            withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
+              sh "python $CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT"
+            }
+
+            jTools.build_on_linux()
+            jTools.runtest_on_linux()
         }
       }
 
@@ -123,11 +152,18 @@ pipeline {
             sh 'python jenkins/Chainkins.py --consolidate_html --indir_debug=$TESTRESULT_DIR_DEBUG --indir_release=$TESTRESULT_DIR_RELEASE --outdir=$POSTBUILD_DIR'
             sh 'python jenkins/Chainkins.py --dump_mainrepo_email_html --indir_debug=$TESTRESULT_DIR_DEBUG --indir_release=$TESTRESULT_DIR_RELEASE --outdir=$POSTBUILD_DIR'
 
+            junit "${env.jPOSTBUILD_DIRNAME}/*junit*.xml"
+
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} ${env.GIT_BRANCH}[${env.GIT_COMMIT_SHORT}]",
+              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} [${env.GIT_COMMIT_SHORT}] on ${env.GIT_BRANCH}",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
+
+            // Update bitbucket build status
+            withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
+              sh "python $CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}"
+            }
           }
         }
       }

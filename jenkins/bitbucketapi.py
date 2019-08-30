@@ -82,6 +82,17 @@ def _get_json_data(dict_obj, key_path, key_path_index=0):
         else:
             return None
 
+## Jenkins build status   : SUCCESS    UNSTABLE  ABORTED   FAILURE    NOT_BUILT
+## Bitbucket build status : SUCCESSFUL           STOPPED   FAILED    INPROGRESS
+def get_bitbucket_status(jenkins_build_status):
+    if jenkins_build_status=='SUCCESS' or jenkins_build_status=='UNSTABLE':
+        return 'SUCCESSFUL'
+    if jenkins_build_status=='ABORTED':
+        return 'STOPPED'
+    if jenkins_build_status=='NOT_BUILT':
+        return 'INPROGRESS'
+    return 'FAILED'
+
 ## Assuming BITBUCKET_PAYLOAD environment variables is set (json str). If not, throw exception
 ## Get the information from the json through the key path separated by ':'
 def get_BITBUCKET_PAYLOAD_info(key_path_str):
@@ -127,15 +138,15 @@ def get_BITBUCKET_PR_destination_ssh():
 
 ## Calculate the query url and query data to update the build status
 ## The commithash + osname will be used as the key of the status. Everytime a build status update, it should use this same unique key
-def get_bitbucket_buildstatus_query(username,passwd,http_repo, fullcommithash,osname,status, build_url = 'https://142.93.35.114', build_id='Jenkins slave'):
-    if status not in ['SUCCESSFUL','FAILED','INPROGRESS','STOPPED']:
-        raise SyntaxError('Build status {} is not in the list  SUCCESSFUL, FAILED, INPROGRESS, STOPPED'.format(status))
+def get_bitbucket_buildstatus_query(username,passwd,http_repo, fullcommithash,osname,bitbucketstatus, build_url = 'https://142.93.35.114', build_id='Jenkins slave'):
+    if bitbucketstatus not in ['SUCCESSFUL','FAILED','INPROGRESS','STOPPED']:
+        raise SyntaxError('Build status {} is not in the list  SUCCESSFUL, FAILED, INPROGRESS, STOPPED'.format(bitbucketstatus))
     full_commit_hash = fullcommithash
     short_commit_hash = full_commit_hash[0:8]
     query_key = '{}-{}'.format(short_commit_hash, osname)
     query_build_name = osname
     query_build_description = 'Build #{}'.format(build_id)
-    query_json = '{{"state": "{}","key": "{}","name": "{}","url": "{}","description": "{}"}}'.format(status, query_key, query_build_name, build_url, query_build_description)
+    query_json = '{{"state": "{}","key": "{}","name": "{}","url": "{}","description": "{}"}}'.format(bitbucketstatus, query_key, query_build_name, build_url, query_build_description)
     rest_api_url = _transform_git_html_to_rest_api_url(http_repo)
     build_status_url = '{}/commit/{}/statuses/build'.format(rest_api_url,fullcommithash)
     return build_status_url, query_json
