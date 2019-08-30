@@ -22,5 +22,5 @@ The term "contribution" is the original Software, or any additions or changes to
 (F)  Blockchain/Platform Limitation.  The licenses granted in sections 2(A) & 2(B) extend only to the Software or derivative works (such as applications using the Software) that you create that operate on the Bitcoin SV  blockchain.  The Bitcoin SV blockchain is defined as the Bitcoin chain containing block height #556767 with this hash: 000000000000000001d956714215d96ffc00e0afda4cd0a96c96f8d802b1662b.
 
 TRADEMARK NOTICE
-nChain and SDK Libraries are trademarks of nChain Holdings Limited.  Limited rights to use those marks granted by this license shall be subject to any trademark usage policy published now or in the future for the SDK Libraries project.
+nChain is a trademark of nChain Holdings Limited.  Limited rights to use the trade mark granted by this license shall be subject to any trademark usage policy published now or in the future for the SDK Libraries project.
 

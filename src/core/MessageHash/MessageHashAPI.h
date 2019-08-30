@@ -23,7 +23,13 @@ EMSCRIPTEN_KEEPALIVE std::vector<uint8_t> DecodeBase58CheckEx (std::vector<uint8
 #define MessageHash_C_API MessageHash_API
 #endif
 
-MessageHash_C_API MESSAGE_HASH_RETURN_TYPE HashMsgSHA256 (const std::string&);
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string
+#else
+MessageHash_C_API MESSAGE_HASH_RETURN_TYPE
+#endif 
+ HashMsgSHA256 (const std::string&);
+
 MessageHash_C_API MESSAGE_HASH_RETURN_TYPE HashMsgSHA256Test (char * );
 
 MessageHash_C_API MESSAGE_HASH_RETURN_TYPE HashMsg (const std::string&, const std::string&);
@@ -39,6 +45,10 @@ MessageHash_C_API MESSAGE_HASH_RETURN_TYPE EncodeBase64(const std::unique_ptr<un
 
 
 MessageHash_C_API std::unique_ptr<unsigned char[]> DecodeBase64(const std::string&, int& size);
+
+
+//MessageHash_C_API std::vector<uint8_t> EncodeBase64Ex (const std::vector<uint8_t>&);
+//MessageHash_C_API std::vector<uint8_t> DecodeBase64Ex (std::vector<uint8_t>);
 
 MessageHash_C_API MESSAGE_HASH_RETURN_TYPE EncodeBase58(const std::string&);
 
