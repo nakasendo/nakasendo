@@ -36,8 +36,11 @@ parser.add_argument('-d','--get_pr_destination_repository', dest='get_pr_destina
 parser.add_argument(     '--get_bbpayload_info'           , dest='get_bbpayload_info'           , action='store_true' , help='Get info from json BITBUCKET_PAYLOAD. Requires --key_path')
 parser.add_argument(     '--key_path' , help='Key path \':\'-separated to query the JSON string')
 
-parser.add_argument(     '--get_short_hash'                , dest='get_short_hash'               , action='store_true' , help='Get short git hash from long. Requires --git_hash')
+parser.add_argument(     '--get_short_hash'                , dest='get_short_hash'               , action='store_true' , help='Get first 8 chars from git commit hash. Requires --git_hash')
 parser.add_argument(     '--git_hash' , help='Full Git Hash')
+
+parser.add_argument(     '--get_local_branch'              , dest='get_local_branch'               , action='store_true' , help='Get local branch from remote branch. Requires --git_branch')
+parser.add_argument(     '--git_branch' , help='git branch name')
 
 parser.add_argument(     '--get_http_repo'                 , dest='get_http_repo'               , action='store_true' , help='Get http repo url from ssh repo url. Requires --ssh_repo')
 parser.add_argument(     '--ssh_repo' , help='Repository ssh url')
@@ -105,6 +108,16 @@ if args.get_short_hash is not None and args.get_short_hash:
         sys.exit(0)
     short_git_hash=long_git_hash[0:8]
     print(short_git_hash)
+    sys.exit(0)
+
+if args.get_local_branch is not None and args.get_local_branch:
+    ##   python Chainkins.py --get_local_branch --git_branch=origin/feature/SL-123
+    if args.git_branch is None:
+        print("Get local branch requires --git_branch")
+        parser.print_help()
+        sys.exit(2)
+    _local_branch = args.git_branch.replace('origin/', '')
+    print(_local_branch)
     sys.exit(0)
 
 if args.fix_nchain_email is not None and args.fix_nchain_email:
@@ -250,10 +263,8 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     pathlib.Path(args.outdir).mkdir(parents=True, exist_ok=True)
     out_dir = pathlib.Path(args.outdir)
 
-    ### Get information from tip commit
-    build_branch = os.environ['GIT_BRANCH'] if 'GIT_BRANCH' in os.environ else 'Unable to define branch'
-    build_repo = os.environ['GIT_URL'] if 'GIT_URL' in os.environ else 'Unknown URL'
     ## Get other environment variables
+    jTARGET_BRANCH = os.environ['jTARGET_BRANCH'] if 'jTARGET_BRANCH' in os.environ else 'Unable to define branch'
     jBUILD_TRIGGER = os.environ['jBUILD_TRIGGER'] if 'jBUILD_TRIGGER' in os.environ else 'Unknown'
     jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'Unknown URL'
     jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'Unknown'
@@ -264,7 +275,7 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     ### Building email content ################################################
     html_email_content=''
     html_email_content += '<a href={}>Build #{}</a> triggered by : <i>{}</i><br><br>\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER, jBUILD_TRIGGER)
-    html_email_content += 'Branch              : <b>{}</b><br>\n'.format(build_branch)
+    html_email_content += 'Branch              : <b>{}</b><br>\n'.format(jTARGET_BRANCH)
     html_email_content += 'Repository          : {}<br>\n'.format(jTARGET_REPO_HTTP)
     html_email_content += 'Commit Hash         : [{}]<br><br>\n\n'.format(jTARGET_COMMIT)
 

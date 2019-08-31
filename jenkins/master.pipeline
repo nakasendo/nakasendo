@@ -61,6 +61,7 @@ pipeline {
               bat "python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT"
             }
 
+            bat "git checkout ${env.jTARGET_BRANCH}" // checkout a local branch name
             jTools.build_on_windows()
             jTools.runtest_on_windows()
             jTools.pack_on_windows()
@@ -77,7 +78,7 @@ pipeline {
 
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} [${env.jTARGET_COMMIT_SHORT}] on ${env.GIT_BRANCH}",
+              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} [${env.jTARGET_COMMIT_SHORT}] on ${env.jTARGET_BRANCH}",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
 
@@ -111,6 +112,7 @@ pipeline {
               sh "python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT"
             }
 
+            sh "git checkout ${env.jTARGET_BRANCH}" // checkout a local branch name
             jTools.build_on_linux()
             jTools.runtest_on_linux()
             jTools.pack_on_linux()
@@ -126,7 +128,7 @@ pipeline {
 
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} [${env.jTARGET_COMMIT_SHORT}] on ${env.GIT_BRANCH}",
+              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} [${env.jTARGET_COMMIT_SHORT}] on ${env.jTARGET_BRANCH}",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
 

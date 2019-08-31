@@ -10,6 +10,7 @@
 def dump_env_main_repo(groovy_file) {
     // Variables used for updating bitbucket status and email post build
     sh "echo env.jTARGET_REPO_HTTP=\\\"\$(python jenkins/Chainkins.py --get_http_repo --ssh_repo=${env.GIT_URL})\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
+    sh "echo env.jTARGET_BRANCH=\\\"\$(python jenkins/Chainkins.py --get_local_branch --git_branch=${env.GIT_BRANCH})\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
     sh "echo env.jTARGET_COMMIT=\\\"${env.GIT_COMMIT}\\\">>${env.WORKSPACE}/jenkins/master_env.groovy"
 
     // Variables used for build/postbuild directories
