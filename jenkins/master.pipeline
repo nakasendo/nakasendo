@@ -9,7 +9,6 @@ def jTools
 
 pipeline {
   agent any
-  options { disableConcurrentBuilds() }
 
   // Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated. To make it work, it need to be 'build now' manually for a first time
   triggers {
@@ -39,8 +38,10 @@ pipeline {
     }
 
     // TODO :
-    //   make build paralelle (remove disableConcurrentBuilds from top of this file)
+    //   move more code block from here to groovy jTool
     //   migrate the pipeline pull-request
+
+stage('Distributed Build') { parallel {
 
     // Build on Windows -----------------------------------------------------------------------------------------------------------
     stage('Window Build'){
@@ -140,6 +141,8 @@ pipeline {
         }
       }
     }
+
+}} // parallel
 
   }
 }
