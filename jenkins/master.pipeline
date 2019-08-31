@@ -9,6 +9,7 @@ def jTools
 
 pipeline {
   agent any
+  options { disableConcurrentBuilds() } // Strangely this option allow the parallel build
 
   // Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated. To make it work, it need to be 'build now' manually for a first time
   triggers {
@@ -23,14 +24,14 @@ pipeline {
     stage('MASTER ENV'){
       agent any
       steps {
-        echo 'master echo'
         script {
+
           jTools = load("${env.WORKSPACE}/jenkins/jTools.groovy")
 
           def main_env_file = "${env.WORKSPACE}/jenkins/master_env.groovy"
           jTools.dump_env_main_repo(main_env_file)
           jENV = load(main_env_file)
-          sh "cat ${main_env_file} ; printenv"
+          sh label:"Show env variables", script:"cat ${main_env_file} ; printenv"
         }
       }
 
@@ -41,10 +42,9 @@ pipeline {
     //   move more code block from here to groovy jTool
     //   migrate the pipeline pull-request
 
-stage('Distributed Build') { parallel {
+stage('Distributed Build') { parallel { // =====================================
 
-    // Build on Windows -----------------------------------------------------------------------------------------------------------
-    stage('Window Build'){
+    stage('Window Build'){ //---------------------------------------------
       agent { label 'slave_vm_win10pro_x64_mvsc2017' }
       options { skipDefaultCheckout true }
 
@@ -55,14 +55,16 @@ stage('Distributed Build') { parallel {
             def windows_env_file = "${env.WORKSPACE}\\jenkins\\windows_env.groovy"
             jTools.dump_buildenv_windows(windows_env_file)
             jWINDOWS_ENV = load(windows_env_file)
-            bat "type ${windows_env_file} && set"
+            bat label:"Show env variables", script:"type ${windows_env_file} && set"
 
             // Update bitbucket build status (in process)
             withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
-              bat "python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT"
+              bat label:"Set bitbucket build status in progress", script:"""
+                python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT
+              """
             }
 
-            bat "git checkout ${env.jTARGET_BRANCH}" // checkout a local branch name
+            bat label:"Checkout to local branch before build", script:"git checkout ${env.jTARGET_BRANCH}"
             jTools.build_on_windows()
             jTools.runtest_on_windows()
             jTools.pack_on_windows()
@@ -79,13 +81,15 @@ stage('Distributed Build') { parallel {
 
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} [${env.jTARGET_COMMIT_SHORT}] on ${env.jTARGET_BRANCH}",
+              subject: "${currentBuild.result} - [${env.jTARGET_BRANCH}-${env.jTARGET_COMMIT_SHORT}] ${env.JENKINS_SLAVE_OS}",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
 
             // Update bitbucket build status
             withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
-              bat "python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}"
+              bat label:"Update bitbucket build status result", script:"""
+                python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}
+              """
             }
 
           }
@@ -94,8 +98,7 @@ stage('Distributed Build') { parallel {
     }
 
 
-    // Build on Linux ---------------------------------------------------------------------------------------------------------------
-    stage('Linux Build'){
+    stage('Linux Build'){ //---------------------------------------------
       agent { label 'slave_vm_Ubuntu18_x64_gcc730'}
       options { skipDefaultCheckout true }
 
@@ -105,15 +108,17 @@ stage('Distributed Build') { parallel {
         script {
             def linux_env_file = "${env.WORKSPACE}/jenkins/linux_env.groovy"
             jTools.dump_buildenv_linux(linux_env_file)
-            jLINUX_ENV = load(linux_env_file)   
-            sh "cat ${linux_env_file} ; printenv"
+            jLINUX_ENV = load(linux_env_file)
+            sh label:"Show env variables", script:"cat ${linux_env_file} ; printenv"
 
             // Update bitbucket build status (in process)
             withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
-              sh "python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT"
+              sh label:"Set bitbucket build status in progress", script:"""
+                python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT
+              """
             }
 
-            sh "git checkout ${env.jTARGET_BRANCH}" // checkout a local branch name
+            sh label:"Checkout to local branch before build", script:"git checkout ${env.jTARGET_BRANCH}"
             jTools.build_on_linux()
             jTools.runtest_on_linux()
             jTools.pack_on_linux()
@@ -129,20 +134,22 @@ stage('Distributed Build') { parallel {
 
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - ${env.JENKINS_SLAVE_OS} [${env.jTARGET_COMMIT_SHORT}] on ${env.jTARGET_BRANCH}",
+              subject: "${currentBuild.result} - [${env.jTARGET_BRANCH}-${env.jTARGET_COMMIT_SHORT}] ${env.JENKINS_SLAVE_OS}",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
 
             // Update bitbucket build status
             withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
-              sh "python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}"
+              sh label:"Update bitbucket build status result", script:"""
+                python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}
+              """
             }
           }
         }
       }
     }
 
-}} // parallel
+}} // parallelized stage ========================================================
 
   }
 }

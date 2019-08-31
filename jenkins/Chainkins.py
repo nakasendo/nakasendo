@@ -274,10 +274,11 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
 
     ### Building email content ################################################
     html_email_content=''
-    html_email_content += '<a href={}>Build #{}</a> triggered by : <i>{}</i><br><br>\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER, jBUILD_TRIGGER)
+    html_email_content += 'Build #{} triggered by : <i>{}</i><br><br>\n'.format(jBUILD_NUMBER, jBUILD_TRIGGER)
     html_email_content += 'Branch              : <b>{}</b><br>\n'.format(jTARGET_BRANCH)
     html_email_content += 'Repository          : {}<br>\n'.format(jTARGET_REPO_HTTP)
-    html_email_content += 'Commit Hash         : [{}]<br><br>\n\n'.format(jTARGET_COMMIT)
+    html_email_content += 'Commit Hash         : [{}]<br>\n'.format(jTARGET_COMMIT)
+    html_email_content += '<a href={}>Pipeline Log</a><br><br>\n\n'.format(jRUN_DISPLAY_URL)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
