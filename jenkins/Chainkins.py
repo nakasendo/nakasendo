@@ -211,17 +211,19 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
         pr_tip_commit_hash = 'Unknown'
 
     ## Get other environment variables
-    jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'jBUILD_URL'
-    jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
-    jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
-    jBITBUCKET_PULL_REQUEST_LINK = os.environ['BITBUCKET_PULL_REQUEST_LINK'] if 'BITBUCKET_PULL_REQUEST_LINK' in os.environ else 'jBITBUCKET_PULL_REQUEST_LINK'
-    jBITBUCKET_SOURCE_BRANCH = os.environ['BITBUCKET_SOURCE_BRANCH'] if 'BITBUCKET_SOURCE_BRANCH' in os.environ else 'jBITBUCKET_SOURCE_BRANCH'
+    jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'Unknown URL'
+    jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'Unknown URL'
+    jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'Unknown'
+    jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'Unknown'
+    jBITBUCKET_PULL_REQUEST_LINK = os.environ['BITBUCKET_PULL_REQUEST_LINK'] if 'BITBUCKET_PULL_REQUEST_LINK' in os.environ else 'Unknown URL'
+    jBITBUCKET_SOURCE_BRANCH = os.environ['BITBUCKET_SOURCE_BRANCH'] if 'BITBUCKET_SOURCE_BRANCH' in os.environ else 'Unable to define branch'
 
     ### Building email content ################################################
     html_email_content=''
     html_email_content += 'Pull Request author : <b>{}</b><br>\n'.format(pr_author_name)
     html_email_content += 'Commit Hash         : [{}]<br><br>\n\n'.format(pr_tip_commit_hash)
-    html_email_content += 'Jenkins Log <a href="{}/consoleFull">Build #{}</a> on {}<br>'.format(jBUILD_URL, jBUILD_NUMBER, jJENKINS_SLAVE_OS)
+    html_email_content += 'Jenkins Build Log <a href="{}/consoleFull">Build #{}</a> on {}<br>'.format(jBUILD_URL, jBUILD_NUMBER, jJENKINS_SLAVE_OS)
+    html_email_content += '<a href={}>Pipeline Log</a><br>'.format(jRUN_DISPLAY_URL)
     html_email_content += '<a href={}">Bitbucket</a> Repository <i>{}</i>   b[<b>{}</b>]<br><br><br>'.format(jBITBUCKET_PULL_REQUEST_LINK, source_repo_http, jBITBUCKET_SOURCE_BRANCH)
 
     ## aggregate all test results in debug mode
@@ -249,22 +251,22 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     out_dir = pathlib.Path(args.outdir)
 
     ### Get information from tip commit
-    build_branch = os.environ['GIT_BRANCH'] if 'GIT_BRANCH' in os.environ else 'jGIT_BRANCH'
-    build_repo = os.environ['GIT_URL'] if 'GIT_URL' in os.environ else 'jGIT_URL'
+    build_branch = os.environ['GIT_BRANCH'] if 'GIT_BRANCH' in os.environ else 'Unable to define branch'
+    build_repo = os.environ['GIT_URL'] if 'GIT_URL' in os.environ else 'Unknown URL'
     ## Get other environment variables
-    jBUILD_TRIGGER = os.environ['jBUILD_TRIGGER'] if 'jBUILD_TRIGGER' in os.environ else 'Unknown trigger author'
-    jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'jRUN_DISPLAY_URL'
-    jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
-    jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
-    jTARGET_REPO_HTTP = os.environ['jTARGET_REPO_HTTP'] if 'jTARGET_REPO_HTTP' in os.environ else 'Unknown target repository url'
-    jTARGET_COMMIT = os.environ['jTARGET_COMMIT'] if 'jTARGET_COMMIT' in os.environ else 'Unknown target commit hash'
+    jBUILD_TRIGGER = os.environ['jBUILD_TRIGGER'] if 'jBUILD_TRIGGER' in os.environ else 'Unknown'
+    jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'Unknown URL'
+    jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'Unknown'
+    jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'Unknown'
+    jTARGET_REPO_HTTP = os.environ['jTARGET_REPO_HTTP'] if 'jTARGET_REPO_HTTP' in os.environ else 'Unknown URL'
+    jTARGET_COMMIT = os.environ['jTARGET_COMMIT'] if 'jTARGET_COMMIT' in os.environ else 'Unknown'
 
     ### Building email content ################################################
     html_email_content=''
     html_email_content += '<a href={}>Build #{}</a> triggered by : <i>{}</i><br><br>\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER, jBUILD_TRIGGER)
     html_email_content += 'Branch              : <b>{}</b><br>\n'.format(build_branch)
-    html_email_content += 'Repository          : <b>{}</b><br>\n'.format(jTARGET_REPO_HTTP)
-    html_email_content += 'Commit Hash         : [<b>{}</b>]<br><br>\n\n'.format(jTARGET_COMMIT)
+    html_email_content += 'Repository          : {}<br>\n'.format(jTARGET_REPO_HTTP)
+    html_email_content += 'Commit Hash         : [{}]<br><br>\n\n'.format(jTARGET_COMMIT)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
