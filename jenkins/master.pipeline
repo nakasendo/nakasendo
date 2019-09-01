@@ -46,7 +46,7 @@ stage('Distributed Build') { parallel { // =====================================
 
     stage('Window Build'){ //---------------------------------------------
       agent { label 'slave_vm_win10pro_x64_mvsc2017' }
-      options { skipDefaultCheckout true }
+      options { skipDefaultCheckout true }//TODO add timeout
 
       steps {
         step([$class: 'WsCleanup'])
@@ -100,7 +100,7 @@ stage('Distributed Build') { parallel { // =====================================
 
     stage('Linux Build'){ //---------------------------------------------
       agent { label 'slave_vm_Ubuntu18_x64_gcc730'}
-      options { skipDefaultCheckout true }
+      options { skipDefaultCheckout true }//TODO add timeout
 
       steps {
         step([$class: 'WsCleanup'])

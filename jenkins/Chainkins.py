@@ -201,43 +201,27 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
     pathlib.Path(args.outdir).mkdir(parents=True, exist_ok=True)
     out_dir = pathlib.Path(args.outdir)
 
-    ### Get information from BITBUCKET_PAYLOAD environment variable
-    pr_author_name=''
-    try:
-        pr_author_key_path_str = 'pullrequest:author:display_name'
-        pr_author_name = bitbucketapi.get_BITBUCKET_PAYLOAD_info(pr_author_key_path_str)
-    except OSError:
-        pr_author_name = 'Unknown'
-
-    source_repo_http =''
-    try:
-        source_repo_ssh = bitbucketapi.get_BITBUCKET_PR_source_ssh()
-        source_repo_http = bitbucketapi.transform_git_ssh_to_http(source_repo_ssh)
-    except OSError:
-        source_repo_http = 'Unknown'
-
-    pr_tip_commit_hash =''
-    try:
-        pr_commit_hash_key_path_str = 'pullrequest:source:commit:hash'
-        pr_tip_commit_hash = bitbucketapi.get_BITBUCKET_PAYLOAD_info(pr_commit_hash_key_path_str)
-    except OSError:
-        pr_tip_commit_hash = 'Unknown'
-
-    ## Get other environment variables
+    ## Get environment variables    
+    jPR_BITBUCKET_ACTOR = os.environ['jPR_BITBUCKET_ACTOR'] if 'jPR_BITBUCKET_ACTOR' in os.environ else 'Unknown'
+    jPR_BITBUCKET_TITLE = os.environ['jPR_BITBUCKET_TITLE'] if 'jPR_BITBUCKET_TITLE' in os.environ else 'Unknown'
+    jTARGET_REPO_HTTP = os.environ['jTARGET_REPO_HTTP'] if 'jTARGET_REPO_HTTP' in os.environ else 'Unknown'
+    jTARGET_BRANCH = os.environ['jTARGET_BRANCH'] if 'jTARGET_BRANCH' in os.environ else 'Unknown'
+    jTARGET_COMMIT = os.environ['jTARGET_COMMIT'] if 'jTARGET_COMMIT' in os.environ else 'Unknown'
     jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'Unknown URL'
     jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'Unknown URL'
     jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'Unknown'
-    jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'Unknown'
     jBITBUCKET_PULL_REQUEST_LINK = os.environ['BITBUCKET_PULL_REQUEST_LINK'] if 'BITBUCKET_PULL_REQUEST_LINK' in os.environ else 'Unknown URL'
-    jBITBUCKET_SOURCE_BRANCH = os.environ['BITBUCKET_SOURCE_BRANCH'] if 'BITBUCKET_SOURCE_BRANCH' in os.environ else 'Unable to define branch'
+    jBITBUCKET_PULL_REQUEST_ID = os.environ['BITBUCKET_PULL_REQUEST_ID'] if 'BITBUCKET_PULL_REQUEST_ID' in os.environ else 'N/A'
 
     ### Building email content ################################################
     html_email_content=''
-    html_email_content += 'Pull Request author : <b>{}</b><br>\n'.format(pr_author_name)
-    html_email_content += 'Commit Hash         : [{}]<br><br>\n\n'.format(pr_tip_commit_hash)
-    html_email_content += 'Jenkins Build Log <a href="{}/consoleFull">Build #{}</a> on {}<br>'.format(jBUILD_URL, jBUILD_NUMBER, jJENKINS_SLAVE_OS)
-    html_email_content += '<a href={}>Pipeline Log</a><br>'.format(jRUN_DISPLAY_URL)
-    html_email_content += '<a href={}">Bitbucket</a> Repository <i>{}</i>   b[<b>{}</b>]<br><br><br>'.format(jBITBUCKET_PULL_REQUEST_LINK, source_repo_http, jBITBUCKET_SOURCE_BRANCH)
+    html_email_content += 'Pull Request author : <b>{}</b><br><br>\n\n'.format(jPR_BITBUCKET_ACTOR)
+    html_email_content += 'Source repository : {}<br>\n'.format(jTARGET_REPO_HTTP)
+    html_email_content += 'Source branch : {}<br>\n'.format(jTARGET_BRANCH)
+    html_email_content += 'Source commit : {}<br><br>\n\n'.format(jTARGET_COMMIT)
+
+    html_email_content += 'Code review <a href={}>{}</a><br>\n'.format(jBITBUCKET_PULL_REQUEST_LINK, jBITBUCKET_PULL_REQUEST_ID, jPR_BITBUCKET_TITLE)
+    html_email_content += 'Build log <a href={}>pipeline #{}</a><br><br>\n\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
@@ -246,6 +230,7 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
     test_result_dir_release = pathlib.Path(args.indir_release)
     xml_release = junithelper.get_consolidated_junitxml(test_result_dir_release)
     html_email_content += junithelper.get_consolidated_html(xml_release, xml_debug)
+    html_email_content += '\n<br><a href="{}/consoleFull">build #{} full jenkins log</a><br><br>\n\n'.format(jBUILD_URL, jBUILD_NUMBER)
     out_file = out_dir / 'email.html'
     with out_file.open("w", encoding="utf-8") as f:
         f.write(html_email_content)
@@ -303,11 +288,11 @@ if args.update_bitbucket_build_status is not None and args.update_bitbucket_buil
         parser.print_help()
         sys.exit(2)
     ## create output directory if not exist
-    jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'jBUILD_URL'
+    jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'Unknown URL'
     jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
     jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
     bitbucket_build_status = bitbucketapi.get_bitbucket_status(args.jenkins_status)
-    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.bb_username, args.bb_password, args.target_repo, args.target_commit, jJENKINS_SLAVE_OS, bitbucket_build_status, jBUILD_URL, jBUILD_NUMBER)
+    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.bb_username, args.bb_password, args.target_repo, args.target_commit, jJENKINS_SLAVE_OS, bitbucket_build_status, jRUN_DISPLAY_URL, jBUILD_NUMBER)
 
     response = requests.post(query_url, auth=HTTPBasicAuth(args.bb_username, args.bb_password), headers={'Content-Type': 'application/json'}, data=query_data, verify=False)
     response_str = response.content.decode('utf-8')
