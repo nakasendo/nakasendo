@@ -207,21 +207,22 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
     jTARGET_REPO_HTTP = os.environ['jTARGET_REPO_HTTP'] if 'jTARGET_REPO_HTTP' in os.environ else 'Unknown'
     jTARGET_BRANCH = os.environ['jTARGET_BRANCH'] if 'jTARGET_BRANCH' in os.environ else 'Unknown'
     jTARGET_COMMIT = os.environ['jTARGET_COMMIT'] if 'jTARGET_COMMIT' in os.environ else 'Unknown'
-    jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'Unknown URL'
     jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'Unknown URL'
     jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'Unknown'
     jBITBUCKET_PULL_REQUEST_LINK = os.environ['BITBUCKET_PULL_REQUEST_LINK'] if 'BITBUCKET_PULL_REQUEST_LINK' in os.environ else 'Unknown URL'
     jBITBUCKET_PULL_REQUEST_ID = os.environ['BITBUCKET_PULL_REQUEST_ID'] if 'BITBUCKET_PULL_REQUEST_ID' in os.environ else 'N/A'
+    jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'Unknown URL'
 
     ### Building email content ################################################
     html_email_content=''
     html_email_content += 'Pull Request author : <b>{}</b><br><br>\n\n'.format(jPR_BITBUCKET_ACTOR)
+
+    html_email_content += 'Code review <a href={}>{}</a><br>\n'.format(jBITBUCKET_PULL_REQUEST_LINK, jPR_BITBUCKET_TITLE)
+    html_email_content += 'Build log <a href={}>pipeline #{}</a><br><br>\n\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
+
     html_email_content += 'Source repository : {}<br>\n'.format(jTARGET_REPO_HTTP)
     html_email_content += 'Source branch : {}<br>\n'.format(jTARGET_BRANCH)
-    html_email_content += 'Source commit : {}<br><br>\n\n'.format(jTARGET_COMMIT)
-
-    html_email_content += 'Code review <a href={}>{}</a><br>\n'.format(jBITBUCKET_PULL_REQUEST_LINK, jBITBUCKET_PULL_REQUEST_ID, jPR_BITBUCKET_TITLE)
-    html_email_content += 'Build log <a href={}>pipeline #{}</a><br><br>\n\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
+    html_email_content += 'Source commit : [{}]<br><br>\n\n'.format(jTARGET_COMMIT)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
@@ -230,7 +231,7 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
     test_result_dir_release = pathlib.Path(args.indir_release)
     xml_release = junithelper.get_consolidated_junitxml(test_result_dir_release)
     html_email_content += junithelper.get_consolidated_html(xml_release, xml_debug)
-    html_email_content += '\n<br><a href="{}/consoleFull">build #{} full jenkins log</a><br><br>\n\n'.format(jBUILD_URL, jBUILD_NUMBER)
+    html_email_content += '\n<br><a href="{}/consoleFull">Jenkins full log build #{}</a><br><br>\n\n'.format(jBUILD_URL, jBUILD_NUMBER)
     out_file = out_dir / 'email.html'
     with out_file.open("w", encoding="utf-8") as f:
         f.write(html_email_content)
@@ -256,14 +257,15 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'Unknown'
     jTARGET_REPO_HTTP = os.environ['jTARGET_REPO_HTTP'] if 'jTARGET_REPO_HTTP' in os.environ else 'Unknown URL'
     jTARGET_COMMIT = os.environ['jTARGET_COMMIT'] if 'jTARGET_COMMIT' in os.environ else 'Unknown'
+    jBUILD_URL = os.environ['BUILD_URL'] if 'BUILD_URL' in os.environ else 'Unknown URL'
 
     ### Building email content ################################################
     html_email_content=''
-    html_email_content += 'Build #{} triggered by : <i>{}</i><br><br>\n'.format(jBUILD_NUMBER, jBUILD_TRIGGER)
+    html_email_content += 'Trigger : <i>{}</i><br><br>\n\n'.format(jBUILD_NUMBER, jBUILD_TRIGGER)
     html_email_content += 'Branch              : <b>{}</b><br>\n'.format(jTARGET_BRANCH)
     html_email_content += 'Repository          : {}<br>\n'.format(jTARGET_REPO_HTTP)
     html_email_content += 'Commit Hash         : [{}]<br>\n'.format(jTARGET_COMMIT)
-    html_email_content += '<a href={}>Pipeline Log</a><br><br>\n\n'.format(jRUN_DISPLAY_URL)
+    html_email_content += 'Build log <a href={}>pipeline #{}</a><br><br>\n\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
@@ -272,6 +274,7 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     test_result_dir_release = pathlib.Path(args.indir_release)
     xml_release = junithelper.get_consolidated_junitxml(test_result_dir_release)
     html_email_content += junithelper.get_consolidated_html(xml_release, xml_debug)
+    html_email_content += '\n<br><a href="{}/consoleFull">Jenkins full log build #{}</a><br><br>\n\n'.format(jBUILD_URL, jBUILD_NUMBER)
     out_file = out_dir / 'email.html'
     with out_file.open("w", encoding="utf-8") as f:
         f.write(html_email_content)
