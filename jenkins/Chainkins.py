@@ -222,7 +222,7 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
 
     html_email_content += 'Source repository : {}<br>\n'.format(jTARGET_REPO_HTTP)
     html_email_content += 'Source branch : {}<br>\n'.format(jTARGET_BRANCH)
-    html_email_content += 'Source commit : [{}]<br><br>\n\n'.format(jTARGET_COMMIT)
+    html_email_content += 'Source commit : <a href={}/commits/branch/{}>{}</a><br><br>\n\n'.format(jTARGET_REPO_HTTP,jTARGET_BRANCH,jTARGET_COMMIT)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
@@ -261,10 +261,10 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
 
     ### Building email content ################################################
     html_email_content=''
-    html_email_content += 'Trigger : <i>{}</i><br><br>\n\n'.format(jBUILD_NUMBER, jBUILD_TRIGGER)
+    html_email_content += 'Trigger : <i>{}</i><br><br>\n\n'.format(jBUILD_TRIGGER)
     html_email_content += 'Branch              : <b>{}</b><br>\n'.format(jTARGET_BRANCH)
     html_email_content += 'Repository          : {}<br>\n'.format(jTARGET_REPO_HTTP)
-    html_email_content += 'Commit Hash         : [{}]<br>\n'.format(jTARGET_COMMIT)
+    html_email_content += 'Commit Hash         : <a href={}/commits/branch/{}>{}</a><br>\n'.format(jTARGET_REPO_HTTP,jTARGET_BRANCH,jTARGET_COMMIT)
     html_email_content += 'Build log <a href={}>pipeline #{}</a><br><br>\n\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
 
     ## aggregate all test results in debug mode
@@ -292,10 +292,11 @@ if args.update_bitbucket_build_status is not None and args.update_bitbucket_buil
         sys.exit(2)
     ## create output directory if not exist
     jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'Unknown URL'
+    jJOB_BASE_NAME = os.environ['JOB_BASE_NAME'] if 'JOB_BASE_NAME' in os.environ else 'jJOB_BASE_NAME'
     jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
     jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
     bitbucket_build_status = bitbucketapi.get_bitbucket_status(args.jenkins_status)
-    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.bb_username, args.bb_password, args.target_repo, args.target_commit, jJENKINS_SLAVE_OS, bitbucket_build_status, jRUN_DISPLAY_URL, jBUILD_NUMBER)
+    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.bb_username, args.bb_password, args.target_repo, args.target_commit, bitbucket_build_status, jJENKINS_SLAVE_OS, jJOB_BASE_NAME, jBUILD_NUMBER, jRUN_DISPLAY_URL)
 
     response = requests.post(query_url, auth=HTTPBasicAuth(args.bb_username, args.bb_password), headers={'Content-Type': 'application/json'}, data=query_data, verify=False)
     response_str = response.content.decode('utf-8')
