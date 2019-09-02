@@ -81,7 +81,7 @@ stage('Distributed Build') { parallel { // =====================================
 
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - [${env.jTARGET_BRANCH}-${env.jTARGET_COMMIT_SHORT}] ${env.JENKINS_SLAVE_OS}",
+              subject: "${currentBuild.result} - [${env.jTARGET_BRANCH}/${env.jTARGET_COMMIT_SHORT}] ${env.JENKINS_SLAVE_OS}",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
 
@@ -134,7 +134,7 @@ stage('Distributed Build') { parallel { // =====================================
 
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - [${env.jTARGET_BRANCH}-${env.jTARGET_COMMIT_SHORT}] ${env.JENKINS_SLAVE_OS}",
+              subject: "${currentBuild.result} - [${env.jTARGET_BRANCH}/${env.jTARGET_COMMIT_SHORT}] ${env.JENKINS_SLAVE_OS}",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
 
