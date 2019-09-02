@@ -8,20 +8,19 @@ def polynomialEvaluation(coeffeicients, xValue, mod):
     assert type(polynomialFX) == str, "Test failed"
 
 def test_InitFromList():
-
-    for x in range(1, 100, 10):
+    for x in range(10, 20):
 
         fx = str(x)
-        modulo = str(x + 3)
-        degree = x
+        modulo = str(x + 1)
+        listCoefficients = []
 
-        # Generate list of random coefficients for the polynomial
-        listCoefficients = PyPolynomial.randomPolynomial(degree, modulo)
-        assert len(listCoefficients) == (degree + 1), "Test failed"
+        # Generate random coefficients for the polynomial
+        for i in range(x):
+            listCoefficients.append(str(randint(1, 10)))
 
         # create a Polynomial from a list of coefficients
         allCoeffeicient = PyPolynomial.initFromList(listCoefficients)
-        assert len(allCoeffeicient) == x + 1, "Test failed"
+        assert len(allCoeffeicient) == x, "Test failed"
 
         # Calling evaluate polynomial function
         polynomialEvaluation(listCoefficients, fx, modulo)
