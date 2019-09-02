@@ -137,15 +137,15 @@ def get_BITBUCKET_PR_destination_ssh():
     return destination_repo_ssh
 
 ## Calculate the query url and query data to update the build status
-## The commithash + build_title will be used as the key of the status. Everytime a build status update, it should use this same unique key
-def get_bitbucket_buildstatus_query(username,passwd,http_repo, fullcommithash,build_title,bitbucketstatus, build_title_href = 'https://142.93.35.114', build_id='Jenkins slave'):
+## The commithash + jenkins_jobbase_name + build_title will be used as the key of the status. Everytime a build status update, it should use this same unique key
+def get_bitbucket_buildstatus_query(username,passwd,http_repo, fullcommithash, bitbucketstatus,build_title, jjob_base_name, jbuild_id, build_title_href = 'https://142.93.35.114'):
     if bitbucketstatus not in ['SUCCESSFUL','FAILED','INPROGRESS','STOPPED']:
         raise SyntaxError('Build status {} is not in the list  SUCCESSFUL, FAILED, INPROGRESS, STOPPED'.format(bitbucketstatus))
     full_commit_hash = fullcommithash
     short_commit_hash = full_commit_hash[0:8]
-    query_key = '{}-{}'.format(short_commit_hash, build_title)
+    query_key = '{}-{}-{}'.format(short_commit_hash,jjob_base_name, build_title)
     query_build_name = build_title
-    query_build_description = 'Build #{}'.format(build_id)
+    query_build_description = '{} Build #{}'.format(jjob_base_name,jbuild_id)
     query_json = '{{"state": "{}","key": "{}","name": "{}","url": "{}","description": "{}"}}'.format(bitbucketstatus, query_key, query_build_name, build_title_href, query_build_description)
     rest_api_url = _transform_git_html_to_rest_api_url(http_repo)
     build_status_url = '{}/commit/{}/statuses/build'.format(rest_api_url,fullcommithash)
