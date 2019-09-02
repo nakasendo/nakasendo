@@ -188,8 +188,9 @@ size_t Polynomial::length() const
 
 /* Check Valid
  * Ensure the coefficients array conforms to the non-zero rules
- *       - m_coefficienst[0] must be non-zero and positive
- *       - m_coefficients[size-1] must be non-zero and positive
+ *       - m_coefficients must not be empty
+ *       - m_coefficiens[0] must be non-zero and positive
+ *       - m_coefficients[size-1] must be non-zero
  */
 void Polynomial::checkValid( )
 {
@@ -200,8 +201,13 @@ void Polynomial::checkValid( )
 
     if ( m_coefficients.back( ) == m_zero )
     {
-        throw std::runtime_error( "Polynomial has zero coefficient at the highest degree, returning" ) ;
-    }    
+        throw std::range_error( "Polynomial has zero coefficient at the highest degree, returning" ) ;
+    }
+
+    if ( m_coefficients.front( ) < GenerateOne( ) )
+    {
+        throw std::range_error( "a_0 coefficient should be strictly positive, returning" ) ;
+    }     
 }
 
 /*

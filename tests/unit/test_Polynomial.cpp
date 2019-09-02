@@ -408,6 +408,30 @@ BOOST_AUTO_TEST_CASE( test_polynomial_a_0_zero )
             Polynomial( 3, GenerateZero( ), GenerateZero( ) ),
             std::range_error 
         );
+
+    // create from vector of string
+    std::vector< std::string>  strCoefficients { "0", "3",  "2" } ;
+    BOOST_CHECK_THROW
+        (
+            Polynomial ( strCoefficients, GenerateZero( ) ),
+            std::range_error
+        );
+
+    // create from vector of BigNumber
+    std::vector< BigNumber >    bnCoefficients ;
+
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+        big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }
+
+    BOOST_CHECK_THROW
+    (
+        Polynomial ( bnCoefficients, GenerateZero( ) ),
+        std::range_error
+    ) ;        
 }
 
 // Check a_0 > modulo
@@ -505,7 +529,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
     BOOST_CHECK_THROW
         ( 
             Polynomial poly ( bnCoefficients, GenerateZero( ) ) ,
-            std::runtime_error  
+            std::range_error  
         );         
     
 }
