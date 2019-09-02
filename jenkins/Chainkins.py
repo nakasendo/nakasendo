@@ -296,7 +296,7 @@ if args.update_bitbucket_build_status is not None and args.update_bitbucket_buil
     jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
     jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
     bitbucket_build_status = bitbucketapi.get_bitbucket_status(args.jenkins_status)
-    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.bb_username, args.bb_password, args.target_repo, args.target_commit, bitbucket_build_status, jJENKINS_SLAVE_OS, jJOB_BASE_NAME, jBUILD_NUMBER, jRUN_DISPLAY_URL)
+    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.target_repo, args.target_commit, bitbucket_build_status, jJENKINS_SLAVE_OS, jJOB_BASE_NAME, jBUILD_NUMBER, jRUN_DISPLAY_URL)
 
     response = requests.post(query_url, auth=HTTPBasicAuth(args.bb_username, args.bb_password), headers={'Content-Type': 'application/json'}, data=query_data, verify=False)
     response_str = response.content.decode('utf-8')

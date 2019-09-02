@@ -64,6 +64,7 @@ stage('Distributed Build') { parallel { // =====================================
             // Update bitbucket build status (in process)
             withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
               bat label:"Set bitbucket build status in progress", script:"""
+                python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jPR_BITBUCKET_DESTINATION_REPO_HTTP} --target_commit=${env.jPR_BITBUCKET_DESTINATION_COMMIT} --jenkins_status=NOT_BUILT
                 python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT
               """
             }
@@ -92,6 +93,7 @@ stage('Distributed Build') { parallel { // =====================================
             // Update bitbucket build status
             withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
               bat label:"Update bitbucket build status result", script:"""
+                python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jPR_BITBUCKET_DESTINATION_REPO_HTTP} --target_commit=${env.jPR_BITBUCKET_DESTINATION_COMMIT} --jenkins_status=${currentBuild.result}
                 python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}
               """
             }
@@ -120,6 +122,7 @@ stage('Distributed Build') { parallel { // =====================================
             // Update bitbucket build status (in process)
             withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
               sh label:"Set bitbucket build status in progress", script:"""
+                python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jPR_BITBUCKET_DESTINATION_REPO_HTTP} --target_commit=${env.jPR_BITBUCKET_DESTINATION_COMMIT} --jenkins_status=NOT_BUILT
                 python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT
               """
             }
@@ -148,6 +151,7 @@ stage('Distributed Build') { parallel { // =====================================
             // Update bitbucket build status
             withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
               sh label:"Update bitbucket build status result", script:"""
+                python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jPR_BITBUCKET_DESTINATION_REPO_HTTP} --target_commit=${env.jPR_BITBUCKET_DESTINATION_COMMIT} --jenkins_status=${currentBuild.result}
                 python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}
               """
             }
