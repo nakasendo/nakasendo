@@ -1,12 +1,16 @@
 /*
-  Pipeline setting to trigger build on pull request Created/Updated
-  Once trigger, the build jobs will be delegate to multiple slaves
-  see :
-    https://jenkins.io/doc/pipeline/tour/hello-world/
+   The pipeline for pull request cannot build manually. The only way to trigger it is to create/update a pull request.
+   Bitbucket will trigger a webhook to jenkins, then it will kick off a build
+   If for some reasons another build of the pull request need to run, just change the bitbucket pull request and update,
+   i.e add a random line "kick new build" to the description, it will kick off a new build
 */
+
+// Define a common groovy's tool holder
+def jTools
+
 pipeline {
   agent any
-  options { disableConcurrentBuilds() }
+  options { disableConcurrentBuilds() } // Strangely this option allow the parallel build
 
   /**  Set the build trigger filter using Bitbucket Push And Pull Request Plugin on Created/Updated. To make it work, it need to be 'build now' manually for a first time */
   triggers {
@@ -16,111 +20,144 @@ pipeline {
     ])
   }
 
-  /* 
-     Set additional environment variables from bitbucket pull request hook
-     TODO : find a way to read parameter build so user can build a PR manually
-  */
-  environment {
-    BITBUCKET_PR_SOURCE_REPO="${sh(script:'python jenkins/Chainkins.py --get_pr_source_repository', returnStdout: true)}"
-    BITBUCKET_PR_DESTINATION_REPO="${sh(script:'python jenkins/Chainkins.py --get_pr_destination_repository', returnStdout: true)}"
-    BITBUCKET_PR_ACTOR="${sh(script:'python jenkins/Chainkins.py --get_bbpayload_info --key_path=pullrequest:author:display_name', returnStdout: true)}"
-    BITBUCKET_PR_TITLE="${sh(script:'python jenkins/Chainkins.py --get_bbpayload_info --key_path=pullrequest:title', returnStdout: true)}"
-  }
-
   stages {
-    stage('Environment variable on jenkins master'){
+    // Setting common environment variables for the whole pipeline -----------------------------------------------------------------------
+    stage('MASTER ENV'){
       agent any
       steps {
-        sh 'printenv'
+        script {
+
+          jTools = load("${env.WORKSPACE}/jenkins/jTools.groovy")
+
+          def pr_env_file = "${env.WORKSPACE}/jenkins/pr_env.groovy"
+          jTools.dump_env_pr(pr_env_file)
+          jENV = load(pr_env_file)
+          sh label:"Show env variables", script:"cat ${pr_env_file} ; printenv"
+
+        }
       }
+
+      post { always { deleteDir() } }
     }
 
-    // Build on Windows -----------------------------------------------------
-    stage('Win Build'){
+    // TODO :
+    //   move more code block from here to groovy jTool
+
+
+stage('Distributed Build') { parallel { // =====================================
+
+    stage('Window Build'){ //---------------------------------------------
       agent { label 'slave_vm_win10pro_x64_mvsc2017' }
-      environment {
-        WINDOWS_BUILD_DIR="${env.WORKSPACE+'\\build'}"
-        POSTBUILD_DIR="${env.WORKSPACE+'\\postbuild'}"
-        TESTRESULT_RELEASE_DIR="${env.WINDOWS_BUILD_DIR+'\\x64\\release'}"
-        TESTRESULT_DEBUG_DIR="${env.WINDOWS_BUILD_DIR+'\\x64\\debug'}"
-        TESTRESULT_JUNIT_DIR="${env.WORKSPACE+'\\testresult\\junit'}"
-        TESTRESULT_HTML_DIR="${env.WORKSPACE+'\\testresult\\html'}"
+      options { skipDefaultCheckout true }//TODO add timeout
 
-      }
       steps {
-        bat 'set'
-
-        // Merge pull request -------------------------------------------
         step([$class: 'WsCleanup'])
         checkout scm
-        bat 'git checkout master'
-        bat 'git log -3'
-        bat 'git remote add pr_%BITBUCKET_PULL_REQUEST_ID% %BITBUCKET_PR_SOURCE_REPO%'
-        bat 'git --version'
-        bat 'git fetch pr_%BITBUCKET_PULL_REQUEST_ID% %BITBUCKET_SOURCE_BRANCH%'
-        bat 'git merge pr_%BITBUCKET_PULL_REQUEST_ID%/%BITBUCKET_SOURCE_BRANCH%'
-        bat 'git log -5'
+        script {
+            def windows_env_file = "${env.WORKSPACE}\\jenkins\\windows_env.groovy"
+            jTools.dump_buildenv_windows(windows_env_file)
+            jWINDOWS_ENV = load(windows_env_file)
+            bat label:"Show env variables", script:"type ${windows_env_file} && set"
 
-        /*
-        // Build Release/Debug -------------------------------------------
-        bat 'mkdir %WINDOWS_BUILD_DIR%'
-        bat 'cd %WINDOWS_BUILD_DIR%'
-        bat 'cmake %WORKSPACE% -G"Visual Studio 15 2017" -A x64'
-        bat 'cmake --build . --target ALL_BUILD --config Debug'
-        bat 'cmake --build . --target ALL_BUILD --config Release'
+            jTools.pr_checkout_and_rebase_windows("10")
 
-        // Test Release/Debug -------------------------------------------
-        bat 'ctest --output-on-failure -C Release'
-        bat 'ctest --output-on-failure -C Debug'
+            // Update bitbucket build status (in process)
+            withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
+              bat label:"Set bitbucket build status in progress", script:"""
+                python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT
+              """
+            }
 
-        // Aggregate post build/test results -------------------------------------------
-        bat 'python jenkins/Chainkins.py --consolidate_junit --indir_debug=%TESTRESULT_DEBUG_DIR% --indir_release=%TESTRESULT_RELEASE_DIR% --outdir=%TESTRESULT_JUNIT_DIR%'
-        bat 'python jenkins/Chainkins.py --consolidate_html --indir_debug=%TESTRESULT_DEBUG_DIR% --indir_release=%TESTRESULT_RELEASE_DIR% --outdir=%TESTRESULT_HTML_DIR%'
-        */
+            jTools.build_on_windows()
+            jTools.runtest_on_windows()
+            jTools.pack_on_windows()
+
+        }
+      }
+
+      post {
+        always {
+          script{
+
+            jTools.consolidate_test_on_windows()
+
+            junit "${env.jPOSTBUILD_DIRNAME}/*junit*.xml"
+
+            emailext ( // TODO send html msg to slack sdk channel
+              to: "${env.jEMAIL_TO_SEND}",
+              subject: "${currentBuild.result} - [PR #${env.BITBUCKET_PULL_REQUEST_ID} : ${env.jPR_BITBUCKET_ACTOR}] ${env.JENKINS_SLAVE_OS}",
+              body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
+            )
+
+            // Update bitbucket build status
+            withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
+              bat label:"Update bitbucket build status result", script:"""
+                python %WINDOWS_CHAINKINS_FILE% --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}
+              """
+            }
+
+          }
+        }
       }
     }
 
-    // Build on Linux -----------------------------------------------------
-    stage('Linux build'){
+
+    stage('Linux Build'){ //---------------------------------------------
       agent { label 'slave_vm_Ubuntu18_x64_gcc730'}
-      environment {
-        LINUX_RELEASE_BUILD_DIR="${env.WORKSPACE+'/buildrelease'}"
-        LINUX_DEBUG_BUILD_DIR="${env.WORKSPACE+'/builddebug'}"
-        POSTBUILD_DIR="${env.WORKSPACE+'/postbuild'}"
-        TESTRESULT_RELEASE_DIR="${env.LINUX_RELEASE_BUILD_DIR+'/x64/release'}"
-        TESTRESULT_DEBUG_DIR="${env.LINUX_DEBUG_BUILD_DIR+'/x64/debug'}"
-        TESTRESULT_JUNIT_DIR="${env.WORKSPACE+'/testresult/junit'}"
-        TESTRESULT_HTML_DIR="${env.WORKSPACE+'/testresult/html'}"
-      }
-      steps {
-        sh 'printenv'
+      options { skipDefaultCheckout true }//TODO add timeout
 
-        // Merge pull request -------------------------------------------
+      steps {
         step([$class: 'WsCleanup'])
         checkout scm
-        sh 'git checkout master'
-        sh 'git log -3'
-        sh 'git remote add pr_$BITBUCKET_PULL_REQUEST_ID $BITBUCKET_PR_SOURCE_REPO'
-        sh 'git --version'
-        sh 'git fetch pr_$BITBUCKET_PULL_REQUEST_ID $BITBUCKET_SOURCE_BRANCH'
-        sh 'git merge pr_$BITBUCKET_PULL_REQUEST_ID/$BITBUCKET_SOURCE_BRANCH'
-        sh 'git log -5'
-        /*
-        // Build Release/Debug -------------------------------------------
-        sh 'mkdir $LINUX_RELEASE_BUILD_DIR'
-        sh 'mkdir $LINUX_DEBUG_BUILD_DIR'
-        sh 'cd $LINUX_RELEASE_BUILD_DIR ; cmake .. ; make -j4'
-        sh 'cd $LINUX_DEBUG_BUILD_DIR   ; cmake .. ; make -j4'
+        script {
+            def linux_env_file = "${env.WORKSPACE}/jenkins/linux_env.groovy"
+            jTools.dump_buildenv_linux(linux_env_file)
+            jLINUX_ENV = load(linux_env_file)
+            sh label:"Show env variables", script:"cat ${linux_env_file} ; printenv"
 
-        // Test Release/Debug -------------------------------------------
-        sh 'cd $LINUX_RELEASE_BUILD_DIR ; ctest --output-on-failure'
-        sh 'cd $LINUX_DEBUG_BUILD_DIR   ; ctest --output-on-failure'
+            jTools.pr_checkout_and_rebase_linux("10")
 
-        // Aggregate post build/test results -------------------------------------------
-        sh 'python jenkins/Chainkins.py --consolidate_junit --indir_debug=$TESTRESULT_DEBUG_DIR --indir_release=$TESTRESULT_RELEASE_DIR --outdir=$TESTRESULT_JUNIT_DIR'
-        sh 'python jenkins/Chainkins.py --consolidate_html --indir_debug=$TESTRESULT_DEBUG_DIR --indir_release=$TESTRESULT_RELEASE_DIR --outdir=$TESTRESULT_HTML_DIR'
-         */
+            // Update bitbucket build status (in process)
+            withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
+              sh label:"Set bitbucket build status in progress", script:"""
+                python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=NOT_BUILT
+              """
+            }
+
+            jTools.build_on_linux()
+            jTools.runtest_on_linux()
+            jTools.pack_on_linux()
+
+        }
       }
+
+      post {
+        always {
+          script{
+
+            jTools.consolidate_test_on_linux()
+
+            junit "${env.jPOSTBUILD_DIRNAME}/*junit*.xml"
+
+            emailext ( // TODO send html msg to slack sdk channel
+              to: "${env.jEMAIL_TO_SEND}",
+              subject: "${currentBuild.result} - [PR #${env.BITBUCKET_PULL_REQUEST_ID} : ${env.jPR_BITBUCKET_ACTOR}] ${env.JENKINS_SLAVE_OS}",
+              body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
+            )
+
+            // Update bitbucket build status
+            withCredentials([usernamePassword(credentialsId: 'sdklibraries_bitbucket', usernameVariable: 'SDK_USERNAME', passwordVariable: 'SDK_PASSWORD')]) {
+              sh label:"Update bitbucket build status result", script:"""
+                python $LINUX_CHAINKINS_FILE --update_bitbucket_build_status --bb_username=${SDK_USERNAME} --bb_password=${SDK_PASSWORD} --target_repo=${env.jTARGET_REPO_HTTP} --target_commit=${env.jTARGET_COMMIT} --jenkins_status=${currentBuild.result}
+              """
+            }
+          }
+        }
+      }
+
     }
+
+}} // parallelized stage ========================================================
+
   }
 }
