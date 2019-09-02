@@ -38,7 +38,8 @@ def dump_env_pr(pr_groovy_file) {
     _dump_post_email_info(pr_groovy_file)
 
     sh label : "Dump common env variables for scm", script : """
-        export pr_destination_repo_ssh=\"\$(python jenkins/Chainkins.py --get_pr_source_repository)\"
+        export pr_destination_repo_ssh=\"\$(python jenkins/Chainkins.py --get_pr_destination_repository)\"
+        export pr_destination_commit=\"\$(python jenkins/Chainkins.py --get_bbpayload_info --key_path=pullrequest:destination:commit:hash)\"
         export pr_source_repo_ssh=\"\$(python jenkins/Chainkins.py --get_pr_source_repository)\"
         export pr_source_commit=\"\$(python jenkins/Chainkins.py --get_bbpayload_info --key_path=pullrequest:source:commit:hash)\"
         export pr_source_branch=\"\$(python jenkins/Chainkins.py --get_bbpayload_info --key_path=pullrequest:source:branch:name)\"
@@ -51,7 +52,9 @@ def dump_env_pr(pr_groovy_file) {
         echo env.jTARGET_COMMIT=\\\"\$pr_source_commit\\\">>${pr_groovy_file}
         echo env.jTARGET_COMMIT_SHORT=\\\"\$(python jenkins/Chainkins.py --get_short_hash --git_hash=\$pr_source_commit)\\\">>${pr_groovy_file}
 
-        echo env.jPR_BITBUCKET_SOURCE_REPO=\\\"\$pr_source_repo_ssh\\\">>${pr_groovy_file}
+        echo env.jPR_BITBUCKET_DESTINATION_REPO_HTTP=\\\"\$(python jenkins/Chainkins.py --get_http_repo --ssh_repo=\$pr_destination_repo_ssh)\\\">>${pr_groovy_file}
+        echo env.jPR_BITBUCKET_DESTINATION_COMMIT=\\\"\$pr_destination_commit\\\">>${pr_groovy_file}
+        echo env.jPR_BITBUCKET_SOURCE_REPO_SSH=\\\"\$pr_source_repo_ssh\\\">>${pr_groovy_file}
         echo env.jPR_BITBUCKET_SOURCE_BRANCH=\\\"\$pr_source_branch\\\">>${pr_groovy_file}
         echo env.jPR_BITBUCKET_ACTOR=\\\"\$pr_actor\\\">>${pr_groovy_file}
         echo env.jPR_BITBUCKET_TITLE=\\\"\$pr_title\\\">>${pr_groovy_file}
@@ -77,7 +80,7 @@ def pr_checkout_and_rebase_windows(nb_log = "20"){
     //        In future, need to make it independant of build machine, so need to use sdklibraries credential
     bat label : "Checkout master and rebase on pull request branch", script : """
         git checkout master
-        git remote add pr_$BITBUCKET_PULL_REQUEST_ID $jPR_BITBUCKET_SOURCE_REPO
+        git remote add pr_$BITBUCKET_PULL_REQUEST_ID $jPR_BITBUCKET_SOURCE_REPO_SSH
         git fetch pr_$BITBUCKET_PULL_REQUEST_ID $jPR_BITBUCKET_SOURCE_BRANCH
         git rebase pr_$BITBUCKET_PULL_REQUEST_ID/$jPR_BITBUCKET_SOURCE_BRANCH
         git log -${nb_log}
@@ -145,7 +148,7 @@ def pr_checkout_and_rebase_linux(nb_log = "20"){
     //        In future, need to make it independant of build machine, so need to use sdklibraries credential
     sh label : "Checkout master and rebase on pull request branch", script : """
         git checkout master
-        git remote add pr_$BITBUCKET_PULL_REQUEST_ID $jPR_BITBUCKET_SOURCE_REPO
+        git remote add pr_$BITBUCKET_PULL_REQUEST_ID $jPR_BITBUCKET_SOURCE_REPO_SSH
         git fetch pr_$BITBUCKET_PULL_REQUEST_ID $jPR_BITBUCKET_SOURCE_BRANCH
         git rebase pr_$BITBUCKET_PULL_REQUEST_ID/$jPR_BITBUCKET_SOURCE_BRANCH
         git log -${nb_log}
