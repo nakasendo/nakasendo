@@ -2,6 +2,7 @@
 
 import os, sys
 import json
+import hashlib
 
 """
 Python module helping to parse/build Bitbucket information in order  to deal with BITBUCKET rest api
@@ -56,8 +57,8 @@ def transform_git_ssh_to_http(ssh_url):
 ## Transform the html bitbucket link :
 ## From format : https://bitbucket.org/username/reponame"
 ## TO format   : https://api.bitbucket.org/2.0/repositories/username/reponame"
-def _transform_git_html_to_rest_api_url(html_link):
-    parts = html_link.split('/')
+def transform_git_http_to_rest_api_url(repo_http_url):
+    parts = repo_http_url.split('/')
     if parts and len(parts)>2:
         username = parts[-2]
         reponame = parts[-1]
@@ -81,6 +82,13 @@ def _get_json_data(dict_obj, key_path, key_path_index=0):
             return _get_json_data(dict_obj[request_key], key_path, key_path_index+1)
         else:
             return None
+
+def _hash_buildstatus_key(key_string):
+    key_string_binary = key_string.encode('ascii')
+    hasher = hashlib.sha256()
+    hasher.update(key_string_binary)
+    result = hasher.hexdigest()[0:40]
+    return result
 
 ## Jenkins build status   : SUCCESS    UNSTABLE  ABORTED   FAILURE    NOT_BUILT
 ## Bitbucket build status : SUCCESSFUL           STOPPED   FAILED    INPROGRESS
@@ -138,16 +146,17 @@ def get_BITBUCKET_PR_destination_ssh():
 
 ## Calculate the query url and query data to update the build status
 ## The commithash + jenkins_jobbase_name + build_title will be used as the key of the status. Everytime a build status update, it should use this same unique key
-def get_bitbucket_buildstatus_query(username,passwd,http_repo, fullcommithash, bitbucketstatus,build_title, jjob_base_name, jbuild_id, build_title_href = 'https://142.93.35.114'):
+def get_bitbucket_buildstatus_query(http_repo, fullcommithash, bitbucketstatus,build_title, jjob_base_name, jbuild_id, build_title_href = 'https://142.93.35.114'):
     if bitbucketstatus not in ['SUCCESSFUL','FAILED','INPROGRESS','STOPPED']:
         raise SyntaxError('Build status {} is not in the list  SUCCESSFUL, FAILED, INPROGRESS, STOPPED'.format(bitbucketstatus))
     full_commit_hash = fullcommithash
     short_commit_hash = full_commit_hash[0:8]
-    query_key = '{}-{}-{}'.format(short_commit_hash,jjob_base_name, build_title)
+    query_key_str = '{}-{}-{}'.format(short_commit_hash,jjob_base_name, build_title)
+    query_key = _hash_buildstatus_key(query_key_str)
     query_build_name = build_title
     query_build_description = '{} Build #{}'.format(jjob_base_name,jbuild_id)
     query_json = '{{"state": "{}","key": "{}","name": "{}","url": "{}","description": "{}"}}'.format(bitbucketstatus, query_key, query_build_name, build_title_href, query_build_description)
-    rest_api_url = _transform_git_html_to_rest_api_url(http_repo)
+    rest_api_url = transform_git_http_to_rest_api_url(http_repo)
     build_status_url = '{}/commit/{}/statuses/build'.format(rest_api_url,fullcommithash)
     return build_status_url, query_json
 
@@ -366,12 +375,15 @@ def test_get_bitbucket_buildstatus_query():
     _username='sdklibraries'
     _passwd='sdklibrariespasswd'
     _http_repo = 'https://api.bitbucket.org/cnguyennChain/sdklibraries-chi'
-    _fullcommithash ='7def9c87cb82da65bcf181c259986653a38efa67'
-    _osname = 'Windows 10 pro'
+    _fullcommithash ='08a8f883de1cbda1db0f41c363bf67a961c05fe3'
     _status = 'SUCCESSFUL'
-    query_url, query_data = get_bitbucket_buildstatus_query(_username,_passwd,_http_repo, _fullcommithash,_osname,_status)
+    _build_title = 'Windows 10 pro Test title'
+    _jobnamebase = 'PRO'
+    _build_id = '2019'
+    query_url, query_data = get_bitbucket_buildstatus_query(_http_repo, _fullcommithash, _status,_build_title, _jobnamebase, _build_id)
     print('query_url  [{}]'.format(query_url))
     print('query_data [{}]'.format(query_data))
+    print('Curl query to run\ncurl -u {}:{} -H "Content-Type: application/json" -X POST {} -d \'{}\''.format(_username, _passwd, query_url, query_data))
 
 if __name__ == '__main__':
     test__split_key_path()
