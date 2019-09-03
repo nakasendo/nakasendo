@@ -15,7 +15,11 @@ To be able to build the SDK, users need to install some tools and libraries. In 
 * C++ Compiler : Visual Studio 2017 on windows, g++7 on Linux
 * Boost 1.69.0 to build cpp unit tests
 * OpenSSL 1.1.b. It need to have two versions : one for native C++, other for emcripten
-* EMSDK : 1.38.0 : https://emscripten.org/docs/getting_started/downloads.html
+* EMSDK : 1.38.0 : https://emscripten.org/docs/getting_started/downloads.html. Use install and activate to install components
+    clang
+    emscripten
+    node
+    binaryen (not required  but usefull tools)
 * Python3
     pathlib       usefull
     pytest        to run functional tests
