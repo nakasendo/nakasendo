@@ -180,8 +180,16 @@ static PyObject* wrap_InitFromList(PyObject* self, PyObject *args)
 
     std::vector< std::string > strCoefficients = createVector( obj ) ;
 
-    // create the polynomial from vector of strings
-    Polynomial poly = Polynomial( strCoefficients, GenerateZero( ) ) ;
+    // create the polynomial from vector of BigNumber
+    std::vector< BigNumber >  bnCoefficients ;    
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+        big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }
+
+    Polynomial poly = Polynomial( bnCoefficients, GenerateZero( ) ) ;
    
     return createList(poly) ;
 }
@@ -198,8 +206,17 @@ static PyObject* wrap_InitFromListModulo(PyObject* self, PyObject *args)
     BigNumber modulo ;
     modulo.FromDec( argA ) ;
 
+    // create the polynomial from vector of BigNumber
+    std::vector< BigNumber >  bnCoefficients ;    
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+        big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }    
+
     // create the polynomial from vector of strings, and modulo
-    Polynomial poly = Polynomial( strCoefficients, modulo ) ;
+    Polynomial poly = Polynomial( bnCoefficients, modulo ) ;
     
     return createList(poly) ;
 }
@@ -221,8 +238,17 @@ static PyObject* wrap_Evaluate(PyObject* self, PyObject *args)
     fx.FromDec      ( argA ) ;
     modulo.FromDec  ( argB ) ;
 
+    // create the polynomial from vector of BigNumber
+    std::vector< BigNumber >  bnCoefficients ;    
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+        big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }    
+
    // create the polynomial and evaluate for x
-    Polynomial poly = Polynomial( strCoefficients, modulo ) ;
+    Polynomial poly = Polynomial( bnCoefficients, modulo ) ;
 
     eval = poly( fx ) ;
 
