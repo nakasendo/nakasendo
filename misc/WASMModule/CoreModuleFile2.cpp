@@ -2,7 +2,7 @@
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
 
-#include "CoreModule.hpp"
+#include "CoreModuleFile2.hpp"
 
 struct hex_upper
 {
@@ -35,7 +35,7 @@ std::string helper_sha256_hex(const std::string& crIn)
     return std::move(output);
 }
 
-std::string hash_sha256(const std::string& crIn)
+std::string hash_sha256_2(const std::string& crIn)
 {
     return helper_sha256_hex(crIn);
 }

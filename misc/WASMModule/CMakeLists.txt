@@ -134,8 +134,8 @@ message("-----------------------------  emcc_EXECUTABLE[${emcc_EXECUTABLE}]")
 message("-----------------------------  emar_EXECUTABLE[${emar_EXECUTABLE}]")
 
 ##################### BUILD MODULE LIBRARY
-set(CORE_MODULE_HPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/CoreModule.hpp")
-set(CORE_MODULE_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/CoreModule.cpp")
+set(CORE_MODULE_HPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/CoreModuleFile1.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/CoreModuleFile2.hpp")
+set(CORE_MODULE_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/CoreModuleFile1.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/CoreModuleFile2.cpp")
 set(CORE_MODULE_SOURCE_FILES ${CORE_MODULE_HPP_FILES} ${CORE_MODULE_CPP_FILES})
 
 set(WASM_LIBRARY_TARGET_NAME WASM${MODULE_BASE_NAME})
@@ -145,7 +145,7 @@ add_custom_command(TARGET ${WASM_LIBRARY_TARGET_NAME} PRE_BUILD
                    COMMAND ${emcc_EXECUTABLE}
                    ARGS
                    ${CORE_MODULE_CPP_FILES}
-                   -std=c++11 -Wall -s WASM=0 -s EXPORT_ALL=1
+                   -std=c++11 -Wall
                    -lssl -lcrypto -L${OPENSSL_WASM_ROOT_CMAKE_DIR}/lib
                    -I${CMAKE_CURRENT_SOURCE_DIR} -I${OPENSSL_WASM_ROOT_CMAKE_DIR}/include -I${CMAKE_SOURCE_DIR}/depends/json -I${CMAKE_SOURCE_DIR}/src/core -I${SDK_GENERATED_HPP_DIR}
                    -o ${BITCODE_OUTPUT_FILE}

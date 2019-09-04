@@ -1,14 +1,19 @@
 #include <emscripten/bind.h>
 
 #include <string>
-#include "CoreModule.hpp"
+#include "CoreModuleFile1.hpp"
+#include "CoreModuleFile2.hpp"
 
 
 using namespace emscripten;
 
 
-std::string wasm_hash256(const std::string& crIn){
-    return hash_sha256(crIn);
+std::string wasm_hash256_1(const std::string& crIn){
+    return hash_sha256_1(crIn);
+}
+
+std::string wasm_hash256_2(const std::string& crIn){
+    return hash_sha256_2(crIn);
 }
 
 std::string wasm_say_hello(const std::string& name) {
@@ -22,5 +27,6 @@ float wasm_wrap_lerp(float a, float b, float t) {
 EMSCRIPTEN_BINDINGS(JsModule) {
     function("lerp", &wasm_wrap_lerp);
     function("say_hello", &wasm_say_hello);
-    function("hash_sha256", &wasm_hash256);
+    function("hash_sha256_1", &wasm_hash256_1);
+    function("hash_sha256_2", &wasm_hash256_2);
 }
