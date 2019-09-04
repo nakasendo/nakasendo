@@ -9,6 +9,7 @@ if(NOT BUILD_MISC_ONLY)## Define -DBUILD_MISC_ONLY=ON to build o only prototypes
     message("Missing BUILD_MISC_ONLY")
     message("Define -DBUILD_MISC_ONLY=ON to build o only prototypes in misc")
 else()
+    add_subdirectory(PyThresholdSignature)
     add_subdirectory(WASMModule)
 endif()
 
