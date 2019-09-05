@@ -151,42 +151,143 @@ def verify(msg, pubkey, rval, sval):
     
 
 class Polynomial:
+
     def __init__(self, degree, modulo ):
-        self.degree = degree;
-        self.modulo = modulo;
+        self.degree = degree
+        self.modulo = modulo
         self.coefficients = []
+        self.isDec = True
+
+    @staticmethod
+    def isValidHex (s) :
+        return all(c in string.hexdigits for c in s)
+
+    @staticmethod
+    def isValidDec (s) :
+        return all(c in string.digits for c in s)
 
     @classmethod
-    def initRandom(cls, degree, modulo):
-        obj = cls(degree, modulo)
-        obj.coefficients = PyPolynomial.randomPolynomial(degree, modulo);   
-        return obj
+    def initRandomDec(cls, degree, modulo):
+        if Polynomial.isValidDec( modulo ) :
+            obj = cls(degree, modulo)
+            obj.isDec = True
+            obj.coefficients = PyPolynomial.randomPolynomial(degree, modulo, True);   
+            return obj
+        else :
+            raise Exception( 'modulo is not a valid decimal string.  modulo: {}'.format(modulo) )   
+    
+    @classmethod
+    def initRandomHex(cls, degree, modulo):
+        if Polynomial.isValidHex( modulo ) :
+            obj = cls(degree, modulo)
+            obj.isDec = False
+            obj.coefficients = PyPolynomial.randomPolynomial(degree, modulo, False);   
+            return obj
+        else :
+            raise Exception( 'modulo is not a valid hexadecimal string.  modulo: {}'.format(modulo) )            
 
     @classmethod
-    def initRandomFixed_a_0(cls, degree, modulo, a_0):
-        obj = cls(degree, modulo )
-        obj.coefficients = PyPolynomial.randomPolynomialFixed_a_0 \
-            (degree, modulo, a_0)
-        return obj
+    def initRandomFixed_a_0_Dec(cls, degree, modulo, a_0):
+        if Polynomial.isValidDec( modulo ) and Polynomial.isValidDec( a_0 ) :
+            obj = cls(degree, modulo )
+            obj.isDec = True
+            obj.coefficients = PyPolynomial.randomPolynomialFixed_a_0 \
+                (degree, modulo, a_0, True)
+            return obj
+        else :
+            raise Exception( 'modulo and/or a_0 are not valid decimal strings.  modulo: {0}, a_0 {1}'.format(modulo, a_0)  )
 
     @classmethod
-    def initRandomMinMax(cls, degree, modulo, min, max):
-        obj = cls( degree, modulo )
-        obj.coefficients = PyPolynomial.randomPolynomialMinMax \
-            (degree, modulo, min, max)            
-        return obj
+    def initRandomFixed_a_0_Hex(cls, degree, modulo, a_0):
+        if Polynomial.isValidHex( modulo ) and Polynomial.isValidHex( a_0 ) :
+            obj = cls(degree, modulo )
+            obj.isDec = False
+            obj.coefficients = PyPolynomial.randomPolynomialFixed_a_0 \
+                (degree, modulo, a_0, False)
+            return obj
+        else :
+            raise Exception( 'modulo and/or a_0 are not valid decimal strings.  modulo: {0}, a_0 {1}'.format(modulo, a_0)  )       
 
     @classmethod
-    def initFromList( cls, coeffs ) :
-        obj = cls(len(coeffs), "0") 
-        obj.coefficients = PyPolynomial.initFromList( coeffs ) ;
-        return obj
- 
+    def initRandomMinMaxDec(cls, degree, modulo, min, max):
+        if Polynomial.isValidDec( modulo ) and Polynomial.isValidDec( min ) and Polynomial.isValidDec( max ) :
+            obj = cls( degree, modulo )
+            obj.isDec = True
+            obj.coefficients = PyPolynomial.randomPolynomialMinMax \
+                (degree, modulo, min, max, True)            
+            return obj
+        else :
+            raise Exception( 'modulo and/or min and/or max are not valid decimal strings.  modulo: {}, min: {}, max: {}'.format(modulo, min, max) )            
+
     @classmethod
-    def initFromListModulo( cls, coeffs, modulo ) :
-        obj = cls(len(coeffs), modulo) 
-        obj.coefficients = PyPolynomial.initFromListModulo( coeffs, modulo ) ;
-        return obj
+    def initRandomMinMaxHex(cls, degree, modulo, min, max):
+        if Polynomial.isValidHex( modulo ) and Polynomial.isValidHex( min ) and Polynomial.isValidHex( max ) :
+            obj = cls( degree, modulo )
+            obj.isDec = False
+            obj.coefficients = PyPolynomial.randomPolynomialMinMax \
+                (degree, modulo, min, max, False)            
+            return obj
+        else :
+            raise Exception( 'modulo and/or min and/or max are not valid hexadecimal strings.  modulo: {}, min: {}, max: {}'.format(modulo, min, max) ) 
+
+    @classmethod
+    def initFromListDec( cls, coeffs ) :
+        valid = True 
+        for coefficient in coeffs :
+            if not Polynomial.isValidDec( coefficient ) :
+                valid = False 
+        if valid :
+            obj = cls(len(coeffs)-1, "0") 
+            obj.coefficients = coeffs ; 
+            obj.isDec = True
+            return obj
+        else :
+            raise Exception( 'one (or more) coefficients is not a valid decimal string. coefficients: {}'.format(coeffs) )
+
+    @classmethod
+    def initFromListHex( cls, coeffs ) :
+        valid = True 
+        for coefficient in coeffs :
+            if not Polynomial.isValidHex( coefficient ) :
+                valid = False 
+        if valid :
+            obj = cls(len(coeffs)-1, "0") 
+            obj.coefficients = coeffs ; 
+            obj.isDec = False
+            return obj
+        else :
+            raise Exception( 'one (or more) coefficients is not a valid hexadecimal string. coefficients: {}'.format(coeffs) )
+
+    @classmethod
+    def initFromListModuloDec( cls, coeffs, modulo ) :
+        valid = True 
+        for coefficient in coeffs :
+            if not Polynomial.isValidDec( coefficient ) :
+                valid = False 
+        if valid :
+            obj = cls(len(coeffs)-1, modulo) 
+            obj.coefficients = coeffs ; 
+            obj.isDec = True
+            return obj
+        else :
+            raise Exception( 'one (or more) coefficients is not a valid hexadecimal string. coefficients: {}'.format(coeffs) )
+
+    @classmethod
+    def initFromListModuloHex( cls, coeffs, modulo ) :
+        valid = True 
+        if not Polynomial.isValidHex( modulo ) :
+            valid = False
+        for coefficient in coeffs :
+            if not Polynomial.isValidHex( coefficient ) :
+                valid = False 
+        if valid :
+            obj = cls(len(coeffs)-1, modulo) 
+            obj.coefficients = coeffs ; 
+            obj.isDec = False
+            return obj
+        else :
+            raise Exception( 'one (or more) parameters is not a valid hexadecimal string. coefficients: {}, modulo: {}'.format(coeffs, modulo) )
+
 
     def __str__(self):
         prettyStr = ""
@@ -209,18 +310,28 @@ class Polynomial:
 
 
     def __call__(self, x):
-        return PyPolynomial.evaluate(self.coefficients, x, self.modulo)
+        if self.isDec :
+            if Polynomial.isValidDec( x ) :
+                return PyPolynomial.evaluate(self.coefficients, x, self.modulo, True)
+            else :
+                raise Exception( 'Polynomial is set to be Decicimal, but x is not a valid decimal string: {}'.format(x) )      
+        else :
+            if Polynomial.isValidHex( x ) :
+                return PyPolynomial.evaluate(self.coefficients, x, self.modulo, False)
+            else :
+                raise Exception( 'Polynomial is set to be Hexadecimal, but x is not a valid hexadecimal string: {}'.format(x) )      
 
 class LGInterpolator:
-    def __init__(self, xfx, modulo ):
+    def __init__(self, xfx, modulo, decimal ):
         self.points = xfx
         self.modulo = modulo
+        self.isDec = decimal
 
     def __call__(self, xValue, basisValue=None) :
         if basisValue is None :
-            return PyPolynomial.LGInterpolatorFull( self.points, self.modulo, xValue )
+            return PyPolynomial.LGInterpolatorFull( self.points, self.modulo, xValue, self.isDec )
 
-        return PyPolynomial.LGInterpolatorSingle( self.points, self.modulo, xValue, basisValue)
+        return PyPolynomial.LGInterpolatorSingle( self.points, self.modulo, xValue, basisValue, self.isDec )
         
 
     def __str__(self):
