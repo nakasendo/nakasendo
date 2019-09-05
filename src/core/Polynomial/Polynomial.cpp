@@ -22,29 +22,6 @@ Polynomial::Polynomial
     checkValid( ) ;
 } 
 
-/*
- *  Construct a polynomial from a vector of strings
- *  @param strCoefficients - coeffiecients as vector of strings
- *  @param modulo - the modulo to be applied to the polynomial
- */
-Polynomial::Polynomial
-    ( 
-        std::vector< std::string >& strCoefficients, 
-        const BigNumber& modulo
-    )
-    : m_modulo ( modulo )
-{
-
-    // convert to BigNumber, apply modulo and push back to vector
-    for ( auto & element : strCoefficients )
-    {
-        BigNumber big ;
-	    big.FromDec( element ) ;
-        this->pushBack( big ) ;
-    }
-
-    checkValid( ) ;
-}
 
 /*
  *  Construct Polynomial with random numbers
@@ -54,8 +31,6 @@ Polynomial::Polynomial
 Polynomial::Polynomial( int degree, const BigNumber& modulo ) 
     : m_modulo ( modulo )
 {
-    //<todo> what if mod is negative ?
-    
     // provide defaults for minimum and maximum ranges
     BigNumber min ;
     BigNumber max ;
