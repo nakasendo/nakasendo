@@ -54,7 +54,7 @@ std::vector< std::string > createVector( PyObject* obj )
 
 
 // Create Vector of Pairs from python list 
-std::vector<std::pair<BigNumber, BigNumber> > createVectorPairs( PyObject* obj )
+std::vector<std::pair<BigNumber, BigNumber> > createVectorPairs( PyObject* obj, bool decimal )
 {
     std::vector<std::pair<BigNumber, BigNumber> > tmpVec ;
     
@@ -78,16 +78,24 @@ std::vector<std::pair<BigNumber, BigNumber> > createVectorPairs( PyObject* obj )
             return tmpVec ;
         }
         BigNumber a, b ;
-        a.FromDec( std::to_string( argA ) ) ;
-        b.FromDec( argB ) ;
+        if ( decimal )
+        {
+            a.FromDec( std::to_string( argA ) ) ;
+            b.FromDec( argB ) ;
+        }
+        else
+         {
+            a.FromHex( std::to_string( argA ) ) ;
+            b.FromHex( argB ) ;
+        }           
 
         tmpVec.push_back( std::make_pair( a, b ) ) ;        
     }
     return tmpVec;
 }
 
-// Create python list from Polynomial object
-PyObject * createList(const Polynomial& poly )
+// Create python list from Polynomial object - Dec
+PyObject * createList(const Polynomial& poly, bool decimal )
 {
     int degree = poly.getDegree( ) ;
 
@@ -98,13 +106,25 @@ PyObject * createList(const Polynomial& poly )
     if ( !list )
         return NULL ;
 
-    for (auto i = 0; i < numberCoeffs; ++i  )
+    if ( decimal )
     {
-        std::string  item = poly[i].ToDec() ;
-        PyList_SET_ITEM(list, i, Py_BuildValue("s",item.c_str() ) ) ;
+        for (auto i = 0; i < numberCoeffs; ++i  )
+        {
+            std::string  item = poly[i].ToDec() ;
+            PyList_SET_ITEM(list, i, Py_BuildValue("s",item.c_str() ) ) ;
+        }
+    }
+    else
+    {
+        for (auto i = 0; i < numberCoeffs; ++i  )
+        {
+            std::string  item = poly[i].ToHex() ;
+            PyList_SET_ITEM(list, i, Py_BuildValue("s",item.c_str() ) ) ;
+        }
     }
     return list ;     
 }
+
 
 /***********************************************************
  * Polynomial wrappers
@@ -115,18 +135,26 @@ static PyObject* wrap_RandomPolynomial(PyObject* self, PyObject *args)
 { 
     int degree ;
     char * argB ;
+    int dec ; // decimal (1) or hexadecimal (0)
 
-    if (!PyArg_ParseTuple(args, "is", &degree, &argB ))
+    if (!PyArg_ParseTuple(args, "isi", &degree, &argB, &dec ))
         return NULL;
-
+    
     BigNumber modulo ;
-    modulo.FromDec( argB ) ;
-
+    if ( dec )
+    {    
+        modulo.FromDec( argB ) ;
+    }
+    else
+    {    
+        modulo.FromHex( argB ) ;
+    }
+    
+    
     // construct using degree and modulo 0     
     Polynomial poly = Polynomial( degree, modulo ) ;
 
-    return createList(poly) ;
-
+    return createList(poly, dec) ;
 }
 
 // randomPolynomial with degree, modulo and fixed a_0term 
@@ -135,18 +163,28 @@ static PyObject* wrap_RandomPolynomialFixed_a_0(PyObject* self, PyObject *args)
     int degree ;
     char * argB ;
     char * argC ;
+    int dec ; // decimal (1) or hexadecimal (0)
 
-    if (!PyArg_ParseTuple(args, "iss", &degree, &argB, &argC ))
+    if (!PyArg_ParseTuple(args, "issi", &degree, &argB, &argC, &dec ))
         return NULL;
 
     BigNumber modulo, a_0 ;
-    modulo.FromDec( argB ) ;
-    a_0.FromDec( argC ) ;
+    if ( dec )
+    {
+        modulo.FromDec( argB ) ;
+        a_0.FromDec( argC ) ;
+    }
+    else
+    {
+        modulo.FromHex( argB ) ;
+        a_0.FromHex( argC ) ;
+    }
+    
 
     // construct using degree, modulo and fixed a_0 term  
     Polynomial poly = Polynomial( degree, modulo, a_0 ) ;
 
-    return createList(poly) ;
+    return createList(poly, dec) ;
 }
 
 // randomPolynomial with degree, modulo and fixed a_0term 
@@ -156,52 +194,109 @@ static PyObject* wrap_RandomPolynomialMinMax(PyObject* self, PyObject *args)
     char * argB ;
     char * argC ;
     char * argD ;
+    int dec ; // decimal (1) or hexadecimal (0)    
 
-    if (!PyArg_ParseTuple(args, "isss", &degree, &argB, &argC , &argD))
+    if (!PyArg_ParseTuple(args, "isssi", &degree, &argB, &argC , &argD, &dec))
         return NULL;
 
     BigNumber modulo, min, max ;
-    modulo.FromDec( argB ) ;
-    min.FromDec( argC ) ;
-    max.FromDec( argD ) ;
+    if ( dec )
+    {    
+        modulo.FromDec( argB ) ;
+        min.FromDec( argC ) ;
+        max.FromDec( argD ) ;
+    }
+    else
+    {    
+        modulo.FromHex( argB ) ;
+        min.FromHex( argC ) ;
+        max.FromHex( argD ) ;
+    }
+
 
     // construct using degree, modulo and fixed a_0 term  
     Polynomial poly = Polynomial( degree, modulo, min, max ) ;
 
-    return createList(poly) ;
+    return createList(poly, dec) ;
 }
 
 static PyObject* wrap_InitFromList(PyObject* self, PyObject *args)
 {
     PyObject *obj ;
+    int dec ; // decimal (1) or hexadecimal (0)    
 
-    if ( !PyArg_ParseTuple( args, "O", &obj ) )
+
+    if ( !PyArg_ParseTuple( args, "Oi", &obj, &dec ) )
         return NULL;
 
     std::vector< std::string > strCoefficients = createVector( obj ) ;
 
-    // create the polynomial from vector of strings
-    Polynomial poly = Polynomial( strCoefficients, GenerateZero( ) ) ;
+    // setup vector of BigNumber    
+    std::vector< BigNumber >  bnCoefficients ;  
+    if ( dec )
+    {      
+        for ( auto & element : strCoefficients )
+        {
+            BigNumber big ;
+            big.FromDec( element ) ;
+            bnCoefficients.push_back( std::move( big ) ) ;
+        }
+    }
+    else
+    {      
+        for ( auto & element : strCoefficients )
+        {
+            BigNumber big ;
+            big.FromHex( element ) ;
+            bnCoefficients.push_back( std::move( big ) ) ;
+        }
+    }
+
+    // create the polynomial from vector of BigNumber
+    Polynomial poly = Polynomial( bnCoefficients, GenerateZero( ) ) ;
    
-    return createList(poly) ;
+    return createList(poly, dec) ;
 }
 
 static PyObject* wrap_InitFromListModulo(PyObject* self, PyObject *args)
 {
     PyObject *obj ;
     char * argA ;
+    int dec ; // decimal (1) or hexadecimal (0)
 
-    if ( !PyArg_ParseTuple( args, "Os", &obj, &argA ) )
+    if ( !PyArg_ParseTuple( args, "Osi", &obj, &argA, dec ) )
         return NULL;
 
     std::vector< std::string > strCoefficients = createVector( obj ) ;
     BigNumber modulo ;
-    modulo.FromDec( argA ) ;
+
+    // setup vector of BigNumber    
+    std::vector< BigNumber >  bnCoefficients ;  
+    if ( dec )
+    {
+        modulo.FromDec( argA ) ;      
+        for ( auto & element : strCoefficients )
+        {
+            BigNumber big ;
+            big.FromDec( element ) ;
+            bnCoefficients.push_back( std::move( big ) ) ;
+        }
+    }
+    else
+    {   
+        modulo.FromHex( argA ) ;   
+        for ( auto & element : strCoefficients )
+        {
+            BigNumber big ;
+            big.FromHex( element ) ;
+            bnCoefficients.push_back( std::move( big ) ) ;
+        }
+    }   
 
     // create the polynomial from vector of strings, and modulo
-    Polynomial poly = Polynomial( strCoefficients, modulo ) ;
+    Polynomial poly = Polynomial( bnCoefficients, modulo ) ;
     
-    return createList(poly) ;
+    return createList(poly, dec) ;
 }
 
 
@@ -211,22 +306,50 @@ static PyObject* wrap_Evaluate(PyObject* self, PyObject *args)
     PyObject *obj ;
     char * argA ;
     char * argB ;
+    int dec ;
 
-    if ( !PyArg_ParseTuple( args, "Oss", &obj, &argA, &argB ) )
+    if ( !PyArg_ParseTuple( args, "Ossi", &obj, &argA, &argB, &dec ) )
         return NULL;
 
     std::vector< std::string > strCoefficients = createVector( obj ) ;
  
     BigNumber fx, modulo, eval ;
-    fx.FromDec      ( argA ) ;
-    modulo.FromDec  ( argB ) ;
+
+    // create the polynomial from vector of BigNumber
+    std::vector< BigNumber >  bnCoefficients ;   
+    if ( dec )
+    {
+        fx.FromDec      ( argA ) ;
+        modulo.FromDec  ( argB ) ;  
+        for ( auto & element : strCoefficients )
+        {
+            BigNumber big ;
+            big.FromDec( element ) ;
+            bnCoefficients.push_back( std::move( big ) ) ;
+        }
+    }
+    else
+    {   
+        fx.FromHex      ( argA ) ;
+        modulo.FromHex  ( argB ) ; 
+        for ( auto & element : strCoefficients )
+        {
+            BigNumber big ;
+            big.FromHex( element ) ;
+            bnCoefficients.push_back( std::move( big ) ) ;
+        }
+    }   
+   
 
    // create the polynomial and evaluate for x
-    Polynomial poly = Polynomial( strCoefficients, modulo ) ;
+    Polynomial poly = Polynomial( bnCoefficients, modulo ) ;
 
     eval = poly( fx ) ;
 
-    return Py_BuildValue( "s", eval.ToDec( ).c_str() ) ;
+    if ( dec )
+        return Py_BuildValue( "s", eval.ToDec( ).c_str() ) ;
+    else      
+        return Py_BuildValue( "s", eval.ToHex( ).c_str() ) ;
 }
 
 /***********************************************************
@@ -240,20 +363,34 @@ static PyObject* wrap_LGInterpolatorSingle(PyObject* self, PyObject *args)
     char * argA ;
     char * argB ;
     char * basisPoint ;
+    int dec ;
 
-    if ( !PyArg_ParseTuple( args, "Osss", &obj, &argA, &argB, &basisPoint ) )
+    if ( !PyArg_ParseTuple( args, "Osssi", &obj, &argA, &argB, &basisPoint, &dec ) )
         return NULL;
 
     BigNumber xValue, modulo  ;
-    modulo.FromDec      ( argA ) ;
-    xValue.FromDec      ( argB ) ;
 
-    std::vector<std::pair<BigNumber, BigNumber> > xfx = createVectorPairs( obj ) ;
+    if ( dec )
+    {
+        modulo.FromDec      ( argA ) ;
+        xValue.FromDec      ( argB ) ;
+    }
+    else
+   {
+        modulo.FromHex      ( argA ) ;
+        xValue.FromHex      ( argB ) ;
+   } 
+
+    std::vector<std::pair<BigNumber, BigNumber> > xfx = createVectorPairs( obj, dec ) ;
 
     LGInterpolator lgInterpolator ( xfx, modulo ) ;
     BigNumber val = lgInterpolator( std::stoi(basisPoint), xValue ) ;
 
-    return Py_BuildValue( "s", val.ToDec( ).c_str() ) ;  
+
+    if ( dec )
+        return Py_BuildValue( "s", val.ToDec( ).c_str() ) ;  
+    else
+        return Py_BuildValue( "s", val.ToHex( ).c_str() ) ;  
 }
 
 // LGInterpolator with degree and modulo 
@@ -262,20 +399,32 @@ static PyObject* wrap_LGInterpolatorFull(PyObject* self, PyObject *args)
     PyObject *obj ;
     char * argA ;
     char * argB ;
+    int dec ;
 
-    if ( !PyArg_ParseTuple( args, "Oss", &obj, &argA, &argB ) )
+    if ( !PyArg_ParseTuple( args, "Ossi", &obj, &argA, &argB, &dec ) )
         return NULL;
 
     BigNumber xValue, modulo ;
-    modulo.FromDec( argA ) ;
-    xValue.FromDec( argB ) ;
+    if (dec )
+    {
+        modulo.FromDec      ( argA ) ;
+        xValue.FromDec      ( argB ) ;
+    }
+    else
+   {
+        modulo.FromHex      ( argA ) ;
+        xValue.FromHex      ( argB ) ;
+   }     
 
-    std::vector<std::pair<BigNumber, BigNumber> > xfx = createVectorPairs( obj ) ;
+    std::vector<std::pair<BigNumber, BigNumber> > xfx = createVectorPairs( obj, dec ) ;
 
     LGInterpolator lgInterpolator ( xfx, modulo ) ;
     BigNumber val = lgInterpolator( xValue ) ;
 
-    return Py_BuildValue( "s", val.ToDec( ).c_str() ) ;  
+    if ( dec )
+        return Py_BuildValue( "s", val.ToDec( ).c_str() ) ;  
+    else
+        return Py_BuildValue( "s", val.ToHex( ).c_str() ) ;  
 }
 
 
