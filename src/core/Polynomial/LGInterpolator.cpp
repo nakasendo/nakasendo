@@ -4,6 +4,13 @@
 
 #include "Polynomial/LGInterpolator.h"
 
+
+template<typename T>
+BigNumber evalLi (const int&, const BigNumber&, const T&, const BigNumber&);
+
+template<typename T> 
+int degree (const T& points) { return (points.size() - 1); }
+
 template <typename Iterator>
 bool has_duplicates( Iterator, Iterator );
 
@@ -28,11 +35,11 @@ LGInterpolator::LGInterpolator(const PointsList& points, const BigNumber& modulo
 }
 
 int LGInterpolator::Degree () const { 
-    return degree<PointsList> (m_Points); 
+    return (m_Points.size() - 1);
 }
 
 int LGInterpolator::Length () const {
-    return length<PointsList>(m_Points) ; 
+    return m_Points.size() ; 
 }
 
 
@@ -68,40 +75,6 @@ BigNumber LGInterpolator::operator()(const int& i, const BigNumber& xValue){
     }
     return ( evalLi<PointsList> (i, xValue, m_Points, m_modulo));
 }
-#if 0 
-BigNumber LGInterpolator::evalLi (const int& i, const BigNumber& xValue){
-    BigNumber mul;
-    mul.One();
-    BigNumber testZero;
-    testZero.Zero(); 
-    for(int j=0;j<m_Points.size();++j){
-            if( j!=i){
-                try{
-                    BigNumber BNNumeratorTerm1; BNNumeratorTerm1.Zero(); 
-                    BigNumber BNDenominatorTerm1; BNDenominatorTerm1.One(); 
-                    BigNumber div; div.Zero();  
-                    (m_modulo == testZero) ?  BNNumeratorTerm1 = xValue - m_Points.at(j).first 
-                                            : BNNumeratorTerm1 = Sub_mod( xValue, m_Points.at(j).first, m_modulo);                
-                    (m_modulo == testZero) ?  BNDenominatorTerm1 = m_Points.at(i).first - m_Points.at(j).first
-                                            : BNDenominatorTerm1 = Sub_mod(m_Points.at(i).first, m_Points.at(j).first, m_modulo);
-                    (m_modulo == testZero) ? div =  BNNumeratorTerm1 / BNDenominatorTerm1
-                                            : div = Div_mod(BNNumeratorTerm1,BNDenominatorTerm1,m_modulo);
-                    (m_modulo == testZero) ? mul = mul * div 
-                                            : mul = Mul_mod(mul,div,m_modulo);
-                }
-                catch (std::exception& e){
-                    std::stringstream errStr ; 
-                    errStr << "Exception in interpolation of point: " << xValue.ToHex() << " between " 
-                            << m_Points.at(i).first.ToHex () << " and " << m_Points.at(j).first.ToHex() << "\t" << e.what(); 
-                    
-                    std::runtime_error extraExp ( errStr.str());
-                    throw extraExp; 
-                }
-            }
-    }
-    return mul;
-}
-#endif
 
 std::ostream& operator<<(std::ostream& output, const LGInterpolator& obj){
     for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator testIter = obj.m_Points.begin(); testIter != obj.m_Points.end(); ++ testIter){
@@ -138,11 +111,11 @@ LGECInterpolator::LGECInterpolator(const ECPointsList& points, const BigNumber& 
 }
 
 int LGECInterpolator::Degree () const { 
-    return degree<ECPointsList> (m_Points) ;
+    return (m_Points.size()-1);
 }
 
 int LGECInterpolator::Length () const {
-    return length<ECPointsList> (m_Points);
+    return m_Points.size();
 }
 
 ECPoint LGECInterpolator::operator()(const BigNumber& xValue){

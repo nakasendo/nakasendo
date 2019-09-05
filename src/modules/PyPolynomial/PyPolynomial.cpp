@@ -439,18 +439,17 @@ static PyObject* wrap_LGECInterpolatorFull(PyObject* self, PyObject *args)
         return NULL;
 
     BigNumber xValue, modulo ;
-    modulo.FromDec( argA ) ;
-    xValue.FromDec( argB ) ;
+    modulo.FromHex( argA ) ;
+    xValue.FromHex( argB ) ;
 //////////
     std::vector<std::pair<BigNumber, ECPoint> > tmpVec ;
     
-    PyObject *iter = PyObject_GetIter( obj ) ;
+    PyObject *iter = PyObject_GetIter(obj) ;
 
-    while ( true ) 
+    while (true) 
     {
         PyObject *next = PyIter_Next( iter ) ;
-        if ( !next ) 
-        {
+        if (!next){
             // nothing left in the iterator 
             break;
         }
@@ -458,8 +457,7 @@ static PyObject* wrap_LGECInterpolatorFull(PyObject* self, PyObject *args)
         int argA ;
         char * argB ;
         char * argC ;
-        if ( !PyArg_ParseTuple (next, "iss", &argA, &argB,&argC ) )  
-        {
+        if (!PyArg_ParseTuple (next, "iss", &argA, &argB,&argC )){
             break;
         }
         BigNumber a ;
@@ -476,7 +474,7 @@ static PyObject* wrap_LGECInterpolatorFull(PyObject* self, PyObject *args)
 
 /////////
 
-    LGECInterpolator lgInterpolator ( tmpVec, modulo ) ;
+    LGECInterpolator lgInterpolator (tmpVec, modulo) ;
     ECPoint val = lgInterpolator( xValue ) ;
 
     return Py_BuildValue( "s", val.ToHex( ).c_str() ) ;  

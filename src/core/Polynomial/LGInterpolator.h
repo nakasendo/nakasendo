@@ -14,15 +14,10 @@ using PointsList = std::vector<std::pair<BigNumber, BigNumber> > ;
 
 using ECPointsList = std::vector<std::pair<BigNumber, ECPoint> > ; 
 
-template<typename T>
-BigNumber evalLi (const int&, const BigNumber&, const T&, const BigNumber&);
-
-template<typename T> 
-int degree (const T& points) { return (points.size() - 1); }
-
-template<typename T>
-int length(const T& points) { return (points.size());}
-
+/*
+The LGInterpolator class performs interpolation on a curve made up of (x,y) points
+where x & y are big integers (or in our case BigNumbers)
+*/
 class Polynomial_API LGInterpolator
 {
     friend Polynomial_API std::ostream& operator<<(std::ostream&, const LGInterpolator&);
@@ -35,11 +30,16 @@ class Polynomial_API LGInterpolator
 
 
         int Degree () const ; 
-        int Length () const ; 
+        int Length () const ;            
     private:
         PointsList m_Points ; 
         BigNumber m_modulo;
 };
+
+/*
+The LGECInterpolator class performs interpolation on a curve made up of (x,y) points
+where x is a BigNumber & y is a curve point (in our case an ECPoint type)
+*/
 
 class Polynomial_API LGECInterpolator
 {

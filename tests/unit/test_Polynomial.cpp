@@ -793,25 +793,63 @@ BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_degree_100_mod_SECP256K1CURVE )
      }
 }
 
-BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_degree_100_no_mod )
+
+
+BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_BNInterpolattionMuLG_EQUAL )
 {
-    std::vector<std::pair<BigNumber, ECPoint> > curve; 
-    for (int i = 0; i< 100; ++ i){
-        BigNumber index; 
-        index.FromHex (std::to_string(i));
-        ECPoint pt; 
-        pt.SetRandom (); 
-        curve.push_back ( std::make_pair(index, pt)); 
+
+    int degree = 10;
+    BigNumber mod; 
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<std::pair<BigNumber,BigNumber> > xfx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+    
+    for (int i=0;i<npPoint;++i){
+        BigNumber bn;
+        bn.generateRandHex(); 
+        xfx.push_back(std::pair(bn, poly(bn)));
     }
+    
+    BigNumber xValueAtZero;
+    xValueAtZero.Zero();
+    
+    LGInterpolator interpFunc(xfx, mod);
+    BigNumber InterpolatedAtZero = interpFunc(xValueAtZero);
+    
+    
+    
+    // convert the BNs to ECPoints by multiplying by G
+    
+    std::vector<std::pair<BigNumber,ECPoint> > curve;
+    
+    ECPoint GenPoint; 
+    ECPoint G = GenPoint.getGenerator();
+    
+    for(std::vector<std::pair<BigNumber,BigNumber> >::iterator iter = xfx.begin(); iter != xfx.end(); ++ iter){
+        
+       ECPoint hidden = G.MulHex(iter->second.ToHex(), std::string()); 
+       curve.push_back(std::pair(iter->first, hidden));
+    
+    }
+    
+    LGECInterpolator interpolator ( curve, mod);
+    
+    ECPoint ecPointAtZero = interpolator(xValueAtZero);
 
-    BigNumber mod;
-    LGECInterpolator interpolator ( curve, mod); 
-
-    for(std::vector<std::pair<BigNumber, ECPoint> >::const_iterator testIter = curve.begin(); testIter != curve.end(); ++ testIter){
-        ECPoint TestVal = interpolator(testIter->first);
-        //BOOST_TEST (TestVal== testIter->second);
-     }
+    
+    // multiply bn*G
+    
+    ECPoint bnAtZero = G.MulHex(InterpolatedAtZero.ToHex(), std::string());
+    
+    
+     BOOST_TEST (bnAtZero.ToHex() == ecPointAtZero.ToHex());
+    
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( ) ;
 
