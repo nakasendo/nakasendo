@@ -18,11 +18,11 @@ To be able to build the SDK, users need to install some tools and libraries. In 
 * EMSDK : 1.38.0 : https://emscripten.org/docs/getting_started/downloads.html. Use install and activate to install components
     clang
     emscripten
-    node
+    node (need to install modules mocha, mocha-junit-reporter)
     binaryen (not required  but usefull tools)
 * Python3
     pathlib       usefull
-    pytest        to run functional tests
+    pytest        to run python tests
     junitparser   to combine overall junit test results
     ecdsa         to study elliptic curves
     requests      to send http(s) request to different server api (jenkins/bitbucket)
@@ -50,8 +50,3 @@ cmake ..\SDKLibraries ; time -p make -j8
 ctest            # or make test on linux
 ctest -C Release # On Windows
 ctest -C Debug   # On Windows
-
-## To manually run a single unit test, just run the compiled binary
-## To manually run a single functional test in python :
-##   python test_script.py --data_dir=/absolute/path/to/data/dir --module_dir=/absolute/path/to/PyModules/dir
-
