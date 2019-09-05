@@ -6,7 +6,6 @@
 #include <memory>
 #include <iostream>
 
-
 SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string& msg, const std::string& key,std::string& iv,uint64_t keylen, uint64_t blocksize){
 #if 1
     std::unique_ptr<unsigned char[]> myKey (new unsigned char [key.length()]);
@@ -143,8 +142,12 @@ SYMENCDEC_RETURN_TYPE Decode (const std::string& msg, const std::string& key, co
 #endif
 }
 
-
-SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& iv, uint64_t keylen , uint64_t blocksize){
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string
+#else
+SYMENCDEC_RETURN_TYPE 
+#endif
+GenerateKey256(const std::string& key, const std::string& iv, uint64_t keylen , uint64_t blocksize){
 
     // This assumes that the IV is a hex encoded 16 byte number
 
@@ -176,7 +179,22 @@ SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string& key, const std::string& 
 #endif
 }
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateNounce(const int blocksize){
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE 
+#endif
+GenerateKey256Test(const std::string& key, const std::string& iv,  const int& keylen, const int& blocksize){
+    std::string  retval = GenerateKey256(key, iv, keylen, blocksize); 
+    return retval;
+}
+
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string 
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE 
+#endif
+GenerateNounce(const int blocksize){
 
     std::unique_ptr<unsigned char[]> nounce;
     try{
@@ -189,10 +207,39 @@ SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateNounce(const int blocksize){
     }
     std::string returnNounce = binTohexStr(nounce, 16);
 #ifdef __EMSCRIPTEN__
-    return returnNounce.c_str(); 
+    return returnNounce; 
 #else
     return returnNounce;
 #endif
 
 }
+
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string 
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE 
+#endif
+EncodeFromWASM (const std::string& msg, const std::string& key,const std::string& iv,const int& keylen, const int& blocksize){
+    std::string retVal = Encode(msg, key, iv, keylen, blocksize);
+    return retVal;
+}
+
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string 
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE 
+#endif
+DecodeFromWASM (const std::string& msg, const std::string& key,const std::string& iv,const int& keylen, const int& blocksize){
+    std::string retVal = Decode(msg, key, iv, keylen, blocksize);
+    return retVal;
+}
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_BINDINGS(moduleEncDec) {
+    emscripten::function("GenerateKey256", &GenerateKey256);  
+    emscripten::function("GenerateKey256Test",&GenerateKey256Test);
+    emscripten::function("GenerateNounce", &GenerateNounce);  
+    emscripten::function("EncodeFromWASM",&EncodeFromWASM);
+    emscripten::function("DecodeFromWASM",&DecodeFromWASM);
+}
+#endif
 

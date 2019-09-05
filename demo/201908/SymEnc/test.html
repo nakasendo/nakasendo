@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Symmetric Encoding & Decoding (nouce & key generation)</h2>
+
+
+<p id="demo"></p>
+
+
+<script src="EncodeDecode.js"></script>
+<script async type="text/javascript" src="./nakasendo/CryptoBase.js"></script>
+<script type="text/javascript">
+
+function GenerateNounceOnClick(form){
+    form.OutputNounce.value = GenerateNounceAPI();
+  }
+  
+function GenerateKeyOnClick(form){
+    form.OutputKey.value = GenerateKey256API(form.InputMessage.value, form.OutputNounce.value);
+  }
+  
+function EncryptOnClick(form){
+    form.encoutput.value = ""
+    form.encoutput.value = EncryptMessage(form.InputToEnc.value, form.OutputKey.value, form.OutputNounce.value); 
+}
+
+function DecryptOnClick(form){
+    form.decoutput.value = ""
+    form.decoutput.value = DecryptMessage(form.encoutput.value, form.OutputKey.value, form.OutputNounce.value);
+}
+</script>
+
+<body>
+<FORM>
+<p>
+<h2>Generate a nounce & key</h2>
+<fieldset>
+    <Input NAME="GenNouce" VALUE="GenerateNounce" TYPE=BUTTON onClick=GenerateNounceOnClick(this.form)>
+    <p>
+        <label>Nounce Value</label>
+        <textarea NAME="OutputNounce" rows="2" cols="80" readonly></textarea>
+    </p>
+    <p>
+        <label>Key Input</label>
+        <textarea NAME="InputMessage" rows="2" cols="80">j.murphy@nchain.com</textarea>
+    </p>
+    <Input NAME="GenKey" VALUE="GenerateKey" TYPE=BUTTON onClick=GenerateKeyOnClick(this.form)>
+    <p>
+        <label>Key Value</label>
+        <textarea NAME="OutputKey" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+</p>
+<p>
+<h2>Encrypt & Decrypt with key/nouce pair</h2>
+<fieldset>
+    <p>
+        <label>Message To Encrypt Input</label>
+        <textarea NAME="InputToEnc" rows="3" cols="80">your text input to encrypt here</textarea>
+    </p>
+    <Input NAME="Enc" VALUE="Encrypt" TYPE=BUTTON onClick=EncryptOnClick(this.form)>
+    <p>
+        <label>Encrypted Value</label>
+        <textarea NAME="encoutput" rows="3" cols="80" readonly></textarea>
+    </p>
+    <Input NAME="Dec" VALUE="Decrypt" TYPE=BUTTON onClick=DecryptOnClick(this.form)>
+    <p>
+        <label>Decrypted Value</label>
+        <textarea NAME="decoutput" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+</p>
+</FORM>
+</body>
+

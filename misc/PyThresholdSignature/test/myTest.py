@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
 import sys
-import Polynomial
-import test_Polynomial
 
 import test_Threshold
 import test_ThresholdSignature
@@ -19,7 +17,7 @@ if __name__ == "__main__":
     
     #test_Threshold.test_threshold()
     
-    #test_ThresholdSignature.test_ThresholdSignature()
+    test_ThresholdSignature.test_ThresholdSignature()
     
     test_LagrangeInterpolator.test_interpolation()
     
