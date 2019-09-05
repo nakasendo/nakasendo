@@ -50,8 +50,11 @@ class SymEncDec:
         return '{}, {}, {}'.format(self.pw, self.iv, self.KeyAsHex)
         
 class BigNum:
-    def __init__ (self):
-        self.value = PyBigNumbers.GenerateRandHex(256)
+    def __init__ (self, value=None):
+        if value is None:
+            self.value = PyBigNumbers.GenerateRandHex(256)
+        else:
+            self.value = value
     def __add__(self, obj):
         sumVal = PyBigNumbers.addFromHex(self.value, obj.value) 
         return sumVal ; 
@@ -107,9 +110,24 @@ class ECPoint:
         if(PyECPoint.checkOnCurveFromHexOnCurve(self.value,self.nid)):
             return True
         return False
+        
+    def GetGeneratorPoint(self):
+        genPoint = ECPoint(self.nid)
+        genPoint.value = PyECPoint.GetGenerator(self.value, self.nid);
+        return genPoint
+        
+    def multiplyByGenerator(self, m):
+        GenPoint = self.GetGeneratorPoint();
+        ecPointvalue = GenPoint.multipleScalar(m)
+        return ecPointvalue
+        
     def __str__(self):
         return self.value
-        
+
+def MultiplyByGenerator(m, nid=714):
+    pt = ECPoint(nid)
+    return pt.multiplyByGenerator(m)
+    
         
 class ECKey256K1:
     def __init__ (self):
@@ -332,6 +350,21 @@ class LGInterpolator:
             return PyPolynomial.LGInterpolatorFull( self.points, self.modulo, xValue, self.isDec )
 
         return PyPolynomial.LGInterpolatorSingle( self.points, self.modulo, xValue, basisValue, self.isDec )
+        
+
+    def __str__(self):
+        return "points: {0}, modulo: {1}".format (self.points, self.modulo)
+        
+class LGECInterpolator:
+    def __init__(self, xfx, modulo ):
+        self.points = xfx
+        self.modulo = modulo
+
+    def __call__(self, xValue, basisValue=None) :
+        retval= PyPolynomial.LGECInterpolatorFull(self.points, self.modulo, xValue)
+        retObj = ECPoint()
+        retObj.value = PyPolynomial.LGECInterpolatorFull(self.points, self.modulo, xValue)
+        return retObj
         
 
     def __str__(self):

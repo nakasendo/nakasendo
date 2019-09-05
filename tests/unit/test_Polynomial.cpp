@@ -772,5 +772,46 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_basis )
 
 }
 
+BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_degree_100_mod_SECP256K1CURVE )
+{
+    std::vector<std::pair<BigNumber, ECPoint> > curve; 
+    for (int i = 0; i< 50; ++ i){
+        BigNumber index; 
+        index.FromHex (std::to_string(i));
+        ECPoint pt; 
+        pt.SetRandom (); 
+        curve.push_back ( std::make_pair(index, pt)); 
+    }
+
+    BigNumber mod;
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
+    LGECInterpolator interpolator ( curve, mod); 
+
+    for(std::vector<std::pair<BigNumber, ECPoint> >::iterator testIter = curve.begin(); testIter != curve.end(); ++ testIter){
+        ECPoint TestVal = interpolator(testIter->first);
+        BOOST_TEST (TestVal.ToHex() == testIter->second.ToHex());
+     }
+}
+
+BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_degree_100_no_mod )
+{
+    std::vector<std::pair<BigNumber, ECPoint> > curve; 
+    for (int i = 0; i< 100; ++ i){
+        BigNumber index; 
+        index.FromHex (std::to_string(i));
+        ECPoint pt; 
+        pt.SetRandom (); 
+        curve.push_back ( std::make_pair(index, pt)); 
+    }
+
+    BigNumber mod;
+    LGECInterpolator interpolator ( curve, mod); 
+
+    for(std::vector<std::pair<BigNumber, ECPoint> >::const_iterator testIter = curve.begin(); testIter != curve.end(); ++ testIter){
+        ECPoint TestVal = interpolator(testIter->first);
+        //BOOST_TEST (TestVal== testIter->second);
+     }
+}
+
 BOOST_AUTO_TEST_SUITE_END( ) ;
 

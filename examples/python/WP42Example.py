@@ -46,7 +46,7 @@ if __name__ == "__main__":
     
     
     #Bob
-    newBobKeyPemFormat = AliceKey.derivePrivateKey(msg)
+    newBobKeyPemFormat = BobsKey.derivePrivateKey(msg)
     BobsNewKey = Nakasendo.ECKey256K1()
     BobsNewKey.FromPEMStr(newBobKeyPemFormat)
     
