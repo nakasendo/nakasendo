@@ -9,6 +9,8 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#include <emscripten/bind.h>
+
 #define SYMENCDEC_RETURN_TYPE EMSCRIPTEN_KEEPALIVE const char *
 #define SYMENCDEC_C_API extern "C" SymEncDec_API
 #else
@@ -20,12 +22,43 @@ SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenKeyAndEncode (const std::string&, const
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenKeyAndDecode (const std::string&, const std::string&, const std::string&,uint64_t keylen=32, uint64_t blocksize=16);
 
 
+
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Encode (const std::string&, const std::string&,const std::string&,uint64_t keylen=32, uint64_t blocksize=16);
 SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE Decode (const std::string&, const std::string&, const std::string&,uint64_t keylen=32, uint64_t blocksize=16);
 
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateNounce(const int blocksize=16);
-SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE GenerateKey256(const std::string&, const std::string&,  uint64_t keylen = 32, uint64_t blocksize= 16);
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE 
+#endif
+GenerateNounce(const int blocksize=16);
 
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE 
+#endif
+GenerateKey256(const std::string&, const std::string&,  uint64_t keylen = 32, uint64_t blocksize= 16);
 
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE 
+#endif
+GenerateKey256Test(const std::string&, const std::string&,  const int& keylen = 32, const int& blocksize= 16);
+
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE
+#endif 
+EncodeFromWASM (const std::string&, const std::string&, const std::string&,  const int& keylen = 32, const int& blocksize = 16);
+
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_KEEPALIVE std::string
+#else
+SYMENCDEC_C_API SYMENCDEC_RETURN_TYPE
+#endif 
+DecodeFromWASM (const std::string&, const std::string&, const std::string&,  const int& keylen = 32, const int& blocksize = 16);
 
 #endif /* SYM_ENC_DEC_API_H */

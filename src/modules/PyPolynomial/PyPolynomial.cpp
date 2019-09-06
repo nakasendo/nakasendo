@@ -427,6 +427,59 @@ static PyObject* wrap_LGInterpolatorFull(PyObject* self, PyObject *args)
         return Py_BuildValue( "s", val.ToHex( ).c_str() ) ;  
 }
 
+//
+static PyObject* wrap_LGECInterpolatorFull(PyObject* self, PyObject *args) 
+{ 
+    PyObject *obj ;
+    char * argA ;
+    char * argB ;
+     
+
+    if ( !PyArg_ParseTuple( args, "Oss", &obj, &argA, &argB ) )
+        return NULL;
+
+    BigNumber xValue, modulo ;
+    modulo.FromHex( argA ) ;
+    xValue.FromHex( argB ) ;
+//////////
+    std::vector<std::pair<BigNumber, ECPoint> > tmpVec ;
+    
+    PyObject *iter = PyObject_GetIter(obj) ;
+
+    while (true) 
+    {
+        PyObject *next = PyIter_Next( iter ) ;
+        if (!next){
+            // nothing left in the iterator 
+            break;
+        }
+
+        int argA ;
+        char * argB ;
+        char * argC ;
+        if (!PyArg_ParseTuple (next, "iss", &argA, &argB,&argC )){
+            break;
+        }
+        BigNumber a ;
+        BigNumber y1; 
+        BigNumber y2; 
+
+        a.FromHex( std::to_string( argA ) ) ;
+        y1.FromHex(argB);
+        y2.FromHex(argC);
+        ECPoint b ( y1,y2 ) ;
+
+        tmpVec.push_back( std::make_pair( a, b ) ) ;        
+    }
+
+/////////
+
+    LGECInterpolator lgInterpolator (tmpVec, modulo) ;
+    ECPoint val = lgInterpolator( xValue ) ;
+
+    return Py_BuildValue( "s", val.ToHex( ).c_str() ) ;  
+}
+
 
 /***********************************************************
  * Python glue
@@ -447,6 +500,8 @@ static PyMethodDef ModuleMethods[] =
         "Lagrange Interpolator full evaluation"}, 
     {"LGInterpolatorFull",wrap_LGInterpolatorFull, METH_VARARGS,
         "Lagrange Interpolator for a single point"},         
+    {"LGECInterpolatorFull",wrap_LGECInterpolatorFull, METH_VARARGS,
+        "Lagrange Interpolator for a single point"}, 
     {NULL, NULL, 0, NULL},
 };
  

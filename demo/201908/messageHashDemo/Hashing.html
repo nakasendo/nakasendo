@@ -1,0 +1,212 @@
+<!DOCTYPE HTML>
+<html lang = "en">
+<head>
+<meta charset="utf-8"/>
+<script src="MessageHashAPI.js"></script>
+<script src="./nakasendo/CryptoBase.js"></script>
+<script type="text/javascript">
+  function addFromHexOnClick(form){
+    var argA = form.AddInputArgA.value;
+    var argB = form.AddInputArgB.value;
+    form.addOutput.value = addFromHex(argA, argB);
+  }
+
+    function mulmodFromHexOnClick(form){
+        form.multiplymodOutput.value = MulModHex(form.MulInputArgA.value, form.MulInputArgB.value, form.MulModArg.value);
+    }
+
+  function BNRandomOnClick(form){
+    var argSize = form.GenerateRandomSize.value;
+    form.GenerateRandOutput.value = BNRandom(argSize);
+  }
+
+  function BNRandomWithSeedOnClick(form){
+    var argSize = form.GenerateRandomSizeWithSeed.value;
+    form.GenerateRandOutputWithSeed.value = BNRandomWithSeed(argSize,form.RandomSeed.value);
+  }
+
+  function SHA256Func(form){
+    var argMsg = form.InputMessage.value;
+    form.OutputHash.value = HashMsgSHA256API(argMsg);
+  }
+
+    function b64Func(form){
+        var argMsg = form.InputMessageToEnc.value;
+        form.b64enc.value = "";
+        form.b64enc.value = EncodeBase64(argMsg);
+    }
+
+    function b64DecFunc(form){
+        var argMsg = form.InputMessageToDec.value;
+        form.b64dec.value='';
+        form.b64dec.value = DecodeBase64(argMsg);
+    }
+
+    function b58Func(form){
+        var argMsg = form.InputMessageToEnc58.value;
+        form.b58enc.value="";
+        form.b58enc.value = EncodeBase58(argMsg);
+    }
+
+    function b58DecFunc(form){
+        var argMsg = form.InputMessageToDecBase58.value;
+        form.b58dec.value="";
+        form.b58dec.value = DecodeBase58(argMsg);
+    }
+
+    function b58CheckedFunc(form){
+        var argMsg = form.InputMessageToEnc58Checked.value;
+        form.b58Checkedenc.value="";
+        form.b58Checkedenc.value = EncodeBase58Checked(argMsg);
+    }
+
+    function b58CheckedDecFunc(form){
+        var argMsg = form.InputMessageToDecBase58Checked.value;
+        form.b58Checkeddec.value="";
+        form.b58Checkeddec.value = DecodeBase58Checked(argMsg);
+    }
+
+    function printstr(form){
+        PassStrViaMemory(form.InputMessage.value)
+    }
+
+    function StrConCatBut(form){
+       var retVector = Module['returnVectorData']();
+
+        // vector size
+        var vectorSize = retVector.size();
+
+        // reset vector value
+        retVector.set(vectorSize - 1, 11);
+
+        // push value into vector
+        retVector.push_back(12);
+
+        // retrieve value from the vector
+        for (var i = 0; i < retVector.size(); i++) {
+            console.log("Vector Value: ", retVector.get(i));
+        }
+
+        // expand vector size
+        retVector.resize(20, 1);
+
+        var retMap = Module['returnMapData']();
+
+        // map size
+        var mapSize = retMap.size();
+        console.log("Map Size: ", mapSize); 
+        // retrieve value from map
+        console.log("Map Value: ", retMap.get(10));
+
+        // figure out which map keys are available
+        // NB! You must call `register_vector<key_type>`
+        // to make vectors available
+        //var mapKeys = retMap.keys();
+        
+        //for (var i = 0; i < mapKeys.size(); i++) {
+        //    console.log("Map key/value: ", retVector.get(i), retMap.get(retVector.get(i)));
+        //}
+
+        // reset the value at the given index position
+        retMap.set(10, "OtherValue");
+        console.log("Another call to Map Value: ", retMap.get(10));
+    }
+</script>
+</head>
+<body>
+<FORM>
+<p>
+<h2>Hash a message</h2>
+<fieldset>
+    <legend>Text input</legend>
+    <p>
+        <label>Text Area</label>
+        <textarea NAME="InputMessage" rows="3" cols="80">Your text here</textarea>
+    </p>
+    <Input NAME="SHA256" VALUE="SHA-256" TYPE=BUTTON onClick=SHA256Func(this.form)>
+    <p>
+        <label>SHA Output</label>
+        <textarea NAME="OutputHash" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+<h2>Base64 Encode a message</h2>
+<fieldset>
+    <legend>Text input</legend>
+    <p>
+        <label>Text Area</label>
+        <textarea NAME="InputMessageToEnc" rows="3" cols="80">Your text here</textarea>
+    </p>
+    <Input NAME="Base64ENC" VALUE="Base64 Encode" TYPE=BUTTON onClick=b64Func(this.form)>
+    <p>
+        <label>Base64 Encoded Output</label>
+        <textarea NAME="b64enc" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+<h2>Base64 Decode a message</h2>
+<fieldset>
+    <legend>Text input</legend>
+    <p>
+        <label>Text Area</label>
+        <textarea NAME="InputMessageToDec" rows="3" cols="80">Your text here</textarea>
+    </p>
+    <Input NAME="Base64DEC" VALUE="Base64 Decode" TYPE=BUTTON onClick=b64DecFunc(this.form)>
+    <p>
+        <label>Base64 Decoded Output</label>
+        <textarea NAME="b64dec" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+<h2>Base58 Encoding</h2>
+<fieldset>
+    <legend>Text input</legend>
+ <p>
+        <label>Text Area</label>
+        <textarea NAME="InputMessageToEnc58" rows="3" cols="80">Your text here</textarea>
+    </p>
+    <Input NAME="Base58ENC" VALUE="Base58 Encode" TYPE=BUTTON onClick=b58Func(this.form)>
+    <p>
+        <label>Base58 Encoded Output</label>
+        <textarea NAME="b58enc" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+<h2>Base58 Decode a message</h2>
+<fieldset>
+    <legend>Text input</legend>
+    <p>
+        <label>Text Area</label>
+        <textarea NAME="InputMessageToDecBase58" rows="3" cols="80">Your text here</textarea>
+    </p>
+    <Input NAME="Base58DEC" VALUE="Base58 Decode" TYPE=BUTTON onClick=b58DecFunc(this.form)>
+    <p>
+        <label>Base58 Decoded Output</label>
+        <textarea NAME="b58dec" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+<h2>Base58 Checked Encoding</h2>
+<fieldset>
+    <legend>Text input</legend>
+ <p>
+        <label>Text Area</label>
+        <textarea NAME="InputMessageToEnc58Checked" rows="3" cols="80">Your text here</textarea>
+    </p>
+    <Input NAME="Base58CheckedENC" VALUE="Base58 Encode" TYPE=BUTTON onClick=b58CheckedFunc(this.form)>
+    <p>
+        <label>Base58 CheckedEncoded Output</label>
+        <textarea NAME="b58Checkedenc" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+<h2>Base58 Checked Decode a message</h2>
+<fieldset>
+    <legend>Text input</legend>
+    <p>
+        <label>Text Area</label>
+        <textarea NAME="InputMessageToDecBase58Checked" rows="3" cols="80">Your text here</textarea>
+    </p>
+    <Input NAME="Base58DECChecked" VALUE="Base58 Decode" TYPE=BUTTON onClick=b58CheckedDecFunc(this.form)>
+    <p>
+        <label>Base58 CheckedDecoded Output</label>
+        <textarea NAME="b58Checkeddec" rows="3" cols="80" readonly></textarea>
+    </p>
+</fieldset>
+</FORM>
+</body>
+</html>
