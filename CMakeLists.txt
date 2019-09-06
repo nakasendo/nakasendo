@@ -45,10 +45,15 @@ sdkInitCMake()
 ## Everything in core should be includable from everywhere
 include_directories(${CMAKE_SOURCE_DIR}/src/core)
 include_directories(depends/json)
-add_subdirectory(depends/secp256k1)
-add_subdirectory(src)
-add_subdirectory(tests)
-add_subdirectory(examples)
+
+if(NOT BUILD_MISC_ONLY)## Define -DBUILD_MISC_ONLY=ON to build o only prototypes in misc 
+    add_subdirectory(depends/secp256k1)
+    add_subdirectory(src)
+    add_subdirectory(tests)
+    add_subdirectory(examples)
+else()
+    add_subdirectory(misc)
+endif()
 
 ## On Widows, need to download NSIS https://nsis.sourceforge.io/Download
 ## Possible to do WIX generator for MSI installer
