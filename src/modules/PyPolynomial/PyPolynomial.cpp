@@ -264,9 +264,8 @@ static PyObject* wrap_InitFromListModulo(PyObject* self, PyObject *args)
     char * argA ;
     int dec ; // decimal (1) or hexadecimal (0)
 
-    if ( !PyArg_ParseTuple( args, "Osi", &obj, &argA, dec ) )
+    if ( !PyArg_ParseTuple( args, "Osi", &obj, &argA, &dec ) )
         return NULL;
-
     std::vector< std::string > strCoefficients = createVector( obj ) ;
     BigNumber modulo ;
 
