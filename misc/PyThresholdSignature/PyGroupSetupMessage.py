@@ -89,7 +89,7 @@ class GroupSetupResponseMessage:
         self.ordinal = gpRpMsgDt['ordinal']
 
 
-class GroupBroadMessage(GroupSetupMessage):
+class GroupBroadcastMessage(GroupSetupMessage):
 
     def __init__(self, MsgType = Message.Type.GROUP_SETUP_RESPONSE, uri = None, groupID = None, ordinal = -1, playerInfo = None):
         self.base = MsgType

@@ -1,7 +1,7 @@
 
 from PyUUID import UUID
 import json
-from PyGroupSetupMessage import GroupSetupMessage, GroupSetupResponseMessage, GroupBroadMessage
+from PyGroupSetupMessage import GroupSetupMessage, GroupSetupResponseMessage, GroupBroadcastMessage
 
 
 
@@ -45,7 +45,7 @@ class GroupBuilder:
             self.playerInfo[resMsg.getOrdinal()] = resMsg.getMyUrl()
 
     def getBroadcastSetupMessage(self):
-        bcastMsg = GroupBroadMessage(uri=self.mMyUri, groupID=self.mGroupID, ordinal=self.ordinal, playerInfo=self.playerInfo)
+        bcastMsg = GroupBroadcastMessage(uri=self.mMyUri, groupID=self.mGroupID, ordinal=self.ordinal, playerInfo=self.playerInfo)
         return bcastMsg
 
     def processBroadMessage(self, bcastMsg):

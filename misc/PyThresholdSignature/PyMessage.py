@@ -27,6 +27,7 @@ class Message:
     POOL_BUILDER_SETUP=9
     PRE_SIGNATURE_INTERMEDIARY=10
     POOL_BUILDER_INTERMEDIARY=11
+    PRE_SIGNATURE_INTERMEDIARY_RESPONSE=12
 
   def __init__(self, type = Type.UNKNOWN):
     self.mType = type
@@ -62,7 +63,8 @@ class Message:
       Message.Type.PRE_SIGNATURE_SETUP:"PreSignatureSetup",
       Message.Type.POOL_BUILDER_SETUP:"PoolBuilderSetup",
       Message.Type.PRE_SIGNATURE_INTERMEDIARY:"PreSignatureIntermediary",
-      Message.Type.POOL_BUILDER_INTERMEDIARY:"PoolBuilderIntermediary"
+      Message.Type.POOL_BUILDER_INTERMEDIARY:"PoolBuilderIntermediary",
+      Message.Type.PRE_SIGNATURE_INTERMEDIARY_RESPONSE:"PreSignatureIntermediaryResponse"
     }
     return table
 
