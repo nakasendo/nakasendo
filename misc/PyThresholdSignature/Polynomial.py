@@ -8,6 +8,7 @@
 #################################################################
 import random
 import FiniteGroup
+import ecdsa
 
 """
 Polynomial of degree N is defined an array of (N+1) coefficient
@@ -235,4 +236,35 @@ class LagrangeInterpolator:
             mul *= term
         mul = FiniteGroup.normalize_mod(mul, self.q) if self.q else mul
         return mul
+'''
+def find_inverse(m, n):
+    g, x, y = FiniteGroup._xgcd(m, n)
+    if g == 1:
+        return int(x%n)
+'''
+
+
+class  EC_LagrangeInterpolator:
+
+    def __init__(self, points=None, group_modulo=None):
+        self.s = ecdsa.ellipticcurve.INFINITY
+
+        self.points = []
+        if points:
+            self.points=points
+        self.numPoints = len(self.points)
+        self.modulo = group_modulo
+
+    def __call__(self, x):
+        for i in range(self.numPoints):
+            x_i = int(self.points[i][0])
+            #s_i_str = self.points[i][1].replace("(","").replace(")","").split(",")
+            s_i = ecdsa.ellipticcurve.Point(FiniteGroup.curve_secp256k1, int(self.points[i][1].x()), int(self.points[i][1].y()))
+            for j in range (self.numPoints):
+                if j != i:
+                    x_j = int(self.points[j][0])
+                    scalar_temp = int(((x - x_j-1) * FiniteGroup.inv_mod(x_i-x_j+self.modulo, self.modulo)) % self.modulo)
+                    s_i = scalar_temp * s_i
+            self.s = self.s + s_i
+        return self.s
 

@@ -41,10 +41,8 @@ class PlayerMap:
         return self
 
     def __next__(self):
-
         if (self.currentCount + 1 > self.count):
             raise StopIteration
-            
         else:
             self.currentCount += 1
             return self.items[self.currentCount - 1]

@@ -8,10 +8,21 @@
 #################################################################
 import random
 import hashlib
+import ecdsa
+
 """
 A finite group is defined by equivalent relation (modulo in our case)
 It is defined by a class modulo p and a group order n.
 """
+_p = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
+_r = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+_b = 0x0000000000000000000000000000000000000000000000000000000000000007
+_a = 0x0000000000000000000000000000000000000000000000000000000000000000
+_Gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798
+_Gy = 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8
+curve_secp256k1 = ecdsa.ellipticcurve.CurveFp(_p, _a, _b)
+generator_secp256k1 = ecdsa.ellipticcurve.Point(curve_secp256k1, _Gx, _Gy, _r)
+
 
 def _xgcd(a, b):
     """https://en.wikibooks.org/wiki/Algorithm_Implementation/Mathematics/Extended_Euclidean_algorithm"""
@@ -90,3 +101,22 @@ def hash_mod(msg_str, p):
     digest = hashed.hexdigest()
     res = int(digest,16)
     return normalize_mod(res,p) if p is not None else res
+
+def ec_sig_verify(msg, pubKey, r_input, s_input):
+    e = hashlib.sha256(msg)
+    e = e.hexdigest()
+    p = int(str(_r),0)
+    e = int(e,16)
+    w = inv_mod(s_input, p)
+    u1 = (e*w)%p
+    u2 = (r_input*w)%p
+    point_1 = u1*generator_secp256k1
+    point_2 = u2*pubKey
+    point_3 = point_1 + point_2
+    x_3 = int(point_3.x())
+   # print("The verification gives a value of ", x_3)
+    if x_3 == r_input:
+        print("\nThe signature is valid.")
+    else:
+        print("\nThe signarue in INVALID.")
+
