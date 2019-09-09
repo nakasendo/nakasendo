@@ -86,7 +86,7 @@ stage('Distributed Build') { parallel { // =====================================
 
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - [PR #${env.BITBUCKET_PULL_REQUEST_ID}/${env.jPR_BITBUCKET_ACTOR}] ${env.JENKINS_SLAVE_OS}",
+              subject: "${currentBuild.result} __pr# ${env.BITBUCKET_PULL_REQUEST_ID} ${env.jPR_BITBUCKET_ACTOR} [${env.JENKINS_SLAVE_OS}]",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
 
@@ -144,7 +144,7 @@ stage('Distributed Build') { parallel { // =====================================
 
             emailext ( // TODO send html msg to slack sdk channel
               to: "${env.jEMAIL_TO_SEND}",
-              subject: "${currentBuild.result} - [PR #${env.BITBUCKET_PULL_REQUEST_ID}/${env.jPR_BITBUCKET_ACTOR}] ${env.JENKINS_SLAVE_OS}",
+              subject: "${currentBuild.result} __pr# ${env.BITBUCKET_PULL_REQUEST_ID} ${env.jPR_BITBUCKET_ACTOR} [${env.JENKINS_SLAVE_OS}]",
               body: '${FILE,path="buildpost/email.html"}' // TODO : use generic env instead of hardcoded buildpost
             )
 
