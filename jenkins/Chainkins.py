@@ -259,7 +259,7 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
 
     ### Building email content ################################################
     html_email_content=''
-    html_email_content += 'Build branch {<b>{}</b>} triggered by : <i>{}</i><br><br>\n\n'.format(jTARGET_BRANCH, jBUILD_TRIGGER)
+    html_email_content += 'Build branch [<b>{}</b>] triggered by : <i>{}</i><br><br>\n\n'.format(jTARGET_BRANCH, jBUILD_TRIGGER)
     html_email_content += 'Build log <a href={}>pipeline #{}</a><br>\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
     html_email_content += 'Commit : <a href={}/commits/branch/{}>{}</a><br><br>\n\n'.format(jTARGET_REPO_HTTP,jTARGET_BRANCH,jTARGET_COMMIT)
 
