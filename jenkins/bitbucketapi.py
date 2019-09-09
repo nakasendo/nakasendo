@@ -83,13 +83,6 @@ def _get_json_data(dict_obj, key_path, key_path_index=0):
         else:
             return None
 
-def _hash_buildstatus_key(key_string):
-    key_string_binary = key_string.encode('ascii')
-    hasher = hashlib.sha256()
-    hasher.update(key_string_binary)
-    result = hasher.hexdigest()[0:40]
-    return result
-
 ## Jenkins build status   : SUCCESS    UNSTABLE  ABORTED   FAILURE    NOT_BUILT
 ## Bitbucket build status : SUCCESSFUL           STOPPED   FAILED    INPROGRESS
 def get_bitbucket_status(jenkins_build_status):
@@ -144,24 +137,21 @@ def get_BITBUCKET_PR_destination_ssh():
         raise Exception("Error get_BITBUCKET_PR_destination_ssh")
     return destination_repo_ssh
 
-## Calculate the query url and query data to update the build status
-## The commithash + jenkins_jobbase_name + build_title will be used as the key of the status. Everytime a build status update, it should use this same unique key
-def get_bitbucket_buildstatus_query(http_repo, fullcommithash, bitbucketstatus,build_title, jjob_base_name, jbuild_id, build_title_href = 'https://142.93.35.114'):
-    if bitbucketstatus not in ['SUCCESSFUL','FAILED','INPROGRESS','STOPPED']:
-        raise SyntaxError('Build status {} is not in the list  SUCCESSFUL, FAILED, INPROGRESS, STOPPED'.format(bitbucketstatus))
-    full_commit_hash = fullcommithash
-    short_commit_hash = full_commit_hash[0:8]
-    query_key_str = '{}-{}-{}'.format(short_commit_hash,jjob_base_name, build_title)
-    query_key = _hash_buildstatus_key(query_key_str)
-    query_build_name = build_title
-    query_build_description = '{} Build #{}'.format(jjob_base_name,jbuild_id)
-    query_json = '{{"state": "{}","key": "{}","name": "{}","url": "{}","description": "{}"}}'.format(bitbucketstatus, query_key, query_build_name, build_title_href, query_build_description)
+## Bitbucket build status take max 40 chars to uniquely define the build UUID. hash it is a way to get the unique short string
+def hash_bb_buildstatus_key(key_string):
+    key_string_binary = key_string.encode('ascii')
+    hasher = hashlib.sha256()
+    hasher.update(key_string_binary)
+    result = hasher.hexdigest()[0:40]
+    return result
+
+def get_bitbucket_buildstatus_query(http_repo, fullcommithash, query_key, bb_status, bb_name, bb_href, bb_desc):
+    if bb_status not in ['SUCCESSFUL','FAILED','INPROGRESS','STOPPED']:
+        raise SyntaxError('Build status {} is not in the list  SUCCESSFUL, FAILED, INPROGRESS, STOPPED'.format(bb_status))
+    query_json = '{{"state": "{}","key": "{}","name": "{}","url": "{}","description": "{}"}}'.format(bb_status, query_key, bb_name, bb_href, bb_desc)
     rest_api_url = transform_git_http_to_rest_api_url(http_repo)
     build_status_url = '{}/commit/{}/statuses/build'.format(rest_api_url,fullcommithash)
     return build_status_url, query_json
-
-
-
 
 
 
