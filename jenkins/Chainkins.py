@@ -216,13 +216,8 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
     ### Building email content ################################################
     html_email_content=''
     html_email_content += 'Pull Request author : <b>{}</b><br><br>\n\n'.format(jPR_BITBUCKET_ACTOR)
-
     html_email_content += 'Code review <a href={}>{}</a><br>\n'.format(jBITBUCKET_PULL_REQUEST_LINK, jPR_BITBUCKET_TITLE)
     html_email_content += 'Build log <a href={}>pipeline #{}</a><br><br>\n\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
-
-    html_email_content += 'Source repository : {}<br>\n'.format(jTARGET_REPO_HTTP)
-    html_email_content += 'Source branch : {}<br>\n'.format(jTARGET_BRANCH)
-    html_email_content += 'Source commit : <a href={}/commits/branch/{}>{}</a><br><br>\n\n'.format(jTARGET_REPO_HTTP,jTARGET_BRANCH,jTARGET_COMMIT)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
@@ -231,7 +226,10 @@ if args.dump_pr_email_html is not None and args.dump_pr_email_html:
     test_result_dir_release = pathlib.Path(args.indir_release)
     xml_release = junithelper.get_consolidated_junitxml(test_result_dir_release)
     html_email_content += junithelper.get_consolidated_html(xml_release, xml_debug)
-    html_email_content += '\n<br><a href="{}/consoleFull">Jenkins full log build #{}</a><br><br>\n\n'.format(jBUILD_URL, jBUILD_NUMBER)
+    html_email_content += '<br>\nSource repository : {}<br>\n'.format(jTARGET_REPO_HTTP)
+    html_email_content += 'Source branch : {}<br>\n'.format(jTARGET_BRANCH)
+    html_email_content += 'Source commit : <a href={}/commits/branch/{}>{}</a><br>\n'.format(jTARGET_REPO_HTTP,jTARGET_BRANCH,jTARGET_COMMIT)
+    html_email_content += '<a href="{}/consoleFull">Jenkins full log build #{}</a><br><br>\n\n'.format(jBUILD_URL, jBUILD_NUMBER)
     out_file = out_dir / 'email.html'
     with out_file.open("w", encoding="utf-8") as f:
         f.write(html_email_content)
@@ -261,11 +259,9 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
 
     ### Building email content ################################################
     html_email_content=''
-    html_email_content += 'Trigger : <i>{}</i><br><br>\n\n'.format(jBUILD_TRIGGER)
-    html_email_content += 'Branch              : <b>{}</b><br>\n'.format(jTARGET_BRANCH)
-    html_email_content += 'Repository          : {}<br>\n'.format(jTARGET_REPO_HTTP)
-    html_email_content += 'Commit Hash         : <a href={}/commits/branch/{}>{}</a><br>\n'.format(jTARGET_REPO_HTTP,jTARGET_BRANCH,jTARGET_COMMIT)
-    html_email_content += 'Build log <a href={}>pipeline #{}</a><br><br>\n\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
+    html_email_content += 'Build branch [<b>{}</b>] triggered by : <i>{}</i><br><br>\n\n'.format(jTARGET_BRANCH, jBUILD_TRIGGER)
+    html_email_content += 'Build log <a href={}>pipeline #{}</a><br>\n'.format(jRUN_DISPLAY_URL, jBUILD_NUMBER)
+    html_email_content += 'Commit : <a href={}/commits/branch/{}>{}</a><br><br>\n\n'.format(jTARGET_REPO_HTTP,jTARGET_BRANCH,jTARGET_COMMIT)
 
     ## aggregate all test results in debug mode
     test_result_dir_debug = pathlib.Path(args.indir_debug)
@@ -274,7 +270,9 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     test_result_dir_release = pathlib.Path(args.indir_release)
     xml_release = junithelper.get_consolidated_junitxml(test_result_dir_release)
     html_email_content += junithelper.get_consolidated_html(xml_release, xml_debug)
-    html_email_content += '\n<br><a href="{}/consoleFull">Jenkins full log build #{}</a><br><br>\n\n'.format(jBUILD_URL, jBUILD_NUMBER)
+    html_email_content += '\n<br>Repository          : {}<br>\n'.format(jTARGET_REPO_HTTP)
+    html_email_content += 'Commit Hash         : <a href={}/commits/branch/{}>{}</a><br>\n'.format(jTARGET_REPO_HTTP,jTARGET_BRANCH,jTARGET_COMMIT)
+    html_email_content += '<a href="{}/consoleFull">Jenkins full log build #{}</a><br><br>\n\n'.format(jBUILD_URL, jBUILD_NUMBER)
     out_file = out_dir / 'email.html'
     with out_file.open("w", encoding="utf-8") as f:
         f.write(html_email_content)
@@ -290,13 +288,39 @@ if args.update_bitbucket_build_status is not None and args.update_bitbucket_buil
         print('Update bitbucket build status requires --bb_username --bb_password --target_repo --target_commit --jenkins_status')
         parser.print_help()
         sys.exit(2)
+
     ## create output directory if not exist
     jRUN_DISPLAY_URL = os.environ['RUN_DISPLAY_URL'] if 'RUN_DISPLAY_URL' in os.environ else 'Unknown URL'
-    jJOB_BASE_NAME = os.environ['JOB_BASE_NAME'] if 'JOB_BASE_NAME' in os.environ else 'jJOB_BASE_NAME'
-    jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'jBUILD_NUMBER'
-    jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'jJENKINS_SLAVE_OS'
-    bitbucket_build_status = bitbucketapi.get_bitbucket_status(args.jenkins_status)
-    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.target_repo, args.target_commit, bitbucket_build_status, jJENKINS_SLAVE_OS, jJOB_BASE_NAME, jBUILD_NUMBER, jRUN_DISPLAY_URL)
+    jJOB_BASE_NAME = os.environ['JOB_BASE_NAME'] if 'JOB_BASE_NAME' in os.environ else 'Unknown'
+    jBUILD_NUMBER = os.environ['BUILD_NUMBER'] if 'BUILD_NUMBER' in os.environ else 'Unknown'
+    jJENKINS_SLAVE_OS = os.environ['JENKINS_SLAVE_OS'] if 'JENKINS_SLAVE_OS' in os.environ else 'Unknown Build OS'
+    jTARGET_BRANCH = os.environ['jTARGET_BRANCH'] if 'jTARGET_BRANCH' in os.environ else 'Unknown'
+    jPR_BITBUCKET_TITLE = os.environ['jPR_BITBUCKET_TITLE'] if 'jPR_BITBUCKET_TITLE' in os.environ else 'unknown pull request'
+    jBITBUCKET_PULL_REQUEST_LINK = os.environ['BITBUCKET_PULL_REQUEST_LINK'] if 'BITBUCKET_PULL_REQUEST_LINK' in os.environ else jRUN_DISPLAY_URL
+
+    ## Unique id for a build is the commit hash+ job_base_name + os name
+    long_query_key_str = '{}-{}-{}'.format(args.target_commit, jJOB_BASE_NAME, jJENKINS_SLAVE_OS)
+    query_key = bitbucketapi.hash_bb_buildstatus_key(long_query_key_str)
+    query_status=''
+    query_name = ''
+    query_href = ''
+    query_desc = ''
+    if 'BITBUCKET_PULL_REQUEST_ID' in os.environ: ## This is a pull request build
+        pr_id = os.environ['BITBUCKET_PULL_REQUEST_ID']
+        query_name = '__pr#{} : {}'.format(pr_id, jPR_BITBUCKET_TITLE)
+        query_href = jBITBUCKET_PULL_REQUEST_LINK
+        query_desc = '{} build #{} on {}'.format(jJOB_BASE_NAME, jBUILD_NUMBER, jJENKINS_SLAVE_OS)
+    else:
+        query_name = '{} {}'.format(jJOB_BASE_NAME, jJENKINS_SLAVE_OS)
+        query_href = jRUN_DISPLAY_URL
+        query_desc = 'Build #{} branch [{}]'.format(jBUILD_NUMBER,jTARGET_BRANCH)
+        if 'jBUILD_TRIGGER' in os.environ and 'Bitbucket' not in os.environ['jBUILD_TRIGGER']:## build on main repo that's triggered manually
+            query_desc +=' - triggered by {}'.format(os.environ['jBUILD_TRIGGER'])
+
+    query_status = bitbucketapi.get_bitbucket_status(args.jenkins_status) ## get bitbucket status from jenkins status
+
+    ## get_bitbucket_buildstatus_query(http_repo, fullcommithash, query_key, bb_status, bb_name, bb_href, bb_desc):
+    query_url, query_data = bitbucketapi.get_bitbucket_buildstatus_query(args.target_repo, args.target_commit, query_key, query_status, query_name, query_href, query_desc)
 
     response = requests.post(query_url, auth=HTTPBasicAuth(args.bb_username, args.bb_password), headers={'Content-Type': 'application/json'}, data=query_data, verify=False)
     response_str = response.content.decode('utf-8')
