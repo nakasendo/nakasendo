@@ -22,29 +22,6 @@ Polynomial::Polynomial
     checkValid( ) ;
 } 
 
-/*
- *  Construct a polynomial from a vector of strings
- *  @param strCoefficients - coeffiecients as vector of strings
- *  @param modulo - the modulo to be applied to the polynomial
- */
-Polynomial::Polynomial
-    ( 
-        std::vector< std::string >& strCoefficients, 
-        const BigNumber& modulo
-    )
-    : m_modulo ( modulo )
-{
-
-    // convert to BigNumber, apply modulo and push back to vector
-    for ( auto & element : strCoefficients )
-    {
-        BigNumber big ;
-	    big.FromDec( element ) ;
-        this->pushBack( big ) ;
-    }
-
-    checkValid( ) ;
-}
 
 /*
  *  Construct Polynomial with random numbers
@@ -54,8 +31,6 @@ Polynomial::Polynomial
 Polynomial::Polynomial( int degree, const BigNumber& modulo ) 
     : m_modulo ( modulo )
 {
-    //<todo> what if mod is negative ?
-    
     // provide defaults for minimum and maximum ranges
     BigNumber min ;
     BigNumber max ;
@@ -188,8 +163,9 @@ size_t Polynomial::length() const
 
 /* Check Valid
  * Ensure the coefficients array conforms to the non-zero rules
- *       - m_coefficienst[0] must be non-zero and positive
- *       - m_coefficients[size-1] must be non-zero and positive
+ *       - m_coefficients must not be empty
+ *       - m_coefficiens[0] must be non-zero and positive
+ *       - m_coefficients[size-1] must be non-zero
  */
 void Polynomial::checkValid( )
 {
@@ -200,8 +176,13 @@ void Polynomial::checkValid( )
 
     if ( m_coefficients.back( ) == m_zero )
     {
-        throw std::runtime_error( "Polynomial has zero coefficient at the highest degree, returning" ) ;
-    }    
+        throw std::range_error( "Polynomial has zero coefficient at the highest degree, returning" ) ;
+    }
+
+    if ( m_coefficients.front( ) < GenerateOne( ) )
+    {
+        throw std::range_error( "a_0 coefficient should be strictly positive, returning" ) ;
+    }     
 }
 
 /*

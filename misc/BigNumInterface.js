@@ -5,14 +5,15 @@ function BNRandom(argSize)
   //var rand = BNRandFunc(argSize);
   //return rand;
 
-     var outputVec =Module['BNRandomHexEx'](parseInt(argSize)); 
-    strRes = ""
+    var outputVec =Module['BNRandomHexEx'](parseInt(argSize)); 
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
     return strRes;    
         
 }
+
 
 function BNRandomWithSeed(argSize, seedarg){
   //const BNRandWithSeedFunc = Module.cwrap('BNRandomHexWithSeed','string',['string','number']);
@@ -29,8 +30,8 @@ function BNRandomWithSeed(argSize, seedarg){
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
     return strRes;    
 }
 
@@ -59,23 +60,140 @@ function addFromHex (arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['addFromHexEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
     return strRes;
 }
 
 
+function subFromHex (arga, argb)
+{
+  //const addFromHexFunc = Module.cwrap('addFromHex','string',['string','string']);
+  //var res = addFromHexFunc(arga, argb);
+  //return res; 
+    var bufa = new ArrayBuffer(arga.length);
+    var bufview8a = new Uint8Array(bufa); 
+    for( var i=0,strLen=arga.length; i < strLen; i++){
+        bufview8a[i] = arga.charCodeAt(i); 
+    } 
+    var bufb = new ArrayBuffer(argb.length);
+    var bufview8b = new Uint8Array(bufb); 
+    for( var i=0,strLen=argb.length; i < strLen; i++){
+        bufview8b[i] = argb.charCodeAt(i); 
+    } 
+
+    var inputVecA = Module['returnEmptyVector'](); 
+    for (var j = 0; j<bufview8a.length; ++j){
+        inputVecA.push_back(bufview8a[j]); 
+    }
+    var inputVecB = Module['returnEmptyVector'](); 
+    for (var j = 0; j<bufview8b.length; ++j){
+        inputVecB.push_back(bufview8b[j]); 
+    }
+    var outputVec =Module['subFromHexEx'](inputVecA,inputVecB); 
+    var strRes = ""
+    for (var k=0;k<outputVec.size();++k){
+        strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
+    }
+
+    bufa=null; 
+    bufview8a=null;
+
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
+    return strRes;
+}
+
+
+function addFromDec (arga, argb)
+{
+    var bufa = new ArrayBuffer(arga.length);
+    var bufview8a = new Uint8Array(bufa); 
+    for( var i=0,strLen=arga.length; i < strLen; i++){
+        bufview8a[i] = arga.charCodeAt(i); 
+    } 
+    var bufb = new ArrayBuffer(argb.length);
+    var bufview8b = new Uint8Array(bufb); 
+    for( var i=0,strLen=argb.length; i < strLen; i++){
+        bufview8b[i] = argb.charCodeAt(i); 
+    } 
+
+    var inputVecA = Module['returnEmptyVector'](); 
+    for (var j = 0; j<bufview8a.length; ++j){
+        inputVecA.push_back(bufview8a[j]); 
+    }
+    var inputVecB = Module['returnEmptyVector'](); 
+    for (var j = 0; j<bufview8b.length; ++j){
+        inputVecB.push_back(bufview8b[j]); 
+    }
+    var outputVec =Module['addFromDecEx'](inputVecA,inputVecB); 
+    var strRes = ""
+    for (var k=0;k<outputVec.size();++k){
+        strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
+    }
+
+    bufa=null; 
+    bufview8a=null;
+
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
+    return strRes;
+}
+
+function subFromDec (arga, argb)
+{
+    var bufa = new ArrayBuffer(arga.length);
+    var bufview8a = new Uint8Array(bufa); 
+    for( var i=0,strLen=arga.length; i < strLen; i++){
+        bufview8a[i] = arga.charCodeAt(i); 
+    } 
+    var bufb = new ArrayBuffer(argb.length);
+    var bufview8b = new Uint8Array(bufb); 
+    for( var i=0,strLen=argb.length; i < strLen; i++){
+        bufview8b[i] = argb.charCodeAt(i); 
+    } 
+
+    var inputVecA = Module['returnEmptyVector'](); 
+    for (var j = 0; j<bufview8a.length; ++j){
+        inputVecA.push_back(bufview8a[j]); 
+    }
+    var inputVecB = Module['returnEmptyVector'](); 
+    for (var j = 0; j<bufview8b.length; ++j){
+        inputVecB.push_back(bufview8b[j]); 
+    }
+    var outputVec =Module['subFromDecEx'](inputVecA,inputVecB); 
+    var strRes = ""
+    for (var k=0;k<outputVec.size();++k){
+        strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
+    }
+
+    bufa=null; 
+    bufview8a=null;
+
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
+    return strRes;
+}
 
 function leftShiftFromHex (arga, argb)
 {
@@ -103,19 +221,19 @@ function leftShiftFromHex (arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['leftShiftFromHexEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
@@ -143,19 +261,19 @@ function leftShiftFromDec (arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['leftShiftFromDecEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
@@ -184,19 +302,19 @@ function rightShiftFromHex (arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['rightShiftFromHexEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
@@ -224,22 +342,23 @@ function rightShiftFromDec (arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['rightShiftFromDecEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
-
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufa=null; 
+    bufview8a=null;
+    bufb=null; 
+    bufview8b=null;
+    
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
+
 
 function multiplyFromHex(arga, argb)
 {
@@ -264,19 +383,19 @@ function multiplyFromHex(arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['multiplyFromHexEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
@@ -304,19 +423,19 @@ function multiplyFromDec(arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['multiplyFromDecEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
@@ -345,19 +464,19 @@ function divideFromHex (arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['divideFromHexEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
@@ -385,24 +504,26 @@ function divideFromDec (arga, argb)
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['divideFromDecEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
 
-function modHex(argb,argb){
+
+
+function modHex(arga,argb){
     var bufa = new ArrayBuffer(arga.length);
     var bufview8a = new Uint8Array(bufa); 
     for( var i=0,strLen=arga.length; i < strLen; i++){
@@ -424,22 +545,22 @@ function modHex(argb,argb){
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['Mod_HexEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
-
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufa=null; 
+    bufview8a=null;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
+
 
 function InvModHex(arga, argb){
     var bufa = new ArrayBuffer(arga.length);
@@ -463,22 +584,23 @@ function InvModHex(arga, argb){
         inputVecB.push_back(bufview8b[j]); 
     }
     var outputVec =Module['Inv_mod_HexEx'](inputVecA,inputVecB); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
+    bufa=null; 
+    bufview8a=null;
 
-    delete bufb; 
-    delete bufview8b;
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
+    bufb=null; 
+    bufview8b=null;
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
 
     return strRes;
 }
+
 
 function AddModHex(arga, argb,argc){
     var bufa = new ArrayBuffer(arga.length);
@@ -513,24 +635,23 @@ function AddModHex(arga, argb,argc){
         inputVecC.push_back(bufview8c[j]); 
     }
     var outputVec =Module['Add_mod_HexEx'](inputVecA,inputVecB,inputVecC); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
-    delete bufb; 
-    delete bufview8b;
-    delete bufb; 
-    delete bufview8b;
+    bufa=null; 
+    bufview8a=null;
+    bufb=null; 
+    bufview8b=null;
 
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
-    delete inputVecC; 
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
+    inputVecC=null; 
     return strRes;
 }
+
 
 function SubModHex(arga,argb,argc){
     var bufa = new ArrayBuffer(arga.length);
@@ -565,22 +686,20 @@ function SubModHex(arga,argb,argc){
         inputVecC.push_back(bufview8c[j]); 
     }
     var outputVec =Module['Sub_mod_HexEx'](inputVecA,inputVecB,inputVecC); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
-    delete bufb; 
-    delete bufview8b;
-    delete bufb; 
-    delete bufview8b;
+    bufa=null; 
+    bufview8a=null;
+    bufb=null; 
+    bufview8b=null;
 
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
-    delete inputVecC; 
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
+    inputVecC=null; 
     return strRes;
 }
 
@@ -617,22 +736,20 @@ function MulModHex(arga, argb,argc){
         inputVecC.push_back(bufview8c[j]); 
     }
     var outputVec =Module['Mul_mod_HexEx'](inputVecA,inputVecB,inputVecC); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
-    delete bufb; 
-    delete bufview8b;
-    delete bufb; 
-    delete bufview8b;
+    bufa=null; 
+    bufview8a=null;
+    bufb=null; 
+    bufview8b=null;
 
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
-    delete inputVecC; 
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
+    inputVecC=null; 
     return strRes;
 }
 
@@ -669,24 +786,52 @@ function DivModHex(arga, argb,argc){
         inputVecC.push_back(bufview8c[j]); 
     }
     var outputVec =Module['Div_mod_HexEx'](inputVecA,inputVecB,inputVecC); 
-    strRes = ""
+    var strRes = ""
     for (var k=0;k<outputVec.size();++k){
         strRes = strRes + String.fromCharCode(outputVec.get(k) ); 
     }
 
-    delete bufa; 
-    delete bufview8a;
-    delete bufb; 
-    delete bufview8b;
-    delete bufb; 
-    delete bufview8b;
+    bufa=null; 
+    bufview8a=null;
+    bufb=null; 
+    bufview8b=null;
 
-    delete outputVec;
-    delete inputVecA;
-    delete inputVecB;
-    delete inputVecC; 
+    outputVec=null;
+    inputVecA=null;
+    inputVecB=null;
+    inputVecC=null; 
     return strRes;
 }
+
+
+// Currently implemented in JavaScript by forwarding directly to low level function
+// Consider implementing it by forwarding to C++ class
+// Consider storing value in C++ to avoid copying around (also for low level functions)
+export class BigNumber
+ {
+    constructor(theValue = "0") {
+        this.value = theValue;
+    }
+    random(argSize) {
+        return new BigNumber(BNRandom(argSize));
+    }
+    add(other) {
+        return new BigNumber(addFromHex(this.value, other.value));
+    }
+    sub(other) {
+        return new BigNumber(subFromHex(this.value, other.value));
+    }
+    multiply(other) {
+        return new BigNumber(multiplyFromHex(this.value, other.value));
+    }
+    divide(other) {
+        return new BigNumber(divideFromHex(this.value, other.value));
+    }
+    toString() {
+        return this.value;
+    }
+}
+
 
 
 

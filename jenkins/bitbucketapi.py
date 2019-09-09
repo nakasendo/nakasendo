@@ -2,6 +2,7 @@
 
 import os, sys
 import json
+import hashlib
 
 """
 Python module helping to parse/build Bitbucket information in order  to deal with BITBUCKET rest api
@@ -28,12 +29,40 @@ def _split_key_path(key_path_str):
 ## Transform the html bitbucket link :
 ## From format : https://bitbucket.org/username/reponame"
 ## TO format   : git@bitbucket.org:username/reponame.git"
-def _transform_git_html_to_ssh(html_link):
-    parts = html_link.split('/')
+def _transform_git_http_to_ssh(http_link):
+    parts = http_link.split('/')
     if parts and len(parts)>2:
         username = parts[-2]
         reponame = parts[-1]
         return 'git@bitbucket.org:{}/{}.git'.format(username,reponame)
+    return None
+
+## Transform the ssh bitbucket url :
+## FROM format   : git@bitbucket.org:username/reponame.git"
+## TO     format : https://bitbucket.org/username/reponame"
+def transform_git_ssh_to_http(ssh_url):
+    username=''
+    reponame = ''
+    parts = ssh_url.split('/')
+    if parts and len(parts)==2:
+        part_0 = parts[0] # git@bitbucket.org:username
+        username_parts = part_0.split(':')
+        username=username_parts[1]
+        part_1 = parts[1] # reponame.git
+        reponame_parts =  part_1.split('.')
+        reponame = reponame_parts[0]
+        return 'https://bitbucket.org/{}/{}'.format(username,reponame)
+    return None
+
+## Transform the html bitbucket link :
+## From format : https://bitbucket.org/username/reponame"
+## TO format   : https://api.bitbucket.org/2.0/repositories/username/reponame"
+def transform_git_http_to_rest_api_url(repo_http_url):
+    parts = repo_http_url.split('/')
+    if parts and len(parts)>2:
+        username = parts[-2]
+        reponame = parts[-1]
+        return 'https://api.bitbucket.org/2.0/repositories/{}/{}'.format(username,reponame)
     return None
 
 ##  dict_obj        is a dictionary parsed from json
@@ -53,6 +82,17 @@ def _get_json_data(dict_obj, key_path, key_path_index=0):
             return _get_json_data(dict_obj[request_key], key_path, key_path_index+1)
         else:
             return None
+
+## Jenkins build status   : SUCCESS    UNSTABLE  ABORTED   FAILURE    NOT_BUILT
+## Bitbucket build status : SUCCESSFUL           STOPPED   FAILED    INPROGRESS
+def get_bitbucket_status(jenkins_build_status):
+    if jenkins_build_status=='SUCCESS' or jenkins_build_status=='UNSTABLE':
+        return 'SUCCESSFUL'
+    if jenkins_build_status=='ABORTED':
+        return 'STOPPED'
+    if jenkins_build_status=='NOT_BUILT':
+        return 'INPROGRESS'
+    return 'FAILED'
 
 ## Assuming BITBUCKET_PAYLOAD environment variables is set (json str). If not, throw exception
 ## Get the information from the json through the key path separated by ':'
@@ -77,7 +117,7 @@ def get_BITBUCKET_PR_source_ssh():
     source_repo_html_key_path_str ='pullrequest:source:repository:links:html:href'
     source_repo_html_key_path = _split_key_path(source_repo_html_key_path_str)
     source_repo_html = _get_json_data(json_obj, source_repo_html_key_path)
-    source_repo_ssh = _transform_git_html_to_ssh(source_repo_html)
+    source_repo_ssh = _transform_git_http_to_ssh(source_repo_html)
     if not source_repo_ssh:
         raise Exception("Error get_BITBUCKET_PR_source_ssh")
     return source_repo_ssh
@@ -92,20 +132,26 @@ def get_BITBUCKET_PR_destination_ssh():
     destination_repo_html_key_path_str ='pullrequest:destination:repository:links:html:href'
     destination_repo_html_key_path = _split_key_path(destination_repo_html_key_path_str)
     destination_repo_html = _get_json_data(json_obj, destination_repo_html_key_path)
-    destination_repo_ssh = _transform_git_html_to_ssh(destination_repo_html)
+    destination_repo_ssh = _transform_git_http_to_ssh(destination_repo_html)
     if not destination_repo_ssh:
         raise Exception("Error get_BITBUCKET_PR_destination_ssh")
     return destination_repo_ssh
 
+## Bitbucket build status take max 40 chars to uniquely define the build UUID. hash it is a way to get the unique short string
+def hash_bb_buildstatus_key(key_string):
+    key_string_binary = key_string.encode('ascii')
+    hasher = hashlib.sha256()
+    hasher.update(key_string_binary)
+    result = hasher.hexdigest()[0:40]
+    return result
 
-
-
-
-
-
-
-
-
+def get_bitbucket_buildstatus_query(http_repo, fullcommithash, query_key, bb_status, bb_name, bb_href, bb_desc):
+    if bb_status not in ['SUCCESSFUL','FAILED','INPROGRESS','STOPPED']:
+        raise SyntaxError('Build status {} is not in the list  SUCCESSFUL, FAILED, INPROGRESS, STOPPED'.format(bb_status))
+    query_json = '{{"state": "{}","key": "{}","name": "{}","url": "{}","description": "{}"}}'.format(bb_status, query_key, bb_name, bb_href, bb_desc)
+    rest_api_url = transform_git_http_to_rest_api_url(http_repo)
+    build_status_url = '{}/commit/{}/statuses/build'.format(rest_api_url,fullcommithash)
+    return build_status_url, query_json
 
 
 
@@ -251,11 +297,17 @@ def test__split_key_path():
     assert (split_key_path[5] == 'href')
     #print(split_key_path)
 
-def test__transform_git_html_to_ssh():
+def test__transform_git_http_to_ssh():
     example_git_http = 'https://bitbucket.org/username/reponame'
-    git_ssh=_transform_git_html_to_ssh(example_git_http)
+    git_ssh=_transform_git_http_to_ssh(example_git_http)
     assert (git_ssh == 'git@bitbucket.org:username/reponame.git')
     #print(git_ssh)
+
+def test_transform_git_ssh_to_http():
+    example_git_ssh = 'git@bitbucket.org:username/reponame.git'
+    git_http=transform_git_ssh_to_http(example_git_ssh)
+    assert (git_http == 'https://bitbucket.org/username/reponame')
+    #print(git_http)
 
 def test__get_json_data():
     example_json_str = '{"foo":{"bar":"hello bar","identity":{"name":"hello foo","age":"12"}}}'
@@ -309,10 +361,26 @@ def test_get_BITBUCKET_PR_destination_ssh():
     destination_ssh_repo = get_BITBUCKET_PR_destination_ssh()
     assert(destination_ssh_repo =='git@bitbucket.org:nch-atlassian/sdklibraries.git')
 
+def test_get_bitbucket_buildstatus_query():
+    _username='sdklibraries'
+    _passwd='sdklibrariespasswd'
+    _http_repo = 'https://api.bitbucket.org/cnguyennChain/sdklibraries-chi'
+    _fullcommithash ='08a8f883de1cbda1db0f41c363bf67a961c05fe3'
+    _status = 'SUCCESSFUL'
+    _build_title = 'Windows 10 pro Test title'
+    _jobnamebase = 'PRO'
+    _build_id = '2019'
+    query_url, query_data = get_bitbucket_buildstatus_query(_http_repo, _fullcommithash, _status,_build_title, _jobnamebase, _build_id)
+    print('query_url  [{}]'.format(query_url))
+    print('query_data [{}]'.format(query_data))
+    print('Curl query to run\ncurl -u {}:{} -H "Content-Type: application/json" -X POST {} -d \'{}\''.format(_username, _passwd, query_url, query_data))
+
 if __name__ == '__main__':
     test__split_key_path()
-    test__transform_git_html_to_ssh()
+    test__transform_git_http_to_ssh()
+    test_transform_git_ssh_to_http()
     test__get_json_data()
     test_get_BITBUCKET_PAYLOAD_info()
     test_get_BITBUCKET_PR_source_ssh()
     test_get_BITBUCKET_PR_destination_ssh()
+    test_get_bitbucket_buildstatus_query()

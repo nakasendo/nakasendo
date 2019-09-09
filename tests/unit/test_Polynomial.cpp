@@ -33,7 +33,7 @@ std::vector<BigNumber> getVectorBNX(const int& nbPoint){
 BOOST_AUTO_TEST_SUITE( test_suite_Polynomial )
 
 
-/* Create a new polynomial using the string constructor
+/* Create a new polynomial from vector of strings
  *   Check the degree
  *   Evaluate the point for x=0,1
  *   Check the coefficients
@@ -42,7 +42,14 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree1 )
 {
     // 3 + 2x 
     std::vector< std::string>  strCoefficients { "3",  "2" } ;
-    Polynomial poly ( strCoefficients, GenerateZero( ) ) ;
+    std::vector< BigNumber>  bnCoefficients ;    
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+        big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }
+    Polynomial poly ( bnCoefficients, GenerateZero( ) ) ;
 
     long degree = poly.getDegree( ) ;
     BOOST_CHECK_EQUAL ( degree, strCoefficients.size() - 1 ) ;
@@ -108,10 +115,19 @@ BOOST_AUTO_TEST_CASE( test_polynomial_degree2_mod )
 {
     // 6 + 7x + 8x^2  [mod 5]
     std::vector< std::string>  strCoefficients { "6",  "7", "8" } ;
+    std::vector< BigNumber >   bnCoefficients ;
+
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+        big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }
+
     BigNumber modulo ;
     modulo.FromDec( "5" ) ;
 
-    Polynomial poly ( strCoefficients, modulo ) ;
+    Polynomial poly ( bnCoefficients, modulo ) ;
 
     BigNumber array_0, array_1, array_2 ;
     array_0.FromDec( "1" ) ;
@@ -408,6 +424,25 @@ BOOST_AUTO_TEST_CASE( test_polynomial_a_0_zero )
             Polynomial( 3, GenerateZero( ), GenerateZero( ) ),
             std::range_error 
         );
+
+    // create from vector of string
+    std::vector< std::string>  strCoefficients { "0", "3",  "2" } ;
+
+    // create from vector of BigNumber
+    std::vector< BigNumber >    bnCoefficients ;
+
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+        big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }
+
+    BOOST_CHECK_THROW
+    (
+        Polynomial ( bnCoefficients, GenerateZero( ) ),
+        std::range_error
+    ) ;        
 }
 
 // Check a_0 > modulo
@@ -459,15 +494,6 @@ BOOST_AUTO_TEST_CASE( test_polynomial_max_modulo )
 // Check empty coefficients
 BOOST_AUTO_TEST_CASE( test_polynomial_empty_coeff )
 {
-    std::vector< std::string>  strCoefficients ;     
-
-    // Polynomial is empty, returning
-    BOOST_CHECK_THROW
-        ( 
-            Polynomial poly ( strCoefficients, GenerateZero( ) ) ,
-            std::runtime_error  
-        );
-
    std::vector< BigNumber >    bnCoefficients ; ;     
 
     // Polynomial is empty, returning
@@ -482,16 +508,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_empty_coeff )
 // Check zero coefficients at highest degree
 BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
 {
-    std::vector< std::string>  strCoefficients { "3",  "0" } ;
-    
-    // Polynomial has zero coefficient at the highest degree, returning
-    BOOST_CHECK_THROW
-        ( 
-            Polynomial poly ( strCoefficients, GenerateZero( ) ) ,
-            std::runtime_error  
-        );
-
-    strCoefficients.push_back( "0" ) ;
+    std::vector< std::string>  strCoefficients { "3",  "2", "1", "0" } ;
     std::vector< BigNumber >    bnCoefficients ;
 
     for ( auto & element : strCoefficients )
@@ -505,7 +522,7 @@ BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
     BOOST_CHECK_THROW
         ( 
             Polynomial poly ( bnCoefficients, GenerateZero( ) ) ,
-            std::runtime_error  
+            std::range_error  
         );         
     
 }
@@ -754,6 +771,85 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_basis )
     }
 
 }
+
+BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_degree_100_mod_SECP256K1CURVE )
+{
+    std::vector<std::pair<BigNumber, ECPoint> > curve; 
+    for (int i = 0; i< 50; ++ i){
+        BigNumber index; 
+        index.FromHex (std::to_string(i));
+        ECPoint pt; 
+        pt.SetRandom (); 
+        curve.push_back ( std::make_pair(index, pt)); 
+    }
+
+    BigNumber mod;
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
+    LGECInterpolator interpolator ( curve, mod); 
+
+    for(std::vector<std::pair<BigNumber, ECPoint> >::iterator testIter = curve.begin(); testIter != curve.end(); ++ testIter){
+        ECPoint TestVal = interpolator(testIter->first);
+        BOOST_TEST (TestVal.ToHex() == testIter->second.ToHex());
+     }
+}
+
+
+
+BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_BNInterpolattionMuLG_EQUAL )
+{
+
+    int degree = 10;
+    BigNumber mod; 
+    mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
+
+    Polynomial poly(degree, mod);
+    std::vector<std::pair<BigNumber,BigNumber> > xfx; 
+
+    int margin = 2 ;
+    int npPoint = degree + 1 + margin;
+    
+    for (int i=0;i<npPoint;++i){
+        BigNumber bn;
+        bn.generateRandHex(); 
+        xfx.push_back(std::pair(bn, poly(bn)));
+    }
+    
+    BigNumber xValueAtZero;
+    xValueAtZero.Zero();
+    
+    LGInterpolator interpFunc(xfx, mod);
+    BigNumber InterpolatedAtZero = interpFunc(xValueAtZero);
+    
+    
+    
+    // convert the BNs to ECPoints by multiplying by G
+    
+    std::vector<std::pair<BigNumber,ECPoint> > curve;
+    
+    ECPoint GenPoint; 
+    ECPoint G = GenPoint.getGenerator();
+    
+    for(std::vector<std::pair<BigNumber,BigNumber> >::iterator iter = xfx.begin(); iter != xfx.end(); ++ iter){
+        
+       ECPoint hidden = G.MulHex(iter->second.ToHex(), std::string()); 
+       curve.push_back(std::pair(iter->first, hidden));
+    
+    }
+    
+    LGECInterpolator interpolator ( curve, mod);
+    
+    ECPoint ecPointAtZero = interpolator(xValueAtZero);
+
+    
+    // multiply bn*G
+    
+    ECPoint bnAtZero = G.MulHex(InterpolatedAtZero.ToHex(), std::string());
+    
+    
+     BOOST_TEST (bnAtZero.ToHex() == ecPointAtZero.ToHex());
+    
+}
+
 
 BOOST_AUTO_TEST_SUITE_END( ) ;
 
