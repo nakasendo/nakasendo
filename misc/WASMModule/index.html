@@ -1,0 +1,17 @@
+<!––
+  https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
+––>
+<!doctype html>
+<html>
+  <script>
+    var Module = {
+      onRuntimeInitialized: function() {
+        console.log('lerp result: ' + Module.lerp(1, 2, 0.5));
+        console.log(Module.say_hello("Chi"));
+        console.log("hash_sha256_1=" + Module.hash_sha256_1("Chi Thanh NGUYEN"));
+        console.log("hash_sha256_2=" + Module.hash_sha256_2("Chi Thanh NGUYEN"));
+      }
+    };
+  </script>
+  <script src="WASMCoreModule.js"></script>
+</html>

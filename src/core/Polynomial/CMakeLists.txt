@@ -21,7 +21,7 @@ set(Polynomial_CPP_FILES "${POLYNOMIAL_CPP_FILES}" CACHE INTERNAL "Cache list of
 set(POLYNOMIAL_SOURCE_FILES ${POLYNOMIAL_HPP_FILES} ${POLYNOMIAL_CPP_FILES})
 add_library(Polynomial ${LIBS_BUILD_TYPE} ${POLYNOMIAL_SOURCE_FILES})
 
-target_link_libraries(Polynomial BigNumbers)
+target_link_libraries(Polynomial BigNumbers ECPoint)
 target_compile_definitions(Polynomial PRIVATE EXPORT_Polynomial)
 set_property(TARGET Polynomial PROPERTY FOLDER "core")
 sdkAppendToGlobalSet(SDK_CORE_COMPONENT_LIST Polynomial)

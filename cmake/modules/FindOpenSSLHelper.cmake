@@ -32,7 +32,7 @@ mv openssl-1.1.1b openssl-1.1.1b_src                       # Rename openssl sour
 cd openssl-1.1.1b_src                                      # Goto openssl source directory
 source $EMSDK_ROOT/emsdk_env.sh                            # Setup emscripten environment variables
 ## Configure the build for openssl
-emconfigure ./Configure --openssldir=/path/to/some/tmp/build/dir --prefix=$OPENSSL_WASM_ROOT_DIR -no-shared linux-x86_64
+emconfigure ./Configure --openssldir=/path/to/some/tmp/build/dir --prefix=$OPENSSL_WASM_ROOT_DIR -no-shared no-threads linux-x86_64
 
 ## Fix some minor issues : https://github.com/openssl/openssl/issues/5443
 # Go to Makefile, make those changes :
