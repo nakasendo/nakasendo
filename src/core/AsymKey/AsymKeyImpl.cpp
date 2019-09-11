@@ -278,6 +278,110 @@ std::string AsymKeyImpl::getPrivateKeyPEMStr() const
     return std::move(privkey_str);
 }
 
+
+// export key in PEM encrypted format
+std::string AsymKeyImpl::getPrivateKeyPEMEncrypted( const std::string& passphrase ) const
+{
+
+    int length = passphrase.length( ) ;
+    std::unique_ptr < unsigned char[] > passPhrasePtr ( new unsigned char [ length + 1 ] ) ;
+
+    std::fill_n( passPhrasePtr.get(), length+1, 0x00 ) ;
+
+    int index = 0;
+    for ( 
+            std::string::const_iterator iter = passphrase.begin() ;  
+            iter != passphrase.end() ; 
+            ++ iter, ++index
+        )
+    {
+        passPhrasePtr.get()[ index ] = *iter ;
+    }
+    
+    BIO_ptr outbio(BIO_new(BIO_s_mem()), &BIO_free_all);
+
+    if  (
+            !PEM_write_bio_ECPrivateKey
+            ( 
+                outbio.get(),           // pointer to the I/O structure
+                m_key.get(),            // the key < publickey, EC_POINT >
+                EVP_aes_256_cbc(),      // EVP_Cipher object
+                passPhrasePtr.get(),
+                length,                 // length of key buffer
+                0,                      // function that obtains the password (callback)
+                NULL                    // arguments for callback above
+            ) 
+        )
+        throw std::runtime_error("Error exporting private key");
+
+    const int privKeyLen = BIO_pending(outbio.get());
+    std::string privkey_str(privKeyLen, '0');
+    BIO_read(outbio.get(), (void*)&(privkey_str.front()), privKeyLen);
+
+    return std::move(privkey_str);
+}
+
+// import key in PEM Encrypted format
+void AsymKeyImpl::setPrivateKeyPEMEncrypted( const std::string& encryptedPEM, const std::string& passphrase )
+{
+
+    int length = passphrase.length( ) ;
+    std::unique_ptr < unsigned char[] > passPhrasePtr ( new unsigned char [ length + 1 ] ) ;
+    
+    std::fill_n( passPhrasePtr.get(), length+1, 0x00 ) ;
+    
+    int index = 0;
+    for ( 
+            std::string::const_iterator iter = passphrase.begin() ;  
+            iter != passphrase.end() ; 
+            ++ iter, ++index
+        )
+    {
+        passPhrasePtr.get()[ index ] = *iter ;
+    }
+
+
+    BIO_ptr bio(BIO_new(BIO_s_mem()), &BIO_free_all);
+    const int bio_write_ret = BIO_write(bio.get(), static_cast<const char*>(encryptedPEM.c_str()), (int)encryptedPEM.size());
+    if (bio_write_ret <= 0)
+        throw std::runtime_error("Error reading PEM string");
+
+    EC_KEY* imported_EC_KEY = nullptr;
+
+    if  ( 
+            !PEM_read_bio_ECPrivateKey
+            (
+                bio.get(), 
+                &imported_EC_KEY, 
+                NULL, 
+                passPhrasePtr.get()
+            )
+        )
+
+        throw std::runtime_error("Error importing private key");
+    
+    m_key.reset(imported_EC_KEY);
+
+    /// Get private key
+    const BIGNUM* pBN = EC_KEY_get0_private_key(m_key.get());
+    if (pBN == nullptr)
+        throw std::runtime_error("Unable to get private key");
+
+    const EC_GROUP* pEC_GROUP = EC_KEY_get0_group(m_key.get());
+    if (pEC_GROUP == nullptr)
+        throw std::runtime_error("Unable to get EC key group");
+
+    EC_POINT_ptr pEC_POINT(EC_POINT_new(pEC_GROUP), &EC_POINT_free);
+    BN_CTX_ptr pCTX_mul(BN_CTX_new(), &BN_CTX_free);
+    if (!EC_POINT_mul(pEC_GROUP, pEC_POINT.get(), pBN, nullptr, nullptr, pCTX_mul.get()))
+        throw std::runtime_error("Unable to calculate public key");
+    
+    if (!EC_KEY_set_public_key(m_key.get(), pEC_POINT.get()))
+        throw std::runtime_error("Unable to set public key");
+}
+
+
+
 void AsymKeyImpl::setPEMPrivateKey(const std::string& crPEMStr)
 {
     BIO_ptr bio(BIO_new(BIO_s_mem()), &BIO_free_all);
