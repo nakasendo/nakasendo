@@ -108,7 +108,7 @@ endfunction()
 
 function(wasm_get_js_file_name OutputFileName ModuleTargetName)
   wasm_get_debug_postfix(_debug_postfix)
-  set(_outputfilename "WASM${ModuleTargetName}${_debug_postfix}.js")
+  set(_outputfilename "Js${ModuleTargetName}${_debug_postfix}.js")
   set(${OutputFileName} "${_outputfilename}" PARENT_SCOPE)
 endfunction()
 
