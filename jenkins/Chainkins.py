@@ -62,6 +62,7 @@ parser.add_argument(     '--bb_password'   , help='Bitbucket credential password
 parser.add_argument(     '--target_repo'   , help='Bitbucket http repository url')
 parser.add_argument(     '--target_commit' , help='Bitbucket commit')
 parser.add_argument(     '--jenkins_status', help='Jenkins build status. It will be transformed to the appropriated Bitbucket build status')
+parser.add_argument(     '--build_href'    , help='Optional parameter forcing the url link of the build')
 
 args = parser.parse_args()
 
@@ -280,10 +281,11 @@ if args.dump_mainrepo_email_html is not None and args.dump_mainrepo_email_html:
     sys.exit(0)
 
 if args.update_bitbucket_build_status is not None and args.update_bitbucket_build_status:
-    ## Assume environment variable BUILD_URL and BUILD_NUMBER are set
+    ## Example command :
     ##   python Chainkins.py --update_bitbucket_build_status --bb_username=sdklibraries --bb_password=ppp --target_repo=https://bitbucket.org/nch-atlassian/sdklibraries --target_commit=cd64e137c4d2b58de55d625dc9285ee257aaa69e --jenkins_status=NOT_BUILT
     ## Jenkins build status   : SUCCESS    UNSTABLE  ABORTED   FAILURE    NOT_BUILT
     ## Bitbucket build status : SUCCESSFUL           STOPPED   FAILED    INPROGRESS
+    ## optional parameter : --build_href=http://a/particular/url/link/for/the/build.
     if args.bb_username is None or args.bb_password is None or args.target_repo is None or args.target_commit is None or args.jenkins_status is None:
         print('Update bitbucket build status requires --bb_username --bb_password --target_repo --target_commit --jenkins_status')
         parser.print_help()
@@ -303,16 +305,14 @@ if args.update_bitbucket_build_status is not None and args.update_bitbucket_buil
     query_key = bitbucketapi.hash_bb_buildstatus_key(long_query_key_str)
     query_status=''
     query_name = ''
-    query_href = ''
+    query_href = args.build_href if args.build_href is not None else jRUN_DISPLAY_URL
     query_desc = ''
     if 'BITBUCKET_PULL_REQUEST_ID' in os.environ: ## This is a pull request build
         pr_id = os.environ['BITBUCKET_PULL_REQUEST_ID']
         query_name = '__pr#{} : {}'.format(pr_id, jPR_BITBUCKET_TITLE)
-        query_href = jBITBUCKET_PULL_REQUEST_LINK
         query_desc = '{} build #{} on {}'.format(jJOB_BASE_NAME, jBUILD_NUMBER, jJENKINS_SLAVE_OS)
     else:
         query_name = '{} {}'.format(jJOB_BASE_NAME, jJENKINS_SLAVE_OS)
-        query_href = jRUN_DISPLAY_URL
         query_desc = 'Build #{} branch [{}]'.format(jBUILD_NUMBER,jTARGET_BRANCH)
         if 'jBUILD_TRIGGER' in os.environ and 'Bitbucket' not in os.environ['jBUILD_TRIGGER']:## build on main repo that's triggered manually
             query_desc +=' - triggered by {}'.format(os.environ['jBUILD_TRIGGER'])
