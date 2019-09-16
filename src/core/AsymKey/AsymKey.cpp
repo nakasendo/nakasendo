@@ -88,6 +88,16 @@ std::string AsymKey::getPrivateKeyPEM() const
     return m_pImpl->getPrivateKeyPEMStr();
 }
 
+std::string AsymKey::getPrivateKeyPEMEncrypted( const std::string& passphrase ) const
+{
+    return m_pImpl->getPrivateKeyPEMEncrypted( passphrase );
+}
+
+void AsymKey::setPrivateKeyPEMEncrypted( const std::string& encryptedPEM, const std::string& passphrase )
+{
+    return m_pImpl->setPrivateKeyPEMEncrypted( encryptedPEM, passphrase ) ; 
+}
+
 void AsymKey::setPEMPrivateKey(const std::string& crPEMKey)
 {
     m_pImpl->setPEMPrivateKey(crPEMKey);

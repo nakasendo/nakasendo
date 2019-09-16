@@ -1,7 +1,8 @@
 // npm install --global mocha mocha-junit-reporter
 // Copy this javascript to the same directory of WASMCoreModule.js
-// mocha /abs/path/to/test_CoreModule.js --reporter-options mochaFile=/test_CoreModule.xml
-const Module = require('./WASMCoreModule.js');
+// mocha /abs/path/to/test_CoreModule.js  --reporter mocha-junit-reporter --reporter-options mochaFile=./test_CoreModule.xml
+
+const Module = require('./JsCoreModule.js');
 
 var assert = require('assert');
 describe('Example test suite', function() {
