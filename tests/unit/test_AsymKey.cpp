@@ -395,32 +395,41 @@ BOOST_AUTO_TEST_CASE(test_private_key_split)
 
 BOOST_AUTO_TEST_CASE(test_private_key_with_encryption)
 {
+    for (int i = 0; i < 5; ++i )
+    {
 
-    // Part (a) - test get (write) private key
-    // export
-    AsymKey testKeyA ;
-    std::string passPhrase ( "I am She-Ra!!!" ) ;    
-    const std::string test_prikey_pem_encrypted =  testKeyA.getPrivateKeyPEMEncrypted( passPhrase ) ;
+        // Part (a) - test get (write) private key
+        // export
+        AsymKey testKeyA ;
+        std::string passPhrase ( "I am She-Ra!!!" ) ;    
+        const std::string test_prikey_pem_encrypted =  testKeyA.getPrivateKeyPEMEncrypted( passPhrase ) ;
 
-    // Check the contents of key are as expected
-    BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "-----BEGIN EC PRIVATE KEY-----" ) ) ;
-    BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "-----END EC PRIVATE KEY-----" ) ) ;
-    BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "AES-256-CBC" ) ) ;
-    BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "ENCRYPTED" ) ) ;
+        // Check the contents of key are as expected
+        BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "-----BEGIN EC PRIVATE KEY-----" ) ) ;
+        BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "-----END EC PRIVATE KEY-----" ) ) ;
+        BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "AES-256-CBC" ) ) ;
+        BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "ENCRYPTED" ) ) ;
 
-    // Part (b) - test set (read) private key
-    // import
-    AsymKey testKeyB ;
-    std::string incorrectPassPhrase ( "By the power of Grayskull..." ) ;
-    
-    testKeyB.setPrivateKeyPEMEncrypted( test_prikey_pem_encrypted, passPhrase ) ;
-    BOOST_CHECK( testKeyB.is_valid( ) ) ;
-    
-    BOOST_CHECK_THROW
-        ( 
-            testKeyB.setPrivateKeyPEMEncrypted( test_prikey_pem_encrypted, incorrectPassPhrase ) ; , 
-            std::runtime_error 
-        );  
+        // Part (b) - test set (read) private key
+        // import
+        AsymKey testKeyB ;
+        std::string incorrectPassPhrase ( "By the power of Grayskull..." ) ;
+        
+        testKeyB.setPrivateKeyPEMEncrypted( test_prikey_pem_encrypted, passPhrase ) ;
+        BOOST_CHECK( testKeyB.is_valid( ) ) ;
+        
+        // check the imported/imported key is the same as the original
+        const std::string testKeyAString =  testKeyA.getPrivateKeyPEM(  ) ;
+        const std::string testKeyBString =  testKeyB.getPrivateKeyPEM(  ) ;
+        BOOST_CHECK( testKeyAString == testKeyAString ) ;
+        
+        // Check the PEM throws an error with an incorrect pass pharse
+        BOOST_CHECK_THROW
+            ( 
+                testKeyB.setPrivateKeyPEMEncrypted( test_prikey_pem_encrypted, incorrectPassPhrase ) ; , 
+                std::runtime_error 
+            );  
+    }
 }
 
 
