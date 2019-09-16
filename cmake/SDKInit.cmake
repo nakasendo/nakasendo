@@ -138,6 +138,10 @@ macro(sdkInitCMake)
   HelpFindPython()
   #sdkPrintPythonInfo()#Debug Log
 
+  include(FindEmsdkHelper)
+  sdkHelpFindEMSDK()
+  #sdkPrintEmsdkInfo()#Debug Log
+
   include(FindBoostHelper)
   HelpFindBoost()
   #sdkPrintProperties(Boost::random)
