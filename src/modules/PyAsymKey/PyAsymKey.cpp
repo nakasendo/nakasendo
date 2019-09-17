@@ -227,21 +227,67 @@ static PyObject* wrap_SetKeyFromPem(PyObject* self, PyObject *args)
 
 }
 
+static PyObject* wrap_SetKeyFromEncryptedPem(PyObject* self, PyObject *args)
+{
+    char* cPrivateKey   = nullptr ;
+    char* cPassPhrase   = nullptr ;
+
+    if (!PyArg_ParseTuple(args, "ss", &cPrivateKey, &cPassPhrase))
+        return NULL;
+
+    const std::string private_key_pem( cPrivateKey ) ;
+    const std::string pass_phrase( cPassPhrase ) ;
+
+    AsymKey private_key;
+    private_key.setPrivateKeyPEMEncrypted(private_key_pem, pass_phrase);
+    if (private_key.is_valid()){
+        return Py_BuildValue("ss",private_key.getPublicKeyPEM().c_str(), private_key.getPrivateKeyPEM().c_str());
+    }else{
+        std::string val1, val2; 
+        return Py_BuildValue("ss",std::string().c_str(), std::string().c_str());
+    }
+}
+
+static PyObject* wrap_GetKeyFromEncryptedPem(PyObject* self, PyObject *args)
+{
+    char* cPassPhrase   = nullptr ;
+
+    if (!PyArg_ParseTuple(args, "s", &cPassPhrase))
+        return NULL;
+
+    const std::string pass_phrase( cPassPhrase ) ;
+
+    AsymKey private_key;
+    std::string privkey_str( private_key.getPrivateKeyPEMEncrypted( pass_phrase) );
+
+    if (private_key.is_valid())
+    {
+        return Py_BuildValue("s", privkey_str.c_str());
+    }
+    else
+    {        
+        return Py_BuildValue("s", "") ;
+    }
+
+}
+
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
-    {"GenerateKeyPairPEM" , wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys in pem format"},
-    {"GenerateKeyPairHEX" , wrap_GenerateKeyPairHEX,METH_VARARGS,"Generate pair of keys in hex format"},
-    {"GetKeyPairHEX"      , wrap_GetKeyPairHEX,METH_VARARGS,"Get pair of keys in hex format from a private PEM key"},
-    {"GetPublicKeyPEM"    , wrap_GetPublicKeyPEM,METH_VARARGS,"Get public key PEM given the private key PEM"},
-    {"Sign"               , wrap_Sign,METH_VARARGS,"Sign message with private Key"},
-    {"Verify"             , wrap_Verify,METH_VARARGS,"Verify message's signature with public key"},
-    {"ShareSecret"        , wrap_ShareSecret,METH_VARARGS,"Calculate shared secret from my private key and their public key"},
-    {"DerivePublic"       , wrap_DerivePublic,METH_VARARGS,"Derive public key from a given public key and a additive message"},
-    {"DerivePrivate"      , wrap_DerivePrivate,METH_VARARGS,"Derive private key from a given private key and a additive message"},
-    {"SplitKey"           , wrap_SplitKey,METH_VARARGS,"Split a private key into a given number of shares"},
-    {"RestoreKey"         , wrap_RestoreKey, METH_VARARGS,"Restore a private key from a given number of shares"},
-    {"SetKeyFromPem"       , wrap_SetKeyFromPem, METH_VARARGS,"Sets a key from a PEM format"},
+    {"GenerateKeyPairPEM"       , wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys in pem format"},
+    {"GenerateKeyPairHEX"       , wrap_GenerateKeyPairHEX,METH_VARARGS,"Generate pair of keys in hex format"},
+    {"GetKeyPairHEX"            , wrap_GetKeyPairHEX,METH_VARARGS,"Get pair of keys in hex format from a private PEM key"},
+    {"GetPublicKeyPEM"          , wrap_GetPublicKeyPEM,METH_VARARGS,"Get public key PEM given the private key PEM"},
+    {"Sign"                     , wrap_Sign,METH_VARARGS,"Sign message with private Key"},
+    {"Verify"                   , wrap_Verify,METH_VARARGS,"Verify message's signature with public key"},
+    {"ShareSecret"              , wrap_ShareSecret,METH_VARARGS,"Calculate shared secret from my private key and their public key"},
+    {"DerivePublic"             , wrap_DerivePublic,METH_VARARGS,"Derive public key from a given public key and a additive message"},
+    {"DerivePrivate"            , wrap_DerivePrivate,METH_VARARGS,"Derive private key from a given private key and a additive message"},
+    {"SplitKey"                 , wrap_SplitKey,METH_VARARGS,"Split a private key into a given number of shares"},
+    {"RestoreKey"               , wrap_RestoreKey, METH_VARARGS,"Restore a private key from a given number of shares"},
+    {"SetKeyFromPem"            , wrap_SetKeyFromPem, METH_VARARGS,"Sets a key from a PEM format"},
+    {"SetKeyFromEncryptedPem"   , wrap_SetKeyFromEncryptedPem, METH_VARARGS,"Sets a key from an Encrypted PEM format, with pass phrase"},
+    {"GetKeyFromEncryptedPem"   , wrap_GetKeyFromEncryptedPem, METH_VARARGS,"Sets a key from an Encrypted PEM format, with pass phrase"},
     {NULL, NULL, 0, NULL},
 };
  
