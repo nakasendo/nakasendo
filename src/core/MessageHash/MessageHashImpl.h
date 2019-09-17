@@ -16,6 +16,7 @@ class MessageHashImpl
         void HashSha256 (const std::string&);
         void Hash(const std::string&, const std::string&); 
         void Hash(const std::vector<uint8_t>&, const std::string&); 
+        void Hash(const messagePtr&, size_t length, const std::string&); 
         messagePtr HashVal ();
         std::string hashValHex () ; 
         void printHash (); 

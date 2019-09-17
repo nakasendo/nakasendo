@@ -22,6 +22,8 @@ void ListHashCallback(const OBJ_NAME *obj, void *arg)
     sprintf(PtrHashFuncName.get(),"%s", obj->name);
     g_PtrHashFuncList.push_back(std::string(PtrHashFuncName.get()));
 }
+
+
 };
 
 MessageHashImpl::MessageHashImpl() : m_mPtr (new unsigned char[EVP_MAX_MD_SIZE])
@@ -48,6 +50,7 @@ void MessageHashImpl::printHash()
 
 void MessageHashImpl::Hash(const std::string& msg, const std::string& hashfunc)
 {
+    
   // check for available hashfunc    
     md_ptr mdctx (EVP_MD_CTX_create(),::EVP_MD_CTX_free); 
     const EVP_MD* md = nullptr;
@@ -76,6 +79,20 @@ void MessageHashImpl::Hash(const std::vector<uint8_t>& msg, const std::string& h
     EVP_DigestUpdate(mdctx.get(), vals.get(), msg.size());
     EVP_DigestFinal_ex(mdctx.get(), m_mPtr.get(), &m_MessageHashLength);
 }
+
+void MessageHashImpl::Hash(const messagePtr& msg, size_t length,  const std::string& hashfunc)
+{
+  // check for available hashfunc    
+    md_ptr mdctx (EVP_MD_CTX_create(),::EVP_MD_CTX_free); 
+    const EVP_MD* md = nullptr;
+    md = EVP_get_digestbyname (hashfunc.c_str());
+    if (md == nullptr)
+        throw std::invalid_argument("Unknown message digest: " + hashfunc);
+    EVP_DigestInit_ex (mdctx.get(),md,NULL);
+    EVP_DigestUpdate(mdctx.get(), msg.get(), length);
+    EVP_DigestFinal_ex(mdctx.get(), m_mPtr.get(), &m_MessageHashLength);
+}
+
 
 messagePtr MessageHashImpl::HashVal ()
 {

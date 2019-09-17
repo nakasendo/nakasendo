@@ -134,6 +134,7 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
   unsigned char       *r, *ret;
   const unsigned char *p;
   
+
   r = ret = new unsigned char[input.length() / 2];
   if (ret == nullptr){
     *l = ERR_NO_MEM;
@@ -156,6 +157,7 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
   
   for (p = ptr;  isspace(*p);  p++);
   if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X')) p += 2;
+
 
   int index = 0; 
   //while (p[0] && index < lenInput) {
@@ -193,11 +195,16 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
           return 0;
         }
     }
+
+  
+
     if ((shift = (shift + 4) % 8) != 0) {
       *r++ = value;
       value = 0;
     }
   }
+
+
   if (!shift) {
     std::cout << "ERR_BAD_SIZE FAIL" << std::endl;
     *l = ERR_BAD_SIZE;
@@ -206,6 +213,7 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
     return nullptr;
   }
   *l = (r - ret);
+
   
   std::unique_ptr<unsigned char[]> retVal ( new unsigned char[input.length()/ 2]); 
   if (retVal == nullptr){

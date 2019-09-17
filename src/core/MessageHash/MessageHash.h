@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <MessageHash/MessageHashConfig.h>
 
@@ -34,5 +35,11 @@ class MessageHash_API MessageHash
         std::unique_ptr<MessageHashImpl> m_pImpl ; 
 };
 
-std::string MessageHash_API HashMsgSHA256(const std::string& crMsg);
+
+MessageHash_API std::vector<uint8_t>&  Hash
+    (
+        std::vector<uint8_t>&,  
+        const std::string& 
+    ) ;    
+
 #endif //ifndef __MESSAGE_HASH_H__

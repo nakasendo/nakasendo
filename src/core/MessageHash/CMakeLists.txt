@@ -32,7 +32,7 @@ add_library(MessageHash ${LIBS_BUILD_TYPE} ${MessageHash_SOURCE_FILES})
 if(WIN32) #https://github.com/openssl/openssl/pull/1062
   target_link_libraries(MessageHash crypt32 ws2_32)
 endif()
-target_link_libraries(MessageHash OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(MessageHash SymEncDec OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(MessageHash PRIVATE EXPORT_MessageHash)
 set_property(TARGET MessageHash PROPERTY FOLDER "core")
 

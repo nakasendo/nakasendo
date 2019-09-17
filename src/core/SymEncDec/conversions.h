@@ -26,6 +26,7 @@ std::unique_ptr<unsigned char[]> SymEncDec_API HexStrToBin(const std::string& in
 std::string SymEncDec_API binTohexStr(const std::unique_ptr<unsigned char[]>& data, int len);
 
 
+
 std::vector<uint8_t> SymEncDec_API HexToUInt (const std::string&);
 std::string SymEncDec_API UintToHex(const std::vector<uint8_t>&);
 #endif 

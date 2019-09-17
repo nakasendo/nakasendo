@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <tuple>
 
 
 /// Convert an enum class value to its underlying type (for example, to print it)
@@ -42,8 +43,20 @@ enum class VersionPrefix
     REGTEST_PRIVATE_KEY,
 };
 
-    
-using VersionPrefixMap = std::map<VersionPrefix, std::pair<std::vector<uint8_t>, NetworkType>>;
+
+// map of enum (version) : tuple (  < network byte > | Network type | human-readable-description )
+using VersionPrefixMap = std::map
+    <
+        VersionPrefix, 
+        std::tuple
+            < 
+                std::vector<uint8_t>,
+                 NetworkType, 
+                 std::string     
+            >
+    > ;
+
+
 
 
 class VersionConfig
@@ -53,12 +66,14 @@ class VersionConfig
         static std::unique_ptr<VersionConfig>& Instance();
         const std::vector<uint8_t>& getVersionBytes(const VersionPrefix& ) ; 
         const NetworkType getNetwork(const VersionPrefix&);
+        const VersionPrefix getVersionConfig(const std::vector<uint8_t>& bytes ) ;
+        const std::string getReadableNetworkType(const std::vector<uint8_t>& bytes ) ;
     private:
         VersionConfig();
         VersionConfig(const VersionConfig&);
         
         static std::unique_ptr<VersionConfig> m_Instance;
-        VersionPrefixMap mVersionPrefixMap;      
+        VersionPrefixMap mVersionPrefixMap;          
 };
    
 #endif //#ifndef __BCH_ADDRESS_INFO_H__

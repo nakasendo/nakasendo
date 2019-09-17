@@ -1,6 +1,11 @@
 #include <MessageHash/MessageHash.h>
 #include <vector>
 #include <MessageHash/MessageHashImpl.h>
+#include <SymEncDec/conversions.h>
+#include <memory>
+#include <algorithm>
+#include <iostream>
+#include <sstream>
 
 MessageHash::MessageHash(): m_pImpl(new MessageHashImpl)
 {
@@ -54,9 +59,20 @@ std::string  MessageHash::ListAvailableHash ()
     return (m_pImpl->ListAvailableHash());
 }
 
-std::string HashMsgSHA256(const std::string& crMsg)
+
+std::vector<uint8_t>& Hash
+    (
+        std::vector<uint8_t>& out,  
+        const std::string& hashFunction
+    ) 
 {
-    MessageHash hashMess;
-    hashMess.HashSha256 (crMsg);
-    return hashMess.HashHex();
+    /// do the hashing function
+    MessageHashImpl hasher ;
+    hasher.Hash( out, hashFunction) ;
+
+    out.clear( ) ;
+    out = HexToUInt( hasher.hashValHex() ) ;
+
+    return out ;
+
 }

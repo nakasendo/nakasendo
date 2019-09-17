@@ -9,6 +9,7 @@ import PySymEncDec
 import PyMessageHash
 import PyAsymKey
 import PyPolynomial
+import PyBCHAddress
 
 class MessageHash:
     def __init__(self, msg):
@@ -530,3 +531,34 @@ class LGECInterpolator:
     def __str__(self):
         return "points: {0}, modulo: {1}".format (self.points, self.modulo)
 
+
+class BCHAddress:
+    def __init__(self, key, version, l=None ):
+        self.key = key
+        self.version = version
+
+        if l : list = l
+        else : list = PyBCHAddress.createAddress(key, version)
+
+        self.address            = list[0] 
+        self.valid              = list[1] 
+        self.decodedAddress     = list[2]
+        self.prefix             = list[3]
+        self.NetworkType        = list[4]
+
+
+    @classmethod
+    def initFromAddress( cls, bchAddress ) :
+        list = PyBCHAddress.importAddress( bchAddress )
+
+        if list :
+            obj = cls( "", "", list )
+            return obj
+  
+        else :
+            raise Exception( 'Address: ' + bchAddress + ' is not valid'  )  
+
+
+    def __str__(self):
+        prettyStr = PyBCHAddress.print( self.address )
+        return prettyStr

@@ -74,3 +74,8 @@ add_executable(test_GroupBuilder test_GroupBuilder.cpp utils/FuncUtils.cpp)
 set_target_properties(test_GroupBuilder PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 target_link_libraries(test_GroupBuilder ThresholdSignatures)
 sdk_add_unit_test(test_GroupBuilder)
+
+add_executable(test_BCHAddress test_BCHAddress.cpp)
+set_target_properties(test_BCHAddress PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+target_link_libraries(test_BCHAddress AsymKey BCHAddress)
+sdk_add_unit_test(test_BCHAddress)
