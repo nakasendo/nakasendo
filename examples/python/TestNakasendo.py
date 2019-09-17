@@ -161,7 +161,31 @@ if __name__ == "__main__":
     print(msgFromBob)
     print(msgFromAlice)
     
+    # Demo loading creating PEM file with Encryption and passphrase
+    passphrase = "A deal is a promise and a promise is unbreakable"
+    tempKey = Nakasendo.ECKey256K1()
+    print (tempKey)
+    encryptedPem = tempKey.ToEncryptedPEMStr( passphrase )
+    f = open( "testPem.pem", "w" )
+    f.write( encryptedPem )
+    f.close()
     
+    print("encryptedPem = ", encryptedPem )
+    newKey = Nakasendo.ECKey256K1() 
+
+    f = open( "testPem.pem", "r" )
+    pemStr = f.read( ) 
+    f.close( ) 
+    os.remove( "testPem.pem" )
+
+    newKey.FromEncryptedPEMStr( pemStr, passphrase )
+    # this will throw:
+    #newKey.FromEncryptedPEMStr( pemStr, "This is not a correct passphrase" )
+
+    print ("public key = ", newKey.pubKey )
+    print ("private key = ", newKey.priKey )
+    
+
     # Test1 randomPolynomial( degree, modulo )
     # Test2 randomPolynomial( degree, modulo, fixed a_0 )
     # Test3 randomPolynomial( degree, modulo, min, max )
