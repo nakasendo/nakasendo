@@ -25,7 +25,7 @@ add_custom_command(TARGET ${WASM_JS_TARGET_NAME} PRE_BUILD
                    ARGS
                    ${JS_MODULE_CPP_FILES}
                    -v -Oz --js-opts 1
-                   -std=c++11 -Wall --bind -s WASM=0 -s SINGLE_FILE=1 -s USE_PTHREADS=1
+                   -std=c++11 -Wall --bind -s WASM=0 -s SINGLE_FILE=1
                    -L${WASM_OUTPUT_DIR} -lWASMECPoint${WASM_DEBUG_POSTFIX}
                    -lssl -lcrypto -L${SDK_OPENSSL_WASM_LIBRARY_DIR}
                    -I${CMAKE_CURRENT_SOURCE_DIR} -I${SDK_OPENSSL_WASM_INCLUDE_DIR} -I${CMAKE_SOURCE_DIR}/depends/json -I${CMAKE_SOURCE_DIR}/src/core -I${SDK_GENERATED_HPP_DIR}
