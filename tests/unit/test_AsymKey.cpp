@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <AsymKey/AsymKey.h>
-#include <AsymKey/AsymKeyAPI.h>
+#include <AsymKey/AsymKeyConfig.h>
 #include <BigNumbers/BigNumbers.h>
 #include <Polynomial/Polynomial.h>
 #include <SecretSplit/KeyShare.h>
@@ -275,17 +275,6 @@ BOOST_AUTO_TEST_CASE(test_IO_more)
         BOOST_TEST(pub_key_hex_pair.first == recover_pub_key_hex_pair.first)  ;// public keys are same
         BOOST_TEST(pub_key_hex_pair.second == recover_pub_key_hex_pair.second);// public keys are same
     }
-}
-
-BOOST_AUTO_TEST_CASE(test_API)
-{
-    const std::pair<std::string, std::string> keyPairPEM = GenerateKeyPairPEM();
-    BOOST_CHECK(!keyPairPEM.first.empty());
-    BOOST_CHECK(!keyPairPEM.second.empty());
-
-    const std::pair<std::string, std::string> keyPairHEX = GenerateKeyPairHEX();
-    BOOST_CHECK(!keyPairHEX.first.empty());
-    BOOST_CHECK(!keyPairHEX.second.empty());
 }
 
 BOOST_AUTO_TEST_CASE(test_Sig_Verify)

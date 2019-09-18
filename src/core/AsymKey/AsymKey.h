@@ -14,6 +14,8 @@
 #include <utility>
 #include <vector>
 
+#include <AsymKey/AsymKeyConfig.h>
+
 class AsymKeyImpl; 
 class KeyShare; 
 
