@@ -47,6 +47,8 @@ class AsymKey_API AsymKey
         std::string getPrivateKeyHEX() const;
         std::string getPublicKeyPEM()  const;
         std::string getPrivateKeyPEM() const;
+        std::string getPrivateKeyPEMEncrypted( const std::string& ) const ;
+        void setPrivateKeyPEMEncrypted( const std::string&, const std::string& ) ;
         void setPEMPrivateKey(const std::string&);// Import PEM private key
         void setHEXPrivateKey(const std::string&);// Import HEX private key, knowing it is the right group
         std::string getSharedSecretHex(const std::string& crOtherPublicPEMKey) const;// Calculate the shared secrete giving the public key from other
