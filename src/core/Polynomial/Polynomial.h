@@ -2,7 +2,7 @@
 #define POLYNOMIAL_H
 
 #include <DYNAMIC_LIBRARY_API.hpp>
-#include <Polynomial/Polynomial_Api.h>
+#include <Polynomial/PolynomialConfig.h>
 #include <vector>
 #include <string>
 #include <iostream>
