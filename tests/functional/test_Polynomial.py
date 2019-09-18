@@ -1,6 +1,7 @@
 import PyPolynomial
 import PyBigNumbers
 import PyECPoint
+import math
 
 from random import randint
 
@@ -10,6 +11,15 @@ def polynomialEvaluation(coefficients, xValue, mod, decHex):
     polynomialFX = PyPolynomial.evaluate(coefficients, xValue, mod, decHex)
     assert type(polynomialFX) == str, "Test failed"
     return polynomialFX
+
+def polynomial_evaluate(a_list, fx, mod):
+
+    ans = 0
+    for n, a in enumerate(a_list):
+        ans += a * fx ** n
+
+    ans %= mod
+    return ans
 
 def test_InitFromListCoefficient():
 
@@ -30,7 +40,14 @@ def test_InitFromListCoefficient():
 
     # Calling evaluate polynomial function
     polynomialFX = polynomialEvaluation(listCoefficients, x, mod, dec)
-    assert polynomialFX == "7", "Test failed"
+
+    # convert list of coefficients from string to decimal
+    lst = []
+    for i in range(len(coefficients)):
+        lst.append(int(coefficients[i]))
+
+    actualValue = polynomial_evaluate(lst, int(x), int(mod))
+    assert polynomialFX == str(actualValue), "Test failed"
 
 def test_InitFromListHex():
 
@@ -50,7 +67,17 @@ def test_InitFromListHex():
         assert len(allCoeffeicient) == x, "Test failed"
 
         # Calling evaluate polynomial function
-        polynomialEvaluation(listCoefficients, fx, modulo, hex_value)
+        polynomialFX = polynomialEvaluation(listCoefficients, fx, modulo, hex_value)
+
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(allCoeffeicient)):
+            lst.append(int(allCoeffeicient[i], 16))
+
+        fx = int(fx, 16)
+        modulo = int(modulo, 16)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX.lstrip("0") == hex(actualValue).upper().lstrip("0X"), "Test failed"
 
 def test_InitFromListDec():
 
@@ -70,11 +97,22 @@ def test_InitFromListDec():
         assert len(allCoeffeicient) == x, "Test failed"
 
         # Calling evaluate polynomial function
-        polynomialEvaluation(listCoefficients, fx, modulo, dec)
+        polynomialFX = polynomialEvaluation(listCoefficients, fx, modulo, dec)
+
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(allCoeffeicient)):
+            lst.append(int(allCoeffeicient[i]))
+
+        fx = int(fx)
+        modulo = int(modulo)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX == str(actualValue), "Test failed"
 
 def test_InitFromListModuloDec():
 
     for x in range(10, 20):
+
         modHex = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"
         fx = str(randint(10, 100000))
         modulo = str(int(modHex, 16))
@@ -91,11 +129,22 @@ def test_InitFromListModuloDec():
         assert len(coefficientsWithModulo) == degree + 1, "Test failed"
 
         # calling evaluate polynomial function
-        polynomialEvaluation(coefficientsWithModulo, fx, modulo, dec)
+        polynomialFX = polynomialEvaluation(coefficientsWithModulo, fx, modulo, dec)
+
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(coefficientsWithModulo)):
+            lst.append(int(coefficientsWithModulo[i]))
+
+        fx = int(fx)
+        modulo = int(modulo)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX == str(actualValue), "Test failed"
 
 def test_InitFromListModuloHex():
 
     for x in range(10, 20):
+
         modHex = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"
         fx = PyBigNumbers.GenerateRandHex(256)
         degree = randint(10, 1000)
@@ -110,11 +159,22 @@ def test_InitFromListModuloHex():
         assert len(coefficientsWithModulo) == degree + 1, "Test failed"
 
         # calling evaluate polynomial function
-        polynomialEvaluation(coefficientsWithModulo, fx, modHex, hex_value)
+        polynomialFX = polynomialEvaluation(coefficientsWithModulo, fx, modHex, hex_value)
+
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(coefficientsWithModulo)):
+            lst.append(int(coefficientsWithModulo[i], 16))
+
+        fx = int(fx, 16)
+        modulo = int(modHex, 16)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX.lstrip("0") == hex(actualValue).upper().lstrip("0X"), "Test failed"
 
 def test_RandomPolynomialHex():
 
-    for x in range(100, 200):
+    for x in range(10):
+
         fx = PyBigNumbers.GenerateRandHex(256)
         degree = randint(100, 1000)
         modulo = PyBigNumbers.GenerateRandPrimeHex(100)
@@ -125,14 +185,25 @@ def test_RandomPolynomialHex():
         assert len(listCoefficients) == (degree + 1), "Test failed"
 
         # calling evaluate polynomial function
-        polynomialEvaluation(listCoefficients, fx, modulo, hex_value)
+        polynomialFX = polynomialEvaluation(listCoefficients, fx, modulo, hex_value)
+
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(listCoefficients)):
+            lst.append(int(listCoefficients[i], 16))
+
+        fx = int(fx, 16)
+        modulo = int(modulo, 16)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX.lstrip("0") == hex(actualValue).upper().lstrip("0X"), "Test failed"
 
 def test_RandomPolynomialDec():
 
-    for x in range(100, 200):
-        fx = str(randint(10, 100000))
+    for x in range(10):
+
+        fx = PyBigNumbers.GenerateRandDec(256)
         degree = randint(100, 1000)
-        modulo = str(randint(1000, 100000))
+        modulo = PyBigNumbers.GenerateRandPrimeDec(100)
         dec = 1
 
         # create a random polynomial
@@ -140,11 +211,22 @@ def test_RandomPolynomialDec():
         assert len(listCoefficients) == (degree + 1), "Test failed"
 
         # calling evaluate polynomial function
-        polynomialEvaluation(listCoefficients, fx, modulo, dec)
+        polynomialFX = polynomialEvaluation(listCoefficients, fx, modulo, dec)
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(listCoefficients)):
+
+            lst.append(int(listCoefficients[i]))
+
+        fx = int(fx)
+        modulo = int(modulo)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX == str(actualValue), "Test failed"
 
 def test_RandomPolynomialFixed_a_0_Dec():
 
     for x in range(10):
+
         fx = str(randint(10, 100000))
         degree = randint(100, 1000)
         modulo = str(randint(1000, 100000))
@@ -157,11 +239,22 @@ def test_RandomPolynomialFixed_a_0_Dec():
         assert len(listCoefficients) == (degree + 1), "Test failed"
 
         # calling evaluate polynomial function
-        polynomialEvaluation(listCoefficients, fx, modulo, dec)
+        polynomialFX = polynomialEvaluation(listCoefficients, fx, modulo, dec)
+
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(listCoefficients)):
+            lst.append(int(listCoefficients[i]))
+
+        fx = int(fx)
+        modulo = int(modulo)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX == str(actualValue), "Test failed"
 
 def test_RandomPolynomialMinMaxHex():
 
     for x in range(10):
+
         fx = PyBigNumbers.GenerateRandHex(256)
         degree = randint(10, 100)
         hex_value = 0
@@ -174,11 +267,22 @@ def test_RandomPolynomialMinMaxHex():
         assert len(listCoefficients) == (degree + 1), "Test failed"
 
         # calling evaluate polynomial function
-        polynomialEvaluation(listCoefficients, fx, modulo, hex_value)
+        polynomialFX = polynomialEvaluation(listCoefficients, fx, modulo, hex_value)
+
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(listCoefficients)):
+            lst.append(int(listCoefficients[i], 16))
+
+        fx = int(fx, 16)
+        modulo = int(modulo, 16)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX.lstrip("0") == hex(actualValue).upper().lstrip("0X"), "Test failed"
 
 def test_RandomPolynomialMinMaxDec():
 
     for x in range(10, 30):
+
         fx = str(randint(10, 100000))
         degree = randint(100, 1000)
         dec = 1
@@ -191,7 +295,17 @@ def test_RandomPolynomialMinMaxDec():
         assert len(listCoefficients) == (degree + 1), "Test failed"
 
         # calling evaluate polynomial function
-        polynomialEvaluation(listCoefficients, fx, modulo, dec)
+        polynomialFX = polynomialEvaluation(listCoefficients, fx, modulo, dec)
+
+        # convert list of coefficients from string to decimal
+        lst = []
+        for i in range(len(listCoefficients)):
+            lst.append(int(listCoefficients[i]))
+
+        fx = int(fx)
+        modulo = int(modulo)
+        actualValue = polynomial_evaluate(lst, fx, modulo)
+        assert polynomialFX == str(actualValue), "Test failed"
 
 def test_LGInterpolatorFullDec():
 
@@ -200,7 +314,7 @@ def test_LGInterpolatorFullDec():
     dec = 1
 
     for x in range(100, 200):
-        randomX = randint(10, 100000)
+        randomX = randint(1000, 1000000)
         xValue = str(randomX)
 
         # LGInterpolator, full evaluation of the polynomial at xValue
@@ -229,6 +343,7 @@ def test_LGInterpolatorSingleDec():
 
     for x in range(1, 6):
         xPoint = str(x)
+
         # LGInterpolator, evaluate the ith basis polynomial at xValue
         lgInterpolatorX = PyPolynomial.LGInterpolatorSingle(listTupleObj, modulo, xValue, xPoint, dec)
         assert type(lgInterpolatorX) == str, "Test failed"
