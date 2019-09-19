@@ -1,6 +1,8 @@
 #ifndef POLYNOMIAL_CONFIG_H
 #define POLYNOMIAL_CONFIG_H
 
+#include <DYNAMIC_LIBRARY_API.hpp>
+
 #ifdef EXPORT_Polynomial
 #    define Polynomial_API EXPORT_DYNAMIC_LIBRARY
 #else
