@@ -16,9 +16,10 @@ class MessageHash_API MessageHash
 
         void HashSha256(const std::string&);
         void Hash(const std::string&, const std::string&);
+        void Hash(const std::vector<uint8_t>&, const std::string&);
         std::string HashHex (); 
-        std::unique_ptr<unsigned char> Value (); 
-
+        std::unique_ptr<unsigned char[]> Value (); 
+        std::vector<uint8_t> HashValueBytes();
 
         void printHash () ; 
         std::string ListAvailableHash () ;

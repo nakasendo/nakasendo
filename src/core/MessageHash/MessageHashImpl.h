@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-using messagePtr = std::unique_ptr<unsigned char> ; 
+using messagePtr = std::unique_ptr<unsigned char[]> ; 
 using charPtr = std::unique_ptr<char>;
 
 class MessageHashImpl
@@ -15,11 +15,13 @@ class MessageHashImpl
 
         void HashSha256 (const std::string&);
         void Hash(const std::string&, const std::string&); 
+        void Hash(const std::vector<uint8_t>&, const std::string&); 
         messagePtr HashVal ();
         std::string hashValHex () ; 
         void printHash (); 
         std::string ListAvailableHash(); 
         
+        unsigned int HashLength() const { return m_MessageHashLength ;}
 
     private:
         MessageHashImpl (const MessageHashImpl&);

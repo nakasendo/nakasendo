@@ -30,8 +30,35 @@ class MessageHash:
     def Base58CheckedDecode(self,msg):
         return PyMessageHash.DecodeBase58Checked(msg);
 
+    def HashSha256(self):
+        return PyMessageHash.HashMsgSHA256(self.message)
+        
+    def Hash(self,hashfunc):
+        return PyMessageHash.HashMsg(self.message,hashfunc)
+        
+    def ListHash(self):
+        return PyMessageHash.ListHash()
+        
     def __str__(self):
         return '{}'.format (self.message);
+        
+def hash256(message):
+    MH = MessageHash(message)
+    hashedVal = MH.HashSha256()
+    retVal = BigNum()
+    retVal.value = hashedVal
+    return retVal
+    
+def hash(message,hashfunc=None):
+    MH = MessageHash(message)
+    hashedVal = MH.Hash(hashfunc)
+    retVal = BigNum()
+    retVal.value = hashedVal
+    return retVal
+    
+def ListHashFuncs():
+    return PyMessageHash.ListHash()
+    
         
 class SymEncDec:
     def __init__ (self,UserPass):
@@ -50,21 +77,105 @@ class SymEncDec:
         return '{}, {}, {}'.format(self.pw, self.iv, self.KeyAsHex)
         
 class BigNum:
-    def __init__ (self, value=None):
+    def __init__ (self, value=None, mod=None,isDec=False):
+        self.mod = mod
+        self.isDec = isDec
+
         if value is None:
-            self.value = PyBigNumbers.GenerateRandHex(256)
+            if(self.isDec):
+                self.value = PyBigNumbers.GenerateRandDec(256)
+            else:
+                self.value = PyBigNumbers.GenerateRandHex(256)
         else:
             self.value = value
+            
     def __add__(self, obj):
-        sumVal = PyBigNumbers.addFromHex(self.value, obj.value) 
-        return sumVal ; 
+        if(self.isDec):
+            if(self.mod is None):
+                sumVal = PyBigNumbers.addFromDec(self.value, obj.value) 
+            else:
+                #check for self.mod == obj.mod           
+                sumVal = PyBigNumbers.Add_mod_Dec(self.value, obj.value, self.mod)
+            retVal = BigNum(sumVal,self.mod,self.isDec)
+            return retVal ;  
+        else:
+            if(self.mod is None):
+                sumVal = PyBigNumbers.addFromHex(self.value, obj.value) 
+            else:
+                #check for self.mod == obj.mod           
+                sumVal = PyBigNumbers.Add_mod_Hex(self.value, obj.value, self.mod)
+                
+            retVal = BigNum(sumVal,self.mod,self.isDec)
+            return retVal ; 
+        
+    def __mul__(self,obj):
+        if(self.isDec):
+            if(self.mod is None):
+                prodVal = PyBigNumbers.multiplyFromDec(self.value, obj.value)
+            else:
+                #print ('%s * %s mod %s' % (self.value, obj.value, self.mod))
+                prodVal=PyBigNumbers.Mul_mod_Dec(self.value, obj.value, self.mod)
+            
+            retVal = BigNum(prodVal, self.mod,self.isDec)
+            return retVal
+        else:
+            if(self.mod is None):
+                prodVal = PyBigNumbers.multiplyFromHex(self.value, obj.value)
+            else:
+                #print ('%s * %s mod %s' % (self.value, obj.value, self.mod))
+                prodVal=PyBigNumbers.Mul_mod_Hex(self.value, obj.value, self.mod)
+            
+            retVal = BigNum(prodVal, self.mod,self.isDec)
+            return retVal
+        
+    def __div__(self,obj):
+        if(self.isDec):
+            if (self.mod is None):
+                divVal = PyBigNumbers.divideFromDec(self.value,obj.value)
+            else:
+                divVal = PyBigNumbers.Div_mod_Dec(self.value, obj.value,self.mod)
+                
+            retVal = BigNum(divVal, self.mod,self.isDec)
+        else:
+            if (self.mod is None):
+                divVal = PyBigNumbers.divideFromHex(self.value,obj.value)
+            else:
+                divVal = PyBigNumbers.Div_mod_Hex(self.value, obj.value,self.mod)
+                
+            retVal = BigNum(divVal, self.mod,self.isDec)
+            return retVal
+        
     def __str__(self):
         return self.value
+        
+    def __repr__(self):
+        return self.value
+
+        
+    def inverse(self):
+        if(self.isDec):
+            if(self.mod is None):
+                numerator = BigNumber('1',self.mod,self.isDec)
+                inverseVal = numerator / self
+            else:
+                inverseVal = PyBigNumbers.Inv_mod_Dec(self.value, self.mod)
+            retVal = BigNum(inverseVal,self.mod,self.isDec)
+            return retVal
+        else:
+            if(self.mod is None):
+                numerator = BigNumber('1',self.mod)
+                inverseVal = numberator % self
+            else:
+                inverseVal = PyBigNumbers.Inv_mod_Hex(self.value, self.mod)
+            retVal = BigNum(inverseVal,self.mod,self.isDec)
+            return retVal
+    
 
 class ECPoint:
-    def __init__ (self, nid=0):
+    def __init__ (self, nid=0,isDec=False):
+        self.isDec = isDec
         if(nid==0):
-            self.value = PyECPoint.GenerateRandomECHex()
+            self.value = PyECPoint.GenerateRandomECHex(self.isDec)
             self.nid = 714 # Value for NID_secp256k1 (This needs a bit of though)
         else:
             self.nid = nid
@@ -76,20 +187,20 @@ class ECPoint:
             print ("Points not on the same curve %i and %i" % (self.nid, obj.nid))
             return none
 
-        sumVal = PyECPoint.addFromHexWithCurveID(self.value, obj.value, self.nid)
-        ecpRetVal = ECPoint(self.nid)
+        sumVal = PyECPoint.addFromHexWithCurveID(self.value, obj.value, self.nid,self.isDec)
+        ecpRetVal = ECPoint(self.nid,self.isDec)
         ecpRetVal.SetValue(sumVal)
         return ecpRetVal ; 
 
     def __eq__ (self, obj):
         if ( self.nid == obj.nid):
-            return (PyECPoint.compareCurve(self.value, obj.value,self.nid))  
+            return (PyECPoint.compareCurve(self.value, obj.value,self.nid,self.isDec))  
         else:
             return False
 
     def multipleScalar(self,objm):
-        mulVal = PyECPoint.MultiplyScalarMOnCurve(self.value, objm.value,self.nid)
-        ecpRetVal = ECPoint(self.nid)
+        mulVal = PyECPoint.MultiplyScalarMOnCurve(self.value, objm.value,self.nid,self.isDec)
+        ecpRetVal = ECPoint(self.nid,self.isDec)
         ecpRetVal.SetValue(mulVal)
         return ecpRetVal;
 
@@ -100,33 +211,65 @@ class ECPoint:
         return ecpRetVal
 
     def GetAffineCoOrdinates(self):
-        points = PyECPoint.GetAffineCoOrdinatesOnCurve(self.value,self.nid)
+        points = PyECPoint.GetAffineCoOrdinatesOnCurve(self.value,self.nid,self.isDec)
         return points
-
+        
+    def x(self):
+        points = self.GetAffineCoOrdinates()
+        return points[0]
+        
+        
+        
     def SetValue(self, value):        
         self.value = value; 
 
     def IsPointOnCurve (self):
-        if(PyECPoint.checkOnCurveFromHexOnCurve(self.value,self.nid)):
+        if(PyECPoint.checkOnCurveFromHexOnCurve(self.value,self.nid,self.isDec)):
             return True
         return False
         
     def GetGeneratorPoint(self):
+        genPoint = ECPoint(self.nid,self.isDec)
+        genPoint.value = PyECPoint.GetGenerator(self.value, self.nid,self.isDec);
+        return genPoint
+        
+    def GetGeneratorPointDec(self):
         genPoint = ECPoint(self.nid)
-        genPoint.value = PyECPoint.GetGenerator(self.value, self.nid);
+        genPoint.value = self.value
+        genPoint.value = PyECPoint.GetGeneratorDec(self.value, self.nid);
         return genPoint
         
     def multiplyByGenerator(self, m):
+        #
         GenPoint = self.GetGeneratorPoint();
         ecPointvalue = GenPoint.multipleScalar(m)
         return ecPointvalue
         
+    def GetOrder (self):
+        order = PyECPoint.GetGroupOrderFromHex(self.value, self.nid);
+        return order
+    
+    def GetDegree(self):
+        deg = PyECPoint.GetGroupDegreeFromHex(self.value, self.nid);
+        return deg
+        
     def __str__(self):
         return self.value
+        
+    def __repr__(self):
+        points = self.GetAffineCoOrdinates()
+        return '({},{})'.format (points[0],points[1])
 
 def MultiplyByGenerator(m, nid=714):
     pt = ECPoint(nid)
     return pt.multiplyByGenerator(m)
+
+def MultiplyByGeneratorDec(m, nid=714):
+    value = PyECPoint.MultiplyByGeneratorDec(m.value,nid)
+    pt = ECPoint(nid)
+    pt.value = value
+    return pt
+
     
         
 class ECKey256K1:
@@ -294,6 +437,7 @@ class Polynomial:
             obj = cls(len(coeffs)-1, modulo) 
             obj.coefficients = coeffs ; 
             obj.isDec = True
+            obj.modulo = modulo
             return obj
         else :
             raise Exception( 'one (or more) coefficients is not a valid hexadecimal string. coefficients: {}'.format(coeffs) )
@@ -310,6 +454,7 @@ class Polynomial:
             obj = cls(len(coeffs)-1, modulo) 
             obj.coefficients = coeffs ; 
             obj.isDec = False
+            obj.modulo = modulo
             return obj
         else :
             raise Exception( 'one (or more) parameters is not a valid hexadecimal string. coefficients: {}, modulo: {}'.format(coeffs, modulo) )
@@ -355,23 +500,30 @@ class LGInterpolator:
 
     def __call__(self, xValue, basisValue=None) :
         if basisValue is None :
-            return PyPolynomial.LGInterpolatorFull( self.points, self.modulo, xValue, self.isDec )
-
-        return PyPolynomial.LGInterpolatorSingle( self.points, self.modulo, xValue, basisValue, self.isDec )
+            val = PyPolynomial.LGInterpolatorFull( self.points, self.modulo, xValue, self.isDec )
+            retVal = BigNum(val,self.modulo,self.isDec)
+            return retVal
+            #return PyPolynomial.LGInterpolatorFull( self.points, self.modulo, xValue, self.isDec )
+        
+        val = PyPolynomial.LGInterpolatorSingle( self.points, self.modulo, xValue, basisValue, self.isDec )
+        retVal = BigNum(val,self.modulo,self.isDec)
+        return retVal
+        #return PyPolynomial.LGInterpolatorSingle( self.points, self.modulo, xValue, basisValue, self.isDec )
         
 
     def __str__(self):
         return "points: {0}, modulo: {1}".format (self.points, self.modulo)
         
 class LGECInterpolator:
-    def __init__(self, xfx, modulo ):
+    def __init__(self, xfx, modulo,decimal):
         self.points = xfx
         self.modulo = modulo
+        self.decimal = decimal
 
     def __call__(self, xValue, basisValue=None) :
-        retval= PyPolynomial.LGECInterpolatorFull(self.points, self.modulo, xValue)
         retObj = ECPoint()
-        retObj.value = PyPolynomial.LGECInterpolatorFull(self.points, self.modulo, xValue)
+        retObj.isDec = self.decimal
+        retObj.value = PyPolynomial.LGECInterpolatorFull(self.points, self.modulo, xValue,self.decimal)
         return retObj
         
 

@@ -223,4 +223,23 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
   return retVal;
 }
 
+std::vector<uint8_t> HexToUInt (const std::string& hexStr){
+  size_t len(0);
+  std::unique_ptr<unsigned char[]> binChar =  HexStrToBin(hexStr, &len);
+  std::vector<uint8_t> ret; 
+  if(len != 0){
+    for(int i = 0;i<len;++i){
+      ret.push_back(binChar[i]);
+    }
+  }
+  return ret;
+}
 
+std::string UintToHex(const std::vector<uint8_t>& UintRep){
+  std::unique_ptr<unsigned char[]> uncharRep (new unsigned char[UintRep.size()]);
+  int index(0);
+  for(std::vector<uint8_t>::const_iterator iter = UintRep.begin(); iter != UintRep.end(); ++iter){
+    uncharRep[index++] = *iter; 
+  }
+  return (binTohexStr(uncharRep, UintRep.size()));
+}

@@ -37,7 +37,7 @@ class ECPointImpl
             m_nid = NID_secp256k1;
         }
 
-	ECPointImpl(const BigNumber& x, const BigNumber& y);
+	    ECPointImpl(const BigNumber& x, const BigNumber& y, const int& nid = NID_secp256k1);
 
         ECPointImpl(const int& nid) 
         {
@@ -109,11 +109,15 @@ class ECPointImpl
         // Double the ECPointImpl
         std::unique_ptr<ECPointImpl> Double();
 
-        std::string ToHex();
+        std::string ToHex(const bool& compressed = true);
         bool FromHex(const std::string& hexStr, int nid);
+
+        std::string ToDec();
+        bool FromDec(const std::string& decStr, int nid); 
 
         void SetRandom ();
         std::pair<std::string, std::string> GetAffineCoords_GFp ();
+        std::pair<std::string, std::string> GetAffineCoords_GFp_Dec ();
 
     private:
 

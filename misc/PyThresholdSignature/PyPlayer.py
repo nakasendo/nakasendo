@@ -1,4 +1,6 @@
 import json
+import Nakasendo
+
 
 class Player:
 
@@ -8,6 +10,19 @@ class Player:
         self.Accepted = Accepted
         self.Rejected = Rejected
 
+    def CreatePolynomial(self,degree, mod, decimal=False):
+        if(decimal):
+            self.polynomial = Nakasendo.Polynomial.initRandomDec(degree,mod)
+        else:
+            self.polynomial = Nakasendo.Polynomial.initRandomHex(degree,mod)
+
+    
+    def __eq__(self, other): 
+        if not isinstance(other, Player):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.Ordinal == other.Ordinal and self.URI == other.URI
+        
     def getURI(self):
         return self.URI
 

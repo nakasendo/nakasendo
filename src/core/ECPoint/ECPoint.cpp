@@ -116,9 +116,18 @@ std::pair<std::string, std::string> ECPoint::GetAffineCoords_GFp (){
     return pImpl()->GetAffineCoords_GFp () ;
 }
 
-std::string ECPoint::ToHex()
+std::pair<std::string, std::string> ECPoint::GetAffineCoords_GFp_Dec (){
+    return pImpl()->GetAffineCoords_GFp_Dec () ;
+}
+
+std::string ECPoint::ToHex(const bool& compressed)
 {
-    return  this->pImpl()->ToHex();
+    return  this->pImpl()->ToHex(compressed);
+}
+
+std::string ECPoint::ToDec()
+{
+    return  this->pImpl()->ToDec();
 }
 
 int ECPoint::GroupNid() const
@@ -131,6 +140,9 @@ bool ECPoint::FromHex(const std::string& hexStr, int nid)
     return this->pImpl()->FromHex(hexStr, nid);
 }
 
+bool ECPoint::FromDec(const std::string& decStr, int nid){
+    return this->pImpl()->FromDec(decStr, nid);
+}
 std::vector<std::tuple<int, std::string, std::string>> getCurveList()
 {
     return  _getCurveList(); 

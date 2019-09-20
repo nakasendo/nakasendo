@@ -1,4 +1,5 @@
 #include <MessageHash/MessageHash.h>
+#include <vector>
 #include <MessageHash/MessageHashImpl.h>
 
 MessageHash::MessageHash(): m_pImpl(new MessageHashImpl)
@@ -21,10 +22,22 @@ void MessageHash::Hash(const std::string& msg, const std::string& hashfunc)
     m_pImpl->Hash (msg, hashfunc);
 }
 
-std::unique_ptr<unsigned char> MessageHash::Value(){
+void MessageHash::Hash(const std::vector<uint8_t>& msg,  const std::string& hashfunc){
+    m_pImpl->Hash(msg, hashfunc);
+}
+
+std::unique_ptr<unsigned char[]> MessageHash::Value(){
     return m_pImpl->HashVal();
 }
 
+std::vector<uint8_t> MessageHash::HashValueBytes(){
+    std::unique_ptr<unsigned char[]> val (Value());
+    std::vector<uint8_t> ret;
+    for(int i = 0; i<m_pImpl->HashLength(); ++i){
+        ret.push_back(val[i]);
+    }
+    return ret;
+}
 std::string MessageHash::HashHex ()
 {
     return (m_pImpl->hashValHex());

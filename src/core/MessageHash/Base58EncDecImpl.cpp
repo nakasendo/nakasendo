@@ -31,7 +31,7 @@ std::string Base58EncDecImpl::encodeCheck (const messageVec& vchIn){
         hashInput.push_back(*iter);
     }
     // hash-twice for SV
-    std::string hashVal = HashMsgSHA256(hashInput);
+    std::string hashVal = HashMsgSHA256( HashMsgSHA256( hashInput ) ) ;
     
     // add the the first 4 bytes.
     for (int i=0; i<4; ++i)
@@ -154,7 +154,7 @@ messageVec Base58EncDecImpl::decodeCheck(const std::string& msg){
         hashInput.push_back(*iter);
     }
 
-    std::string hashVal = HashMsgSHA256(hashInput);
+    std::string hashVal = HashMsgSHA256( HashMsgSHA256( hashInput ) ) ;
     
     messageVec::iterator iter = retVal.end() - 4;     
     for (int i = 0 ; i<4; ++i ){

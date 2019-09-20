@@ -28,7 +28,7 @@ class ECPoint_API ECPoint
 
     public:
         explicit ECPoint();
-	ECPoint(const BigNumber& x, const BigNumber& y);
+	    ECPoint(const BigNumber& x, const BigNumber& y);
         ~ECPoint();
         ECPoint(const int& nid);
         ECPoint(const std::string& NIDstring);
@@ -50,11 +50,16 @@ class ECPoint_API ECPoint
         bool CheckInfinity();
         bool CheckOnCurve();
 
-        std::string ToHex();
+        std::string ToHex(const bool& compressed = true);
+        std::string ToDec();
+
         int GroupNid()const;
 
         bool FromHex(const std::string& hexStr, int nid=-1);
+        bool FromDec(const std::string& decStr, int nid=-1);
+
         std::pair<std::string, std::string> GetAffineCoords_GFp () ;
+        std::pair<std::string, std::string> GetAffineCoords_GFp_Dec ();
 
         BigNumber getECGroupOrder() const;
         int getECGroupDegree() const;

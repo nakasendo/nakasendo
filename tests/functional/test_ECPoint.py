@@ -12,7 +12,7 @@ def test_GenerateRandomECHex():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        actual_value = PyECPoint.GenerateRandomECHex()
+        actual_value = PyECPoint.GenerateRandomECHex(False)
 
         # Verifying the the length of actual value as 66
         assert len(actual_value) == 66, "Test failed"
@@ -23,7 +23,7 @@ def test_GenerateECHexFromHex():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        value_ECHex = PyECPoint.GenerateRandomECHex()
+        value_ECHex = PyECPoint.GenerateRandomECHex(False)
 
         #Generate a EC Point from hex string with default NID ==> NID_secp256k1
         actual_value = PyECPoint.GenerateECHexFromHex(value_ECHex)
@@ -48,7 +48,7 @@ def test_GenerateECHexFromHexOnCurve():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        value_ECHex = PyECPoint.GenerateRandomECHex()
+        value_ECHex = PyECPoint.GenerateRandomECHex(False)
 
         #Generate a EC Point from hex string with supplied NID
         actual_value = PyECPoint.GenerateECHexFromHexOnCurve(value_ECHex, nid_Id)
@@ -61,12 +61,12 @@ def test_CheckOnCurve():
     # Generating Random EC Points
     for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        value_ECHex = PyECPoint.GenerateRandomECHex()
+        value_ECHex = PyECPoint.GenerateRandomECHex(False)
 
         # Generate a EC Point from hex string with supplied NID
         hexOnCurve_value = PyECPoint.GenerateECHexFromHexOnCurve(value_ECHex, nid_Id)
         #Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        actual_value = PyECPoint.CheckOnCurve(hexOnCurve_value)
+        actual_value = PyECPoint.CheckOnCurve(hexOnCurve_value,False)
 
         # Verifying the actual value as True or False
         assert actual_value, "Test failed"
@@ -77,13 +77,13 @@ def test_GetAffineCoOrdinates():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        hexValue = PyECPoint.GenerateRandomECHex()
+        hexValue = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(hexValue), "Test failed"
+        assert PyECPoint.CheckOnCurve(hexValue,False), "Test failed"
 
         # EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1
-        x_axis, y_axis = PyECPoint.GetAffineCoOrdinates(hexValue)
+        x_axis, y_axis = PyECPoint.GetAffineCoOrdinates(hexValue,False)
 
         assert len(x_axis) == 62 or len(x_axis) == 64, "Test failed"
 
@@ -92,13 +92,13 @@ def test_GetAffineCoOrdinatesOnCurve():
     # Generating Random EC Points
     for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        hexValue = PyECPoint.GenerateRandomECHex()
+        hexValue = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(hexValue), "Test failed"
+        assert PyECPoint.CheckOnCurve(hexValue,False), "Test failed"
 
         # EC Point GetAffineCoOrdinates_GFp with supplied curve
-        x_axis, y_axis = PyECPoint.GetAffineCoOrdinatesOnCurve(hexValue, nid_Id)
+        x_axis, y_axis = PyECPoint.GetAffineCoOrdinatesOnCurve(hexValue, nid_Id,False)
 
         assert len(x_axis) == 62 or len(x_axis) == 64, "Test failed"
 
@@ -122,7 +122,7 @@ def test_AddECFromHex(test_data_dir):
             hexNumber = x.split(",")
 
             # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-            assert PyECPoint.CheckOnCurve(hexNumber[0]), "Test failed"
+            assert PyECPoint.CheckOnCurve(hexNumber[0],False), "Test failed"
 
             # Add two ECPoints in hex with the default NID ==> NID_secp256k1
             actual_value = PyECPoint.addFromHex(hexNumber[0], hexNumber[1])
@@ -139,10 +139,10 @@ def test_AddECFromHexWithCurveID(test_data_dir):
             hexNumber = x.split(",")
 
             # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-            assert PyECPoint.CheckOnCurve(hexNumber[0]), "Test failed"
+            assert PyECPoint.CheckOnCurve(hexNumber[0],False), "Test failed"
 
             # Add two ECPoints in hex with the supplied curve IDs
-            actual_value = PyECPoint.addFromHexWithCurveID(hexNumber[0], hexNumber[1], nid_Id)
+            actual_value = PyECPoint.addFromHexWithCurveID(hexNumber[0], hexNumber[1], nid_Id,False)
 
             # Verifying the actual value with expected value
             assert actual_value == hexNumber[2].rstrip("\n") and len(actual_value) == 66, "Test failed"
@@ -153,11 +153,11 @@ def test_MultiplyScalarM():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        x = PyECPoint.GenerateRandomECHex()
-        y = PyECPoint.GenerateRandomECHex()
+        x = PyECPoint.GenerateRandomECHex(False)
+        y = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(x) and PyECPoint.CheckOnCurve(y), "Test failed"
+        assert PyECPoint.CheckOnCurve(x,False) and PyECPoint.CheckOnCurve(y,False), "Test failed"
 
         # EC Point Scalar multiply with default NID => NID_secp256k1
         actual_value = PyECPoint.MultiplyScalarM(x, y)
@@ -170,9 +170,9 @@ def test_MultiplyScalarMN():
     # Generating Random EC Points
     for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         #Generate a Random Big number M and N using BigNumberAPIs
         bigNumbM = PyBigNumbers.GenerateRandDec(257)
@@ -190,14 +190,14 @@ def test_MultiplyScalarMOnCurve():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        x = PyECPoint.GenerateRandomECHex()
-        y = PyECPoint.GenerateRandomECHex()
+        x = PyECPoint.GenerateRandomECHex(False)
+        y = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(x) and PyECPoint.CheckOnCurve(y) , "Test failed"
+        assert PyECPoint.CheckOnCurve(x,False) and PyECPoint.CheckOnCurve(y,False) , "Test failed"
 
         # EC Point Scalar multiply on curve with supplied ID
-        actual_value = PyECPoint.MultiplyScalarMOnCurve(x, y, nid_Id)
+        actual_value = PyECPoint.MultiplyScalarMOnCurve(x, y, nid_Id,False)
 
         # Verifying the actual value with expected value
         assert len(actual_value) == 66, "Test failed"
@@ -207,9 +207,9 @@ def test_MultiplyScalarMNOnCurve():
     # Generating Random EC Points
     for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         #Generate a Random Big number M and N using BigNumberAPIs
         bigNumbM = PyBigNumbers.GenerateRandDec(257)
@@ -226,9 +226,9 @@ def test_CheckInfinityFromHex():
     # Generating Random EC Points
     for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         # Check if the given point is at infinity with default NID ==> NID_secp256k1
         actual_value = PyECPoint.GenerateECHexFromHex(ecPoint_value)
@@ -239,9 +239,9 @@ def test_CheckInfinityFromHexCurve():
     # Generating Random EC Points
     for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         # Check if the given point is at infinity on the given curve ID
         actual_value = PyECPoint.GenerateECHexFromHex(ecPoint_value)
@@ -252,16 +252,16 @@ def test_CheckOnCurveFromHexOnCurve():
     # Generating Random EC Points
     for x in range(100):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         # Check if the given point is at infinity on the given curve ID
         actual_value = PyECPoint.GenerateECHexFromHex(ecPoint_value)
         assert PyECPoint.checkInfinityFromHexCurve(actual_value,  nid_Id) is False, "Test failed"
 
         #Check if the point is on the curve with supplied curve ID
-        assert PyECPoint.checkOnCurveFromHexOnCurve(actual_value,  nid_Id) is True, "Test failed"
+        assert PyECPoint.checkOnCurveFromHexOnCurve(actual_value,  nid_Id,False) is True, "Test failed"
 
 def test_CompareECPoint():
 
@@ -269,11 +269,11 @@ def test_CompareECPoint():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
-        ecPoint_value2 = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
+        ecPoint_value2 = PyECPoint.GenerateRandomECHex(False)
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
-        assert PyECPoint.CheckOnCurve(ecPoint_value2), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value2,False), "Test failed"
 
         #Compare two given ECPoints
         assert PyECPoint.compare(ecPoint_value, ecPoint_value2) is False, "Test failed"
@@ -284,17 +284,17 @@ def test_CompareCurveECPoint():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
-        ecPoint_value2 = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
+        ecPoint_value2 = PyECPoint.GenerateRandomECHex(False)
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
-        assert PyECPoint.CheckOnCurve(ecPoint_value2), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value2,False), "Test failed"
 
         #Compare two given ECPoints
         assert PyECPoint.compare(ecPoint_value, ecPoint_value2) is False, "Test failed"
 
         #Compare two given ECPoints with a Curve ID
-        assert PyECPoint.compareCurve(ecPoint_value, ecPoint_value2, nid_Id) is False, "Test failed"
+        assert PyECPoint.compareCurve(ecPoint_value, ecPoint_value2, nid_Id,False) is False, "Test failed"
 
 def test_DoubleFromHex():
 
@@ -302,10 +302,10 @@ def test_DoubleFromHex():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         #Double the ECPoint in hex with the default NID ==> NID_secp256k1
         actual_value = PyECPoint.doubleFromHex(ecPoint_value)
@@ -319,10 +319,10 @@ def test_DoubleFromHexCurve():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         #Double the ECPoint in hex with the default NID ==> NID_secp256k1
         doubleECPoint_value = PyECPoint.doubleFromHex(ecPoint_value)
@@ -339,10 +339,10 @@ def test_InvertFromHex():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         #Invert the ECPoint in hex with the default NID ==> NID_secp256k1
         actual_value = PyECPoint.invertFromHex(ecPoint_value)
@@ -356,10 +356,10 @@ def test_InvertFromHexCurve():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         #Double the ECPoint in hex with the default NID ==> NID_secp256k1
         doubleECPoint_value = PyECPoint.invertFromHex(ecPoint_value)
@@ -376,13 +376,13 @@ def test_GetGenerator():
     for x in range(100):
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        ecPoint_value = PyECPoint.GenerateRandomECHex()
+        ecPoint_value = PyECPoint.GenerateRandomECHex(False)
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+        assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
         #EC Point Generator with the supplied curve ID
-        actual_value = PyECPoint.GetGenerator(ecPoint_value, nid_Id)
+        actual_value = PyECPoint.GetGenerator(ecPoint_value, nid_Id,False)
 
         # Verifying the the length of actual value as 66
         assert len(actual_value) == 66, "Test failed"
@@ -390,13 +390,13 @@ def test_GetGenerator():
 def test_GetGroupDegreeFromHex(test_data_dir):
 
     # Generate a Random EC Point with default NID ==> NID_secp256k1
-    ecPoint_value = PyECPoint.GenerateRandomECHex()
+    ecPoint_value = PyECPoint.GenerateRandomECHex(False)
 
     # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-    assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+    assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
     # EC Point Generator with the supplied curve ID
-    generator_Point = PyECPoint.GetGenerator(ecPoint_value, nid_Id)
+    generator_Point = PyECPoint.GetGenerator(ecPoint_value, nid_Id,False)
 
     # Reading a Random generated EC Point with default NID ==> NID_secp256k1 from file
     with open(test_data_dir/"testData_GetGroupDegree", "r") as getGrpDegree_txt:#Test data are generated from https://svn.python.org/projects/external/openssl-0.9.8a/crypto/ec/ec_curve.c
@@ -414,13 +414,13 @@ def test_GetGroupDegreeFromHex(test_data_dir):
 def test_GetGroupOrderFromHex(test_data_dir):
 
     # Generate a Random EC Point with default NID ==> NID_secp256k1
-    ecPoint_value = PyECPoint.GenerateRandomECHex()
+    ecPoint_value = PyECPoint.GenerateRandomECHex(False)
 
     # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-    assert PyECPoint.CheckOnCurve(ecPoint_value), "Test failed"
+    assert PyECPoint.CheckOnCurve(ecPoint_value,False), "Test failed"
 
     # EC Point Generator with the supplied curve ID
-    generator_Point = PyECPoint.GetGenerator(ecPoint_value, nid_Id)
+    generator_Point = PyECPoint.GetGenerator(ecPoint_value, nid_Id,False)
 
     # Reading a Random generated EC Point with default NID ==> NID_secp256k1 from file
     with open(test_data_dir/"testData_GetGroupDegree", "r") as getGrpDegree_txt: #Test data are generated from https://svn.python.org/projects/external/openssl-0.9.8a/crypto/ec/ec_curve.c

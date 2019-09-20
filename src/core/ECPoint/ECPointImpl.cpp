@@ -39,8 +39,16 @@ std::unique_ptr<ECPointImpl> Add(const ECPointImpl *obj1, const ECPointImpl *obj
     return std::move(ResImpl);
 }
 
-ECPointImpl::ECPointImpl(const BigNumber& bn_obj_x, const BigNumber& bn_obj_y):ECPointImpl()
+ECPointImpl::ECPointImpl(const BigNumber& bn_obj_x, const BigNumber& bn_obj_y, const int& nid)
 {
+    // Construct a builtin curve 
+    if((m_gp = EC_GROUP_new_by_curve_name(nid)) == nullptr)
+    {
+        throw std::runtime_error("error : Failed to allocate curve");
+    }
+    m_ec = EC_POINT_new(m_gp);
+
+    m_nid = nid;
     std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
 
     // Get BN from Hex String
@@ -98,7 +106,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithDecBigNum (const std::stri
 
 
 
-    // Get BN from Hex String
+    // Get BN from Dec String
     BIGNUM *mPtr = nullptr;
     BN_dec2bn(&mPtr, bn_obj_m.c_str());
     BN_ptr bn_obj_m_uptr {mPtr, ::BN_free};
@@ -160,6 +168,7 @@ bool Compare(const ECPointImpl *obj1, const ECPointImpl *obj2)
     }
 
     if ( obj1->getNid() != obj2->getNid()){
+        std::cout << "NIDS NOT EQUAL" << std::endl;
         return false;
     }
     // Allocate for CTX 
@@ -175,6 +184,7 @@ bool Compare(const ECPointImpl *obj1, const ECPointImpl *obj2)
 
     if (res != 0)
     {
+        std::cout << "Points not equal "<< res <<  std::endl;
         return false;
     }
 
@@ -246,15 +256,21 @@ bool ECPointImpl::CheckOnCurve()
     return res == 0 ? false : true;
 }
 
-
-std::string ECPointImpl::ToHex()
+/*
+An EC Point is a point (X, Y)
+Its serialization is 04+X+Y as uncompressed, and (02+X as compressed if Y is even), and (03+X as compressed if Y is odd). X and Y are here the corresponding 64-character hexadecimal string
+*/
+std::string ECPointImpl::ToHex(const bool& compressed)
 {
     char *ecChar = nullptr; 
     
     // Allocate for CTX 
     std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
+    if(compressed)
+        ecChar  = EC_POINT_point2hex(m_gp, m_ec, POINT_CONVERSION_COMPRESSED, ctxptr.get());
+    else
+        ecChar  = EC_POINT_point2hex(m_gp, m_ec, POINT_CONVERSION_UNCOMPRESSED, ctxptr.get());
 
-    ecChar  = EC_POINT_point2hex(m_gp, m_ec, POINT_CONVERSION_COMPRESSED, ctxptr.get());
     if ( ecChar == nullptr)
     {
 	    std::runtime_error("Failed to convert EC Point to Hex");
@@ -265,6 +281,24 @@ std::string ECPointImpl::ToHex()
     // free 
     OPENSSL_free(ecChar);
 
+    return ecStr;
+}
+
+std::string ECPointImpl::ToDec()
+{
+    char *ecChar = nullptr; 
+    
+    // Allocate for CTX 
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
+    BN_ptr bn_obj_n_uptr {BN_new(), ::BN_free};
+    EC_POINT_point2bn(m_gp, m_ec, POINT_CONVERSION_COMPRESSED, bn_obj_n_uptr.get(), ctxptr.get());
+    ecChar = BN_bn2dec(bn_obj_n_uptr.get());
+    if ( ecChar == nullptr){
+	    std::runtime_error("Failed to convert EC Point to Hex");
+    }
+    std::string ecStr(ecChar) ;
+    // free 
+    OPENSSL_free(ecChar);
     return ecStr;
 }
 
@@ -296,6 +330,36 @@ bool ECPointImpl::FromHex(const std::string& hexStr, int nid)
     return true;
 }
 
+bool ECPointImpl::FromDec(const std::string& decStr, int nid)
+{
+    if(nid != -1){
+        m_nid = nid;
+        if (m_ec != nullptr)
+            EC_POINT_free (m_ec);
+        if(m_gp != nullptr)
+            EC_GROUP_free(m_gp);
+        
+        m_gp = EC_GROUP_new_by_curve_name(nid);
+        m_ec = EC_POINT_new(m_gp);
+    }
+      
+    
+    // Allocate for CTX
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
+    if (ctxptr == nullptr) {
+        return false;
+    }
+    BN_ptr bn_obj_n_uptr {BN_new(), ::BN_free};
+
+    BIGNUM * ptr = bn_obj_n_uptr.get();
+    BN_dec2bn(&ptr, decStr.c_str());
+    m_ec = EC_POINT_bn2point(m_gp, bn_obj_n_uptr.get(), m_ec, ctxptr.get());
+    if (m_ec == nullptr){
+        return false;
+    }
+
+    return true;
+}
 void ECPointImpl::SetRandom(){
     /* I believe this is correct but a real scientist might have to tell me the truth
         1) Initial a EC_POINT P as generator.
@@ -340,6 +404,33 @@ std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp (){
 
     char *xCharVal = BN_bn2hex(x.get());
     char *yCharVal = BN_bn2hex(y.get());
+    xVal = xCharVal;
+    yVal = yCharVal;
+    OPENSSL_free(xCharVal);
+    OPENSSL_free(yCharVal);
+    return std::make_pair(xVal, yVal);
+}
+
+std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp_Dec (){
+    std::string xVal, yVal ;
+
+    std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
+    
+    if (!EC_POINT_is_on_curve(m_gp,m_ec, ctxptr.get())){
+        std::cout << "Point not on the required curve.." << std::endl;
+        return std::make_pair(xVal, yVal) ;
+    }
+
+    BN_ptr x ( BN_new(), ::BN_free );
+    BN_ptr y ( BN_new(), ::BN_free );
+   
+    if (!EC_POINT_get_affine_coordinates_GFp(m_gp, m_ec, x.get(), y.get(), ctxptr.get())){
+         std::cout << "Unable to get affine coordinates.." << std::endl;
+        return std::make_pair(xVal, yVal);
+    }
+
+    char *xCharVal = BN_bn2dec(x.get());
+    char *yCharVal = BN_bn2dec(y.get());
     xVal = xCharVal;
     yVal = yCharVal;
     OPENSSL_free(xCharVal);
