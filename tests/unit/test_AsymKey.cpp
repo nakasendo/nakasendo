@@ -354,8 +354,8 @@ BOOST_AUTO_TEST_CASE(test_key_derive_wp0042)
 BOOST_AUTO_TEST_CASE(test_private_key_split)
 {
     AsymKey randomKey;
-    int t=20;
-    int k=100;
+    int t=5;
+    int k=7;
     std::vector<KeyShare> shares = randomKey.split(t,k); 
 
     //pick 10 different sets of 10 shares and try to recreate the key
