@@ -18,7 +18,6 @@ def curveFromJson(curveDtStr):
     curveDt = json.loads(curveDtStr)
     return ecdsa.ellipticcurve.CurveFp(p=curveDt['p'], a=curveDt['a'], b=curveDt['b'])
 
-
 def PointToJson(point=None):
     if (point is None or (not isinstance(point, ecdsa.ellipticcurve.Point))):
       return None
@@ -262,3 +261,121 @@ class GroupSecretPublicMessage:
                 val = json.loads(val)
             if(val["val_type"] == "Point"):
                 self.player_public_a0[int(ordinal)] = PointFromJson(val)
+
+# Coefficeint Messages
+class EncryptedECPointsMessages:
+
+    def __init__(self, groupId = None, encrypted_ecpoints = None ):
+        # dict -> { ordinal --> [ec1, ec2....ecN]}
+        self.mGroupID = groupId
+        if (encrypted_ecpoints is None):
+            self.encrypted_ecpoints = {}
+        else:
+            self.encrypted_ecpoints = encrypted_ecpoints
+
+
+    def addEncryptedECPointsMessage(self, groupId, ordinal, encrypted_ecpoints):
+        self.encrypted_ecpoints[ordinal] = encrypted_ecpoints
+        self.mGroupID = groupId
+
+    def deleteEncryptedECPointsMessage(self, ordinal):
+        del self.encrypted_ecpoints[ordinal]
+
+    def clearEncryptedECPointsMessage(self):
+        self.encrypted_ecpoints.clear()
+
+    def getGroupID(self):
+        return self.mGroupID
+
+    def getEncryptedECPointsMessage(self):
+        return self.encrypted_ecpoints
+
+    def __str__(self):
+        val = ""
+        val = val + str(self.mGroupID) + "  "
+        for _ordinal in self.encrypted_ecpoints.keys():
+            val += "\n" + str(_ordinal) + " : " + str(self.encrypted_ecpoints[_ordinal])
+        return val
+
+    def to_json(self):
+        coeffDt = {}
+        coeffDt['GroupID'] = self.mGroupID
+        isDt = {}
+        for ordinal, ec_coefficeints in self.encrypted_ecpoints.items():
+            eccoefficeint = []
+            for ec_coefficeint in ec_coefficeints:
+                eccoefficeint.append(PointToJson(ec_coefficeint))
+            isDt[int(ordinal)] = json.dumps(eccoefficeint)
+            eccoefficeint.clear()
+        coeffDt['EncryptedEncryptedECPoints'] = json.dumps(isDt)
+        return json.dumps(coeffDt)
+
+    def from_json(self, encrypted_ecpoints):
+        coeffDt = json.loads(encrypted_ecpoints)
+        self.mGroupID = coeffDt['GroupID']
+        eccoefficeint = []
+        for ordinal, val in json.loads(coeffDt['EncryptedEncryptedECPoints']).items():
+            val = json.loads(val)
+            for ec_coefficeint in val:
+                eccoefficeint.append(PointFromJson(ec_coefficeint))
+            self.encrypted_ecpoints[int(ordinal)] = eccoefficeint
+
+# Encrypted Functional EC Points
+
+class EncryptedFunctionECPointsMessages:
+
+    def __init__(self, groupId = None, encrypted_ecpoints = None ):
+        # dict -> { ordinal --> [ec1, ec2....ecN]}
+        self.mGroupID = groupId
+        if (encrypted_ecpoints is None):
+            self.encrypted_ecpoints = {}
+        else:
+            self.encrypted_ecpoints = encrypted_ecpoints
+
+
+    def addEncryptedECPointsMessage(self, groupId, ordinal, encrypted_ecpoints):
+        self.encrypted_ecpoints[ordinal] = encrypted_ecpoints
+        self.mGroupID = groupId
+
+    def deleteEncryptedECPointsMessage(self, ordinal):
+        del self.encrypted_ecpoints[ordinal]
+
+    def clearEncryptedECPointsMessage(self):
+        self.encrypted_ecpoints.clear()
+
+    def getGroupID(self):
+        return self.mGroupID
+
+    def getEncryptedECPointsMessage(self):
+        return self.encrypted_ecpoints
+
+    def __str__(self):
+        val = ""
+        val = val + str(self.mGroupID) + "  "
+        for _ordinal in self.encrypted_ecpoints.keys():
+            val += "\n" + str(_ordinal) + " : " + str(self.encrypted_ecpoints[_ordinal])
+        return val
+
+    def to_json(self):
+        coeffDt = {}
+        coeffDt['GroupID'] = self.mGroupID
+        isDt = {}
+        for ordinal, ec_coefficeints in self.encrypted_ecpoints.items():
+            eccoefficeint = []
+            for ec_coefficeint in ec_coefficeints:
+                eccoefficeint.append((ec_coefficeint[0], PointToJson(ec_coefficeint[1])))
+            isDt[int(ordinal)] = json.dumps(eccoefficeint)
+            eccoefficeint.clear()
+        coeffDt['EncryptedEncryptedECPoints'] = json.dumps(isDt)
+        return json.dumps(coeffDt)
+
+    def from_json(self, encrypted_ecpoints):
+        coeffDt = json.loads(encrypted_ecpoints)
+        self.mGroupID = coeffDt['GroupID']
+        eccoefficeint = []
+        for ordinal, val in json.loads(coeffDt['EncryptedEncryptedECPoints']).items():
+            val = json.loads(val)
+            for ec_coefficeint in val:
+                eccoefficeint.append((ec_coefficeint[0], PointFromJson(ec_coefficeint[1])))
+            self.encrypted_ecpoints[int(ordinal)] = eccoefficeint
+

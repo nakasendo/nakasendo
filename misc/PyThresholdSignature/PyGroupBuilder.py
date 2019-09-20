@@ -7,7 +7,7 @@ from PyGroupSetupMessage import GroupSetupMessage, GroupSetupResponseMessage, Gr
 
 class GroupBuilder:
 
-    def __init__(self, uri, ordinal, groupID = None, setupMsg = None):
+    def __init__(self, uri, ordinal, threshold_value=-1, groupID = None, setupMsg = None):
         if (groupID is None):
             groupID = UUID().getUUIDString()
        
@@ -17,9 +17,11 @@ class GroupBuilder:
         self.playerInfo = {} # ordinal : player_url
         self.secretShares = {} # key : share
         self.playerInfo[ordinal] = uri
+        self.threshold_value = threshold_value
 
-    def getInitialSetupMessage(self):
-        setupMsg = GroupSetupMessage(uri=self.mMyUri, groupID = self.mGroupID, ordinal=self.ordinal)
+    def getInitialSetupMessage(self, threshold_value=-1):
+        self.threshold_value = threshold_value
+        setupMsg = GroupSetupMessage(uri=self.mMyUri, groupID = self.mGroupID, ordinal=self.ordinal, threshold_value=threshold_value)
         return setupMsg
 
     def getPlayerInfo(self):
@@ -31,10 +33,14 @@ class GroupBuilder:
                 return _ordinal
         return -1
 
+    def getThresholdValue(self):
+        return self.threshold_value
+
     def processInitialSetupMessage(self, setupMsg):
         if (setupMsg != None):
             self.mGroupID = setupMsg.getGroupID()
             self.playerInfo[setupMsg.getOrdinal()] = setupMsg.getMyUrl()
+            self.threshold_value = setupMsg.getThresholdValue()
 
     def getInitialSetupResponseMessage(self):
         resMsg = GroupSetupResponseMessage(uri=self.mMyUri, groupID=self.mGroupID, ordinal=self.ordinal)
@@ -71,7 +77,6 @@ class GroupBuilder:
 
     def deleteAllGroupSecetShareBuilders(self):
         self.secretShares.clear()
-
 
 
 if __name__ == '__main__':
