@@ -119,7 +119,7 @@ class GroupSecretPlayerBuilder:
             self.ownPolynomialFunctions[playerItem.getPlayer().getURI()] = self.rp(playerItem.getPlayer().getOrdinal())
 
         if (groupBuilder != None):
-            groupBuilder.registerGroupSecetShareBuilder(groupSecetBuilder=self, guid=self.mGroupID)
+            groupBuilder.registerGroupSecetShareBuilder(groupSecetBuilder=self)
 
         #print("================"+self.mMyUri+"================")
         # dump own polynomialFunctions

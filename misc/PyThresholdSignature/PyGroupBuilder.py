@@ -65,12 +65,9 @@ class GroupBuilder:
     def getSecretShareEntry(self, key):
         return self.secretShares[key]
 
-    def registerGroupSecetShareBuilder(self, groupSecetBuilder, guid=None):
+    def registerGroupSecetShareBuilder(self, groupSecetBuilder):
 
-        if (guid == None):
-            guid = UUID().getUUIDString()
-
-        self.secretShares[UUID().getUUIDString()] = groupSecetBuilder
+        self.secretShares[groupSecetBuilder.getID()] = groupSecetBuilder
 
     def unRegisterGroupSecetShareBuilder(self, guid):
         del self.secretShares[guid]

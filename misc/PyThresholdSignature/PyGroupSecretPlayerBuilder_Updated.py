@@ -144,7 +144,7 @@ class GroupSecretPlayerBuilder:
         self.ownPolynomialFunctions_ecpoints[self.getPlayer().getOrdinal()] = functional_ec
 
         if (groupBuilder != None):
-            groupBuilder.registerGroupSecetShareBuilder(groupSecetBuilder=self, guid=self.mGroupID)
+            groupBuilder.registerGroupSecetShareBuilder(groupSecetBuilder=self)
 
         #print("================"+self.mMyUri+"================")
         # dump own polynomialFunctions
