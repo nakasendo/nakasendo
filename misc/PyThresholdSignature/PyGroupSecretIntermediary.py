@@ -313,9 +313,9 @@ class EncryptedECPointsMessages:
     def from_json(self, encrypted_ecpoints):
         coeffDt = json.loads(encrypted_ecpoints)
         self.mGroupID = coeffDt['GroupID']
-        eccoefficeint = []
         for ordinal, val in json.loads(coeffDt['EncryptedEncryptedECPoints']).items():
             val = json.loads(val)
+            eccoefficeint = []
             for ec_coefficeint in val:
                 eccoefficeint.append(PointFromJson(ec_coefficeint))
             self.encrypted_ecpoints[int(ordinal)] = eccoefficeint
@@ -372,9 +372,9 @@ class EncryptedFunctionECPointsMessages:
     def from_json(self, encrypted_ecpoints):
         coeffDt = json.loads(encrypted_ecpoints)
         self.mGroupID = coeffDt['GroupID']
-        eccoefficeint = []
         for ordinal, val in json.loads(coeffDt['EncryptedEncryptedECPoints']).items():
             val = json.loads(val)
+            eccoefficeint = []
             for ec_coefficeint in val:
                 eccoefficeint.append((ec_coefficeint[0], PointFromJson(ec_coefficeint[1])))
             self.encrypted_ecpoints[int(ordinal)] = eccoefficeint

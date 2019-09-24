@@ -37,7 +37,7 @@ class GroupSetupMessage:
         val += str(self.threshold_value) + "\n"
         return val
 
-    def to_join(self):
+    def to_json(self):
         gpStMsgDt = {}
         gpStMsgDt['Type'] = Message.getStrByType(self.base)
         gpStMsgDt['uri'] = self.myUri

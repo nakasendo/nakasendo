@@ -151,6 +151,25 @@ class GroupSecretPlayerBuilder:
         #for item in self.ownPolynomialFunctions.items():
         #    print(item)
 
+    def getVerifyCoefficientForPlayer(self, fromOrdinal, toOrdinal):
+        # get the coefficients that 'from' player sent to all, where 'from' and 'to' are ordinals
+        resCoeffEC = None
+        multplier = toOrdinal
+
+        for coeffEC in self.encrypted_coefficients[fromOrdinal]:
+            if (resCoeffEC is None) :
+                resCoeffEC = coeffEC
+            else:
+                resCoeffEC = GroupSecretPlayerBuilder.getEcdsa256k1Point(resCoeffEC + GroupSecretPlayerBuilder.getEcdsa256k1Point(multplier * coeffEC))
+                multplier = (multplier * toOrdinal)
+       
+        for entry in self.ownPolynomialFunctions_ecpoints[fromOrdinal]:
+           if (entry[0] == toOrdinal):
+               if ( entry[1] == resCoeffEC):
+                   return True
+               else:
+                   return False
+
     def dumpCoefficents(self):
         for item in self.coeffEntries:
             print(item)
@@ -182,7 +201,8 @@ class GroupSecretPlayerBuilder:
 
     def getCoefficientMessages(self):
         encrypted_coefficients_msgs = EncryptedECPointsMessages()
-        encrypted_coefficients_msgs.addEncryptedECPointsMessage(groupId=self.mGroupID, ordinal=self.getPlayer().getOrdinal(), encrypted_ecpoints=self.encrypted_coefficients[self.getPlayer().getOrdinal()])
+        for _ordinal in self.encrypted_coefficients.keys():
+            encrypted_coefficients_msgs.addEncryptedECPointsMessage(groupId=self.mGroupID, ordinal=_ordinal, encrypted_ecpoints=self.encrypted_coefficients[_ordinal])
         return encrypted_coefficients_msgs
 
     def processEncryptedCoefficients(self, encrypted_coefficients_msgs=None):
@@ -201,7 +221,8 @@ class GroupSecretPlayerBuilder:
 
     def getPolyFunctionsEncryptedPoints(self):
         encrypted_polyFuncs_enc_msgs = EncryptedFunctionECPointsMessages()
-        encrypted_polyFuncs_enc_msgs.addEncryptedECPointsMessage(groupId=self.mGroupID, ordinal=self.getPlayer().getOrdinal(), encrypted_ecpoints=self.ownPolynomialFunctions_ecpoints[self.getPlayer().getOrdinal()])
+        for _ordinal in self.ownPolynomialFunctions_ecpoints.keys():
+            encrypted_polyFuncs_enc_msgs.addEncryptedECPointsMessage(groupId=self.mGroupID, ordinal=_ordinal, encrypted_ecpoints=self.ownPolynomialFunctions_ecpoints[_ordinal])
         return encrypted_polyFuncs_enc_msgs
 
     def processPolyFunctionsEncryptedPoints(self, encrypted_ecpoints_msgs = None):
@@ -646,7 +667,7 @@ if __name__ == '__main__':
     # get the initial group setup message of proposer
     setupMsg = player_grp_list[0].getInitialSetupMessage(threshold_value=threshold_value)
     setupMsgFromJson = GroupSetupMessage()
-    setupMsgFromJson.from_json(setupMsg.to_join())
+    setupMsgFromJson.from_json(setupMsg.to_json())
 
     for playerNumber in range(1, len(player_grp_list)):
         # Let other players process setup Message from Player1
@@ -743,11 +764,11 @@ if __name__ == '__main__':
             playersCoefficientMessagesFromJson.from_json(playersCoefficientMessages.to_json())
             proposerBuilder.processEncryptedCoefficients(playersCoefficientMessagesFromJson)
 
-       # Broadcast messages to non-cooperating players
+        # Broadcast messages to non-cooperating players
+        proposerCoefficientMessages = proposerBuilder.getCoefficientMessages()
+        proposerCoefficientMessagesFromJson = EncryptedECPointsMessages()
+        proposerCoefficientMessagesFromJson.from_json(proposerCoefficientMessages.to_json())
         for playerNumber in range(1, len(playerUris)):
-            proposerCoefficientMessages = proposerBuilder.getCoefficientMessages()
-            proposerCoefficientMessagesFromJson = EncryptedECPointsMessages()
-            proposerCoefficientMessagesFromJson.from_json(proposerCoefficientMessages.to_json())
             gpSecPlayerBuilder[playerNumber].processEncryptedCoefficients(proposerCoefficientMessagesFromJson)
 
         # Let the proposer send their verification data(Encrypted EC Points) to the non-coordinating players
@@ -763,12 +784,20 @@ if __name__ == '__main__':
             playersECPointsMessagesFromJson.from_json(playersECPointsMessages.to_json())
             proposerBuilder.processPolyFunctionsEncryptedPoints(playersECPointsMessagesFromJson)
 
-       # Broadcast messages to non-cooperating players
+        # Broadcast messages to non-cooperating players
+        proposerECPointsMessages = proposerBuilder.getPolyFunctionsEncryptedPoints()
+        proposerEncryptedECPointsFromJson = EncryptedFunctionECPointsMessages()
+        proposerEncryptedECPointsFromJson.from_json(proposerECPointsMessages.to_json())
         for playerNumber in range(1, len(playerUris)):
-            proposerECPointsMessages = proposerBuilder.getPolyFunctionsEncryptedPoints()
-            proposerECPointsMessagesFromJson = EncryptedFunctionECPointsMessages()
-            proposerECPointsMessagesFromJson.from_json(proposerECPointsMessages.to_json())
-            gpSecPlayerBuilder[playerNumber].processPolyFunctionsEncryptedPoints(proposerECPointsMessagesFromJson)
+            gpSecPlayerBuilder[playerNumber].processPolyFunctionsEncryptedPoints(proposerEncryptedECPointsFromJson)
+       
+        # Verify the honesty
+        for playerNumber in range(0, len(playerUris)):
+            for FromPlayerNumber in range(0, len(playerUris)):
+                for ToPlayerNumber in range(0, len(playerUris)):
+                    if (FromPlayerNumber != ToPlayerNumber):
+                        if (not gpSecPlayerBuilder[playerNumber].getVerifyCoefficientForPlayer(gpSecPlayerBuilder[FromPlayerNumber].getPlayer().getOrdinal(), gpSecPlayerBuilder[ToPlayerNumber].getPlayer().getOrdinal())):
+                            raise ValueError("Verification of honesty failed." )
 
 
     print("=====================EPHEMERAL=====================")

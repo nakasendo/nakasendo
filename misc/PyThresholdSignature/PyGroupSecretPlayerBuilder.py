@@ -626,7 +626,7 @@ if __name__ == '__main__':
     # get the initial group setup message of player1
     setupMsg = gb1.getInitialSetupMessage()
     setupMsgFromJson = GroupSetupMessage()
-    setupMsgFromJson.from_json(setupMsg.to_join())
+    setupMsgFromJson.from_json(setupMsg.to_json())
 
     # Make Group builder for player2 and player3
     gb2 = GroupBuilder(uri="player2@otherplace.org", ordinal=2)

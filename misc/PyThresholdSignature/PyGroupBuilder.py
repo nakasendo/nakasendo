@@ -83,12 +83,12 @@ if __name__ == '__main__':
     gb1 = GroupBuilder(uri="player1@mycorp.com", ordinal=1)
     setupMsg = gb1.getInitialSetupMessage()
 
-    #print(setupMsg.to_join())
+    #print(setupMsg.to_json())
     setupMsgFromJson = GroupSetupMessage()
-    setupMsgFromJson.from_json(setupMsg.to_join())
+    setupMsgFromJson.from_json(setupMsg.to_json())
 
     #print(setupMsgFromJson)
-    #print(setupMsgFromJson.to_join())
+    #print(setupMsgFromJson.to_json())
 
     gb2 = GroupBuilder(uri="player2@otherplace.org", ordinal=2)
     gb3 = GroupBuilder(uri="player3@secret.org", ordinal=3)
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     gb1.processInitialSetupResponseMessage(gb3SetupResFromJson)
 
     bcMsg = gb1.getBroadcastSetupMessage()
-    bcMsgFromJson = GroupBroadMessage()
+    bcMsgFromJson = GroupBroadcastMessage()
     bcMsgFromJson.from_json(bcMsg.to_json())
 
 
