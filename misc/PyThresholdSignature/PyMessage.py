@@ -4,17 +4,6 @@ import json
 
 class Message:
 
-  '''
-      UNKNOWN=1
-      GROUP_SETUP=2
-      GROUP_RESPONSE=3
-      SHARED_SECRET_SETUP=4
-      PRE_SIGNATURE_SETUP=5
-      POOL_BUILDER_SETUP=6
-      PRE_SIGNATURE_INTERMEDIARY=7
-      POOL_BUILDER_INTERMEDIARY=8
-  '''
-
   class Type(Enum):
     UNKNOWN=1
     GROUP_SETUP=2
@@ -28,6 +17,9 @@ class Message:
     PRE_SIGNATURE_INTERMEDIARY=10
     POOL_BUILDER_INTERMEDIARY=11
     PRE_SIGNATURE_INTERMEDIARY_RESPONSE=12
+    ENCRYPTED_COEFFICIENTS=13
+    ENCRYPTED_COEFFICIENTS_RES=14
+    ENCRYPTED_COEFFICIENTS_BROADCAST=15
 
   def __init__(self, type = Type.UNKNOWN):
     self.mType = type
@@ -64,7 +56,10 @@ class Message:
       Message.Type.POOL_BUILDER_SETUP:"PoolBuilderSetup",
       Message.Type.PRE_SIGNATURE_INTERMEDIARY:"PreSignatureIntermediary",
       Message.Type.POOL_BUILDER_INTERMEDIARY:"PoolBuilderIntermediary",
-      Message.Type.PRE_SIGNATURE_INTERMEDIARY_RESPONSE:"PreSignatureIntermediaryResponse"
+      Message.Type.PRE_SIGNATURE_INTERMEDIARY_RESPONSE:"PreSignatureIntermediaryResponse",
+      Message.Type.ENCRYPTED_COEFFICIENTS:"Encrypted Coefficients",
+      Message.Type.ENCRYPTED_COEFFICIENTS_RES:"Encrypted Coefficients Response",
+      Message.Type.ENCRYPTED_COEFFICIENTS_BROADCAST:"Encrypted Coefficients Broadcast"
     }
     return table
 
