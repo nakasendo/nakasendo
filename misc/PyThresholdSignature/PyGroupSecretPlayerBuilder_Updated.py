@@ -118,10 +118,10 @@ class GroupSecretPlayerBuilder:
             raise ValueError("A group should have more than one player ")
 
         for item in range(0, self.threashold_value + 1):
-            self.coeffEntries.append(random.randint(1, 2 ** 256))
+            self.coeffEntries.append(random.randint(1, Order -1))
 
         # Make private polynomials
-        self.rp = Polynomial.Polynomial()
+        self.rp = Polynomial.Polynomial(group_modulo=Order)
         for coeff in self.coeffEntries :
             self.rp.append_coeff(coeff) 
             if (self.own_public_secret_a0 is None):
@@ -140,7 +140,7 @@ class GroupSecretPlayerBuilder:
         for playerItem in self.mPlayers.getItems():
             polyVal = self.rp(playerItem.getPlayer().getOrdinal())
             self.ownPolynomialFunctions[playerItem.getPlayer().getURI()] = polyVal
-            functional_ec.append( (playerItem.getPlayer().getOrdinal(),  GroupSecretPlayerBuilder.getEcdsa256k1Point(polyVal * Generator)))
+            functional_ec.append((playerItem.getPlayer().getOrdinal(),  GroupSecretPlayerBuilder.getEcdsa256k1Point(polyVal * Generator)))
         self.ownPolynomialFunctions_ecpoints[self.getPlayer().getOrdinal()] = functional_ec
 
         if (groupBuilder != None):
@@ -348,6 +348,7 @@ class GroupSecretPlayerBuilder:
             for polyFuncTuple in self.receivedPolynomialFunctions:
                 if (polyFuncTuple[1] == self.mMyUri):
                     keyshare += polyFuncTuple[2]
+                    keyshare = FiniteGroup.normalize_mod(keyshare, Order) if Order else keyshare
             return  keyshare
         finally:
             self.mutex.release()
@@ -513,8 +514,24 @@ class GroupSecretPlayerBuilder:
         Inv_interpolator_of_intermediary_sharepoints = FiniteGroup.inv_mod(self.interpolator_of_intermediary_sharepoints, Order)
         return Inv_interpolator_of_intermediary_sharepoints
 
+    def k_inverse_share(self, blinding_key):
+        k_inv_share = self.IntermediaryShareInverse() * blinding_key
+        return FiniteGroup.normalize_mod(k_inv_share, Order) if Order else k_inv_share 
+
+    def getShareOfSignatureUpdated(self, msg, key_share, blinding_key, ephemeral_share, modulo=Order):
+        # get hash of the message
+        Hm = FiniteGroup.hash_mod(msg, modulo)
+
+        # share of the signature = k(hm + xr) mod n, where k is ephemeral key, x is key share and r is ecdsa_r
+        v1 = FiniteGroup.normalize_mod((key_share * ephemeral_share), modulo)
+        v2 = FiniteGroup.normalize_mod(Hm + v1, modulo)
+        self.share_of_signature = FiniteGroup.normalize_mod((self.k_inverse_share(blinding_key)*v2), modulo)
+        return self.share_of_signature
+        
+
     def ecdsa_r(self):
         self.r = (self.IntermediaryShareInverse() * self.interpolator_of_intermediary_sharepoints_curvepoint).x()
+        self.r = FiniteGroup.normalize_mod(self.r, Order) if Order else self.r
         return self.r
 
     def getShareOfSignature(self, msg, key_share=None, ephemeral_key=None,  modulo=Order):
@@ -522,7 +539,9 @@ class GroupSecretPlayerBuilder:
         Hm = FiniteGroup.hash_mod(msg, modulo)
 
         # share of the signature = k(hm + xr) mod n, where k is ephemeral key, x is key share and r is ecdsa_r
-        self.share_of_signature = FiniteGroup.normalize_mod((ephemeral_key*(Hm + (key_share * self.r))), modulo)
+        v1 = FiniteGroup.normalize_mod((key_share * self.r), modulo)
+        v2 = FiniteGroup.normalize_mod(Hm + v1, modulo)
+        self.share_of_signature = FiniteGroup.normalize_mod((ephemeral_key*v2), modulo)
         return self.share_of_signature
 
     def getPublicSecretA0Message(self):
@@ -540,10 +559,9 @@ class GroupSecretPlayerBuilder:
         public_key = None
         for ordinal, a0point in self.public_secret_a0.items():
             if (public_key):
-                #public_key.__curve = a0point.curve()
-                public_key = public_key + a0point
+                public_key = GroupSecretPlayerBuilder.getEcdsa256k1Point(public_key + a0point) 
             else:
-                public_key = a0point
+                public_key = GroupSecretPlayerBuilder.getEcdsa256k1Point(a0point)
         return public_key
 
     def processGroupSetupResponse(self, response):
@@ -646,6 +664,18 @@ class GroupSecretPlayerBuilder:
             return False
         return True
 
+'''
+    def verifyHonesty(self):
+        for FromPlayerItem in self.mPlayers.getItems():
+            fromPlayerOrdinal  = FromPlayerItem.getPlayer().getOrdinal()
+            for ToPlayerItem in self.mPlayers.getItems():
+                toPlayerOrdinal = ToPlayerItem.getPlayer().getOrdinal()
+                if (fromPlayerOrdinal != toPlayerOrdinal):
+                    if (not self.getVerifyCoefficientForPlayer(fromPlayerOrdinal, toPlayerOrdinal)
+                         raise ValueError("Verification of honesty failed." )
+'''
+
+
 #############################################
 ###################################################################################################
 if __name__ == '__main__':
@@ -698,7 +728,8 @@ if __name__ == '__main__':
     playerUris = []
     for ordinal, player_url in utils.getPlayers(total_players_numbers):
         playerUris.append(player_url) 
-
+    key_share_pubKey = Generator
+    ephemeral_key_share = Generator
     # Joint Random Secret Sharing ( JRSS )
     # Make key share, ephemeral and blinding secrets
     for key in ['KEY_SHARE', 'EPHEMERAL', 'BLINDING']:
@@ -749,6 +780,29 @@ if __name__ == '__main__':
             elif (key == 'KEY_SHARE'):
                key_shares.append(gpSecPlayerBuilder[playerNumber].getKeyShare())
             assert gpSecPlayerBuilder[playerNumber].getState() == GroupState.Type.ACCEPTED
+
+        if (key == 'KEY_SHARE' or key == 'EPHEMERAL'):
+            for playerNumber in range(0, len(playerUris)):
+                # Let each player get his/her PublicSecretA0
+                playera0Msg = gpSecPlayerBuilder[playerNumber].getPublicSecretA0Message()
+                playera0MsgFromJson = GroupSecretPublicMessage()
+                playera0MsgFromJson.from_json(playera0Msg.to_json())
+                proposerBuilder.processPublicSecretA0Message(playera0MsgFromJson)
+
+            # get the broadcast message from proposer
+            proposera0BcastMsg = proposerBuilder.getPublicSecretA0Message()
+            proposera0BcastMsgFromJson = GroupSecretPublicMessage()
+            proposera0BcastMsgFromJson.from_json(proposera0BcastMsg.to_json())
+
+            for playerNumber in range(1, len(playerUris)):
+               # let  non-corrdinating players know about the broadcasted message from proposer
+               gpSecPlayerBuilder[playerNumber].processPublicSecretA0Message(publicSecretA0=proposera0BcastMsgFromJson)
+
+            if (key == 'KEY_SHARE'):
+                key_share_pubKey=proposerBuilder.calculatePublicKeyUsingSecretA0()
+            if (key == 'EPHEMERAL'):
+                ephemeral_key_share = proposerBuilder.calculatePublicKeyUsingSecretA0().x()
+                ephemeral_key_share=FiniteGroup.normalize_mod(ephemeral_key_share, Order) if Order else ephemeral_key_share
 
         # SETUP VERIFICATION DATA
         # Let the proposer send their verification data(Coefficients) to the non-coordinating players
@@ -893,10 +947,16 @@ if __name__ == '__main__':
         # For each player, generate Intermediary Share Interpolation
         gpSecPlayerBuilder[playerNumber].generateIntermediaryShareInterpolation()
         # For each player, generate Intermediary Share Curve Point Interpolation
-        gpSecPlayerBuilder[playerNumber].generateIntermediaryShareCurveInterpolation()
+        #gpSecPlayerBuilder[playerNumber].generateIntermediaryShareCurveInterpolation()
         # For each player, generate ECDSA R
-        gpSecPlayerBuilder[playerNumber].ecdsa_r()
-        players_signature_share_list.append(gpSecPlayerBuilder[playerNumber].getShareOfSignature(msg=msg, key_share=key_shares[playerNumber], ephemeral_key=ephemeral_key_shares[playerNumber], modulo=Order))
+        #gpSecPlayerBuilder[playerNumber].ecdsa_r()
+        #players_signature_share_list.append(gpSecPlayerBuilder[playerNumber].getShareOfSignature(msg=msg, key_share=key_shares[playerNumber], ephemeral_key=ephemeral_key_shares[playerNumber], modulo=Order))
+        #getShareOfSignatureUpdated(self, msg, key_share, blinding_key, ephemeral_share, modulo=Order):
+        players_signature_share_list.append(gpSecPlayerBuilder[playerNumber].getShareOfSignatureUpdated(msg=msg,  
+                                                                           key_share=key_shares[playerNumber],
+                                                                           blinding_key=blinding_key_shares[playerNumber],
+                                                                           ephemeral_share=ephemeral_key_share, 
+                                                                           modulo=Order))
     print("Took "+str(datetime.datetime.now() -t1)+ " seconds to finish Interpolation activity by all "+ str(len(playerUris)) +" players")
 
     # Set the current share of signature of proposer
@@ -920,16 +980,19 @@ if __name__ == '__main__':
     print("Signature Interpolate value ==> " + str(proposerBuilder.generateSignatureInterpolation()))
     print("============================================================================================")
 
-    player_a0_msgs = []
+    #player_a0_msgs = []
     for playerNumber in range(0, len(playerUris)):
         # Let each player get his/her PublicSecretA0
         playera0Msg = gpSecPlayerBuilder[playerNumber].getPublicSecretA0Message()
         playera0MsgFromJson = GroupSecretPublicMessage()
         playera0MsgFromJson.from_json(playera0Msg.to_json())
-        player_a0_msgs.append(playera0MsgFromJson)
+        #player_a0_msgs.append(playera0MsgFromJson)
+        proposerBuilder.processPublicSecretA0Message(playera0MsgFromJson)
 
-    for playerNumber in range(1, len(playerUris)):
-        proposerBuilder.processPublicSecretA0Message(player_a0_msgs[playerNumber-1])
+    '''
+    for playerNumber in range(0, len(playerUris)):
+        proposerBuilder.processPublicSecretA0Message(player_a0_msgs[playerNumber])
+    '''
 
     # get the broadcast message from proposer
     proposera0BcastMsg = proposerBuilder.getPublicSecretA0Message()
@@ -943,59 +1006,12 @@ if __name__ == '__main__':
     msgEncoded =  bytes(msg, 'utf-8')
 
     FiniteGroup.ec_sig_verify(msg=msgEncoded,
-                              pubKey=proposerBuilder.calculatePublicKeyUsingSecretA0(),
-                              r_input=proposerBuilder.ecdsa_r(),
+                              #pubKey=proposerBuilder.calculatePublicKeyUsingSecretA0(),
+                              pubKey=key_share_pubKey,
+                              #r_input=proposerBuilder.ecdsa_r(),
+                              r_input= ephemeral_key_share ,
                               s_input=proposerBuilder.generateSignatureInterpolation()
                               )
-    '''
-    # Let player1 get his/her PublicSecretA0
-    player1a0Msg = player1Builder.getPublicSecretA0Message()
-    #print("Player 1 ==>" + player1a0Msg.to_json())
-    player1a0MsgFromJson = GroupSecretPublicMessage() 
-    player1a0MsgFromJson.from_json(player1a0Msg.to_json()) 
-
-    # Let player2 get his/her PublicSecretA0
-    player2a0Msg = player2Builder.getPublicSecretA0Message()
-    #print("Player 2 ==>" + player2a0Msg.to_json())
-    player2a0MsgFromJson = GroupSecretPublicMessage() 
-    player2a0MsgFromJson.from_json(player2a0Msg.to_json()) 
-
-    # Let player3 get his/her PublicSecretA0
-    player3a0Msg = player3Builder.getPublicSecretA0Message()
-    #print("Player 3 ==>" + player3a0Msg.to_json())
-    player3a0MsgFromJson = GroupSecretPublicMessage() 
-    player3a0MsgFromJson.from_json(player3a0Msg.to_json()) 
-
-    # let player2 and player3 send their PublicSecretA0 to Player1
-    player1Builder.processPublicSecretA0Message(publicSecretA0=player2a0MsgFromJson)
-    player1Builder.processPublicSecretA0Message(publicSecretA0=player3a0MsgFromJson)
-
-    # get the broadcast message from player1
-    player1a0BcastMsg = player1Builder.getPublicSecretA0Message()
-    #print("Player 1 ==>" + player1a0BcastMsg.to_json())
-    player1a0BcastMsgFromJson = GroupSecretPublicMessage() 
-    player1a0BcastMsgFromJson.from_json(player1a0BcastMsg.to_json()) 
-
-    # let  player2 and player3 know about the broadcasted message from player1
-    player2Builder.processPublicSecretA0Message(publicSecretA0=player1a0BcastMsgFromJson)
-    player3Builder.processPublicSecretA0Message(publicSecretA0=player1a0BcastMsgFromJson)
-
-    print("Player 1 Public Key ==>" + str(player1Builder.calculatePublicKeyUsingSecretA0()))
-    print("Player 2 Public Key ==>" + str(player2Builder.calculatePublicKeyUsingSecretA0()))
-    print("Player 3 Public Key ==>" + str(player3Builder.calculatePublicKeyUsingSecretA0()))
-
-    verifyIt = Nakasendo.verify(msg, player1Builder.calculatePublicKeyUsingSecretA0(), sig[0], sig[1])
-    if (verifyIt == True):
-        print ('msg verified')
-    #Hm = FiniteGroup.hash_mod(msg, Order)
-    msgEncoded =  bytes(msg, 'utf-8')
-
-    FiniteGroup.ec_sig_verify(msg=msgEncoded,
-                              pubKey=player1Builder.calculatePublicKeyUsingSecretA0(), 
-                              r_input=player1Builder.ecdsa_r(), 
-                              s_input=player1Builder.generateSignatureInterpolation()
-                             )
-    '''
 
 
 
