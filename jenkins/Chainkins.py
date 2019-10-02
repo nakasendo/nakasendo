@@ -302,7 +302,6 @@ if args.update_bitbucket_build_status is not None and args.update_bitbucket_buil
 
     ## Unique id for a build is the commit hash+ job_base_name + os name
     long_query_key_str = '{}-{}-{}'.format(args.target_commit, jJOB_BASE_NAME, jJENKINS_SLAVE_OS)
-    query_key = bitbucketapi.hash_bb_buildstatus_key(long_query_key_str)
     query_status=''
     query_name = ''
     query_href = args.build_href if args.build_href is not None else jRUN_DISPLAY_URL
@@ -311,12 +310,14 @@ if args.update_bitbucket_build_status is not None and args.update_bitbucket_buil
         pr_id = os.environ['BITBUCKET_PULL_REQUEST_ID']
         query_name = '__pr#{} : {}'.format(pr_id, jPR_BITBUCKET_TITLE)
         query_desc = '{} build #{} on {}'.format(jJOB_BASE_NAME, jBUILD_NUMBER, jJENKINS_SLAVE_OS)
+        long_query_key_str += '-{}'.format(pr_id)
     else:
         query_name = '{} {}'.format(jJOB_BASE_NAME, jJENKINS_SLAVE_OS)
         query_desc = 'Build #{} branch [{}]'.format(jBUILD_NUMBER,jTARGET_BRANCH)
         if 'jBUILD_TRIGGER' in os.environ and 'Bitbucket' not in os.environ['jBUILD_TRIGGER']:## build on main repo that's triggered manually
             query_desc +=' - triggered by {}'.format(os.environ['jBUILD_TRIGGER'])
 
+    query_key = bitbucketapi.hash_bb_buildstatus_key(long_query_key_str)
     query_status = bitbucketapi.get_bitbucket_status(args.jenkins_status) ## get bitbucket status from jenkins status
 
     ## get_bitbucket_buildstatus_query(http_repo, fullcommithash, query_key, bb_status, bb_name, bb_href, bb_desc):
