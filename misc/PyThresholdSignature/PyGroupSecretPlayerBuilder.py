@@ -119,7 +119,7 @@ class GroupSecretPlayerBuilder:
             self.ownPolynomialFunctions[playerItem.getPlayer().getURI()] = self.rp(playerItem.getPlayer().getOrdinal())
 
         if (groupBuilder != None):
-            groupBuilder.registerGroupSecetShareBuilder(groupSecetBuilder=self, guid=self.mGroupID)
+            groupBuilder.registerGroupSecetShareBuilder(groupSecetBuilder=self)
 
         #print("================"+self.mMyUri+"================")
         # dump own polynomialFunctions
@@ -431,7 +431,7 @@ class GroupSecretPlayerBuilder:
 
     def ecdsa_r(self):
         self.r = (self.IntermediaryShareInverse() * self.interpolator_of_intermediary_sharepoints_curvepoint).x()
-        return self.r;
+        return self.r
 
     def getShareOfSignature(self, msg, key_share=None, ephemeral_key=None,  modulo=Order):
         # get hash of the message
@@ -626,7 +626,7 @@ if __name__ == '__main__':
     # get the initial group setup message of player1
     setupMsg = gb1.getInitialSetupMessage()
     setupMsgFromJson = GroupSetupMessage()
-    setupMsgFromJson.from_json(setupMsg.to_join())
+    setupMsgFromJson.from_json(setupMsg.to_json())
 
     # Make Group builder for player2 and player3
     gb2 = GroupBuilder(uri="player2@otherplace.org", ordinal=2)
