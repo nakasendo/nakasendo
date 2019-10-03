@@ -7,7 +7,7 @@ from PyGroupSetupMessage import GroupSetupMessage, GroupSetupResponseMessage, Gr
 
 class GroupBuilder:
 
-    def __init__(self, uri, ordinal, groupID = None, setupMsg = None):
+    def __init__(self, uri, ordinal, threshold_value=-1, groupID = None, setupMsg = None):
         if (groupID is None):
             groupID = UUID().getUUIDString()
        
@@ -17,9 +17,11 @@ class GroupBuilder:
         self.playerInfo = {} # ordinal : player_url
         self.secretShares = {} # key : share
         self.playerInfo[ordinal] = uri
+        self.threshold_value = threshold_value
 
-    def getInitialSetupMessage(self):
-        setupMsg = GroupSetupMessage(uri=self.mMyUri, groupID = self.mGroupID, ordinal=self.ordinal)
+    def getInitialSetupMessage(self, threshold_value=-1):
+        self.threshold_value = threshold_value
+        setupMsg = GroupSetupMessage(uri=self.mMyUri, groupID = self.mGroupID, ordinal=self.ordinal, threshold_value=threshold_value)
         return setupMsg
 
     def getPlayerInfo(self):
@@ -31,10 +33,14 @@ class GroupBuilder:
                 return _ordinal
         return -1
 
+    def getThresholdValue(self):
+        return self.threshold_value
+
     def processInitialSetupMessage(self, setupMsg):
         if (setupMsg != None):
             self.mGroupID = setupMsg.getGroupID()
             self.playerInfo[setupMsg.getOrdinal()] = setupMsg.getMyUrl()
+            self.threshold_value = setupMsg.getThresholdValue()
 
     def getInitialSetupResponseMessage(self):
         resMsg = GroupSetupResponseMessage(uri=self.mMyUri, groupID=self.mGroupID, ordinal=self.ordinal)
@@ -59,12 +65,9 @@ class GroupBuilder:
     def getSecretShareEntry(self, key):
         return self.secretShares[key]
 
-    def registerGroupSecetShareBuilder(self, groupSecetBuilder, guid=None):
+    def registerGroupSecetShareBuilder(self, groupSecetBuilder):
 
-        if (guid == None):
-            guid = UUID().getUUIDString()
-
-        self.secretShares[UUID().getUUIDString()] = groupSecetBuilder
+        self.secretShares[groupSecetBuilder.getID()] = groupSecetBuilder
 
     def unRegisterGroupSecetShareBuilder(self, guid):
         del self.secretShares[guid]
@@ -73,17 +76,16 @@ class GroupBuilder:
         self.secretShares.clear()
 
 
-
 if __name__ == '__main__':
     gb1 = GroupBuilder(uri="player1@mycorp.com", ordinal=1)
     setupMsg = gb1.getInitialSetupMessage()
 
-    #print(setupMsg.to_join())
+    #print(setupMsg.to_json())
     setupMsgFromJson = GroupSetupMessage()
-    setupMsgFromJson.from_json(setupMsg.to_join())
+    setupMsgFromJson.from_json(setupMsg.to_json())
 
     #print(setupMsgFromJson)
-    #print(setupMsgFromJson.to_join())
+    #print(setupMsgFromJson.to_json())
 
     gb2 = GroupBuilder(uri="player2@otherplace.org", ordinal=2)
     gb3 = GroupBuilder(uri="player3@secret.org", ordinal=3)
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     gb1.processInitialSetupResponseMessage(gb3SetupResFromJson)
 
     bcMsg = gb1.getBroadcastSetupMessage()
-    bcMsgFromJson = GroupBroadMessage()
+    bcMsgFromJson = GroupBroadcastMessage()
     bcMsgFromJson.from_json(bcMsg.to_json())
 
 
