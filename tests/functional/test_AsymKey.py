@@ -38,6 +38,23 @@ def test_GetPublicKeyPEM():
         # Calculated public key should match the generated one
         assert pubKeyPEM==test_pubKeyPEM, "Test failed"
 
+def test_SetKeyFromPem():
+
+    for x in range(100):
+        # Generate pair of keys in pem format
+        pubKeyPEM, privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
+        test_pubKeyPEM = PyAsymKey.GetPublicKeyPEM(privKeyPEM)
+
+        # Calculated public key should match the generated one
+        assert pubKeyPEM == test_pubKeyPEM, "Test failed"
+
+        #Sets a key from a PEM format
+        pub, pri = PyAsymKey.SetKeyFromPem(privKeyPEM)
+
+        # Calculated private key should match the generated one
+        assert privKeyPEM == pri, "Test failed"
+        assert pubKeyPEM == pub, "Test failed"
+
 def test_Sign_Verification():
 
     msg = 'Hello, I am a message, sign me'

@@ -136,7 +136,15 @@ class ECKey256K1:
     def FromPEMStr (self, keyPemForm):
         self.pubKey, self.priKey = PyAsymKey.SetKeyFromPem(keyPemForm);
         pass
-        
+
+    def FromEncryptedPEMStr (self, keyPemForm, passPhrase):
+        self.pubKey, self.priKey = PyAsymKey.SetKeyFromEncryptedPem(keyPemForm, passPhrase);
+        pass
+
+    def ToEncryptedPEMStr (self, passPhrase):
+        return PyAsymKey.GetKeyFromEncryptedPem(passPhrase);
+            
+
     def derivePrivateKey(self,msg):
         return PyAsymKey.DerivePrivate(self.priKey, msg)
         

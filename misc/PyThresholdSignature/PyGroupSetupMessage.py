@@ -4,104 +4,135 @@ from PyGroup import PlayerItem, PlayerMap, Group
 from PyPlayer import Player
 import json
 
-
 class GroupSetupMessage:
 
-    def __init__(self, MsgType = Message.Type.GROUP_SETUP, uri = None, groupID = None, playerMap = None):
+    def __init__(self, threshold_value=-1, MsgType = Message.Type.GROUP_SETUP, ordinal=-1, uri = None, groupID = None):
         self.base = MsgType
-        self.mProposerUri = uri
-        self.mGroupID = groupID
+        self.myUri = uri
         if (groupID is None):
-          self.mGroupID = UUID().getUUIDString()
-        self.mPlayers = playerMap
-        if (playerMap is None):
-          self.mPlayers = PlayerMap()
+            groupID = UUID().getUUIDString()
+        self.mGroupID = groupID
+        self.ordinal = ordinal
+        self.threshold_value = threshold_value
 
-    def  getProposerURI(self):
-        return self.mProposerUri
 
-    def getID(self):
+    def getMyUrl(self):
+        return self.myUri
+
+    def getOrdinal(self):
+        return self.ordinal
+
+    def getGroupID(self):
         return self.mGroupID
 
-    def setID(self, mGroupID):
-        self.mGroupID = mGroupID
-
-    def getPlayers(self):
-        return self.mPlayers
-
-    def jsonObjectType():
-        return "GroupSetupMessage"
-
-    def __eq__(self, other):
-        if not isinstance(other, GroupSetupMessage):
-            return False
-        return (self.getID() == other.getID()) and (self.getPlayers().getPlayersSortedByOrdinal() == other.getPlayers().getPlayersSortedByOrdinal()) and (self.getProposerURI() == other.getProposerURI()) and (self.base == other.base)
+    def getThresholdValue(self):
+        return self.threshold_value
 
     def __str__(self):
         val = ""
-        val += str(self.getID())+"\n\n"
-        val += str(self.getProposerURI())+"\n\n"
-        val += str(self.base)+"\n\n"
-        for playerItem in self.getPlayers().getItems():
-            val +=  str(playerItem.player)+"\n\n"
+        val += str(self.base) + "\n"
+        val += str(self.myUri) + "\n"
+        val += str(self.ordinal) + "\n"
+        val += str(self.mGroupID) + "\n"
+        val += str(self.threshold_value) + "\n"
         return val
-
 
     def to_json(self):
         gpStMsgDt = {}
-        gpStMsgDt["Type"] = Message.getStrByType(self.base)
-        gpStMsgDt["Proposer"] = self.mProposerUri
-        gpStMsgDt["GroupID"] = self.getID()
-        playerJson = []
-        for playerItem in self.getPlayers().getItems():
-            playerJson.append(playerItem.player.to_json())
-
-        gpStMsgDt["Players"] = playerJson
+        gpStMsgDt['Type'] = Message.getStrByType(self.base)
+        gpStMsgDt['uri'] = self.myUri
+        gpStMsgDt['ordinal'] = self.ordinal
+        gpStMsgDt['GroupID'] = self.mGroupID
+        gpStMsgDt['ThresholdValue'] = self.threshold_value
         return json.dumps(gpStMsgDt)
-    
 
     def from_json(self, gpStMsgStr):
         gpStMsgDt = json.loads(gpStMsgStr)
         self.base =  Message.getTypeByStr(gpStMsgDt["Type"])
-        self.mProposerUri = gpStMsgDt["Proposer"]
-        self.setID(gpStMsgDt["GroupID"])
-        for playerDict in gpStMsgDt["Players"] :
-            p = Player()
-            p.from_json(playerDict)
-            pi = PlayerItem(p.getURI(), p)
-            self.getPlayers().add(pi)
+        self.myUri = gpStMsgDt['uri']
+        self.mGroupID = gpStMsgDt['GroupID']
+        self.ordinal = gpStMsgDt['ordinal']
+        self.threshold_value = gpStMsgDt['ThresholdValue']
 
-  
+class GroupSetupResponseMessage:
+
+    def __init__(self, MsgType = Message.Type.GROUP_SETUP_RESPONSE, uri = None, groupID = None, ordinal = -1):
+        self.base = MsgType
+        self.myUri = uri
+        if (groupID is None):
+            groupID = UUID().getUUIDString()
+        self.mGroupID = groupID
+        self.ordinal = ordinal
+
+    def getMyUrl(self):
+            return self.myUri
+
+    def getOrdinal(self):
+            return self.ordinal
+
+    def getGroupID(self):
+            return self.mGroupID
+    def __str__(self):
+        val = ""
+        val += str(self.base) + "\n"
+        val += str(self.myUri) + "\n"
+        val += str(self.ordinal) + "\n"
+        val += str(self.mGroupID) + "\n"
 
 
+    def to_json(self):
+        gpRpMsgDt = {}
+        gpRpMsgDt['Type'] = Message.getStrByType(self.base)
+        gpRpMsgDt['uri'] = self.myUri
+        gpRpMsgDt['ordinal'] = self.ordinal
+        gpRpMsgDt['GroupID'] = self.mGroupID
+        return json.dumps(gpRpMsgDt)
 
-'''
-p1 = Player("p1", 1, False, False)
-p2 = Player("p2", 2, False, False)
-p3 = Player("p3", 3, False, False)
-p4 = Player("p4", 4, False, False)
+    def from_json(self, gpRpMsgStr):
+        gpRpMsgDt = json.loads(gpRpMsgStr)
+        self.base =  Message.getTypeByStr(gpRpMsgDt["Type"])
+        self.myUri = gpRpMsgDt['uri']
+        self.mGroupID = gpRpMsgDt['GroupID']
+        self.ordinal = gpRpMsgDt['ordinal']
 
 
-p11 = PlayerItem("player1@mycorp.com", p1)
-p22 = PlayerItem("player2@mycorp.com", p2)
-p33 = PlayerItem("player3@mycorp.com", p3)
-p44 = PlayerItem("player4@mycorp.com", p4)
+class GroupBroadcastMessage(GroupSetupMessage):
 
-playersMap = PlayerMap()
-playersMap.add(p11)
-playersMap.add(p22)
-playersMap.add(p33)
-playersMap.add(p44)
+    def __init__(self, MsgType = Message.Type.GROUP_SETUP_RESPONSE, uri = None, groupID = None, ordinal = -1, playerInfo = None):
+        self.base = MsgType
+        self.myUri = uri
+        if (groupID is None):
+            groupID = UUID().getUUIDString()
+        self.mGroupID = groupID
+        self.ordinal = ordinal
+        self.playerInfo = playerInfo
 
-gp = GroupSetupMessage( uri="player1@mycorp.com", playerMap=playersMap)
-#gp1 = GroupSetupMessage(MsgType= Message.Type.POOL_BUILDER_SETUP, uri="player1@mycorp.com", playerMap=playersMap)
-gpJson=gp.to_json()
-#print(gpJson)
-#print("#####################")
-print(gp)
-gpFJson = GroupSetupMessage()
-gpFJson.from_json(gpJson)
-print(gpFJson == gp)
+    def getPlayerInfo(self):
+        return self.playerInfo
 
-'''
+    def __str__(self):
+        val = ""
+        val += str(self.base) + "\n"
+        val += str(self.myUri) + "\n"
+        val += str(self.ordinal) + "\n"
+        val += str(self.mGroupID) + "\n"
+        for item in self.playerInfo.items():
+            val += str(item)
+
+    def to_json(self):
+        gpStMsgDt = {}
+        gpStMsgDt['Type'] = Message.getStrByType(self.base)
+        gpStMsgDt['uri'] = self.myUri
+        gpStMsgDt['ordinal'] = self.ordinal
+        gpStMsgDt['GroupID'] = self.mGroupID
+        gpStMsgDt['players'] = json.dumps(self.playerInfo)
+        return json.dumps(gpStMsgDt)
+
+    def from_json(self, gpStMsgStr):
+        gpStMsgDt = json.loads(gpStMsgStr)
+        self.base =  Message.getTypeByStr(gpStMsgDt['Type'])
+        self.myUri = gpStMsgDt['uri']
+        self.mGroupID = gpStMsgDt['GroupID']
+        self.ordinal = gpStMsgDt['ordinal']
+        self.playerInfo = json.loads(gpStMsgDt['players'])
 
