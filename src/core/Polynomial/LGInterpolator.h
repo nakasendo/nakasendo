@@ -2,7 +2,7 @@
 #define __LGINTERPOLATOR_H__
 
 #include <DYNAMIC_LIBRARY_API.hpp>
-#include <Polynomial/Polynomial_Api.h>
+#include <Polynomial/PolynomialConfig.h>
 
 
 #include <iostream>
