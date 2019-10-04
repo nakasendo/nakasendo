@@ -10,8 +10,8 @@ std::unique_ptr<BigNumberImpl> Add (const BigNumberImpl* obj1, const BigNumberIm
     BN_ptr res(BN_new(), ::BN_free);
     if (!BN_add(res.get(),obj1->m_bn.get(),obj2->m_bn.get()))
         throw std::runtime_error("error");
-    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ; 
-    return std::move(ResImpl);
+    std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ;
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> Sub (const BigNumberImpl* obj1, const BigNumberImpl* obj2){
@@ -19,7 +19,7 @@ std::unique_ptr<BigNumberImpl> Sub (const BigNumberImpl* obj1, const BigNumberIm
     if (!BN_sub(res.get(), obj1->m_bn.get(), obj2->m_bn.get()))
         throw std::runtime_error("error");
     std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl(res));
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> Mul (const BigNumberImpl* obj1, const BigNumberImpl* obj2)
@@ -29,7 +29,7 @@ std::unique_ptr<BigNumberImpl> Mul (const BigNumberImpl* obj1, const BigNumberIm
     if (!BN_mul(res.get(), obj1->m_bn.get(), obj2->m_bn.get(), ctxptr.get()))
         throw std::runtime_error("error");
     std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) );
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> Div (const BigNumberImpl* obj1, const BigNumberImpl* obj2)
@@ -39,7 +39,7 @@ std::unique_ptr<BigNumberImpl> Div (const BigNumberImpl* obj1, const BigNumberIm
     if (!BN_div(res.get(), NULL, obj1->m_bn.get(), obj2->m_bn.get(), ctxptr.get()))
         throw std::runtime_error("error");
     std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) );
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 
@@ -50,7 +50,7 @@ std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberIm
     if (!BN_mod(res.get(), obj1->m_bn.get(), obj2->m_bn.get(), ctxptr.get()))
         throw std::runtime_error("error");
     std::unique_ptr<BigNumberImpl> ResImpl(new BigNumberImpl(res));
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> Inv_mod (const BigNumberImpl*  pARG, const BigNumberImpl*  pmod)
@@ -60,7 +60,7 @@ std::unique_ptr<BigNumberImpl> Inv_mod (const BigNumberImpl*  pARG, const BigNum
     if (!BN_mod_inverse(res.get(), pARG->m_bn.get(), pmod->m_bn.get(), ctxptr.get()))
         throw std::runtime_error("error mod inverse");
     std::unique_ptr<BigNumberImpl> ResImpl(new BigNumberImpl(res));
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> Add_mod (const BigNumberImpl*  pLHS, const BigNumberImpl*  pRHS, const BigNumberImpl*  pmod)
@@ -70,7 +70,7 @@ std::unique_ptr<BigNumberImpl> Add_mod (const BigNumberImpl*  pLHS, const BigNum
     if (!BN_mod_add(res.get(), pLHS->m_bn.get(), pRHS->m_bn.get(), pmod->m_bn.get(), ctxptr.get()))
         throw std::runtime_error("error mod add");
     std::unique_ptr<BigNumberImpl> ResImpl(new BigNumberImpl(res));
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> Sub_mod (const BigNumberImpl*  pLHS, const BigNumberImpl*  pRHS, const BigNumberImpl*  pmod)
@@ -80,7 +80,7 @@ std::unique_ptr<BigNumberImpl> Sub_mod (const BigNumberImpl*  pLHS, const BigNum
     if (!BN_mod_sub(res.get(), pLHS->m_bn.get(), pRHS->m_bn.get(), pmod->m_bn.get(), ctxptr.get()))
         throw std::runtime_error("error mod sub");
     std::unique_ptr<BigNumberImpl> ResImpl(new BigNumberImpl(res));
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> Mul_mod (const BigNumberImpl*  pLHS, const BigNumberImpl*  pRHS, const BigNumberImpl*  pmod)
@@ -90,14 +90,14 @@ std::unique_ptr<BigNumberImpl> Mul_mod (const BigNumberImpl*  pLHS, const BigNum
     if (!BN_mod_mul(res.get(), pLHS->m_bn.get(), pRHS->m_bn.get(), pmod->m_bn.get(), ctxptr.get()))
         throw std::runtime_error("error mod mul");
     std::unique_ptr<BigNumberImpl> ResImpl(new BigNumberImpl(res));
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> Div_mod (const BigNumberImpl*  pLHS, const BigNumberImpl*  pRHS, const BigNumberImpl*  pmod)
 {
     std::unique_ptr<BigNumberImpl> invRHS = Inv_mod(pRHS, pmod);
-    std::unique_ptr<BigNumberImpl> resDIV = Mul_mod(pLHS, invRHS.get(),pmod);
-    return std::move(resDIV);
+    std::unique_ptr<BigNumberImpl> ResImpl = Mul_mod(pLHS, invRHS.get(),pmod);
+    return ResImpl;
 }
 
 
@@ -108,7 +108,7 @@ std::unique_ptr<BigNumberImpl>  LShift(const BigNumberImpl* obj, const int& val)
     if(!BN_lshift(res.get(), obj->m_bn.get(), val))
         throw std::runtime_error("Unable to left-shift by " + std::to_string(val));
     std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ;
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 std::unique_ptr<BigNumberImpl> RShift(const BigNumberImpl* obj, const int& val)
@@ -118,7 +118,7 @@ std::unique_ptr<BigNumberImpl> RShift(const BigNumberImpl* obj, const int& val)
     if(!BN_rshift(res.get(), obj->m_bn.get(), val))
         throw std::runtime_error("Unable to right-shift by " + std::to_string(val));
     std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) ) ;
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 // BN_cmp() returns -1 if a < b, 0 if a==b, 1 if a > b
@@ -256,7 +256,7 @@ std::vector<uint8_t>  BigNumberImpl::ToBin() const
     }
 
     std::vector<uint8_t>  retVec(binBn.get(), binBn.get()+ret);
-    return std::move(retVec);
+    return retVec;
 }
 
 void BigNumberImpl::generate(const int& nsize)
