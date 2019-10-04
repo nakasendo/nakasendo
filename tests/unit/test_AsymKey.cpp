@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <AsymKey/AsymKey.h>
-#include <AsymKey/AsymKeyAPI.h>
+#include <AsymKey/AsymKeyConfig.h>
 #include <BigNumbers/BigNumbers.h>
 #include <Polynomial/Polynomial.h>
 #include <SecretSplit/KeyShare.h>
@@ -277,17 +277,6 @@ BOOST_AUTO_TEST_CASE(test_IO_more)
     }
 }
 
-BOOST_AUTO_TEST_CASE(test_API)
-{
-    const std::pair<std::string, std::string> keyPairPEM = GenerateKeyPairPEM();
-    BOOST_CHECK(!keyPairPEM.first.empty());
-    BOOST_CHECK(!keyPairPEM.second.empty());
-
-    const std::pair<std::string, std::string> keyPairHEX = GenerateKeyPairHEX();
-    BOOST_CHECK(!keyPairHEX.first.empty());
-    BOOST_CHECK(!keyPairHEX.second.empty());
-}
-
 BOOST_AUTO_TEST_CASE(test_Sig_Verify)
 {
     const std::string msg{"Alice want to say hello to Bob"};
@@ -365,8 +354,8 @@ BOOST_AUTO_TEST_CASE(test_key_derive_wp0042)
 BOOST_AUTO_TEST_CASE(test_private_key_split)
 {
     AsymKey randomKey;
-    int t=20;
-    int k=100;
+    int t=5;
+    int k=7;
     std::vector<KeyShare> shares = randomKey.split(t,k); 
 
     //pick 10 different sets of 10 shares and try to recreate the key
