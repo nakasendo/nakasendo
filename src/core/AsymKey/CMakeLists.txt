@@ -6,18 +6,17 @@
 #################################################################
 
 set(AsymKey_HPP_FILES_PUBLIC # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/AsymKey.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/AsymKeyAPI.h
+  "${CMAKE_CURRENT_SOURCE_DIR}/AsymKey.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/AsymKeyConfig.h"
 )
 set(AsymKey_HPP_FILES_PRIVATE # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/AsymKeyImpl.h
+  "${CMAKE_CURRENT_SOURCE_DIR}/AsymKeyImpl.h"
 )
 set(AsymKey_HPP_FILES ${AsymKey_HPP_FILES_PUBLIC} ${AsymKey_HPP_FILES_PRIVATE})
 
 set(AsymKey_CPP_FILES # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/AsymKey.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/AsymKeyAPI.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/AsymKeyImpl.cpp
+  "${CMAKE_CURRENT_SOURCE_DIR}/AsymKey.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/AsymKeyImpl.cpp"
 )
 
 set(AsymKey_SOURCE_FILES ${AsymKey_HPP_FILES} ${AsymKey_CPP_FILES})

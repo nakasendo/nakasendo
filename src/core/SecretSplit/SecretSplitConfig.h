@@ -1,5 +1,7 @@
-#ifndef __SECRET_SPLIT_API_H__
-#define __SECRET_SPLIT_API_H__
+#ifndef SECRETSPLIT_CONFIG_H
+#define SECRETSPLIT_CONFIG_H
+
+#include <DYNAMIC_LIBRARY_API.hpp>
 
 #ifdef EXPORT_SecretSplit
 #    define SecretSplit_API EXPORT_DYNAMIC_LIBRARY
@@ -7,4 +9,4 @@
 #    define SecretSplit_API IMPORT_DYNAMIC_LIBRARY
 #endif
 
-#endif //#ifndef __SECRET_SPLIT_API_H__
+#endif /* SECRETSPLIT_CONFIG_H */
