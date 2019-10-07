@@ -137,11 +137,16 @@ class GroupSecretPlayerBuilder:
 
         # Make functions for all players
         functional_ec = []
+        #test_functional_ec = []
         for playerItem in self.mPlayers.getItems():
             polyVal = self.rp(playerItem.getPlayer().getOrdinal())
             self.ownPolynomialFunctions[playerItem.getPlayer().getURI()] = polyVal
             functional_ec.append((playerItem.getPlayer().getOrdinal(),  GroupSecretPlayerBuilder.getEcdsa256k1Point(polyVal * Generator)))
+            #test_functional_ec.append([playerItem.getPlayer().getOrdinal(), GroupSecretPlayerBuilder.getEcdsa256k1Point(polyVal * Generator)])
+            #print(str(playerItem.getPlayer().getOrdinal()) + "<hhhhhhhhhhhhhhhhhhhh>" + str(GroupSecretPlayerBuilder.getEcdsa256k1Point(polyVal * Generator)))
         self.ownPolynomialFunctions_ecpoints[self.getPlayer().getOrdinal()] = functional_ec
+        #test_interpolator = Polynomial.EC_LagrangeInterpolator(test_functional_ec, group_modulo=Order)
+        #print(str(test_interpolator(0)) + "<====> \n" + str(self.own_public_secret_a0))
 
         if (groupBuilder != None):
             groupBuilder.registerGroupSecetShareBuilder(groupSecetBuilder=self)
@@ -664,16 +669,25 @@ class GroupSecretPlayerBuilder:
             return False
         return True
 
-'''
+
     def verifyHonesty(self):
         for FromPlayerItem in self.mPlayers.getItems():
             fromPlayerOrdinal  = FromPlayerItem.getPlayer().getOrdinal()
             for ToPlayerItem in self.mPlayers.getItems():
                 toPlayerOrdinal = ToPlayerItem.getPlayer().getOrdinal()
                 if (fromPlayerOrdinal != toPlayerOrdinal):
-                    if (not self.getVerifyCoefficientForPlayer(fromPlayerOrdinal, toPlayerOrdinal)
-                         raise ValueError("Verification of honesty failed." )
-'''
+                    if (not self.getVerifyCoefficientForPlayer(fromPlayerOrdinal, toPlayerOrdinal)):
+                        raise ValueError("Verification of honesty failed.")
+
+    def verifyCorrectness(self):
+        for PlayerItem in self.mPlayers.getItems():
+            playerOrdinal  = PlayerItem.getPlayer().getOrdinal()
+            intermediary_sharepoints_curvepoint = []
+            for ec_pointTuple in self.ownPolynomialFunctions_ecpoints[playerOrdinal]:
+                intermediary_sharepoints_curvepoint.append([ec_pointTuple[0], ec_pointTuple[1]])
+            interpolator = Polynomial.EC_LagrangeInterpolator(intermediary_sharepoints_curvepoint, group_modulo=Order)
+            if (interpolator(0)!= self.encrypted_coefficients[playerOrdinal][0]):
+                raise ValueError("Correctness of honesty failed.")
 
 
 #############################################
@@ -847,11 +861,10 @@ if __name__ == '__main__':
        
         # Verify the honesty
         for playerNumber in range(0, len(playerUris)):
-            for FromPlayerNumber in range(0, len(playerUris)):
-                for ToPlayerNumber in range(0, len(playerUris)):
-                    if (FromPlayerNumber != ToPlayerNumber):
-                        if (not gpSecPlayerBuilder[playerNumber].getVerifyCoefficientForPlayer(gpSecPlayerBuilder[FromPlayerNumber].getPlayer().getOrdinal(), gpSecPlayerBuilder[ToPlayerNumber].getPlayer().getOrdinal())):
-                            raise ValueError("Verification of honesty failed." )
+            gpSecPlayerBuilder[playerNumber].verifyHonesty()
+
+        for playerNumber in range(0, len(playerUris)):
+            gpSecPlayerBuilder[playerNumber].verifyCorrectness()
 
 
     print("=====================EPHEMERAL=====================")

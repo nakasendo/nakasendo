@@ -1,5 +1,7 @@
-#ifndef __POLYNOMIAL_API_H__
-#define __POLYNOMIAL_API_H__
+#ifndef POLYNOMIAL_CONFIG_H
+#define POLYNOMIAL_CONFIG_H
+
+#include <DYNAMIC_LIBRARY_API.hpp>
 
 #ifdef EXPORT_Polynomial
 #    define Polynomial_API EXPORT_DYNAMIC_LIBRARY
@@ -7,4 +9,4 @@
 #    define Polynomial_API IMPORT_DYNAMIC_LIBRARY
 #endif
 
-#endif //#ifndef __POLYNOMIAL_API_H__
+#endif /* POLYNOMIAL_CONFIG_H */

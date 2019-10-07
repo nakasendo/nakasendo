@@ -606,9 +606,9 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_degree_100_mod_104729 )
 }
 
 // Test creation of LGInterpolator object of degree 200, modulo SECP256K1MOD
-BOOST_AUTO_TEST_CASE( test_Interpolation_degree_200_mod_SECP256K1MOD )
+BOOST_AUTO_TEST_CASE( test_Interpolation_degree_8_mod_SECP256K1MOD )
 {
-    int degree = 50;
+    int degree = 7;
     BigNumber mod; 
     mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
 
@@ -684,7 +684,7 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_repeated_coeff )
 
 BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_invalid_basis )
 {
-    int degree = 50;
+    int degree = 7;
     BigNumber mod; 
     mod.FromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"); 
 
@@ -772,10 +772,10 @@ BOOST_AUTO_TEST_CASE( test_Interpolation_eval_at_basis )
 
 }
 
-BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_degree_100_mod_SECP256K1CURVE )
+BOOST_AUTO_TEST_CASE( test_ECPoint_Interpolation_degree_7_mod_SECP256K1CURVE )
 {
     std::vector<std::pair<BigNumber, ECPoint> > curve; 
-    for (int i = 0; i< 50; ++ i){
+    for (int i = 0; i< 8; ++ i){
         BigNumber index; 
         index.FromHex (std::to_string(i));
         ECPoint pt; 

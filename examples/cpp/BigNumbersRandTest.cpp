@@ -1,5 +1,4 @@
 #include <BigNumbers/BigNumbers.h>
-#include <BigNumbers/BigNumbersAPI.h>
 #include <iostream>
 #include <memory>
 

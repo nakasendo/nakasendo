@@ -1,8 +1,7 @@
 #ifndef __SECRET_SPLIT_H__
 #define __SECRET_SPLIT_H__
 
-#include <DYNAMIC_LIBRARY_API.hpp>
-#include <SecretSplit/SecretSplit_Api.h>
+#include <SecretSplit/SecretSplitConfig.h>
 
 #include <vector>
 #include <SecretSplit/KeyShare.h>
