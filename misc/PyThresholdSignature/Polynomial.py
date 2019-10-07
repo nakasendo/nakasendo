@@ -247,8 +247,7 @@ def find_inverse(m, n):
 class  EC_LagrangeInterpolator:
 
     def __init__(self, points=None, group_modulo=None):
-        self.s = ecdsa.ellipticcurve.INFINITY
-
+        self.res = ecdsa.ellipticcurve.INFINITY
         self.points = []
         if points:
             self.points=points
@@ -258,13 +257,13 @@ class  EC_LagrangeInterpolator:
     def __call__(self, x):
         for i in range(self.numPoints):
             x_i = int(self.points[i][0])
-            #s_i_str = self.points[i][1].replace("(","").replace(")","").split(",")
             s_i = ecdsa.ellipticcurve.Point(FiniteGroup.curve_secp256k1, int(self.points[i][1].x()), int(self.points[i][1].y()))
             for j in range (self.numPoints):
                 if j != i:
                     x_j = int(self.points[j][0])
-                    scalar_temp = int(((x - x_j-1) * FiniteGroup.inv_mod(x_i-x_j+self.modulo, self.modulo)) % self.modulo)
+                    #scalar_temp = int(((x - x_j-1) * FiniteGroup.inv_mod(x_i-x_j+self.modulo, self.modulo)) % self.modulo)
+                    scalar_temp = int(((x - x_j) * FiniteGroup.inv_mod(x_i-x_j+self.modulo, self.modulo)) % self.modulo)
                     s_i = scalar_temp * s_i
-            self.s = self.s + s_i
-        return self.s
+            self.res = self.res + s_i
+        return self.res
 
