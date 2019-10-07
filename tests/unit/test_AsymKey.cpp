@@ -61,10 +61,10 @@ std::string get_key_info(const AsymKey& crKey)
     ss << "     p:" << crKey.Group_p()   << "\n";
     ss << "     a:" << crKey.Group_a()   << "\n";
     ss << "     b:" << crKey.Group_b()   << "\n";
-    ss << "pub_hex:[" << crKey.getPublicKeyHEX().first <<"," <<crKey.getPublicKeyHEX().second << "]\n";
-    ss << "pri_hex:[" << crKey.getPrivateKeyHEX() << "]\n";
-    ss << "pub_pem:\n" << crKey.getPublicKeyPEM();
-    ss << "pri_pem:\n" << crKey.getPrivateKeyPEM() << "\n";
+    ss << "pub_hex:[" << crKey.exportPublicHEX().first <<"," <<crKey.exportPublicHEX().second << "]\n";
+    ss << "pri_hex:[" << crKey.exportPrivateHEX() << "]\n";
+    ss << "pub_pem:\n" << crKey.exportPublicPEM();
+    ss << "pri_pem:\n" << crKey.exportPrivatePEM() << "\n";
     return std::move(ss.str());
 }
 
@@ -76,7 +76,7 @@ std::string get_failed_key_derived_info(const AsymKey& crKey, const std::string&
     ss << "__derived key_________________\n" << get_key_info(crDerivedPrivateKey);
     ss << "__derived pub key_____________\n" << crDerivedPublicKey ;
     ss << "__derived pub key hex_________[" << pubkey_pem2hex(crDerivedPublicKey).first << "," << pubkey_pem2hex(crDerivedPublicKey).second << "]\n";
-    const std::string test_derived_pubkey = crDerivedPrivateKey.getPublicKeyPEM();
+    const std::string test_derived_pubkey = crDerivedPrivateKey.exportPublicPEM();
     if (test_derived_pubkey != crDerivedPublicKey)
         ss << "__failed__________________ : [derived pub key] doesn't match with the public key of the [derived key] (private)\n";
     else
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE(test_default_constructor)
     AsymKey key;
     BOOST_CHECK(key.is_valid());
     
-    const std::string pub_key_pem = key.getPublicKeyPEM();
-    const std::string pri_key_pem = key.getPrivateKeyPEM();
-    const std::string pub_key_hex = key.getPublicKeyHEXStr();
-    const std::string pri_key_hex = key.getPrivateKeyHEX();
+    const std::string pub_key_pem = key.exportPublicPEM();
+    const std::string pri_key_pem = key.exportPrivatePEM();
+    const std::string pub_key_hex = key.exportPublicHEXStr();
+    const std::string pri_key_hex = key.exportPrivateHEX();
 
     BOOST_CHECK(!pub_key_pem.empty());
     BOOST_CHECK(!pri_key_pem.empty());
@@ -142,10 +142,10 @@ BOOST_AUTO_TEST_CASE(test_constructor_with_groupnid)
         AsymKey key(curve_groupNID);
         BOOST_CHECK(key.is_valid());
 
-        const std::string pub_key_pem = key.getPublicKeyPEM();
-        const std::string pri_key_pem = key.getPrivateKeyPEM();
-        const std::string pub_key_hex = key.getPublicKeyHEXStr();
-        const std::string pri_key_hex = key.getPrivateKeyHEX();
+        const std::string pub_key_pem = key.exportPublicPEM();
+        const std::string pri_key_pem = key.exportPrivatePEM();
+        const std::string pub_key_hex = key.exportPublicHEXStr();
+        const std::string pri_key_hex = key.exportPrivateHEX();
 
         BOOST_CHECK(!pub_key_pem.empty());
         BOOST_CHECK(!pri_key_pem.empty());
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(test_randomness)
     for (size_t i = 0; i < nbSample; ++i) 
     {
         AsymKey key;
-        list_keystr.push_back(std::make_pair(key.getPublicKeyPEM(), key.getPrivateKeyPEM()));
+        list_keystr.push_back(std::make_pair(key.exportPublicPEM(), key.exportPrivatePEM()));
     }
 
     for (size_t i = 0; i < nbSample; ++i)
@@ -186,17 +186,17 @@ BOOST_AUTO_TEST_CASE(test_randomness)
 BOOST_AUTO_TEST_CASE(test_copy)
 {
     const AsymKey key;
-    const std::string pub_key_pem = key.getPublicKeyPEM();
-    const std::string pri_key_pem = key.getPrivateKeyPEM();
-    const std::string pub_key_hex = key.getPublicKeyHEXStr();
-    const std::string pri_key_hex = key.getPrivateKeyHEX();
+    const std::string pub_key_pem = key.exportPublicPEM();
+    const std::string pri_key_pem = key.exportPrivatePEM();
+    const std::string pub_key_hex = key.exportPublicHEXStr();
+    const std::string pri_key_hex = key.exportPrivateHEX();
 
     const AsymKey copied(key);
     BOOST_CHECK(copied.is_valid());
-    const std::string copied_pub_key_pem = copied.getPublicKeyPEM();
-    const std::string copied_pri_key_pem = copied.getPrivateKeyPEM();
-    const std::string copied_pub_key_hex = copied.getPublicKeyHEXStr();
-    const std::string copied_pri_key_hex = copied.getPrivateKeyHEX();
+    const std::string copied_pub_key_pem = copied.exportPublicPEM();
+    const std::string copied_pri_key_pem = copied.exportPrivatePEM();
+    const std::string copied_pub_key_hex = copied.exportPublicHEXStr();
+    const std::string copied_pri_key_hex = copied.exportPrivateHEX();
     BOOST_TEST(pub_key_pem == copied_pub_key_pem);
     BOOST_TEST(pri_key_pem == copied_pri_key_pem);
     BOOST_TEST(pub_key_hex == copied_pub_key_hex);
@@ -205,10 +205,10 @@ BOOST_AUTO_TEST_CASE(test_copy)
     AsymKey assigned;
     assigned = key;
     BOOST_CHECK(assigned.is_valid());
-    const std::string assigned_pub_key_pem = assigned.getPublicKeyPEM();
-    const std::string assigned_pri_key_pem = assigned.getPrivateKeyPEM();
-    const std::string assigned_pub_key_hex = assigned.getPublicKeyHEXStr();
-    const std::string assigned_pri_key_hex = assigned.getPrivateKeyHEX();
+    const std::string assigned_pub_key_pem = assigned.exportPublicPEM();
+    const std::string assigned_pri_key_pem = assigned.exportPrivatePEM();
+    const std::string assigned_pub_key_hex = assigned.exportPublicHEXStr();
+    const std::string assigned_pri_key_hex = assigned.exportPrivateHEX();
     BOOST_TEST(pub_key_pem == assigned_pub_key_pem);
     BOOST_TEST(pri_key_pem == assigned_pri_key_pem);
     BOOST_TEST(pub_key_hex == assigned_pub_key_hex);
@@ -222,10 +222,10 @@ BOOST_AUTO_TEST_CASE(test_IO)
     {
         const AsymKey test_key;
         const int test_groupID = test_key.GroupNid();
-        const std::string test_pubkey_hex = test_key.getPublicKeyHEXStr();
-        const std::string test_prikey_hex = test_key.getPrivateKeyHEX();
-        const std::string test_pubkey_pem = test_key.getPublicKeyPEM();
-        const std::string test_prikey_pem = test_key.getPrivateKeyPEM();
+        const std::string test_pubkey_hex = test_key.exportPublicHEXStr();
+        const std::string test_prikey_hex = test_key.exportPrivateHEX();
+        const std::string test_pubkey_pem = test_key.exportPublicPEM();
+        const std::string test_prikey_pem = test_key.exportPrivatePEM();
         BOOST_TEST(!test_pubkey_hex.empty());
         BOOST_TEST(!test_prikey_hex.empty());
         BOOST_TEST(!test_pubkey_pem.empty());
@@ -233,12 +233,12 @@ BOOST_AUTO_TEST_CASE(test_IO)
 
         {
             AsymKey imported_key_by_pem;
-            imported_key_by_pem.setPEMPrivateKey(test_prikey_pem);
+            imported_key_by_pem.importPrivatePEM(test_prikey_pem);
             BOOST_CHECK(imported_key_by_pem.is_valid());
-            const std::string imported_pubkey_hex = imported_key_by_pem.getPublicKeyHEXStr();
-            const std::string imported_prikey_hex = imported_key_by_pem.getPrivateKeyHEX();
-            const std::string imported_pubkey_pem = imported_key_by_pem.getPublicKeyPEM();
-            const std::string imported_prikey_pem = imported_key_by_pem.getPrivateKeyPEM();
+            const std::string imported_pubkey_hex = imported_key_by_pem.exportPublicHEXStr();
+            const std::string imported_prikey_hex = imported_key_by_pem.exportPrivateHEX();
+            const std::string imported_pubkey_pem = imported_key_by_pem.exportPublicPEM();
+            const std::string imported_prikey_pem = imported_key_by_pem.exportPrivatePEM();
 
             BOOST_TEST(test_pubkey_hex == imported_pubkey_hex);
             BOOST_TEST(test_prikey_hex == imported_prikey_hex);
@@ -248,12 +248,12 @@ BOOST_AUTO_TEST_CASE(test_IO)
 
         {
             AsymKey imported_key_by_hex;
-            imported_key_by_hex.setHEXPrivateKey(test_prikey_hex);
+            imported_key_by_hex.importPrivateHEX(test_prikey_hex);
             BOOST_CHECK(imported_key_by_hex.is_valid());
-            const std::string imported_pubkey_hex = imported_key_by_hex.getPublicKeyHEXStr();
-            const std::string imported_prikey_hex = imported_key_by_hex.getPrivateKeyHEX();
-            const std::string imported_pubkey_pem = imported_key_by_hex.getPublicKeyPEM();
-            const std::string imported_prikey_pem = imported_key_by_hex.getPrivateKeyPEM();
+            const std::string imported_pubkey_hex = imported_key_by_hex.exportPublicHEXStr();
+            const std::string imported_prikey_hex = imported_key_by_hex.exportPrivateHEX();
+            const std::string imported_pubkey_pem = imported_key_by_hex.exportPublicPEM();
+            const std::string imported_prikey_pem = imported_key_by_hex.exportPrivatePEM();
 
             BOOST_TEST(test_pubkey_hex == imported_pubkey_hex);
             BOOST_TEST(test_prikey_hex == imported_prikey_hex);
@@ -269,8 +269,8 @@ BOOST_AUTO_TEST_CASE(test_IO_more)
     for (size_t i = 0; i < nbSample; ++i)
     {
         AsymKey key;
-        const std::string pub_key_pem = key.getPublicKeyPEM();
-        const std::pair<std::string, std::string> pub_key_hex_pair = key.getPublicKeyHEX();
+        const std::string pub_key_pem = key.exportPublicPEM();
+        const std::pair<std::string, std::string> pub_key_hex_pair = key.exportPublicHEX();
         const std::pair<std::string, std::string> recover_pub_key_hex_pair = pubkey_pem2hex(pub_key_pem);
         BOOST_TEST(pub_key_hex_pair.first == recover_pub_key_hex_pair.first)  ;// public keys are same
         BOOST_TEST(pub_key_hex_pair.second == recover_pub_key_hex_pair.second);// public keys are same
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE(test_Sig_Verify)
 {
     const std::string msg{"Alice want to say hello to Bob"};
     const AsymKey ecdsa;
-    const std::string pubkey = ecdsa.getPublicKeyPEM();
+    const std::string pubkey = ecdsa.exportPublicPEM();
     const std::pair<std::string, std::string> rs = ecdsa.sign(msg);
     const bool verify_ok = verify(msg, pubkey,rs);
     BOOST_CHECK(verify_ok);
@@ -305,10 +305,10 @@ BOOST_AUTO_TEST_CASE(test_Sig_Verify_Random)
     {
         //// Use Key to generate different strings. It is not really random, but it generate different string each iteration
         const AsymKey randomKey;
-        const std::string random_str = randomKey.getPublicKeyHEXStr();
+        const std::string random_str = randomKey.exportPublicHEXStr();
 
         const AsymKey ecdsa;
-        const std::string pubkey = ecdsa.getPublicKeyPEM();
+        const std::string pubkey = ecdsa.exportPublicPEM();
         const std::pair<std::string, std::string> rs = ecdsa.sign(random_str);
         const bool verify_ok = verify(random_str, pubkey, rs);
         BOOST_CHECK(verify_ok);
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(test_Sig_Verify_Random)
 }
 
 BOOST_AUTO_TEST_CASE(test_SharedSecret)
-{
+{   
     // Test a few iteration with keys randomly generated
     const size_t nbIter = 10;
     for (size_t i = 0; i < nbIter; ++i)
@@ -324,11 +324,11 @@ BOOST_AUTO_TEST_CASE(test_SharedSecret)
         const AsymKey alice_key;
         const AsymKey bob_key;
 
-        const std::string alice_pub_key = alice_key.getPublicKeyPEM();
-        const std::string bob_pub_key = bob_key.getPublicKeyPEM();
+        const std::string alice_pub_key = alice_key.exportPublicPEM();
+        const std::string bob_pub_key = bob_key.exportPublicPEM();
 
-        const std::string shared_secret_from_bob = bob_key.getSharedSecretHex(alice_pub_key);
-        const std::string shared_secret_from_alice = alice_key.getSharedSecretHex(bob_pub_key);
+        const std::string shared_secret_from_bob = bob_key.exportSharedSecretHex(alice_pub_key);
+        const std::string shared_secret_from_alice = alice_key.exportSharedSecretHex(bob_pub_key);
         BOOST_CHECK(!shared_secret_from_bob.empty());
         BOOST_CHECK(shared_secret_from_bob == shared_secret_from_alice);
     }
@@ -344,8 +344,8 @@ BOOST_AUTO_TEST_CASE(test_key_derive_wp0042)
         const std::string additive_msg{ "I am a random message, hash me to get a big number" };
         const AsymKey alice_key;
         const AsymKey bob_key;
-        const std::string alice_pub_key = alice_key.getPublicKeyPEM();
-        const std::string bob_pub_key = bob_key.getPublicKeyPEM();
+        const std::string alice_pub_key = alice_key.exportPublicPEM();
+        const std::string bob_pub_key = bob_key.exportPublicPEM();
 
         const std::string alice_derived_pub_key = derive_pubkey(alice_pub_key, additive_msg);
         const std::string bob_derived_pub_key = derive_pubkey(bob_pub_key, additive_msg);
@@ -355,8 +355,8 @@ BOOST_AUTO_TEST_CASE(test_key_derive_wp0042)
         const AsymKey bob_derived_key = bob_key.derive(additive_msg);
         BOOST_CHECK(bob_derived_key.is_valid());
 
-        const std::string alice_derived_pub_key_test = alice_derived_key.getPublicKeyPEM();
-        const std::string bob_derived_pub_key_test = bob_derived_key.getPublicKeyPEM();
+        const std::string alice_derived_pub_key_test = alice_derived_key.exportPublicPEM();
+        const std::string bob_derived_pub_key_test = bob_derived_key.exportPublicPEM();
         BOOST_CHECK(alice_derived_pub_key == alice_derived_pub_key_test);
         BOOST_CHECK(bob_derived_pub_key == bob_derived_pub_key_test);
     }
@@ -387,7 +387,7 @@ BOOST_AUTO_TEST_CASE(test_private_key_split)
         AsymKey recoveredkey; 
         recoveredkey.recover(shareSample);
         
-        BOOST_TEST (recoveredkey.getPrivateKeyHEX () == randomKey.getPrivateKeyHEX()); 
+        BOOST_TEST (recoveredkey.exportPrivateHEX () == randomKey.exportPrivateHEX()); 
         
     }
     
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(test_private_key_with_encryption)
         // export
         AsymKey testKeyA ;
         std::string passPhrase ( "I am She-Ra!!!" ) ;    
-        const std::string test_prikey_pem_encrypted =  testKeyA.getPrivateKeyPEMEncrypted( passPhrase ) ;
+        const std::string test_prikey_pem_encrypted =  testKeyA.exportPrivatePEMEncrypted( passPhrase ) ;
 
         // Check the contents of key are as expected
         BOOST_CHECK( boost::algorithm::contains( test_prikey_pem_encrypted, "-----BEGIN EC PRIVATE KEY-----" ) ) ;
@@ -415,18 +415,18 @@ BOOST_AUTO_TEST_CASE(test_private_key_with_encryption)
         AsymKey testKeyB ;
         std::string incorrectPassPhrase ( "By the power of Grayskull..." ) ;
         
-        testKeyB.setPrivateKeyPEMEncrypted( test_prikey_pem_encrypted, passPhrase ) ;
+        testKeyB.importPrivatePEMEncrypted( test_prikey_pem_encrypted, passPhrase ) ;
         BOOST_CHECK( testKeyB.is_valid( ) ) ;
         
         // check the imported/imported key is the same as the original
-        const std::string testKeyAString =  testKeyA.getPrivateKeyPEM(  ) ;
-        const std::string testKeyBString =  testKeyB.getPrivateKeyPEM(  ) ;
+        const std::string testKeyAString =  testKeyA.exportPrivatePEM(  ) ;
+        const std::string testKeyBString =  testKeyB.exportPrivatePEM(  ) ;
         BOOST_CHECK( testKeyAString == testKeyAString ) ;
         
         // Check the PEM throws an error with an incorrect pass pharse
         BOOST_CHECK_THROW
             ( 
-                testKeyB.setPrivateKeyPEMEncrypted( test_prikey_pem_encrypted, incorrectPassPhrase ) ; , 
+                testKeyB.importPrivatePEMEncrypted( test_prikey_pem_encrypted, incorrectPassPhrase ) ; , 
                 std::runtime_error 
             );  
     }

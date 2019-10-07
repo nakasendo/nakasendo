@@ -17,7 +17,7 @@
 std::pair<std::string, std::string> AsymKey_API GenerateKeyPairPEM();
 std::pair<std::string, std::string> AsymKey_API GenerateKeyPairHEX();
 
-std::pair<std::string, std::string> AsymKey_API GetKeyPairHEX(const std::string& crPrivateKeyPEM);
+std::pair<std::string, std::string> AsymKey_API exportKeyPairHEX(const std::string& crPrivateKeyPEM);
 
 
 #endif /* ASYM_KEY_API_H */
