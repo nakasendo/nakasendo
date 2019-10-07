@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <string>
 #include <iostream>
-#include <BigNumbers/BigNumbersAPI.h>
+#include <BigNumbers/BigNumbers.h>
 
 
 struct module_state {
@@ -23,8 +23,12 @@ static PyObject* wrap_addFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result = addFromHex (argA,argB);
-    return Py_BuildValue("s",result.get());
+    BigNumber bnA, bnB; 
+    bnA.FromHex (argA);
+    bnB.FromHex (argB);
+    const BigNumber res = bnA + bnB;
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_addFromDec(PyObject* self, PyObject *args)
@@ -35,8 +39,44 @@ static PyObject* wrap_addFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result = addFromDec(argA,argB);
-    return Py_BuildValue("s",result.get());
+    BigNumber bnA, bnB; 
+    bnA.FromDec (argA);
+    bnB.FromDec (argB);
+    const BigNumber res = bnA + bnB;
+
+    return Py_BuildValue("s",res.ToDec().c_str());
+}
+
+static PyObject* wrap_subFromHex(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    BigNumber bnA, bnB; 
+    bnA.FromHex (argA);
+    bnB.FromHex (argB);
+    const BigNumber res = bnA - bnB;
+
+    return Py_BuildValue("s",res.ToHex().c_str());
+}
+
+static PyObject* wrap_subFromDec(PyObject* self, PyObject *args)
+{
+    char * argA; 
+    char * argB; 
+
+    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+        return NULL;
+
+    BigNumber bnA, bnB; 
+    bnA.FromDec (argA);
+    bnB.FromDec (argB);
+    const BigNumber res = bnA - bnB;
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_multiplyFromHex(PyObject* self, PyObject *args)
@@ -47,8 +87,12 @@ static PyObject* wrap_multiplyFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result = multiplyFromHex(argA,argB);
-    return Py_BuildValue("s",result.get());
+    BigNumber bnA, bnB; 
+    bnA.FromHex (argA);
+    bnB.FromHex (argB);
+    const BigNumber res = bnA * bnB;
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_multiplyFromDec(PyObject* self, PyObject *args)
@@ -59,8 +103,13 @@ static PyObject* wrap_multiplyFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result = multiplyFromDec(argA,argB);
-    return Py_BuildValue("s",result.get());
+
+    BigNumber bnA, bnB; 
+    bnA.FromDec (argA);
+    bnB.FromDec (argB);
+    const BigNumber res = bnA * bnB;
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_divideFromHex(PyObject* self, PyObject *args)
@@ -71,15 +120,18 @@ static PyObject* wrap_divideFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result;
+    BigNumber bnA, bnB; 
+    bnA.FromHex (argA);
+    bnB.FromHex (argB);
+
     try{
-       result = divideFromHex(argA,argB);
+        const BigNumber res = bnA / bnB;
+        return Py_BuildValue("s",res.ToHex().c_str());
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ZeroDivisionError, "division or modulo by zero");
         return NULL;
     }
-    return Py_BuildValue("s", result.get());
 }
 
 static PyObject* wrap_divideFromDec(PyObject* self, PyObject *args)
@@ -90,15 +142,18 @@ static PyObject* wrap_divideFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result;
+    BigNumber bnA, bnB; 
+    bnA.FromDec (argA);
+    bnB.FromDec (argB);
+
     try{
-       result = divideFromDec(argA,argB);
+        const BigNumber res = bnA / bnB;
+        return Py_BuildValue("s",res.ToDec().c_str());
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ZeroDivisionError, "division or modulo by zero");
         return NULL;
     }
-    return Py_BuildValue("s", result.get());
 }
 
 static PyObject* wrap_Mod_Hex(PyObject* self, PyObject *args)
@@ -109,8 +164,12 @@ static PyObject* wrap_Mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Mod_Hex(pARG,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnArg, bnMod;
+    bnArg.FromHex (pARG);
+    bnMod.FromHex (pMOD);
+    const BigNumber res = bnArg % bnMod;
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_Inv_mod_Hex(PyObject* self, PyObject *args)
@@ -121,8 +180,12 @@ static PyObject* wrap_Inv_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Inv_mod_Hex(pARG,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnArg, bnMod;
+    bnArg.FromHex (pARG);
+    bnMod.FromHex (pMOD);
+    const BigNumber res = Inv_mod( bnArg , bnMod);
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_Add_mod_Hex(PyObject* self, PyObject *args)
@@ -134,8 +197,13 @@ static PyObject* wrap_Add_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Add_mod_Hex(pLHS,pRHS,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnLHS, bnRHS, bnMOD;
+    bnLHS.FromHex (pLHS);
+    bnRHS.FromHex (pRHS);
+    bnMOD.FromHex (pMOD);
+    const BigNumber res = Add_mod(bnLHS, bnRHS, bnMOD);
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_Sub_mod_Hex(PyObject* self, PyObject *args)
@@ -147,8 +215,13 @@ static PyObject* wrap_Sub_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Sub_mod_Hex(pLHS,pRHS,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnLHS, bnRHS, bnMOD;
+    bnLHS.FromHex (pLHS);
+    bnRHS.FromHex (pRHS);
+    bnMOD.FromHex (pMOD);
+    const BigNumber res = Sub_mod(bnLHS, bnRHS, bnMOD);
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_Mul_mod_Hex(PyObject* self, PyObject *args)
@@ -160,8 +233,13 @@ static PyObject* wrap_Mul_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Mul_mod_Hex(pLHS,pRHS,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnLHS, bnRHS, bnMOD;
+    bnLHS.FromHex (pLHS);
+    bnRHS.FromHex (pRHS);
+    bnMOD.FromHex (pMOD);
+    const BigNumber res = Mul_mod(bnLHS, bnRHS, bnMOD);
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_Div_mod_Hex(PyObject* self, PyObject *args)
@@ -173,8 +251,13 @@ static PyObject* wrap_Div_mod_Hex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Div_mod_Hex(pLHS,pRHS,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnLHS, bnRHS, bnMOD;
+    bnLHS.FromHex (pLHS);
+    bnRHS.FromHex (pRHS);
+    bnMOD.FromHex (pMOD);
+    const BigNumber res = Div_mod(bnLHS, bnRHS, bnMOD);
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_Mod_Dec(PyObject* self, PyObject *args)
@@ -185,8 +268,12 @@ static PyObject* wrap_Mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Mod_Dec(pARG,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnArg, bnMod;
+    bnArg.FromDec (pARG);
+    bnMod.FromDec (pMOD);
+    const BigNumber res = bnArg % bnMod;
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_Inv_mod_Dec(PyObject* self, PyObject *args)
@@ -197,8 +284,12 @@ static PyObject* wrap_Inv_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &pARG, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Inv_mod_Dec(pARG,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnArg, bnMod;
+    bnArg.FromDec (pARG);
+    bnMod.FromDec (pMOD);
+    const BigNumber res = Inv_mod( bnArg , bnMod);
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_Add_mod_Dec(PyObject* self, PyObject *args)
@@ -210,8 +301,13 @@ static PyObject* wrap_Add_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Add_mod_Dec(pLHS,pRHS,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnLHS, bnRHS, bnMOD;
+    bnLHS.FromDec(pLHS);
+    bnRHS.FromDec(pRHS);
+    bnMOD.FromDec(pMOD);
+    const BigNumber res = Add_mod(bnLHS, bnRHS, bnMOD);
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_Sub_mod_Dec(PyObject* self, PyObject *args)
@@ -223,8 +319,13 @@ static PyObject* wrap_Sub_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Sub_mod_Dec(pLHS,pRHS,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnLHS, bnRHS, bnMOD;
+    bnLHS.FromDec(pLHS);
+    bnRHS.FromDec(pRHS);
+    bnMOD.FromDec(pMOD);
+    const BigNumber res = Sub_mod(bnLHS, bnRHS, bnMOD);
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_Mul_mod_Dec(PyObject* self, PyObject *args)
@@ -236,8 +337,13 @@ static PyObject* wrap_Mul_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Mul_mod_Dec(pLHS,pRHS,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnLHS, bnRHS, bnMOD;
+    bnLHS.FromDec(pLHS);
+    bnRHS.FromDec(pRHS);
+    bnMOD.FromDec(pMOD);
+    const BigNumber res = Mul_mod(bnLHS, bnRHS, bnMOD);
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_Div_mod_Dec(PyObject* self, PyObject *args)
@@ -249,8 +355,13 @@ static PyObject* wrap_Div_mod_Dec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "sss", &pLHS, &pRHS, &pMOD))
         return NULL;
 
-    std::unique_ptr<char, CD> ret = Div_mod_Dec(pLHS,pRHS,pMOD);
-    return Py_BuildValue("s", ret.get());
+    BigNumber bnLHS, bnRHS, bnMOD;
+    bnLHS.FromDec(pLHS);
+    bnRHS.FromDec(pRHS);
+    bnMOD.FromDec(pMOD);
+    const BigNumber res = Div_mod(bnLHS, bnRHS, bnMOD);
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 
@@ -262,15 +373,18 @@ static PyObject* wrap_leftShiftFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result;
+    BigNumber bnA, bnB; 
+    bnA.FromHex (argA);
+    bnB.FromHex (argB);
+
     try{
-        result = leftShiftFromHex(argA,argB);
+        const BigNumber res = bnA << bnB;
+        return Py_BuildValue("s",res.ToHex().c_str());
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ValueError, "negative shift count");
         return NULL;
     }
-    return Py_BuildValue("s",result.get());
 }
 
 static PyObject* wrap_leftShiftFromDec(PyObject* self, PyObject *args)
@@ -281,15 +395,18 @@ static PyObject* wrap_leftShiftFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result;
+    BigNumber bnA, bnB; 
+    bnA.FromDec(argA);
+    bnB.FromDec(argB);
+
     try{
-        result = leftShiftFromDec(argA,argB);
+        const BigNumber res = bnA << bnB;
+        return Py_BuildValue("s",res.ToDec().c_str());
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ValueError, "negative shift count");
         return NULL;
     }
-    return Py_BuildValue("s",result.get());
 }
 
 static PyObject* wrap_rightShiftFromHex(PyObject* self, PyObject *args)
@@ -300,15 +417,18 @@ static PyObject* wrap_rightShiftFromHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result;
+    BigNumber bnA, bnB; 
+    bnA.FromHex (argA);
+    bnB.FromHex (argB);
+
     try{
-        result = rightShiftFromHex(argA,argB);
+        const BigNumber res = bnA >> bnB;
+        return Py_BuildValue("s",res.ToHex().c_str());
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ValueError, "negative shift count");
         return NULL;
     }
-    return Py_BuildValue("s",result.get());
 }
 
 static PyObject* wrap_rightShiftFromDec(PyObject* self, PyObject *args)
@@ -319,39 +439,18 @@ static PyObject* wrap_rightShiftFromDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::unique_ptr<char, CD> result;
+    BigNumber bnA, bnB; 
+    bnA.FromDec(argA);
+    bnB.FromDec(argB);
+
     try{
-        result = rightShiftFromDec(argA,argB);
+        const BigNumber res = bnA >> bnB;
+        return Py_BuildValue("s",res.ToDec().c_str());
     }
     catch(std::runtime_error & re){
         PyErr_SetString(PyExc_ValueError, "negative shift count");
         return NULL;
     }
-    return Py_BuildValue("s",result.get());
-}
-
-static PyObject* wrap_subFromHex(PyObject* self, PyObject *args)
-{
-    char * argA; 
-    char * argB; 
-
-    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
-        return NULL;
-
-    std::unique_ptr<char, CD> result = subFromHex(argA,argB);
-    return Py_BuildValue("s",result.get());
-}
-
-static PyObject* wrap_subFromDec(PyObject* self, PyObject *args)
-{
-    char * argA; 
-    char * argB; 
-
-    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
-        return NULL;
-
-    std::unique_ptr<char, CD> result = subFromDec(argA,argB);
-    return Py_BuildValue("s",result.get());
 }
 
 static PyObject* wrap_BNRandomHex(PyObject* self, PyObject *args)
@@ -360,8 +459,8 @@ static PyObject* wrap_BNRandomHex(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &nSize))
         return NULL;
 
-    std::unique_ptr<char, CD> result = BNRandomHex(nSize);
-    return Py_BuildValue("s",result.get());
+    const BigNumber res = GenerateRand (nSize); 
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_BNRandomDec(PyObject* self, PyObject *args)
@@ -370,8 +469,8 @@ static PyObject* wrap_BNRandomDec(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &nSize))
         return NULL;
 
-    std::unique_ptr<char, CD> result = BNRandomDec(nSize);
-    return Py_BuildValue("s",result.get());
+    const BigNumber res = GenerateRand (nSize); 
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_BNRandomHexWithSeed(PyObject* self, PyObject *args)
@@ -381,8 +480,11 @@ static PyObject* wrap_BNRandomHexWithSeed(PyObject* self, PyObject *args)
 
     if (!PyArg_ParseTuple(args,"si",&argSeed,&nSize))
         return NULL;
-    std::unique_ptr<char, CD> result = BNRandomHexWithSeed(argSeed, nSize);
-    return Py_BuildValue ("s", result.get()); 
+
+    BigNumber res;
+    res.generateRandHexWithSeed(argSeed, nSize);
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_BNRandomDecWithSeed(PyObject* self, PyObject *args)
@@ -392,10 +494,12 @@ static PyObject* wrap_BNRandomDecWithSeed(PyObject* self, PyObject *args)
 
     if (!PyArg_ParseTuple(args,"si",&argSeed,&nSize))
         return NULL;
-    std::unique_ptr<char, CD> result = BNRandomDecWithSeed(argSeed, nSize);
-    return Py_BuildValue ("s", result.get()); 
-}
 
+    BigNumber res;
+    res.generateRandDecWithSeed(argSeed, nSize);
+
+    return Py_BuildValue("s",res.ToDec().c_str());
+}
 
 static PyObject* wrap_BNRandomPrimeHex(PyObject* self, PyObject *pyargs)
 {
@@ -403,8 +507,8 @@ static PyObject* wrap_BNRandomPrimeHex(PyObject* self, PyObject *pyargs)
     if (!PyArg_ParseTuple(pyargs, "i", &nSize))
         return NULL;
 
-    std::unique_ptr<char, CD> result = BNRandomPrimeHex(nSize);
-    return Py_BuildValue("s", result.get());
+    const BigNumber res = GenerateRandPrime (nSize); 
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_BNRandomPrimeDec(PyObject* self, PyObject *pyargs)
@@ -413,8 +517,8 @@ static PyObject* wrap_BNRandomPrimeDec(PyObject* self, PyObject *pyargs)
     if (!PyArg_ParseTuple(pyargs, "i", &nSize))
         return NULL;
 
-    std::unique_ptr<char, CD> result = BNRandomPrimeDec(nSize);
-    return Py_BuildValue("s", result.get());
+    const BigNumber res = GenerateRandPrime (nSize); 
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_BNRandomPrimeHexWithSeed(PyObject* self, PyObject *pyargs)
@@ -424,8 +528,11 @@ static PyObject* wrap_BNRandomPrimeHexWithSeed(PyObject* self, PyObject *pyargs)
 
     if (!PyArg_ParseTuple(pyargs, "si", &argSeed, &nSize))
         return NULL;
-    std::unique_ptr<char, CD> result = BNRandomPrimeHexWithSeed(argSeed, nSize);
-    return Py_BuildValue("s", result.get());
+
+    BigNumber res;
+    res.generateRandPrimeHexWithSeed(argSeed, nSize);
+
+    return Py_BuildValue("s",res.ToHex().c_str());
 }
 
 static PyObject* wrap_BNRandomPrimeDecWithSeed(PyObject* self, PyObject *pyargs)
@@ -435,8 +542,11 @@ static PyObject* wrap_BNRandomPrimeDecWithSeed(PyObject* self, PyObject *pyargs)
 
     if (!PyArg_ParseTuple(pyargs, "si", &argSeed, &nSize))
         return NULL;
-    std::unique_ptr<char, CD> result = BNRandomPrimeDecWithSeed(argSeed, nSize);
-    return Py_BuildValue("s", result.get());
+
+    BigNumber res;
+    res.generateRandPrimeDecWithSeed(argSeed, nSize);
+
+    return Py_BuildValue("s",res.ToDec().c_str());
 }
 
 static PyObject* wrap_isPrimeHex(PyObject* self, PyObject *pyargs)
@@ -445,7 +555,9 @@ static PyObject* wrap_isPrimeHex(PyObject* self, PyObject *pyargs)
     if (!PyArg_ParseTuple(pyargs, "s", &carg))
         return NULL;
 
-    const int isPrime = (int) isPrimeHex(carg);
+    BigNumber bnArg;
+    bnArg.FromHex(carg);
+    const int isPrime = (int) bnArg.isPrime();
     return Py_BuildValue("i", isPrime);
 }
 
@@ -455,7 +567,9 @@ static PyObject* wrap_isPrimeFasttestHex(PyObject* self, PyObject *pyargs)
     if (!PyArg_ParseTuple(pyargs, "s", &carg))
         return NULL;
 
-    const int isPrime = (int)isPrimeFasttestHex(carg);
+    BigNumber bnArg;
+    bnArg.FromHex(carg);
+    const int isPrime = (int) bnArg.isPrimeFasttest();
     return Py_BuildValue("i", isPrime);
 }
 
@@ -465,7 +579,9 @@ static PyObject* wrap_isPrimeDec(PyObject* self, PyObject *pyargs)
     if (!PyArg_ParseTuple(pyargs, "s", &carg))
         return NULL;
 
-    const int isPrime = (int)isPrimeDec(carg);
+    BigNumber bnArg;
+    bnArg.FromDec(carg);
+    const int isPrime = (int) bnArg.isPrime();
     return Py_BuildValue("i", isPrime);
 }
 
@@ -475,7 +591,9 @@ static PyObject* wrap_isPrimeFasttestDec(PyObject* self, PyObject *pyargs)
     if (!PyArg_ParseTuple(pyargs, "s", &carg))
         return NULL;
 
-    const int isPrime = (int)isPrimeFasttestDec(carg);
+    BigNumber bnArg;
+    bnArg.FromDec(carg);
+    const int isPrime = (int) bnArg.isPrimeFasttest();
     return Py_BuildValue("i", isPrime);
 }
 
