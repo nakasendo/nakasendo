@@ -6,8 +6,8 @@
 #################################################################
 set(SymEncDec_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDec.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecConfig.h
   ${CMAKE_CURRENT_SOURCE_DIR}/conversions.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecAPI.h
 )
 set(SymEncDec__HPP_FILES_PRIVATE # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecImpl.h
@@ -18,7 +18,6 @@ set(SymEncDec_HPP_FILES ${SymEncDec_HPP_FILES_PUBLIC} ${SymEncDec__HPP_FILES_PRI
 set(SymEncDec_CPP_FILES # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/conversions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDec.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecAPI.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecImpl.cpp
 )
 
