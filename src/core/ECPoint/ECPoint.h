@@ -51,7 +51,7 @@ class ECPoint_API ECPoint
         bool CheckOnCurve();
 
         std::string ToHex(const bool& compressed = true);
-        std::string ToDec();
+        std::string ToDec(const bool& compressed = true);
 
         int GroupNid()const;
 

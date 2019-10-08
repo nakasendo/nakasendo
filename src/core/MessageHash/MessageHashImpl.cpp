@@ -110,11 +110,11 @@ std::string MessageHashImpl::hashValHex ()
 }
 std::string MessageHashImpl::ListAvailableHash()
 {
-    void *my_arg = nullptr; 
     if ( !g_PtrHashFuncList.empty ()){
         g_PtrHashFuncList.clear (); 
     } 
 #ifndef __EMSCRIPTEN__         
+    void *my_arg = nullptr;
     OpenSSL_add_all_digests();
     
     OBJ_NAME_do_all (OBJ_NAME_TYPE_MD_METH,ListHashCallback, my_arg);

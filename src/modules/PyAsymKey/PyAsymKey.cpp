@@ -7,6 +7,7 @@
 #include <AsymKey/AsymKeyConfig.h>
 #include <AsymKey/AsymKey.h>
 #include <BigNumbers/BigNumbers.h>
+#include <SymEncDec/conversions.h>
 #include <SecretSplit/KeyShare.h>
 
 struct module_state {
@@ -100,6 +101,39 @@ static PyObject* wrap_Verify(PyObject* self, PyObject *args)
     const bool verifyOK = verify(msg, pubKey, std::make_pair(sigR, sigS));
 
     return Py_BuildValue("i", verifyOK);
+}
+
+static PyObject* wrap_DERSignature(PyObject* self, PyObject *args)
+{
+    char* cSigR = nullptr;
+    char* cSigS = nullptr;
+    int dec(0);
+
+    BigNumber rValue;
+    BigNumber sValue;
+    if (!PyArg_ParseTuple(args, "ssi",&cSigR, &cSigS,&dec))
+        return NULL;
+
+    if(dec){
+        rValue.FromDec(cSigR);
+        sValue.FromDec(cSigS);
+    }else{
+        rValue.FromHex(cSigR);
+        sValue.FromHex(cSigS);
+    }
+
+    size_t len(-1); 
+    std::unique_ptr<unsigned char[]>  sigDERTest = DEREncodedSignature(rValue,sValue,len);
+    
+    std::string sigAsHex = binTohexStr(sigDERTest,len);
+    if(dec){
+        BigNumber decimalRet;
+        decimalRet.FromHex(sigAsHex);
+        return Py_BuildValue("s", decimalRet.ToDec().c_str());
+    }
+    else{
+        return Py_BuildValue("s", sigAsHex.c_str());
+    }
 }
 
 static PyObject* wrap_ShareSecret(PyObject* self, PyObject *args)
@@ -292,6 +326,7 @@ static PyMethodDef ModuleMethods[] =
     {"ImportFromPem"            , wrap_ImportFromPEM, METH_VARARGS,"Imports a key in PEM format"},
     {"ImportFromEncryptedPEM"   , wrap_ImportFromEncryptedPEM, METH_VARARGS,"Imports a key in Encrypted PEM format, with pass phrase"},
     {"ExportFromEncryptedPEM"   , wrap_ExportFromEncryptedPEM, METH_VARARGS,"Exports a key to Encrypted PEM format, with pass phrase"},
+    {"DERSignature"             , wrap_DERSignature, METH_VARARGS,"return a DER encoding of an (r,s) signature"},
     {NULL, NULL, 0, NULL},
 };
  

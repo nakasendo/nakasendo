@@ -49,14 +49,14 @@ std::string _do_hash_msg(const std::string& crMsg)
             hexstr[2 * i] = hexmap[(buff[i] & 0xF0) >> 4];
             hexstr[2 * i + 1] = hexmap[(buff[i] & 0x0F) >> 0];
         }
-        return std::move(hexstr);
+        return hexstr;
     };
 
     /// For longer string, need to use buffer and sha update mechanism
     unsigned char hash_buff[SHA256_DIGEST_LENGTH];
     SHA256(reinterpret_cast<const unsigned char*>(crMsg.c_str()), crMsg.size(), hash_buff);
     const std::string output = buff2hexstr_helper(hash_buff, SHA256_DIGEST_LENGTH);
-    return std::move(output);
+    return output;
 }
 
 AsymKeyImpl::~AsymKeyImpl()
@@ -127,7 +127,7 @@ std::string AsymKeyImpl::Group_G_x() const
 
     STR_ptr pStr(BN_bn2hex(G_x.get()), &help_openssl_free_char);
     const std::string hex_str(pStr.get());
-    return std::move(hex_str);
+    return hex_str;
 }
 std::string AsymKeyImpl::Group_G_y() const
 {
@@ -145,7 +145,7 @@ std::string AsymKeyImpl::Group_G_y() const
 
     STR_ptr pStr(BN_bn2hex(G_y.get()), &help_openssl_free_char);
     const std::string hex_str(pStr.get());
-    return std::move(hex_str);
+    return hex_str;
 }
 std::string AsymKeyImpl::Group_p() const
 {
@@ -161,7 +161,7 @@ std::string AsymKeyImpl::Group_p() const
 
     STR_ptr pStr(BN_bn2hex(p.get()), &help_openssl_free_char);
     const std::string hex_str(pStr.get());
-    return std::move(hex_str);
+    return hex_str;
 }
 std::string AsymKeyImpl::Group_a() const
 {
@@ -177,7 +177,7 @@ std::string AsymKeyImpl::Group_a() const
 
     STR_ptr pStr ( BN_bn2hex(a.get()), &help_openssl_free_char);
     const std::string hex_str(pStr.get());
-    return std::move(hex_str);
+    return hex_str;
 }
 std::string AsymKeyImpl::Group_b() const
 {
@@ -193,7 +193,7 @@ std::string AsymKeyImpl::Group_b() const
 
     STR_ptr pStr(BN_bn2hex(b.get()), &help_openssl_free_char);
     const std::string hex_str(pStr.get());
-    return std::move(hex_str);
+    return hex_str;
 }
 std::string AsymKeyImpl::Group_n() const
 {
@@ -208,7 +208,7 @@ std::string AsymKeyImpl::Group_n() const
 
     STR_ptr pStr(BN_bn2hex(n.get()), &help_openssl_free_char);
     const std::string hex_str(pStr.get());
-    return std::move(hex_str);
+    return hex_str;
 }
 
 std::pair<std::string, std::string> AsymKeyImpl::exportPublicHEX()  const
@@ -228,7 +228,7 @@ std::pair<std::string, std::string> AsymKeyImpl::exportPublicHEX()  const
 
     STR_ptr xStr(BN_bn2hex(x.get()), &help_openssl_free_char);
     STR_ptr yStr(BN_bn2hex(y.get()), &help_openssl_free_char);
-    return std::move(std::make_pair( std::move(std::string(xStr.get())), std::move(std::string(yStr.get())) ));
+    return std::make_pair( std::string(xStr.get()), std::string(yStr.get()));
 }
 
 std::string AsymKeyImpl::exportPublicHEXStr()  const
@@ -239,7 +239,7 @@ std::string AsymKeyImpl::exportPublicHEXStr()  const
 
     STR_ptr pStr(EC_POINT_point2hex(pEC_GROUP, pEC_POINT, POINT_CONVERSION_COMPRESSED, nb_ctx.get()), &help_openssl_free_char);
     const std::string pubkey_hex(pStr.get());
-    return std::move(pubkey_hex);
+    return pubkey_hex;
 }
 
 std::string AsymKeyImpl::exportPrivateHEXStr()  const
@@ -249,7 +249,7 @@ std::string AsymKeyImpl::exportPrivateHEXStr()  const
 
     STR_ptr pStr(BN_bn2hex(pBN), &help_openssl_free_char);
     const std::string priv_key_hex_str(pStr.get());
-    return std::move(priv_key_hex_str);
+    return priv_key_hex_str;
 }
 
 std::string AsymKeyImpl::exportPublicPEMStr()  const
@@ -262,7 +262,7 @@ std::string AsymKeyImpl::exportPublicPEMStr()  const
     std::string pubkey_str(pubKeyLen, '0');
     BIO_read(outbio.get(), (void*)&(pubkey_str.front()), pubKeyLen);
 
-    return std::move(pubkey_str);                                               
+    return pubkey_str;
 }
 
 std::string AsymKeyImpl::exportPrivatePEMStr() const
@@ -275,7 +275,7 @@ std::string AsymKeyImpl::exportPrivatePEMStr() const
     std::string privkey_str(privKeyLen, '0');
     BIO_read(outbio.get(), (void*)&(privkey_str.front()), privKeyLen);
 
-    return std::move(privkey_str);
+    return privkey_str;
 }
 
 
@@ -318,7 +318,7 @@ std::string AsymKeyImpl::exportPrivatePEMEncrypted( const std::string& passphras
     std::string privkey_str(privKeyLen, '0');
     BIO_read(outbio.get(), (void*)&(privkey_str.front()), privKeyLen);
 
-    return std::move(privkey_str);
+    return privkey_str;
 }
 
 // import key in PEM Encrypted format
@@ -491,7 +491,7 @@ std::string AsymKeyImpl::exportSharedSecretHex(const std::string& crOtherPublicP
 
     STR_ptr pStr(BN_bn2hex(shared_secret_x.get()), &help_openssl_free_char);
     const std::string shared_secret_x_str(pStr.get());
-    return std::move(shared_secret_x_str);
+    return shared_secret_x_str;
 }
 
 AsymKeyImpl* AsymKeyImpl::derive_private(const std::string& crAdditiveMsg) const
@@ -559,7 +559,7 @@ std::pair<std::string, std::string> AsymKeyImpl::sign(const std::string& crMsg)c
     const std::string r_hex_str(rStr.get());
     const std::string s_hex_str(sStr.get());
 
-    return std::move(std::make_pair(std::move(r_hex_str), std::move(s_hex_str)));
+    return std::make_pair(r_hex_str,s_hex_str);
 }
 
 // split the key into multiple parts
@@ -642,6 +642,51 @@ bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr,
     return verify_OK;
 }
 
+bool impl_verifyDER
+(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::unique_ptr<unsigned char[]>& derSIG, const size_t& lenDERSig){
+    ////
+    /*
+    ECDSA_SIG*     d2i_ECDSA_SIG(ECDSA_SIG **sig, const unsigned char **pp,
+               long len);
+
+    */
+
+    const unsigned char * p = derSIG.get();
+    SIG_ptr pSig(ECDSA_SIG_new(), &ECDSA_SIG_free);
+    ECDSA_SIG * pSigRaw; 
+    pSigRaw = d2i_ECDSA_SIG(nullptr, &p, lenDERSig);
+
+    
+    
+    //if (!ECDSA_SIG_set0(pSig.get(), raw_r, raw_s))
+    //    throw std::runtime_error("error importing <r,s> big numbers for ECDSA r["+ rs.first +"] s["+ rs.second+"]");
+
+    /// Import public key
+    BIO_ptr bio(BIO_new(BIO_s_mem()), &BIO_free_all);
+    const int bio_write_ret = BIO_write(bio.get(), static_cast<const char*>(crPublicKeyPEMStr.c_str()), (int)crPublicKeyPEMStr.size());
+    if (bio_write_ret <= 0)
+        throw std::runtime_error("Error reading PEM string when verifying signature");
+
+    /// Import the public key
+    EC_KEY* raw_tmp_ec = nullptr;
+    if (!PEM_read_bio_EC_PUBKEY(bio.get(), &raw_tmp_ec, NULL, NULL))
+        throw std::runtime_error("Error reading public key when verifying signature");
+    EC_KEY_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
+    EC_KEY_set_asn1_flag(pEC.get(), OPENSSL_EC_NAMED_CURVE);
+
+    const std::string msg_hash = _do_hash_msg(crMsg);
+    //const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSig.get(), pEC.get());
+    const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSigRaw, pEC.get());
+
+    if(verify_status<0)
+        throw std::runtime_error("error veryfying ECDSA der signature  with msg_hash["+ msg_hash +"]");
+
+    const bool verify_OK = (1== verify_status);
+    return verify_OK;
+
+    ////
+}
+
 std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string& crRandomMsg)
 {
     //// Import the key structure from PEM =====================================================
@@ -711,7 +756,7 @@ std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string
     std::string pubkey_str(pubKeyLen, '0');
     BIO_read(outbio.get(), (void*)&(pubkey_str.front()), pubKeyLen);
 
-    return std::move(pubkey_str);
+    return pubkey_str;
 }
 
 std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPubPEMkey)
@@ -749,5 +794,32 @@ std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPub
     const std::string x_hex_str(xStr.get());
     const std::string y_hex_str(yStr.get());
 
-    return std::move(std::make_pair(std::move(x_hex_str), std::move(y_hex_str)));
+    return (std::make_pair(x_hex_str, y_hex_str));
+}
+
+std::unique_ptr<unsigned char[]> impl_DEREncodedSignature(const BigNumber& r, const BigNumber& s, size_t& len){
+
+   /// Create new ECDSA_SIG
+    SIG_ptr pSig(ECDSA_SIG_new(), &ECDSA_SIG_free);
+
+    
+    /// Import <r,s> into BIGNUM
+    BIGNUM* raw_r = BN_new();// Will be own by pSig
+    BIGNUM* raw_s = BN_new();// Will be own by pSig
+    BN_hex2bn(&raw_r, r.ToHex().c_str());
+    BN_hex2bn(&raw_s, s.ToHex().c_str());
+
+    if (!ECDSA_SIG_set0(pSig.get(), raw_r, raw_s))
+        throw std::runtime_error("error importing <r,s> big numbers for ECDSA r["+ r.ToHex() +"] s["+ s.ToHex()+"]");
+
+    
+    int sig_size = i2d_ECDSA_SIG(pSig.get(), NULL);
+    std::unique_ptr<unsigned char[]> derSig (new unsigned char [sig_size]);
+    
+    unsigned char * p = derSig.get(); 
+
+    int new_sig_size = i2d_ECDSA_SIG(pSig.get(), &p);
+    len = sig_size ; 
+    
+    return derSig; 
 }

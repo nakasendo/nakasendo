@@ -210,14 +210,20 @@ static PyObject* wrap_checkOnCurveFromHexOnCurve(PyObject* self, PyObject *args)
 static PyObject* wrap_GenerateRandomECHex(PyObject* self, PyObject *args)
 {
     int dec(0);
-    if (!PyArg_ParseTuple(args, "i", &dec))
+    int compressed(0);
+    if (!PyArg_ParseTuple(args, "ii", &dec,&compressed))
         return NULL;
     ECPoint ecpointA;
     ecpointA.SetRandom();
-    if(dec)
-        return Py_BuildValue("s", ecpointA.ToDec().c_str());
+    bool bCompress;
+    if(compressed)
+        bCompress=true;
     else
-        return Py_BuildValue("s", ecpointA.ToHex().c_str());
+        bCompress=false;
+    if(dec)
+        return Py_BuildValue("s", ecpointA.ToDec(bCompress).c_str());
+    else
+        return Py_BuildValue("s", ecpointA.ToHex(bCompress).c_str());
 }
 
 

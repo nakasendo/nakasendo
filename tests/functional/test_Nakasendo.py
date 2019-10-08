@@ -174,8 +174,8 @@ def test_AddFromDec_HexWithBigNumApi():
         c = str(randint(100000000, num))
         x = Nakasendo.BigNum()
         y = Nakasendo.BigNum()
-        b = Nakasendo.BigNum(b)
-        c = Nakasendo.BigNum(c)
+        b = Nakasendo.BigNum(b,isDec=True)
+        c = Nakasendo.BigNum(c,isDec=True)
 
         z = y.__add__(x)
         a = b.__add__(c)
@@ -671,7 +671,8 @@ def test_LGInterpolatorFullDec():
         # LGInterpolator, full evaluation of the polynomial at xValue
         lgInterpolatorX = Nakasendo.LGInterpolator(listTupleObj, modulo, dec)
         lgInterpolatorX = lgInterpolatorX(xValue)
-        assert lgInterpolatorX == str(randomX * 5), "Test failed"
+        TestVal = Nakasendo.BigNum(value=str(randomX*5), mod=modulo,isDec=dec)
+        assert lgInterpolatorX == TestVal, "Test failed"
 
 def test_LGInterpolatorFullHex():
 
@@ -680,12 +681,13 @@ def test_LGInterpolatorFullHex():
     hex_value = 0
 
     for x in range(100, 200):
-        randomX = Nakasendo.BigNum().value
-        xValue = str(randomX)
+        randomX = Nakasendo.BigNum()
+        xValue = str(randomX.value)
         # LGInterpolator, full evaluation of the polynomial at xValue
         lgInterpolatorX = Nakasendo.LGInterpolator(listTupleObj, modulo, hex_value)
         lgInterpolatorX = lgInterpolatorX(xValue)
-        assert lgInterpolatorX.lstrip("0") == hex(int(randomX, 16) * 5).lstrip("0x").upper(), "Test failed"
+        TestVal = Nakasendo.BigNum(value=hex(int(randomX.value, 16) * 5).lstrip("0x").upper(),mod=modulo,isDec =hex_value)
+        assert lgInterpolatorX  == TestVal, "Test failed"
 
 def test_LGInterpolatorSingleDec():
 
@@ -700,7 +702,7 @@ def test_LGInterpolatorSingleDec():
         # LGInterpolator, evaluate the ith basis polynomial at xValue
         lgInterpolatorX = Nakasendo.LGInterpolator(listTupleObj, modulo, dec)
         lgInterpolatorX = lgInterpolatorX(xValue, xPoint)
-        assert type(lgInterpolatorX) == str, "Test failed"
+        assert type(lgInterpolatorX) == Nakasendo.BigNum, "Test failed"
 
 def test_LGInterpolatorSingleHex():
 
@@ -714,7 +716,7 @@ def test_LGInterpolatorSingleHex():
         # LGInterpolator, evaluate the ith basis polynomial at xValue
         lgInterpolatorX = Nakasendo.LGInterpolator(listTupleObj, modulo, hex_value)
         lgInterpolatorX = lgInterpolatorX(xValue, xPoint)
-        assert type(lgInterpolatorX) == str, "Test failed"
+        assert type(lgInterpolatorX) == Nakasendo.BigNum, "Test failed"
 
 def test_LGECInterpolatorFull():
 
@@ -722,7 +724,7 @@ def test_LGECInterpolatorFull():
     modulo = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"
     xValue = Nakasendo.BigNum().value
     listTupleObj = []
-
+    hex_value = 0
     # Generating Random EC
     for x in range(10, 50):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
@@ -735,6 +737,6 @@ def test_LGECInterpolatorFull():
         # EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1
         listTupleObj.append((x, x_Axis, y_axis))
 
-    lgInterpolatorX = Nakasendo.LGECInterpolator(listTupleObj, modulo)
+    lgInterpolatorX = Nakasendo.LGECInterpolator(listTupleObj, modulo,hex_value)
     lgInterpolatorX = lgInterpolatorX(xValue)
-    assert type(lgInterpolatorX.value) == str, "Test failed"
+    assert type(lgInterpolatorX) == Nakasendo.ECPoint, "Test failed"

@@ -6,6 +6,7 @@
 #include "BigNumbers/BigNumbers.h"
 #include "SymEncDec/conversions.h"
 #include "MessageHash/MessageHash.h"
+#include "AsymKey/AsymKey.h"
 #include <BCHAddressInfo.h>
 
 /*
@@ -121,6 +122,8 @@ int main(int argc,char * argv[]){
 	myPubkey.SetRandom();
 	std::cout << "Compressed public key is " << myPubkey.ToHex() << std::endl;
 	std::cout << "Uncompressed public key is " << myPubkey.ToHex(false) << std::endl; 
+	std::cout << "Compressed publci key in DEC is " << myPubkey.ToDec() << std::endl;
+	std::cout << "Unompressed public key in DEC is " << myPubkey.ToDec(false) << std::endl;
 	
 	std::cout << myPubkey.GetAffineCoords_GFp().first << " " << myPubkey.GetAffineCoords_GFp().second << std::endl;
 	
@@ -152,5 +155,58 @@ int main(int argc,char * argv[]){
     }
     
     std::cout << EnumAsUnderlying(VersionConfig::Instance()->getNetwork(VersionPrefix::TESTNET_PUBLIC_KEY_ADDRESS)) << std::endl;
+    
+    
+    
+    BigNumber rValue;
+    rValue.FromHex ("8256CC314D0AB79CDB40D3E1909E654E012DC9AE460A994E72C8F1A0897011D0");
+    BigNumber sValue;
+    sValue.FromHex ("0714C2452997F71538541D376B37D1F5C626ED534008569C678CFFECFA98D07A");
+    
+    size_t lenSigDer(-1);
+    std::unique_ptr<unsigned char[]>  sigDER = DEREncodedSignature(rValue, sValue,lenSigDer);
+    std::string sigDerHex = binTohexStr (sigDER,lenSigDer);
+    
+    
+   
+    /*
+    30450221008256cc314d0ab79cdb40d3e1909e654e012dc9ae460a994e72c8f1a0897011d002200714c2452997f71538541d376b37d1f5c626ed534008569c678cffecfa98d07a    
+    */
+    
+    
+    std::cout << sigDerHex << std::endl;
+    
+    const AsymKey randomKey;
+    const std::string random_str = randomKey.getPublicKeyHEXStr();
+
+    const AsymKey ecdsa;
+    const std::string pubkey = ecdsa.getPublicKeyPEM();
+    const std::pair<std::string, std::string> rs = ecdsa.sign(random_str);
+    
+    BigNumber rTest;
+    rTest.FromHex(rs.first);
+    BigNumber sTest;
+    sTest.FromHex(rs.second);
+    
+    size_t len(-1); 
+    std::unique_ptr<unsigned char[]>  sigDERTest = DEREncodedSignature(rTest,sTest,len);
+    
+    std::string sigAsHex = binTohexStr(sigDERTest,len);
+    std::cout << sigAsHex << std::endl;
+
+    
+    
+    
+    
+     const bool verify_ok = verify(random_str, pubkey, rs);
+    const bool verify_ok_der = verifyDER(random_str, pubkey, sigDERTest, len);
+    
+    if(verify_ok)
+        std::cout << "Message verifed via r&s " << std::endl;
+        
+    if(verify_ok_der)
+        std::cout << "Message verified via DER format " << std::endl;
+    
+    
     return 0; 
 }

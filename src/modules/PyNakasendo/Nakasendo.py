@@ -108,7 +108,24 @@ class BigNum:
                 
             retVal = BigNum(sumVal,self.mod,self.isDec)
             return retVal ; 
-        
+    
+    def __sub__(self,obj):
+        if(self.isDec):
+            if(self.mod is None):
+                diffVal = PyBigNumbers.subFromDec(self.value, obj.value) 
+            else:
+                diffVal = PyBigNumbers.Sub_mod_Dec(self.value, obj.value,self.mod)
+            retVal = diffVal(sumVal,self.mod,self.isDec)
+            return retVal ; 
+            
+        else:
+            if(self.mod is None):
+                diffVal = PyBigNumbers.subFromHex(self.value, obj.value) 
+            else:
+                diffVal = PyBigNumbers.Sub_mod_Hex(self.value, obj.value,self.mod)
+            retVal = BigNum(diffVal,self.mod,self.isDec)
+            return retVal ; 
+            
     def __mul__(self,obj):
         if(self.isDec):
             if(self.mod is None):
@@ -129,7 +146,7 @@ class BigNum:
             retVal = BigNum(prodVal, self.mod,self.isDec)
             return retVal
         
-    def __div__(self,obj):
+    def __truediv__(self,obj):
         if(self.isDec):
             if (self.mod is None):
                 divVal = PyBigNumbers.divideFromDec(self.value,obj.value)
@@ -145,7 +162,27 @@ class BigNum:
                 
             retVal = BigNum(divVal, self.mod,self.isDec)
             return retVal
+            
+    def __gt__(self,obj):
+        return PyBigNumbers.isGreater(self.value, obj.value, self.isDec)
         
+        
+    def __eq__(self,obj):
+        if (self.isDec == obj.isDec):
+            if(PyBigNumbers.isEqual(self.value,obj.value,self.isDec)):
+                if(self.mod is None and obj.mod is None):
+                    return True
+                if((self.mod is None and obj.mod is not None) or (self.mod is not None and obj.mod is None)):
+                    return False
+                if(PyBigNumbers.isEqual(self.mod, obj.mod, self.isDec)):
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+    
     def __str__(self):
         return self.value
         
@@ -173,10 +210,11 @@ class BigNum:
     
 
 class ECPoint:
-    def __init__ (self, nid=0,isDec=False):
+    def __init__ (self, nid=0,isDec=False,isCOmpressed=True):
         self.isDec = isDec
+        self.isCompressed=True
         if(nid==0):
-            self.value = PyECPoint.GenerateRandomECHex(self.isDec)
+            self.value = PyECPoint.GenerateRandomECHex(self.isDec,self.isCompressed)
             self.nid = 714 # Value for NID_secp256k1 (This needs a bit of though)
         else:
             self.nid = nid
@@ -317,7 +355,13 @@ class ECKey256K1:
         return 'Please take caution: Keys are valuable material\n PubKey: {} \t Private key: {}'.format (self.pubKey, self.priKey)
       
 def verify(msg, pubkey, rval, sval):
-    return PyAsymKey.Verify(msg, pubkey, rval,sval)  
+    return PyAsymKey.Verify(msg, pubkey, rval,sval)
+    
+def createDERFormat(rValue, sValue):
+    assert(rValue.isDec == sValue.isDec)
+    hexSig = PyAsymKey.DERSignature(rValue.value, sValue.value, rValue.isDec)
+    hexSigBN = BigNum(hexSig, rValue.mod, rValue.isDec)
+    return hexSigBN
     
 
 class Polynomial:

@@ -1,6 +1,20 @@
 import json
 import Nakasendo
+import sys
 
+
+## return the vector sum of columns of a matrix
+def calc_vector_sum_col(vect, modulo=None, dec=False):
+    vect_sum_col = Nakasendo.BigNum('0',modulo,dec)
+    firstEntry = Nakasendo.BigNum(vect[0][1],modulo,dec)
+    vect_sum_col = vect_sum_col + firstEntry
+    
+    for ords in vect[1:]:
+        vectVal = Nakasendo.BigNum(ords[1],modulo,dec)
+        vect_sum_col = vect_sum_col + vectVal
+        
+    return vect_sum_col
+    
 
 class Player:
 
@@ -9,6 +23,7 @@ class Player:
         self.Ordinal = Ordinal
         self.Accepted = Accepted
         self.Rejected = Rejected
+        self.KeyShareSecret = None
 
     def CreatePolynomial(self,degree, mod, decimal=False):
         if(decimal):
@@ -51,6 +66,24 @@ class Player:
             raise RuntimeError('Attempt to set player as both accepted and rejected')
         self.Rejected = True
 
+    def evaluatePolys(self,playerids,modulo=None,isDec=False):
+        vect_ord_x=[]
+        for i in playerids:
+            if(i != self.Ordinal):
+                x_i = self.polynomial(str(i))
+                vect_ord_x.append((i,x_i))
+            
+        return vect_ord_x
+        
+        
+    def CreateSecretFromSharedData(self,vect_ord_x,modulo=None,isDec=False):
+        #evaluate my own portion
+        xStr = self.polynomial(str(self.Ordinal))
+        x = Nakasendo.BigNum(xStr,modulo,isDec)
+        vect_sum = calc_vector_sum_col(vect_ord_x,modulo,isDec)
+        self.KeyShareSecret = vect_sum + x
+        
+        
     
     def __eq__(self, other):
         if not isinstance(other, Player):

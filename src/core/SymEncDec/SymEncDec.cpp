@@ -147,7 +147,7 @@ std::string SymEncDec_API GenerateNounce(uint64_t blocksize)
 
 std::unique_ptr<unsigned char[]> KeyGen (std::unique_ptr<unsigned char[]>& pw, const unsigned int& pwlen, const std::unique_ptr<unsigned char[]>& salt, const uint64_t& saltlen, const unsigned int& ic, uint64_t& requiredKeyLen )
 {
-    return (std::move(KeyGenImpl(pw,pwlen,salt,saltlen,ic,requiredKeyLen)));    
+    return (KeyGenImpl(pw,pwlen,salt,saltlen,ic,requiredKeyLen));    
 }
 
 void NounceGen(std::unique_ptr<unsigned char[]>& nounce,const int blocksize){

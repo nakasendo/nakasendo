@@ -112,7 +112,7 @@ class ECPointImpl
         std::string ToHex(const bool& compressed = true);
         bool FromHex(const std::string& hexStr, int nid);
 
-        std::string ToDec();
+        std::string ToDec(const bool& compressed = true);
         bool FromDec(const std::string& decStr, int nid); 
 
         void SetRandom ();

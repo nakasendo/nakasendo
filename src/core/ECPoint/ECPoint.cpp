@@ -125,9 +125,9 @@ std::string ECPoint::ToHex(const bool& compressed)
     return  this->pImpl()->ToHex(compressed);
 }
 
-std::string ECPoint::ToDec()
+std::string ECPoint::ToDec(const bool& compressed)
 {
-    return  this->pImpl()->ToDec();
+    return  this->pImpl()->ToDec(compressed);
 }
 
 int ECPoint::GroupNid() const
@@ -168,7 +168,7 @@ BigNumber ECPoint::getECGroupOrder() const
 {
     BigNumber bnVal;
     bnVal.FromHex(this->pImpl()->getGroupOrder());
-    return std::move(bnVal);
+    return bnVal;
 }
 
 int ECPoint::getECGroupDegree() const
@@ -181,5 +181,5 @@ ECPoint ECPoint::getGenerator() const
     std::unique_ptr<ECPointImpl> res1 = this->pImpl()->getGenerator();
     ECPoint res;
     res.m_pImpl.reset(new ECPointImpl(*res1));
-    return std::move(res);
+    return res;
 }

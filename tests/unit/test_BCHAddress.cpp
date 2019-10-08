@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( test_number_one )
 
     BCHAddress addressOne 
         ( 
-            key.getPublicKeyHEXStr( ), 
+            key.exportPublicHEXStr( ), 
             VersionPrefix::PUBLIC_KEY_ADDRESS  
         ) ;
 

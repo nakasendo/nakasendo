@@ -36,7 +36,7 @@ std::unique_ptr<ECPointImpl> Add(const ECPointImpl *obj1, const ECPointImpl *obj
     EC_POINT_free(resEC);
     EC_GROUP_free(resGroup);
 
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 ECPointImpl::ECPointImpl(const BigNumber& bn_obj_x, const BigNumber& bn_obj_y, const int& nid)
@@ -155,7 +155,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Multiply(BIGNUM *mPtr, BIGNUM *nPtr)
     EC_POINT_free(resEC);
     EC_GROUP_free(resGroup);
 
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 
@@ -213,7 +213,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::Double()
 
     // free group and EC structs
     EC_POINT_free(resEC);
-    return std::move(ResImpl);
+    return ResImpl;
 }
 
 /* Inverts the EC */
@@ -284,14 +284,18 @@ std::string ECPointImpl::ToHex(const bool& compressed)
     return ecStr;
 }
 
-std::string ECPointImpl::ToDec()
+std::string ECPointImpl::ToDec(const bool& compressed)
 {
     char *ecChar = nullptr; 
     
     // Allocate for CTX 
     std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
     BN_ptr bn_obj_n_uptr {BN_new(), ::BN_free};
-    EC_POINT_point2bn(m_gp, m_ec, POINT_CONVERSION_COMPRESSED, bn_obj_n_uptr.get(), ctxptr.get());
+    if(compressed)
+        EC_POINT_point2bn(m_gp, m_ec, POINT_CONVERSION_COMPRESSED, bn_obj_n_uptr.get(), ctxptr.get());
+    else
+        EC_POINT_point2bn(m_gp, m_ec, POINT_CONVERSION_UNCOMPRESSED, bn_obj_n_uptr.get(), ctxptr.get());
+        
     ecChar = BN_bn2dec(bn_obj_n_uptr.get());
     if ( ecChar == nullptr){
 	    std::runtime_error("Failed to convert EC Point to Hex");
@@ -499,5 +503,5 @@ int ECPointImpl::getGroupDegree() const
 std::unique_ptr<ECPointImpl> ECPointImpl::getGenerator() const
 {
     std::unique_ptr<ECPointImpl> ResImpl (new ECPointImpl(EC_GROUP_get0_generator(m_gp), m_nid));
-    return std::move(ResImpl);
+    return ResImpl;
 }
