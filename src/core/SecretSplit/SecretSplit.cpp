@@ -1,5 +1,4 @@
 #include <string>
-#include <sstream>
 #include <Polynomial/Polynomial.h>
 #include <BigNumbers/BigNumbers.h>
 #include <MessageHash/MessageHash.h>
@@ -20,10 +19,7 @@ std::vector<KeyShare> make_shared_secret (const Polynomial& poly, const int& min
     //    Generates a random shamir pool, returns the secret and the share points.
     
     if (minimum > shares){
-        std::stringstream strerr;
-        strerr << "pool secret would be irrecoverable";
-        std::runtime_error err (strerr.str());
-        throw err;
+        throw std::runtime_error("pool secret would be irrecoverable");
     }
    
     std::string uuid = CreateUUID(); 
@@ -48,10 +44,7 @@ std::vector<KeyShare> make_shared_secret (const Polynomial& poly, const int& min
 
 BigNumber RecoverSecret ( const std::vector<KeyShare>& shares , const BigNumber& mod){
     if (shares.size() < 2){
-        std::stringstream strerr;
-        strerr << "At least two shares are required to recover a secret" << std::endl;
-        std::runtime_error err (strerr.str()); 
-        throw err; 
+        throw std::runtime_error("At least two shares are required to recover a secret");
     }
     // we need to build an std::vector<std::pair<BigNumber, BigNumber> > from the shares 
     std::vector<std::pair<BigNumber, BigNumber> > curvePoints;
@@ -65,19 +58,14 @@ BigNumber RecoverSecret ( const std::vector<KeyShare>& shares , const BigNumber&
             uuid = iter->publicID();
         }else{
             if ( k != iter->k() || n != iter->n() || uuid != iter->publicID()){
-                std::stringstream errMsg;
-                errMsg << "Invalid share provided for share group" ; 
-                std::runtime_error err (errMsg.str()); 
+                std::runtime_error err ("Invalid share provided for share group"); 
                 throw err; 
             }
         }
         curvePoints.push_back(std::make_pair(iter->Index(), iter->Share()));
     }
     if(curvePoints.size() < k){
-        std::stringstream errmsg;
-        errmsg << "inconsistant number of shares supplied: " << curvePoints.size() << " less than " << k << std::endl;
-        std::runtime_error err(errmsg.str());
-        throw err;
+        throw std::runtime_error("inconsistant number of shares supplied: " + std::to_string(curvePoints.size()) + " less than " + std::to_string(k));
     }
     LGInterpolator interpFunc(curvePoints, mod);
     BigNumber zero;

@@ -4,7 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <regex>
-#include <AsymKey/AsymKeyAPI.h>
+#include <AsymKey/AsymKeyConfig.h>
 #include <AsymKey/AsymKey.h>
 #include <BigNumbers/BigNumbers.h>
 #include <SecretSplit/KeyShare.h>
@@ -22,13 +22,15 @@ static struct module_state _state;
 
 static PyObject* wrap_GenerateKeyPairPEM(PyObject* self, PyObject *args)
 {
-    const std::pair<std::string, std::string> keyPairPEM = GenerateKeyPairPEM();
+    AsymKey keyGen;
+    const std::pair<std::string, std::string> keyPairPEM = std::make_pair(keyGen.getPublicKeyPEM(), keyGen.getPrivateKeyPEM());
     return Py_BuildValue("ss", keyPairPEM.first.c_str(), keyPairPEM.second.c_str());
 }
 
 static PyObject* wrap_GenerateKeyPairHEX(PyObject* self, PyObject *args)
 {
-    const std::pair<std::string, std::string> keyPairHEX = GenerateKeyPairHEX();
+    AsymKey keyGen;
+    const std::pair<std::string, std::string> keyPairHEX = std::make_pair(keyGen.getPublicKeyHEXStr(), keyGen.getPrivateKeyHEX());
     return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
 }
 
@@ -41,7 +43,9 @@ static PyObject* wrap_ExportKeyPairHEX(PyObject* self, PyObject *args)
 
     const std::string privPEMKey(cPrivKeyPEM);
 
-    const std::pair<std::string, std::string> keyPairHEX = exportKeyPairHEX(privPEMKey);
+    AsymKey imported_key;
+    imported_key.setPEMPrivateKey(privPEMKey);
+    const std::pair<std::string, std::string> keyPairHEX = std::make_pair(imported_key.exportPublicHEXStr(), imported_key.exportPrivateHEX());
     return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
 }
 

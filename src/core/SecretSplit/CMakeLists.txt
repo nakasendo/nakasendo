@@ -8,7 +8,7 @@
 set(SecretSplit_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/KeyShare.h
   ${CMAKE_CURRENT_SOURCE_DIR}/SecretSplit.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/SecretSplit_Api.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/SecretSplitConfig.h
 )
 set(SecretSplit_HPP_FILES ${SecretSplit_HPP_FILES_PUBLIC})
 

@@ -1,5 +1,4 @@
 #include <BigNumbers/BigNumbers.h>
-#include <BigNumbers/BigNumbersAPI.h>
 #include <iostream>
 #include <memory>
 
@@ -28,35 +27,30 @@ int main(int argc, char**argv)
     BigNumber Sum = BNValA + BNValB;
     std::cout << Sum.ToHex() << std::endl;
 
-    BIGNUM_RETURN_TYPE Res = addFromHex(const_cast<char *> (AVal.c_str()), const_cast<char *>(BVal.c_str()));
-    std::cout << "Added using the API\n" << *Res << std::endl;
+    {
+        const BigNumber bn_256 = GenerateRand(256);
+        const BigNumber bn_512 = GenerateRand(512);
+        const BigNumber bn_1024 = GenerateRand(1024);
+        const BigNumber bn_2048 = GenerateRand(2048);
 
+        std::cout << "256-bit dec\n" << bn_256.ToDec() << "\n"
+            << "512-bit dec\n" << bn_512.ToDec() << "\n"
+            << "1024-bit dec\n" << bn_1024.ToDec() << "\n"
+            << "2048-bit dec\n" << bn_2048.ToDec()
+            << std::endl;
+    }
+    {
+        const BigNumber bn_256 = GenerateRand(256);
+        const BigNumber bn_512 = GenerateRand(512);
+        const BigNumber bn_1024 = GenerateRand(1024);
+        const BigNumber bn_2048 = GenerateRand(2048);
 
-
-    BIGNUM_RETURN_TYPE  randomRes1 = BNRandomDec(256);
-    BIGNUM_RETURN_TYPE  randomRes2 = BNRandomDec(512);
-    BIGNUM_RETURN_TYPE  randomRes3 = BNRandomDec(1024);
-    BIGNUM_RETURN_TYPE  randomRes4 = BNRandomDec(2048);
-
-    std::cout << "256-bit dec\n" << *randomRes1 << "\n"
-        << "512-bit dec\n" << *randomRes2 << "\n"
-        << "1024-bit dec\n" << *randomRes3 << "\n"
-        << "2048-bit dec\n" << *randomRes4
-        << std::endl;
-
-
-
-    BIGNUM_RETURN_TYPE  randomRes5 = BNRandomHex(256);
-    BIGNUM_RETURN_TYPE  randomRes6 = BNRandomHex(512);
-    BIGNUM_RETURN_TYPE  randomRes7 = BNRandomHex(1024);
-    BIGNUM_RETURN_TYPE  randomRes8 = BNRandomHex(2048);
-
-    std::cout << "256-bit hex\n" << *randomRes5 << "\n"
-        << "512-bit hex\n" << *randomRes6 << "\n"
-        << "1024-bit hex\n" << *randomRes7 << "\n"
-        << "2048-bit hex\n" << *randomRes8
-        << std::endl;
-
+        std::cout << "256-bit hex\n" << bn_256.ToHex()  << "\n"
+            << "512-bit hex\n" << bn_512.ToHex() << "\n"
+            << "1024-bit hex\n" << bn_1024.ToHex() << "\n"
+            << "2048-bit hex\n" << bn_2048.ToHex()
+            << std::endl;
+    }
     /// Comment out this code because it discover some design issue : the code can compile only in C++ and not compile in wasm
     //BIGNUM_RETURN_TYPE SubRes = subFromHex(BNRandomHex (2048).get(), BNRandomHex (2048).get () );
     //std::cout << "Result of 2048-bit subtraction " << SubRes.get() << std::endl ;

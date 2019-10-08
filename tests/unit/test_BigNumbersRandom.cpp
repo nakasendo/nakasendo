@@ -1,6 +1,5 @@
 #include <boost/test/unit_test.hpp>
 #include <BigNumbers/BigNumbers.h>
-#include <BigNumbers/BigNumbersAPI.h>
 #include <iostream>
 #include <memory>
 
@@ -45,12 +44,6 @@ BOOST_AUTO_TEST_CASE(test_basic_BigNumbers_Random_cpp)
 
     BOOST_CHECK(check_boundness(randValues, lowerbound, upperbound));
     BOOST_CHECK(check_randomness(randValues));
-}
-
-BOOST_AUTO_TEST_CASE(test_basic_BigNumbers_Random_API)
-{
-    //TODO test all the API functionalities
-    BOOST_CHECK(true);
 }
 
 BOOST_AUTO_TEST_CASE(test_basic_BigNumbers_Prime_Random_cpp)

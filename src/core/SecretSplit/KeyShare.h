@@ -1,9 +1,9 @@
 #ifndef __KEY_SHARE_H__
 #define __KEY_SHARE_H__
 
-#include <DYNAMIC_LIBRARY_API.hpp>
-#include <SecretSplit/SecretSplit_Api.h>
 #include <string>
+
+#include <SecretSplit/SecretSplitConfig.h>
 
 class BigNumber ; 
 

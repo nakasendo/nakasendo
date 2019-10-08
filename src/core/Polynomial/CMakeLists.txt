@@ -8,7 +8,7 @@
 set(Polynomial_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/LGInterpolator.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Polynomial.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/Polynomial_Api.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/PolynomialConfig.h
 )
 set(Polynomial_HPP_FILES ${Polynomial_HPP_FILES_PUBLIC})
 
