@@ -12,10 +12,10 @@ message("SDK INFO : To run with debug build on windows, remember to use python_d
 
 set(FTEST_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/test_data")
 ## Get all test scripts
-file(GLOB _FUNCTIOINAL_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_*.py")
+file(GLOB _FUNCTIONAL_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_*.py")
 
 ## Create each test case corresponding to a test file
-foreach(_ftest_file ${_FUNCTIOINAL_TEST_FILES})
+foreach(_ftest_file ${_FUNCTIONAL_TEST_FILES})
   get_filename_component(_ftest_file_name "${_ftest_file}" NAME_WE)
   string(REGEX REPLACE "test_" "py_test_" _test_name ${_ftest_file_name})
 
