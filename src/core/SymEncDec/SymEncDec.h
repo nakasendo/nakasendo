@@ -1,13 +1,7 @@
 #ifndef SYM_ENC_DEC_H
 #define SYM_ENC_DEC_H
 
-
-#include <DYNAMIC_LIBRARY_API.hpp>
-#ifdef EXPORT_SymEncDec
-#    define SymEncDec_API EXPORT_DYNAMIC_LIBRARY
-#else
-#    define SymEncDec_API IMPORT_DYNAMIC_LIBRARY
-#endif
+#include <SymEncDec/SymEncDecConfig.h>
 
 #include <memory>
 #include <string>
@@ -35,12 +29,19 @@ class SymEncDec_API SymEncDec
 
         int aes_encrypt(const std::string&, std::unique_ptr<unsigned char[]>& ) ;
         int aes_decrypt(const std::unique_ptr<unsigned char[]>&, const int&,std::string&);
+
     private:
          std::unique_ptr<SymEncDecImpl> m_pImpl ;
 
 };
 
 // free function interface
+std::string SymEncDec_API Encode(const std::string& crMsg, const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
+std::string SymEncDec_API Decode(const std::string& crMsg, const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
+
+std::string SymEncDec_API GenerateKey256(const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
+std::string SymEncDec_API GenerateNounce(uint64_t blocksize=16);
+
 std::unique_ptr<unsigned char[]> SymEncDec_API KeyGen(std::unique_ptr<unsigned char[]>&, const unsigned int&, const std::unique_ptr<unsigned char[]>& , const uint64_t& , const unsigned int& , uint64_t&) ;
 void SymEncDec_API NounceGen(std::unique_ptr<unsigned char[]>&, const int blocksize=16);
 #endif /* SYM_ENC_DEC_H */
