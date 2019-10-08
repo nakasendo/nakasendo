@@ -3,8 +3,8 @@
 #include <string>
 #include <iostream>
 
-#include <SymEncDec/SymEncDecAPI.h>
 #include <MessageHash/MessageHashAPI.h>
+#include <SymEncDec/SymEncDec.h>
 
 struct module_state {
     PyObject *error;
@@ -32,7 +32,7 @@ static PyObject* wrap_encodeAES(PyObject* self, PyObject *args){
 
     std::cout << msg << "\t" << key <<"\t" << iv << std::endl; 
 
-    std::string encMsgHex = Encode(msg, key, iv);
+    const std::string encMsgHex = Encode(msg, key, iv);
     return Py_BuildValue("s#",encMsgHex.c_str(), encMsgHex.length());      
 
     

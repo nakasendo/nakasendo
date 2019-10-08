@@ -44,16 +44,16 @@ class AsymKey_API AsymKey
         std::string Group_b()   const;// big numb hex string
         std::string Group_n()   const;// group order
 
-        std::pair<std::string, std::string> getPublicKeyHEX()  const;
-        std::string getPublicKeyHEXStr()  const; // Encoded
-        std::string getPrivateKeyHEX() const;
-        std::string getPublicKeyPEM()  const;
-        std::string getPrivateKeyPEM() const;
-        std::string getPrivateKeyPEMEncrypted( const std::string& ) const ;
-        void setPrivateKeyPEMEncrypted( const std::string&, const std::string& ) ;
-        void setPEMPrivateKey(const std::string&);// Import PEM private key
-        void setHEXPrivateKey(const std::string&);// Import HEX private key, knowing it is the right group
-        std::string getSharedSecretHex(const std::string& crOtherPublicPEMKey) const;// Calculate the shared secrete giving the public key from other
+        std::pair<std::string, std::string> exportPublicHEX()  const;
+        std::string exportPublicHEXStr()  const; // Encoded
+        std::string exportPrivateHEX() const;
+        std::string exportPublicPEM()  const;
+        std::string exportPrivatePEM() const;
+        std::string exportPrivatePEMEncrypted( const std::string& ) const ;
+        void importPrivatePEMEncrypted( const std::string&, const std::string& ) ;
+        void importPrivatePEM(const std::string&);// Import PEM private key
+        void importPrivateHEX(const std::string&);// Import HEX private key, knowing it is the right group
+        std::string exportSharedSecretHex(const std::string& crOtherPublicPEMKey) const;// Calculate the shared secrete giving the public key from other
 
         AsymKey derive(const std::string& crAdditiveMsg) const;
 
