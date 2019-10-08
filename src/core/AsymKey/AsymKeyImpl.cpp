@@ -211,7 +211,7 @@ std::string AsymKeyImpl::Group_n() const
     return std::move(hex_str);
 }
 
-std::pair<std::string, std::string> AsymKeyImpl::getPublicKeyHEX()  const
+std::pair<std::string, std::string> AsymKeyImpl::exportPublicHEX()  const
 {
     const EC_GROUP* pEC_GROUP = EC_KEY_get0_group(m_key.get());
     if (pEC_GROUP == nullptr)
@@ -231,7 +231,7 @@ std::pair<std::string, std::string> AsymKeyImpl::getPublicKeyHEX()  const
     return std::move(std::make_pair( std::move(std::string(xStr.get())), std::move(std::string(yStr.get())) ));
 }
 
-std::string AsymKeyImpl::getPublicKeyHEXStr()  const
+std::string AsymKeyImpl::exportPublicHEXStr()  const
 {
     BN_CTX_ptr nb_ctx(BN_CTX_new(), &BN_CTX_free);
     const EC_GROUP* pEC_GROUP = EC_KEY_get0_group(m_key.get());
@@ -242,30 +242,30 @@ std::string AsymKeyImpl::getPublicKeyHEXStr()  const
     return std::move(pubkey_hex);
 }
 
-std::string AsymKeyImpl::getPrivateKeyHEXStr()  const
-{
-    BN_CTX_ptr nb_ctx(BN_CTX_new(), &BN_CTX_free);
-    const BIGNUM * pBN = EC_KEY_get0_private_key(m_key.get());
+std::string AsymKeyImpl::exportPrivateHEXStr()  const
+{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+    BN_CTX_ptr nb_ctx(BN_CTX_new(), &BN_CTX_free);                                                                                                                                                                                                                          
+    const BIGNUM * pBN = EC_KEY_get0_private_key(m_key.get());                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 
     STR_ptr pStr(BN_bn2hex(pBN), &help_openssl_free_char);
     const std::string priv_key_hex_str(pStr.get());
     return std::move(priv_key_hex_str);
 }
 
-std::string AsymKeyImpl::getPublicKeyPEMStr()  const
+std::string AsymKeyImpl::exportPublicPEMStr()  const
 {
     BIO_ptr outbio (BIO_new(BIO_s_mem()),&BIO_free_all);
-    if (!PEM_write_bio_EC_PUBKEY(outbio.get(), m_key.get()))
+    if (!PEM_write_bio_EC_PUBKEY(outbio.get(), m_key.get()))                                                                                                                                                                                                    
         throw std::runtime_error("Error writting public key");
     
     const int pubKeyLen = BIO_pending(outbio.get());
     std::string pubkey_str(pubKeyLen, '0');
     BIO_read(outbio.get(), (void*)&(pubkey_str.front()), pubKeyLen);
 
-    return std::move(pubkey_str);
+    return std::move(pubkey_str);                                               
 }
 
-std::string AsymKeyImpl::getPrivateKeyPEMStr() const
+std::string AsymKeyImpl::exportPrivatePEMStr() const
 {
     BIO_ptr outbio(BIO_new(BIO_s_mem()), &BIO_free_all);
     if(!PEM_write_bio_ECPrivateKey(outbio.get(), m_key.get(), NULL, NULL, 0, 0,NULL))
@@ -280,7 +280,7 @@ std::string AsymKeyImpl::getPrivateKeyPEMStr() const
 
 
 // export key in PEM encrypted format
-std::string AsymKeyImpl::getPrivateKeyPEMEncrypted( const std::string& passphrase ) const
+std::string AsymKeyImpl::exportPrivatePEMEncrypted( const std::string& passphrase ) const
 {
 
     int length = passphrase.length( ) ;
@@ -322,7 +322,7 @@ std::string AsymKeyImpl::getPrivateKeyPEMEncrypted( const std::string& passphras
 }
 
 // import key in PEM Encrypted format
-void AsymKeyImpl::setPrivateKeyPEMEncrypted( const std::string& encryptedPEM, const std::string& passphrase )
+void AsymKeyImpl::importPrivatePEMEncrypted( const std::string& encryptedPEM, const std::string& passphrase )
 {
 
     int length = passphrase.length( ) ;
@@ -382,7 +382,7 @@ void AsymKeyImpl::setPrivateKeyPEMEncrypted( const std::string& encryptedPEM, co
 
 
 
-void AsymKeyImpl::setPEMPrivateKey(const std::string& crPEMStr)
+void AsymKeyImpl::importPrivatePEM(const std::string& crPEMStr)
 {
     BIO_ptr bio(BIO_new(BIO_s_mem()), &BIO_free_all);
     const int bio_write_ret = BIO_write(bio.get(), static_cast<const char*>(crPEMStr.c_str()), (int)crPEMStr.size());
@@ -413,7 +413,7 @@ void AsymKeyImpl::setPEMPrivateKey(const std::string& crPEMStr)
         throw std::runtime_error("Unable to set public key");
 }
 
-void AsymKeyImpl::setHEXPrivateKey(const std::string& crHEXKey)
+void AsymKeyImpl::importPrivateHEX(const std::string& crHEXKey)
 {
     BIGNUM* pBN = nullptr;
     if(!BN_hex2bn(&pBN, crHEXKey.c_str()))
@@ -436,7 +436,7 @@ void AsymKeyImpl::setHEXPrivateKey(const std::string& crHEXKey)
         throw std::runtime_error("Unable to set public key");
 }
 
-std::string AsymKeyImpl::getSharedSecretHex(const std::string& crOtherPublicPEMKey) const
+std::string AsymKeyImpl::exportSharedSecretHex(const std::string& crOtherPublicPEMKey) const
 {
     BIO_ptr bio(BIO_new(BIO_s_mem()), &BIO_free_all);
     const int bio_write_ret = BIO_write(bio.get(), static_cast<const char*>(crOtherPublicPEMKey.c_str()), (int)crOtherPublicPEMKey.size());
@@ -595,7 +595,7 @@ void AsymKeyImpl::recover (const std::vector<KeyShare>& shares){
     try
     {
         secret = RecoverSecret(shares, mod); 
-        setHEXPrivateKey (secret.ToHex());
+        importPrivateHEX (secret.ToHex());
     }
     catch(std::exception& err){
         throw;

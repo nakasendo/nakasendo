@@ -5,7 +5,7 @@ maxshares = 100
 privKeyPEMHeader = "BEGIN EC PRIVATE KEY"
 
 
-def test_SetKeyFromPEM():
+def test_ImportKeyFromPEM():
 
     for x in range(10):
 
@@ -13,8 +13,8 @@ def test_SetKeyFromPEM():
         pubKey, privKey = PyAsymKey.GenerateKeyPairPEM()
         assert privKeyPEMHeader in privKey, "Test failed"
 
-        # Sets a key from a PEM format
-        pubValue, priValue = PyAsymKey.SetKeyFromPem(privKey)
+        # Imports a key from a PEM format
+        pubValue, priValue = PyAsymKey.ImportFromPem(privKey)
         assert priValue == privKey, "Test failed"
         assert pubValue == pubKey, "Test failed"
 
@@ -65,7 +65,7 @@ def test_RestoreKey():
         assert restorePrivKey == privKey, "Test failed"
 
 
-def test_SetSplitRestoreKey():
+def test_ImportSplitRestoreKey():
 
     for x in range(10):
 
@@ -77,8 +77,8 @@ def test_SetSplitRestoreKey():
         pubKey, privKey = PyAsymKey.GenerateKeyPairPEM()
         assert privKeyPEMHeader in privKey, "Test failed"
 
-        # Sets a key from a PEM format
-        pubValue, priValue = PyAsymKey.SetKeyFromPem(privKey)
+        # Imports a key from a PEM format
+        pubValue, priValue = PyAsymKey.ImportFromPem(privKey)
         assert priValue == privKey, "Test failed"
         assert pubValue == pubKey, "Test failed"
 

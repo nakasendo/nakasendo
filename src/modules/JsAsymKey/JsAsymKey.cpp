@@ -13,7 +13,7 @@ std::map<std::string, std::string> wasm_GenerateKeyPairPEM()
 {
     AsymKey keyGen;
     std::map<std::string, std::string> m;
-    m.insert(std::make_pair(keyGen.getPublicKeyPEM(), keyGen.getPrivateKeyPEM()));
+    m.insert(std::make_pair(keyGen.exportPublicPEM(), keyGen.exportPrivatePEM()));
     return m;
 }
 
@@ -21,7 +21,7 @@ std::map<std::string, std::string> wasm_GenerateKeyPairHEX()
 {
     AsymKey keyGen;
     std::map<std::string, std::string> m;
-    m.insert(std::make_pair(keyGen.getPublicKeyHEXStr(), keyGen.getPrivateKeyHEX()));
+    m.insert(std::make_pair(keyGen.exportPublicHEXStr(), keyGen.exportPrivateHEX()));
     return m;
 }
 

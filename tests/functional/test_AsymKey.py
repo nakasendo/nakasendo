@@ -17,23 +17,23 @@ def test_GenerateKeyPairPEM():
         # Verifying the the length of actual value as 66
         assert privKeyPEMHeader in privKey, "Test failed"
 
-def test_GetKeyPairHEX():
+def test_ExportKeyPairHEX():
 
     for x in range(100):
         # Generate pair of keys in pem format
         pubKeyPEM, privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
-        pubKeyHEX, privKeyHEX = PyAsymKey.GetKeyPairHEX(privKeyPEM)
+        pubKeyHEX, privKeyHEX = PyAsymKey.ExportKeyPairHEX(privKeyPEM)
 
         # Keys hex are generated
         assert len(pubKeyHEX) > 0, "Test failed"
         assert len(privKeyHEX) > 0, "Test failed"
 
-def test_GetPublicKeyPEM():
+def test_ExportPublicKeyPEM():
 
     for x in range(100):
         # Generate pair of keys in pem format
         pubKeyPEM, privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
-        test_pubKeyPEM = PyAsymKey.GetPublicKeyPEM(privKeyPEM)
+        test_pubKeyPEM = PyAsymKey.ExportPublicPEM(privKeyPEM)
 
         # Calculated public key should match the generated one
         assert pubKeyPEM==test_pubKeyPEM, "Test failed"
@@ -43,13 +43,13 @@ def test_SetKeyFromPem():
     for x in range(100):
         # Generate pair of keys in pem format
         pubKeyPEM, privKeyPEM = PyAsymKey.GenerateKeyPairPEM()
-        test_pubKeyPEM = PyAsymKey.GetPublicKeyPEM(privKeyPEM)
+        test_pubKeyPEM = PyAsymKey.ExportPublicPEM(privKeyPEM)
 
         # Calculated public key should match the generated one
         assert pubKeyPEM == test_pubKeyPEM, "Test failed"
 
         #Sets a key from a PEM format
-        pub, pri = PyAsymKey.SetKeyFromPem(privKeyPEM)
+        pub, pri = PyAsymKey.ImportFromPem(privKeyPEM)
 
         # Calculated private key should match the generated one
         assert privKeyPEM == pri, "Test failed"
@@ -97,8 +97,8 @@ def test_KeyDerive():
         alice_derived_private = PyAsymKey.DerivePrivate(alice_privKeyPEM, additive_msg)
         bob_derived_private = PyAsymKey.DerivePrivate(bob_privKeyPEM, additive_msg)
 
-        # Get public key PEM given the private key PEM
-        calc_alice_derived_pub = PyAsymKey.GetPublicKeyPEM(alice_derived_private)
-        calc_bob_derived_pub = PyAsymKey.GetPublicKeyPEM(bob_derived_private)
+        # Export public key PEM given the private key PEM
+        calc_alice_derived_pub = PyAsymKey.ExportPublicPEM(alice_derived_private)
+        calc_bob_derived_pub = PyAsymKey.ExportPublicPEM(bob_derived_private)
         assert calc_alice_derived_pub == alice_derived_pub, "Test failed"
         assert calc_bob_derived_pub == bob_derived_pub, "Test failed"
