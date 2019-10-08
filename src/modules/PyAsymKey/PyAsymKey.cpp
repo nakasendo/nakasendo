@@ -23,14 +23,14 @@ static struct module_state _state;
 static PyObject* wrap_GenerateKeyPairPEM(PyObject* self, PyObject *args)
 {
     AsymKey keyGen;
-    const std::pair<std::string, std::string> keyPairPEM = std::make_pair(keyGen.getPublicKeyPEM(), keyGen.getPrivateKeyPEM());
+    const std::pair<std::string, std::string> keyPairPEM = std::make_pair(keyGen.exportPublicPEM(), keyGen.exportPrivatePEM());
     return Py_BuildValue("ss", keyPairPEM.first.c_str(), keyPairPEM.second.c_str());
 }
 
 static PyObject* wrap_GenerateKeyPairHEX(PyObject* self, PyObject *args)
 {
     AsymKey keyGen;
-    const std::pair<std::string, std::string> keyPairHEX = std::make_pair(keyGen.getPublicKeyHEXStr(), keyGen.getPrivateKeyHEX());
+    const std::pair<std::string, std::string> keyPairHEX = std::make_pair(keyGen.exportPublicHEXStr(), keyGen.exportPrivateHEX());
     return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
 }
 
@@ -44,7 +44,7 @@ static PyObject* wrap_ExportKeyPairHEX(PyObject* self, PyObject *args)
     const std::string privPEMKey(cPrivKeyPEM);
 
     AsymKey imported_key;
-    imported_key.setPEMPrivateKey(privPEMKey);
+    imported_key.importPrivatePEM(privPEMKey);
     const std::pair<std::string, std::string> keyPairHEX = std::make_pair(imported_key.exportPublicHEXStr(), imported_key.exportPrivateHEX());
     return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
 }
