@@ -5,8 +5,6 @@
 #include <iostream>
 #include <string>
 
-
-
 class SymEncDecImpl
 {
     public:

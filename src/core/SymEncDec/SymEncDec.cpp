@@ -1,6 +1,6 @@
 #include <SymEncDec/SymEncDec.h>
 #include <SymEncDec/SymEncDecImpl.h>
-
+#include <SymEncDec/conversions.h>
 
 
 SymEncDec::SymEncDec() : m_pImpl(new SymEncDecImpl){return;}
@@ -52,6 +52,99 @@ int SymEncDec::aes_decrypt(const std::unique_ptr<unsigned char[]>& ctext, const 
     return m_pImpl->aes_decrypt(ctext, ctextlen, ptext);
 }
 // free functions
+
+std::string Encode(const std::string& crMsg, const std::string& crKey, const std::string& crIV, uint64_t keylen, uint64_t blocksize)
+{
+    size_t keyBufferLen(0);
+    std::unique_ptr<unsigned char[]> myKey = HexStrToBin(crKey, &keyBufferLen);
+    size_t nounceBufferLen(0);
+    std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(crIV, &nounceBufferLen);
+
+    if (keyBufferLen != keylen){
+        throw std::runtime_error ("Incorrect Key size");
+    } 
+    if(nounceBufferLen != blocksize){
+        throw std::runtime_error ("Incorrect nounce size");
+    }
+    SymEncDec encdec;
+
+    encdec.SetParams(myKey, mySalt, keylen,blocksize);
+    std::unique_ptr<unsigned char[]> encMsg;
+    int encMsgLen = encdec.aes_encrypt(crMsg, encMsg);
+
+    const std::string hexvals = binTohexStr(encMsg, encMsgLen);
+
+    return hexvals;
+}
+
+std::string Decode(const std::string& crMsg, const std::string& crKey, const std::string& crIV, uint64_t keylen, uint64_t blocksize)
+{
+    size_t keyBufferLen(0);
+    std::unique_ptr<unsigned char[]> myKey = HexStrToBin(crKey, &keyBufferLen);
+    size_t nounceBufferLen(0);
+    std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(crIV, &nounceBufferLen);
+
+    if (keyBufferLen != keylen){
+        throw std::runtime_error ("Incorrect Key size");
+    } 
+    if(nounceBufferLen != blocksize){
+        throw std::runtime_error ("Incorrect nounce size");
+    }
+
+    SymEncDec encdec;
+    encdec.SetParams(myKey, mySalt, keylen, blocksize);
+    size_t bufferLen(0);
+    std::unique_ptr<unsigned char[]> recoveredBuf =  HexStrToBin(crMsg, &bufferLen);
+
+    std::string retval;  
+    int decMsgLen = encdec.aes_decrypt(recoveredBuf, bufferLen, retval);
+    return retval;
+}
+
+std::string SymEncDec_API GenerateKey256(const std::string& crKey, const std::string& crIV, uint64_t keylen, uint64_t blocksize)
+{
+    // This assumes that the IV is a hex encoded 16 byte number
+
+    std::unique_ptr<unsigned char[]> myKey (new unsigned char [crKey.length() + 1 ]);
+    std::fill_n(myKey.get(), crKey.length()+1, 0x00);
+    int index(0);
+
+    for(std::string::const_iterator iter = crKey.begin(); iter != crKey.end(); ++ iter, ++index){
+        myKey.get()[index]=*iter;
+    }
+
+    size_t ivbufferLen;
+    std::unique_ptr<unsigned char[]> mySalt = HexStrToBin(crIV, &ivbufferLen);
+
+
+    if (ivbufferLen != blocksize){
+        throw std::runtime_error ("Nounce size is not equal to the block size") ; 
+    }
+
+    int iterCount(10000);
+    std::unique_ptr<unsigned char[]> encodingKey = KeyGen(myKey,crKey.size(),mySalt, blocksize,iterCount, keylen);
+
+    const std::string hexBuilder = binTohexStr(encodingKey, keylen);
+
+    return hexBuilder;
+}
+
+std::string SymEncDec_API GenerateNounce(uint64_t blocksize)
+{
+    std::unique_ptr<unsigned char[]> nounce;
+    try{
+        //change to return the nouce size. 
+        NounceGen(nounce);
+    }
+    catch(const std::exception& e){
+        std::string errorMsg{"Failed to generate a nounce value "} ; errorMsg += e.what();
+        throw std::runtime_error(errorMsg);
+    }
+
+    const std::string returnNounce = binTohexStr(nounce, 16);
+    return returnNounce;
+}
+
 std::unique_ptr<unsigned char[]> KeyGen (std::unique_ptr<unsigned char[]>& pw, const unsigned int& pwlen, const std::unique_ptr<unsigned char[]>& salt, const uint64_t& saltlen, const unsigned int& ic, uint64_t& requiredKeyLen )
 {
     return (std::move(KeyGenImpl(pw,pwlen,salt,saltlen,ic,requiredKeyLen)));    
