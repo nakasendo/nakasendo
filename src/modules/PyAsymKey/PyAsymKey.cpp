@@ -23,18 +23,18 @@ static struct module_state _state;
 static PyObject* wrap_GenerateKeyPairPEM(PyObject* self, PyObject *args)
 {
     AsymKey keyGen;
-    const std::pair<std::string, std::string> keyPairPEM = std::make_pair(keyGen.getPublicKeyPEM(), keyGen.getPrivateKeyPEM());
+    const std::pair<std::string, std::string> keyPairPEM = std::make_pair(keyGen.exportPublicPEM(), keyGen.exportPrivatePEM());
     return Py_BuildValue("ss", keyPairPEM.first.c_str(), keyPairPEM.second.c_str());
 }
 
 static PyObject* wrap_GenerateKeyPairHEX(PyObject* self, PyObject *args)
 {
     AsymKey keyGen;
-    const std::pair<std::string, std::string> keyPairHEX = std::make_pair(keyGen.getPublicKeyHEXStr(), keyGen.getPrivateKeyHEX());
+    const std::pair<std::string, std::string> keyPairHEX = std::make_pair(keyGen.exportPublicHEXStr(), keyGen.exportPrivateHEX());
     return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
 }
 
-static PyObject* wrap_GetKeyPairHEX(PyObject* self, PyObject *args)
+static PyObject* wrap_ExportKeyPairHEX(PyObject* self, PyObject *args)
 {
     char* cPrivKeyPEM = nullptr;
 
@@ -42,13 +42,14 @@ static PyObject* wrap_GetKeyPairHEX(PyObject* self, PyObject *args)
         return NULL;
 
     const std::string privPEMKey(cPrivKeyPEM);
+
     AsymKey imported_key;
-    imported_key.setPEMPrivateKey(privPEMKey);
-    const std::pair<std::string, std::string> keyPairHEX = std::make_pair(imported_key.getPublicKeyHEXStr(), imported_key.getPrivateKeyHEX());
+    imported_key.importPrivatePEM(privPEMKey);
+    const std::pair<std::string, std::string> keyPairHEX = std::make_pair(imported_key.exportPublicHEXStr(), imported_key.exportPrivateHEX());
     return Py_BuildValue("ss", keyPairHEX.first.c_str(), keyPairHEX.second.c_str());
 }
 
-static PyObject* wrap_GetPublicKeyPEM(PyObject* self, PyObject *args)
+static PyObject* wrap_ExportPublicPEM(PyObject* self, PyObject *args)
 {
     char* cPrivateKeyPEM = nullptr;
 
@@ -58,8 +59,8 @@ static PyObject* wrap_GetPublicKeyPEM(PyObject* self, PyObject *args)
     const std::string private_key_pem(cPrivateKeyPEM);
 
     AsymKey private_key;
-    private_key.setPEMPrivateKey(private_key_pem);
-    const std::string public_key_PEM = private_key.getPublicKeyPEM();
+    private_key.importPrivatePEM(private_key_pem);
+    const std::string public_key_PEM = private_key.exportPublicPEM();
 
     return Py_BuildValue("s", public_key_PEM.c_str());
 }
@@ -75,7 +76,7 @@ static PyObject* wrap_Sign(PyObject* self, PyObject *args)
     const std::string msg(cMsg);
 
     AsymKey key;
-    key.setPEMPrivateKey(privPEMKey);
+    key.importPrivatePEM(privPEMKey);
     const std::pair<std::string, std::string> sign = key.sign(msg);
 
     return Py_BuildValue("ss", sign.first.c_str(), sign.second.c_str());
@@ -113,8 +114,8 @@ static PyObject* wrap_ShareSecret(PyObject* self, PyObject *args)
     const std::string their_public_key_pem(cTheirPublicKeyPEM);
 
     AsymKey my_private_key;
-    my_private_key.setPEMPrivateKey(my_private_key_pem);
-    const std::string shared_secrete = my_private_key.getSharedSecretHex(their_public_key_pem);
+    my_private_key.importPrivatePEM(my_private_key_pem);
+    const std::string shared_secrete = my_private_key.exportSharedSecretHex(their_public_key_pem);
 
     return Py_BuildValue("s", shared_secrete.c_str());
 }
@@ -147,10 +148,10 @@ static PyObject* wrap_DerivePrivate(PyObject* self, PyObject *args)
     const std::string msg(cMsg);
 
     AsymKey private_key;
-    private_key.setPEMPrivateKey(private_key_pem);
+    private_key.importPrivatePEM(private_key_pem);
 
     const AsymKey derived_key = private_key.derive(msg);
-    const std::string derived_key_PEM = derived_key.getPrivateKeyPEM();
+    const std::string derived_key_PEM = derived_key.exportPrivatePEM();
 
     return Py_BuildValue("s", derived_key_PEM.c_str());
 }
@@ -168,7 +169,7 @@ static PyObject* wrap_SplitKey(PyObject* self, PyObject *args)
 
 
     AsymKey private_key;
-    private_key.setPEMPrivateKey(private_key_pem);
+    private_key.importPrivatePEM(private_key_pem);
 
     std::vector<KeyShare> shares = private_key.split(ThresholdNumber, TotalNumberOfShares);
     //std::stringstream shareBuilder;
@@ -207,10 +208,10 @@ static PyObject* wrap_RestoreKey(PyObject* self, PyObject *args)
     catch(std::exception& err){
         return Py_BuildValue("ss", err.what(), err.what());
     }
-    return Py_BuildValue("ss", private_key.getPublicKeyPEM().c_str(),private_key.getPrivateKeyPEM().c_str());
+    return Py_BuildValue("ss", private_key.exportPublicPEM().c_str(),private_key.exportPrivatePEM().c_str());
 }
 
-static PyObject* wrap_SetKeyFromPem(PyObject* self, PyObject *args)
+static PyObject* wrap_ImportFromPEM(PyObject* self, PyObject *args)
 {
     char* cPrivateKey = nullptr;
 
@@ -220,9 +221,9 @@ static PyObject* wrap_SetKeyFromPem(PyObject* self, PyObject *args)
     const std::string private_key_pem(cPrivateKey);
 
     AsymKey private_key;
-    private_key.setPEMPrivateKey(private_key_pem);
+    private_key.importPrivatePEM(private_key_pem);
     if (private_key.is_valid()){
-        return Py_BuildValue("ss",private_key.getPublicKeyPEM().c_str(), private_key.getPrivateKeyPEM().c_str());
+        return Py_BuildValue("ss",private_key.exportPublicPEM().c_str(), private_key.exportPrivatePEM().c_str());
     }else{
         std::string val1, val2; 
         return Py_BuildValue("ss",std::string().c_str(), std::string().c_str());
@@ -230,7 +231,7 @@ static PyObject* wrap_SetKeyFromPem(PyObject* self, PyObject *args)
 
 }
 
-static PyObject* wrap_SetKeyFromEncryptedPem(PyObject* self, PyObject *args)
+static PyObject* wrap_ImportFromEncryptedPEM(PyObject* self, PyObject *args)
 {
     char* cPrivateKey   = nullptr ;
     char* cPassPhrase   = nullptr ;
@@ -242,16 +243,16 @@ static PyObject* wrap_SetKeyFromEncryptedPem(PyObject* self, PyObject *args)
     const std::string pass_phrase( cPassPhrase ) ;
 
     AsymKey private_key;
-    private_key.setPrivateKeyPEMEncrypted(private_key_pem, pass_phrase);
+    private_key.importPrivatePEMEncrypted(private_key_pem, pass_phrase);
     if (private_key.is_valid()){
-        return Py_BuildValue("ss",private_key.getPublicKeyPEM().c_str(), private_key.getPrivateKeyPEM().c_str());
+        return Py_BuildValue("ss",private_key.exportPublicPEM().c_str(), private_key.exportPrivatePEM().c_str());
     }else{
         std::string val1, val2; 
         return Py_BuildValue("ss",std::string().c_str(), std::string().c_str());
     }
 }
 
-static PyObject* wrap_GetKeyFromEncryptedPem(PyObject* self, PyObject *args)
+static PyObject* wrap_ExportFromEncryptedPEM(PyObject* self, PyObject *args)
 {
     char* cPassPhrase   = nullptr ;
 
@@ -261,7 +262,7 @@ static PyObject* wrap_GetKeyFromEncryptedPem(PyObject* self, PyObject *args)
     const std::string pass_phrase( cPassPhrase ) ;
 
     AsymKey private_key;
-    std::string privkey_str( private_key.getPrivateKeyPEMEncrypted( pass_phrase) );
+    std::string privkey_str( private_key.exportPrivatePEMEncrypted( pass_phrase) );
 
     if (private_key.is_valid())
     {
@@ -279,8 +280,8 @@ static PyMethodDef ModuleMethods[] =
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
     {"GenerateKeyPairPEM"       , wrap_GenerateKeyPairPEM,METH_VARARGS,"Generate pair of keys in pem format"},
     {"GenerateKeyPairHEX"       , wrap_GenerateKeyPairHEX,METH_VARARGS,"Generate pair of keys in hex format"},
-    {"GetKeyPairHEX"            , wrap_GetKeyPairHEX,METH_VARARGS,"Get pair of keys in hex format from a private PEM key"},
-    {"GetPublicKeyPEM"          , wrap_GetPublicKeyPEM,METH_VARARGS,"Get public key PEM given the private key PEM"},
+    {"ExportKeyPairHEX"         , wrap_ExportKeyPairHEX,METH_VARARGS,"Get pair of keys in hex format from a private PEM key"},
+    {"ExportPublicPEM"          , wrap_ExportPublicPEM,METH_VARARGS,"Get public key PEM given the private key PEM"},
     {"Sign"                     , wrap_Sign,METH_VARARGS,"Sign message with private Key"},
     {"Verify"                   , wrap_Verify,METH_VARARGS,"Verify message's signature with public key"},
     {"ShareSecret"              , wrap_ShareSecret,METH_VARARGS,"Calculate shared secret from my private key and their public key"},
@@ -288,9 +289,9 @@ static PyMethodDef ModuleMethods[] =
     {"DerivePrivate"            , wrap_DerivePrivate,METH_VARARGS,"Derive private key from a given private key and a additive message"},
     {"SplitKey"                 , wrap_SplitKey,METH_VARARGS,"Split a private key into a given number of shares"},
     {"RestoreKey"               , wrap_RestoreKey, METH_VARARGS,"Restore a private key from a given number of shares"},
-    {"SetKeyFromPem"            , wrap_SetKeyFromPem, METH_VARARGS,"Sets a key from a PEM format"},
-    {"SetKeyFromEncryptedPem"   , wrap_SetKeyFromEncryptedPem, METH_VARARGS,"Sets a key from an Encrypted PEM format, with pass phrase"},
-    {"GetKeyFromEncryptedPem"   , wrap_GetKeyFromEncryptedPem, METH_VARARGS,"Sets a key from an Encrypted PEM format, with pass phrase"},
+    {"ImportFromPem"            , wrap_ImportFromPEM, METH_VARARGS,"Imports a key in PEM format"},
+    {"ImportFromEncryptedPEM"   , wrap_ImportFromEncryptedPEM, METH_VARARGS,"Imports a key in Encrypted PEM format, with pass phrase"},
+    {"ExportFromEncryptedPEM"   , wrap_ExportFromEncryptedPEM, METH_VARARGS,"Exports a key to Encrypted PEM format, with pass phrase"},
     {NULL, NULL, 0, NULL},
 };
  

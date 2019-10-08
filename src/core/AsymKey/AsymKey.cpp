@@ -63,54 +63,54 @@ std::string AsymKey::Group_n() const
     return m_pImpl->Group_n();
 }
 
-std::pair<std::string, std::string> AsymKey::getPublicKeyHEX() const
+std::pair<std::string, std::string> AsymKey::exportPublicHEX() const
 {
-    return m_pImpl->getPublicKeyHEX();
+    return m_pImpl->exportPublicHEX();
 }
 
-std::string AsymKey::getPublicKeyHEXStr()  const
+std::string AsymKey::exportPublicHEXStr()  const
 {
-    return m_pImpl->getPublicKeyHEXStr();
+    return m_pImpl->exportPublicHEXStr();
 }
 
-std::string AsymKey::getPrivateKeyHEX() const
+std::string AsymKey::exportPrivateHEX() const
 {
-    return m_pImpl->getPrivateKeyHEXStr();
+    return m_pImpl->exportPrivateHEXStr();
 }
 
-std::string AsymKey::getPublicKeyPEM()  const
+std::string AsymKey::exportPublicPEM()  const
 {
-    return m_pImpl->getPublicKeyPEMStr();
+    return m_pImpl->exportPublicPEMStr();
 }
 
-std::string AsymKey::getPrivateKeyPEM() const
+std::string AsymKey::exportPrivatePEM() const
 {
-    return m_pImpl->getPrivateKeyPEMStr();
+    return m_pImpl->exportPrivatePEMStr();
 }
 
-std::string AsymKey::getPrivateKeyPEMEncrypted( const std::string& passphrase ) const
+std::string AsymKey::exportPrivatePEMEncrypted( const std::string& passphrase ) const
 {
-    return m_pImpl->getPrivateKeyPEMEncrypted( passphrase );
+    return m_pImpl->exportPrivatePEMEncrypted( passphrase );
 }
 
-void AsymKey::setPrivateKeyPEMEncrypted( const std::string& encryptedPEM, const std::string& passphrase )
+void AsymKey::importPrivatePEMEncrypted( const std::string& encryptedPEM, const std::string& passphrase )
 {
-    return m_pImpl->setPrivateKeyPEMEncrypted( encryptedPEM, passphrase ) ; 
+    return m_pImpl->importPrivatePEMEncrypted( encryptedPEM, passphrase ) ; 
 }
 
-void AsymKey::setPEMPrivateKey(const std::string& crPEMKey)
+void AsymKey::importPrivatePEM(const std::string& crPEMKey)
 {
-    m_pImpl->setPEMPrivateKey(crPEMKey);
+    m_pImpl->importPrivatePEM(crPEMKey);
 }
 
-void AsymKey::setHEXPrivateKey(const std::string& crHEXKey)
+void AsymKey::importPrivateHEX(const std::string& crHEXKey)
 {
-    m_pImpl->setHEXPrivateKey(crHEXKey);
+    m_pImpl->importPrivateHEX(crHEXKey);
 }
 
-std::string AsymKey::getSharedSecretHex(const std::string& crOtherPublicPEMKey) const
+std::string AsymKey::exportSharedSecretHex(const std::string& crOtherPublicPEMKey) const
 {
-    return m_pImpl->getSharedSecretHex(crOtherPublicPEMKey);
+    return m_pImpl->exportSharedSecretHex(crOtherPublicPEMKey);
 }
 
 AsymKey AsymKey::derive(const std::string& crAdditiveMsg) const
