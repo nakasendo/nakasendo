@@ -1,6 +1,7 @@
 #ifndef __BASE64ENCDEC_H__
 #define __BASE64ENCDEC_H__
 
+#include <MessageHash/MessageHashConfig.h>
 #include <MessageHash/MessageHash.h>
 #include <memory>
 
@@ -28,5 +29,8 @@ class MessageHash_API Base64EncDec
         std::unique_ptr<Base64EncDecImpl> m_pImpl ; 
 };
 
+std::string MessageHash_API EncodeBase64 (const std::unique_ptr<unsigned char[]>& msgPtrApi, int msgSize);
+
+std::unique_ptr<unsigned char[]> MessageHash_API DecodeBase64 (const std::string& msgPtrApi, int& msgSize );
 
 #endif //ifndef __BASE64ENCDEC_H__

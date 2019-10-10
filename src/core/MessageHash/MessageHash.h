@@ -4,12 +4,7 @@
 #include <memory>
 #include <string>
 
-#include <DYNAMIC_LIBRARY_API.hpp>
-#ifdef EXPORT_MessageHash
-#    define MessageHash_API EXPORT_DYNAMIC_LIBRARY
-#else
-#    define MessageHash_API IMPORT_DYNAMIC_LIBRARY
-#endif
+#include <MessageHash/MessageHashConfig.h>
 
 class MessageHashImpl;
 
@@ -26,7 +21,7 @@ class MessageHash_API MessageHash
 
 
         void printHash () ; 
-        std::string ListAvailableHash () ; 
+        std::string ListAvailableHash () ;
 
     private:
 
@@ -38,4 +33,5 @@ class MessageHash_API MessageHash
         std::unique_ptr<MessageHashImpl> m_pImpl ; 
 };
 
+std::string MessageHash_API HashMsgSHA256(const std::string& crMsg);
 #endif //ifndef __MESSAGE_HASH_H__
