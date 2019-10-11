@@ -6,7 +6,6 @@
 #include <MessageHash/MessageHashAPI.h>
 #include <SymEncDec/SymEncDec.h>
 #include <SymEncDec/conversions.h>
-#include <SymEncDec/SymEncDecAPI.h>
 
 int main (int argc, char** argv)
 {
@@ -133,7 +132,7 @@ int main (int argc, char** argv)
     {
       std::cout << "API Test of nounce & key generation" << std::endl;
       std::string UserPass ("j.murphy@nchain.com"); 
-      std::string nounceAsHex = GenerateNounce (); 
+      std::string nounceAsHex = GenerateNounce ();
       std::string keyAsHex = GenerateKey256(UserPass, nounceAsHex); 
 
       std::cout << "nounce: " << nounceAsHex << "\n" << "keyAsHex: " << keyAsHex << std::endl; 
