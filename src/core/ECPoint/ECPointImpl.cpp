@@ -168,7 +168,6 @@ bool Compare(const ECPointImpl *obj1, const ECPointImpl *obj2)
     }
 
     if ( obj1->getNid() != obj2->getNid()){
-        std::cout << "NIDS NOT EQUAL" << std::endl;
         return false;
     }
     // Allocate for CTX 
@@ -184,7 +183,6 @@ bool Compare(const ECPointImpl *obj1, const ECPointImpl *obj2)
 
     if (res != 0)
     {
-        std::cout << "Points not equal "<< res <<  std::endl;
         return false;
     }
 
@@ -394,7 +392,6 @@ std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp (){
 
     std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
     if (!EC_POINT_is_on_curve(m_gp,m_ec, ctxptr.get())){
-        std::cout << "Point not on the required curve.." << std::endl;
         return std::make_pair(xVal, yVal) ;
     }
 
@@ -402,7 +399,6 @@ std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp (){
     BN_ptr y ( BN_new(), ::BN_free );
 
     if (!EC_POINT_get_affine_coordinates_GFp(m_gp, m_ec, x.get(), y.get(), ctxptr.get())){
-         std::cout << "Unable to get affine coordinates.." << std::endl;
         return std::make_pair(xVal, yVal);
     }
 
@@ -421,7 +417,6 @@ std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp_Dec (){
     std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
     
     if (!EC_POINT_is_on_curve(m_gp,m_ec, ctxptr.get())){
-        std::cout << "Point not on the required curve.." << std::endl;
         return std::make_pair(xVal, yVal) ;
     }
 
@@ -429,7 +424,6 @@ std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp_Dec (){
     BN_ptr y ( BN_new(), ::BN_free );
    
     if (!EC_POINT_get_affine_coordinates_GFp(m_gp, m_ec, x.get(), y.get(), ctxptr.get())){
-         std::cout << "Unable to get affine coordinates.." << std::endl;
         return std::make_pair(xVal, yVal);
     }
 

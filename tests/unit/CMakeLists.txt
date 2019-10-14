@@ -65,15 +65,15 @@ target_link_libraries(test_SymEncDec SymEncDec BigNumbers)# Might use BigNumbers
 set_target_properties(test_SymEncDec PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 sdk_add_unit_test(test_SymEncDec)
 
-add_executable(test_GroupPlayers test_GroupPlayer.cpp)
-target_link_libraries(test_GroupPlayers ThresholdSignatures)
-set_target_properties(test_GroupPlayers PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-sdk_add_unit_test(test_GroupPlayers)
+#add_executable(test_GroupPlayers test_GroupPlayer.cpp)
+#target_link_libraries(test_GroupPlayers ThresholdSignatures BigNumbers MessageHash ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+#set_target_properties(test_GroupPlayers PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+#sdk_add_unit_test(test_GroupPlayers)
 
-add_executable(test_GroupBuilder test_GroupBuilder.cpp utils/FuncUtils.cpp)
-set_target_properties(test_GroupBuilder PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-target_link_libraries(test_GroupBuilder ThresholdSignatures)
-sdk_add_unit_test(test_GroupBuilder)
+#add_executable(test_GroupBuilder test_GroupBuilder.cpp utils/FuncUtils.cpp)
+#set_target_properties(test_GroupBuilder PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+#target_link_libraries(test_GroupBuilder ThresholdSignatures )
+#sdk_add_unit_test(test_GroupBuilder)
 
 add_executable(test_BCHAddress test_BCHAddress.cpp)
 set_target_properties(test_BCHAddress PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})

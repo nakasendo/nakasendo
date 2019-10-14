@@ -2,6 +2,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <memory>
 #include <ECPoint/ECPoint.h>
 #include <BigNumbers/BigNumbers.h>
 
@@ -17,368 +18,379 @@ static struct module_state _state;
 #endif
 
 
-
-static PyObject* wrap_addFromHex(PyObject* self, PyObject *args)
+/***********************************************************
+ * Helper functions
+ ************************************************************/
+namespace PY_ECPOINT
 {
-    char * argA; 
-    char * argB; 
-
-    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
-        return NULL;
-
-    ECPoint ecpointA, ecpointB;
-    ecpointA.FromHex(argA);
-    ecpointB.FromHex(argB);
-    ECPoint ecpointC = ecpointA + ecpointB; 
-    return Py_BuildValue("s", ecpointC.ToHex().c_str());
-}
-
-static PyObject* wrap_addFromHexWithCurveID(PyObject* self, PyObject *args)
-{
-    char * argA; 
-    char * argB; 
-    int curveID;
-    int dec;
-    if (!PyArg_ParseTuple(args, "ssii", &argA, &argB, &curveID,&dec))
-        return NULL;
-
-    ECPoint ecpointA(curveID), ecpointB(curveID);
-    if(dec){
-        ecpointA.FromDec(argA);
-        ecpointB.FromDec(argB);
-    }else{
-        ecpointA.FromHex(argA);
-        ecpointB.FromHex(argB);
+    // make an ECPoint according to curveID
+    std::unique_ptr< ECPoint > makeECPoint( int curveID )
+    {
+        std::unique_ptr< ECPoint > pointPtr ;
+        if ( curveID == 0 ) 
+        {
+            // use defualt constructor
+            pointPtr =  std::unique_ptr< ECPoint> ( new ECPoint( ) ) ;
+        }
+        else
+        {
+            pointPtr =  std::unique_ptr< ECPoint> ( new ECPoint( curveID ) ) ; 
+        }
+        return pointPtr ;
     }
-    ECPoint ecpointC = ecpointA + ecpointB; 
-    if(dec)
-        return Py_BuildValue("s", ecpointC.ToDec().c_str());
-    else
-        return Py_BuildValue("s", ecpointC.ToHex().c_str());
 }
 
+
+/***********************************************************
+ * ECPoint wrappers
+ ************************************************************/
+
+/* ----------------------------------------------------------------
+ * wrap_add 
+ */
+static PyObject* wrap_add(PyObject* self, PyObject *args)
+{
+    char *  argA ; 
+    char *  argB ; 
+    int     curveID     ( 0 ) ;
+    int     dec         ( 0 ) ; 
+    int     compressed  ( 0 ) ; 
+
+    if (!PyArg_ParseTuple( args, "ssiii", &argA, &argB, &curveID, &dec, &compressed ))
+        return NULL;
+
+    bool bCompress ;
+
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;
+
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+    std::unique_ptr< ECPoint > ecpointB = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    if( dec )
+    {
+        ecpointA.get()->FromDec(argA);
+        ecpointB.get()->FromDec(argB);
+    }
+    else
+    {
+        ecpointA.get()->FromHex(argA);
+        ecpointB.get()->FromHex(argB);
+    }
+
+    ECPoint ecpointC = *ecpointA.get() + *ecpointB.get() ; 
+
+    if ( dec )  return Py_BuildValue("s", ecpointC.ToDec(bCompress).c_str()) ;
+    else        return Py_BuildValue("s", ecpointC.ToHex(bCompress).c_str()) ;
+}
+
+
+/* ----------------------------------------------------------------
+ * wrap_compare 
+ */
 static PyObject* wrap_compare(PyObject* self, PyObject *args)
 {
-    char * argA; 
-    char * argB; 
+    char *  argA; 
+    char *  argB; 
+    int     curveID( 0 ) ; 
+    int     dec( 0 ) ;
 
-    if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
+    if (!PyArg_ParseTuple( args, "ssii", &argA, &argB, &curveID, &dec ))
         return NULL;
 
-    ECPoint ecpointA, ecpointB;
-    ecpointA.FromHex(argA);
-    ecpointB.FromHex(argB);
-    bool isSame = ecpointA == ecpointB;
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+    std::unique_ptr< ECPoint > ecpointB = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    if( dec )
+    {
+        ecpointA.get()->FromDec(argA);
+        ecpointB.get()->FromDec(argB);
+    }
+    else
+    {
+        ecpointA.get()->FromHex(argA);
+        ecpointB.get()->FromHex(argB);
+    }
+
+    bool isSame = *ecpointA.get() == *ecpointB.get() ; 
     return Py_BuildValue("O", isSame == true ? Py_True: Py_False);
 }
 
 
-
-static PyObject* wrap_compareOnCurve(PyObject* self, PyObject *args)
+/* ----------------------------------------------------------------
+ * wrap_double 
+ */
+static PyObject* wrap_double(PyObject* self, PyObject *args)
 {
-    char * argA; 
-    char * argB; 
-    int curveID; 
-    int dec(0);
-    if (!PyArg_ParseTuple(args, "ssii", &argA, &argB,&curveID,&dec))
+    char *  argA; 
+    int     curveID     ( 0 ) ; 
+    int     dec         ( 0 ) ; 
+    int     compressed  ( 0 ) ;     
+
+    if (!PyArg_ParseTuple( args, "siii", &argA, &curveID, &dec, &compressed ) )
         return NULL;
 
-    ECPoint ecpointA(curveID), ecpointB(curveID);
-    if(dec){
-        ecpointA.FromDec(argA);
-        ecpointB.FromDec(argB);
-    }else{
-        ecpointA.FromHex(argA);
-        ecpointB.FromHex(argB);
-    }
-    bool isSame = ecpointA == ecpointB;
-    return Py_BuildValue("O", isSame == true ? Py_True: Py_False);
-}
+    bool bCompress ;
 
-static PyObject* wrap_doubleFromHex(PyObject* self, PyObject *args)
-{
-    char * argA; 
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;  
 
-    if (!PyArg_ParseTuple(args, "s", &argA))
-        return NULL;
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
 
-    ECPoint ecpointA;
-    ecpointA.FromHex(argA);
-    ECPoint ecpointC = ecpointA.Double();
-    return Py_BuildValue("s", ecpointC.ToHex().c_str());
-}
+    if( dec )   { ecpointA.get()->FromDec(argA) ; }
+    else        { ecpointA.get()->FromHex(argA) ; }
 
-static PyObject* wrap_doubleFromHexOnCurve(PyObject* self, PyObject *args)
-{
-    char * argA; 
-    int curveID; 
-    if (!PyArg_ParseTuple(args, "si", &argA,&curveID))
-        return NULL;
+    ECPoint ecpointC = ecpointA.get()->Double() ;
 
-    ECPoint ecpointA(curveID);
-    ecpointA.FromHex(argA);
-    ECPoint ecpointC = ecpointA.Double();
-    return Py_BuildValue("s", ecpointC.ToHex().c_str());
-}
-
-static PyObject* wrap_invertFromHex(PyObject* self, PyObject *args)
-{
-    char * argA; 
-
-    if (!PyArg_ParseTuple(args, "s", &argA))
-        return NULL;
-
-    ECPoint ecpointA;
-    ecpointA.FromHex(argA);
-    ecpointA.Invert();
-    return Py_BuildValue("s", ecpointA.ToHex().c_str());
-}
-
-static PyObject* wrap_invertFromHexOnCurve(PyObject* self, PyObject *args)
-{
-    char * argA; 
-    int curveID; 
-
-    if (!PyArg_ParseTuple(args, "si", &argA,&curveID))
-        return NULL;
-
-    ECPoint ecpointA(curveID);
-    ecpointA.FromHex(argA);
-    ecpointA.Invert();
-    return Py_BuildValue("s", ecpointA.ToHex().c_str());
-}
-
-static PyObject* wrap_checkInfinityFromHex(PyObject* self, PyObject *args)
-{
-    char * argA; 
-
-    if (!PyArg_ParseTuple(args, "s", &argA))
-        return NULL;
-
-    ECPoint ecpointA;
-    ecpointA.FromHex(argA);
-    return Py_BuildValue("O", ecpointA.CheckInfinity()== true ? Py_True: Py_False);
-}
-
-static PyObject* wrap_checkInfinityFromHexOnCurve(PyObject* self, PyObject *args)
-{
-    char * argA; 
-    int curveID; 
-
-    if (!PyArg_ParseTuple(args, "si", &argA,&curveID))
-        return NULL;
-
-    ECPoint ecpointA(curveID);
-    ecpointA.FromHex(argA);
-    return Py_BuildValue("O", ecpointA.CheckInfinity()== true ? Py_True: Py_False);
-}
-
-static PyObject* wrap_checkOnCurveFromHex(PyObject* self, PyObject *args)
-{
-    char * argA;  
-    int dec(0);
-    if (!PyArg_ParseTuple(args, "si", &argA,&dec))
-        return NULL;
-
-    ECPoint ecpointA;
-    if(dec){
-        ecpointA.FromDec(argA);
-    }else{
-        ecpointA.FromHex(argA);
-    }
-
-    return Py_BuildValue("O", ecpointA.CheckOnCurve()== true ? Py_True: Py_False);
-}
-
-static PyObject* wrap_checkOnCurveFromHexOnCurve(PyObject* self, PyObject *args)
-{
-    char * argA;  
-    int curveID; 
-    int dec; 
-    if (!PyArg_ParseTuple(args, "sii", &argA,&curveID,&dec))
-        return NULL;
-
-    ECPoint ecpointA(curveID);
-    if(dec){
-        ecpointA.FromDec(argA);
-    }else{
-        ecpointA.FromHex(argA);
-    }
-    return Py_BuildValue("O", ecpointA.CheckOnCurve()== true ? Py_True: Py_False);
-}
-
-static PyObject* wrap_GenerateRandomECHex(PyObject* self, PyObject *args)
-{
-    int dec(0);
-    int compressed(0);
-    if (!PyArg_ParseTuple(args, "ii", &dec,&compressed))
-        return NULL;
-    ECPoint ecpointA;
-    ecpointA.SetRandom();
-    bool bCompress;
-    if(compressed)
-        bCompress=true;
-    else
-        bCompress=false;
-    if(dec)
-        return Py_BuildValue("s", ecpointA.ToDec(bCompress).c_str());
-    else
-        return Py_BuildValue("s", ecpointA.ToHex(bCompress).c_str());
+    if ( dec )  return Py_BuildValue("s", ecpointC.ToDec(bCompress).c_str()) ;
+    else        return Py_BuildValue("s", ecpointC.ToHex(bCompress).c_str()) ;    
 }
 
 
-static PyObject* wrap_GenerateRandomECHexOnCurve(PyObject* self, PyObject *args)
+/* ----------------------------------------------------------------
+ * wrap_invert 
+ */
+static PyObject* wrap_invert(PyObject* self, PyObject *args)
 {
-    int argA; 
+    char *  argA; 
+    int     curveID     ( 0 ) ; 
+    int     dec         ( 0 ) ; 
+    int     compressed  ( 0 ) ;     
 
-    if (!PyArg_ParseTuple(args, "i", &argA))
+    if (!PyArg_ParseTuple( args, "siii", &argA, &curveID, &dec, &compressed ))
         return NULL;
-    ECPoint ecpointA(argA);
-    ecpointA.SetRandom();
-    return Py_BuildValue("s", ecpointA.ToHex ().c_str());
-}
 
-static PyObject* wrap_GenerateECFromHex(PyObject* self, PyObject *args)
-{
-    char  * argA; 
-    if (!PyArg_ParseTuple(args, "s", &argA))
-        return NULL;
-    ECPoint ecpointA;
-    ecpointA.FromHex(argA) ; 
-    return Py_BuildValue("s", ecpointA.ToHex ().c_str());
-}
+    bool bCompress ;
 
-static PyObject* wrap_GenerateECFromHexOnCurve(PyObject* self, PyObject *args)
-{
-    char  * argA; 
-    int argB; 
-    if (!PyArg_ParseTuple(args, "si", &argA, &argB))
-        return NULL;
-    ECPoint ecpointA(argB);
-    ecpointA.FromHex(argA) ; 
-    return Py_BuildValue("s", ecpointA.ToHex ().c_str());
-}
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;  
 
-static PyObject* wrap_MultiplyScalarECM(PyObject* self, PyObject *args){
-    char *ecPoint; 
-    char * bigNumM; 
-     if (!PyArg_ParseTuple(args, "ss", &ecPoint, &bigNumM))
-        return NULL;
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    if( dec )   { ecpointA.get()->FromDec(argA) ; }
+    else        { ecpointA.get()->FromHex(argA) ; }
+
+    ecpointA.get()->Invert();
     
-    ECPoint ecPointA; 
-    ecPointA.FromHex(ecPoint); 
-    
-    ECPoint resECPt = ecPointA.MulHex(bigNumM, std::string ()) ; 
-    
-    return  Py_BuildValue("s", resECPt.ToHex ().c_str());
+    if ( dec )  return Py_BuildValue("s", ecpointA.get()->ToDec(bCompress).c_str()) ;
+    else        return Py_BuildValue("s", ecpointA.get()->ToHex(bCompress).c_str()) ; 
 }
-static PyObject*  wrap_MultiplyScalarECMOnCurve(PyObject* self, PyObject *args){
-    char *ecPoint; 
-    char * bigNumM; 
-    int curveID; 
-    int dec;
-     if (!PyArg_ParseTuple(args, "ssii", &ecPoint, &bigNumM,&curveID,&dec))
+
+
+/* ----------------------------------------------------------------
+ * wrap_checkInfinity 
+ */
+static PyObject* wrap_checkInfinity(PyObject* self, PyObject *args)
+{
+    char *  argA; 
+    int     curveID ( 0 ) ; 
+    int     dec     ( 0 ) ; ; 
+
+    if (!PyArg_ParseTuple( args, "sii", &argA, &curveID, &dec ))
         return NULL;
-    
-    ECPoint ecPointA(curveID); 
+
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    if( dec )   { ecpointA.get()->FromDec(argA) ; }
+    else        { ecpointA.get()->FromHex(argA) ; }
+
+    return Py_BuildValue("O", ecpointA.get()->CheckInfinity()== true ? Py_True: Py_False);
+}
+
+
+/* ----------------------------------------------------------------
+ * wrap_checkOnCurve 
+ */
+static PyObject* wrap_checkOnCurve(PyObject* self, PyObject *args)
+{
+    char *  argA; 
+    int     curveID ( 0 ) ; 
+    int     dec     ( 0 ) ; 
+
+    if (!PyArg_ParseTuple(args, "sii", &argA, &curveID, &dec))
+        return NULL;
+
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    if( dec )   { ecpointA.get()->FromDec(argA) ; }
+    else        { ecpointA.get()->FromHex(argA) ; }
+
+    return Py_BuildValue("O", ecpointA.get()->CheckOnCurve()== true ? Py_True: Py_False);
+}
+
+
+/* ----------------------------------------------------------------
+ * wrap_GenerateRandomEC 
+ */
+static PyObject* wrap_GenerateRandomEC(PyObject* self, PyObject *args)
+{
+    int     curveID     ( 0 ) ;
+    int     dec         ( 0 ) ; 
+    int     compressed  ( 0 ) ; 
+
+
+    if (!PyArg_ParseTuple(args, "iii", &curveID, &dec, &compressed))
+        return NULL;
+
+    bool bCompress ;
+
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;        
+
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    ecpointA.get()->SetRandom();
+
+    if ( dec )  return Py_BuildValue("s", ecpointA.get()->ToDec( bCompress ).c_str()) ;
+    else        return Py_BuildValue("s", ecpointA.get()->ToHex( bCompress ).c_str()) ;
+}
+
+
+/* ----------------------------------------------------------------
+ * wrap_GenerateEC 
+ */
+static PyObject* wrap_GenerateEC(PyObject* self, PyObject *args)
+{
+    char *  argA; 
+    int     curveID     ( 0 ) ; 
+    int     dec         ( 0 ) ; 
+    int     compressed  ( 0 ) ; 
+
+    if (!PyArg_ParseTuple(args, "siii", &argA, &curveID, &dec, &compressed ))
+        return NULL;
+
+    bool bCompress ;
+
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;  
+
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    if( dec )   { ecpointA.get()->FromDec(argA) ; }
+    else        { ecpointA.get()->FromHex(argA) ; }
+
+    if ( dec )  return Py_BuildValue("s", ecpointA.get()->ToDec(bCompress).c_str()) ;
+    else        return Py_BuildValue("s", ecpointA.get()->ToHex(bCompress).c_str()) ; 
+}
+
+
+/* ----------------------------------------------------------------
+ * wrap_MultiplyScalarM 
+ */
+static PyObject*  wrap_MultiplyScalarM(PyObject* self, PyObject *args)
+{
+    char *  ecPoint ; 
+    char *  bigNumM ; 
+    int     curveID     ( 0 ) ; 
+    int     dec         ( 0 ) ;
+    int     compressed  ( 0 ) ;     
+
+     if (!PyArg_ParseTuple(args, "ssiii", &ecPoint, &bigNumM, &curveID, &dec, &compressed))
+        return NULL;
+
+    bool bCompress ;
+
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;  
+
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+
     ECPoint resECPt;
-    if(dec){
-        ecPointA.FromDec(ecPoint);
-        resECPt = ecPointA.MulDec(bigNumM,std::string());
+
+    if( dec )
+    {
+        ecpointA.get()->FromDec(ecPoint);
+        resECPt = ecpointA->MulDec( bigNumM, std::string() ) ;
     }
-    else{
-        ecPointA.FromHex(ecPoint); 
-        resECPt = ecPointA.MulHex(bigNumM, std::string ()) ; 
-    }
-    if(dec)
-        return Py_BuildValue("s", resECPt.ToDec().c_str());
     else
-        return  Py_BuildValue("s", resECPt.ToHex ().c_str());
+    {
+        ecpointA.get()->FromHex(ecPoint);
+        resECPt = ecpointA->MulHex( bigNumM, std::string() ) ;
+    }
+
+    if ( dec )  return Py_BuildValue("s", resECPt.ToDec(bCompress).c_str()) ;
+    else        return Py_BuildValue("s", resECPt.ToHex(bCompress).c_str()) ;
 }
 
-static PyObject*  wrap_MultiplyScalarECMN(PyObject* self, PyObject *args){
-    char *ecPoint; 
-    char * bigNumM; 
-    char * bigNumN; 
 
-     if (!PyArg_ParseTuple(args, "sss", &ecPoint, &bigNumM, &bigNumN))
+/* ----------------------------------------------------------------
+ * wrap_MultiplyScalarMN 
+ */
+static PyObject*  wrap_MultiplyScalarMN(PyObject* self, PyObject *args)
+{
+    char *  ecPoint ; 
+    char *  bigNumM ; 
+    char *  bigNumN ; 
+    int     curveID     ( 0 ) ;  
+    int     dec         ( 0 ) ;
+    int     compressed  ( 0 ) ;      
+
+    if (!PyArg_ParseTuple(args, "sssiii", &ecPoint, &bigNumM, &bigNumN, &curveID, &dec, &compressed))
         return NULL;
     
-    ECPoint ecPointA; 
-    ecPointA.FromHex(ecPoint); 
+    bool bCompress ;
+
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;  
+      
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
     
-    ECPoint resECPt = ecPointA.MulHex(bigNumM, bigNumN) ; 
-    
-    return  Py_BuildValue("s", resECPt.ToHex ().c_str());
+    ECPoint resECPt;
+
+    if( dec )
+    {
+        ecpointA.get()->FromDec(ecPoint);
+        resECPt = ecpointA->MulDec(bigNumM, bigNumN) ; 
+    }
+    else
+    {
+        ecpointA.get()->FromHex(ecPoint);
+        resECPt = ecpointA->MulHex(bigNumM, bigNumN) ; 
+    }
+
+    if (dec)    return Py_BuildValue( "s", resECPt.ToDec (bCompress).c_str() ) ;
+    else        return Py_BuildValue( "s", resECPt.ToHex (bCompress).c_str() ) ;
 }
 
-static PyObject*  wrap_MultiplyScalarECMNOnCurve(PyObject* self, PyObject *args){
-    char *ecPoint; 
-    char * bigNumM; 
-    char * bigNumN; 
-    int curveID; 
 
-     if (!PyArg_ParseTuple(args, "sssi", &ecPoint, &bigNumM, &bigNumN,&curveID))
-        return NULL;
-    
-    ECPoint ecPointA(curveID); 
-    ecPointA.FromHex(ecPoint); 
-    
-    ECPoint resECPt = ecPointA.MulHex(bigNumM, bigNumN) ; 
-    
-    return  Py_BuildValue("s", resECPt.ToHex ().c_str());
-}
-
+/* ----------------------------------------------------------------
+ * wrap_GetAffineCoOrdinates 
+ */
 static PyObject* wrap_GetAffineCoOrdinates(PyObject* self, PyObject *args){
-    char *ecPoint; 
-    int dec(0);
-     if (!PyArg_ParseTuple(args, "si", &ecPoint,&dec))
-        return NULL;
     
-    ECPoint ecPointA; 
-    if(dec)
-        ecPointA.FromDec(ecPoint);
-    else
-        ecPointA.FromHex(ecPoint); 
-    
-    std::pair<std::string, std::string> coords;
-    if(dec)
-        coords = ecPointA.GetAffineCoords_GFp_Dec();
-    else
-        coords = ecPointA.GetAffineCoords_GFp(); 
+    char *  ecPoint ; 
+    int     curveID ( 0 ) ; 
+    int     dec     ( 0 ) ; 
 
-    return  Py_BuildValue("ss",coords.first.c_str(), coords.second.c_str());
-}
-static PyObject* wrap_GetAffineCoOrdinatesOnCurve(PyObject* self, PyObject *args){
-    char *ecPoint; 
-    int curveID; 
-    int dec(0);
-     if (!PyArg_ParseTuple(args, "sii", &ecPoint,&curveID,&dec))
+     if (!PyArg_ParseTuple(args, "sii", &ecPoint, &curveID, &dec) )
         return NULL;
     
-    ECPoint ecPointA(curveID); 
-    if(dec){
-        ecPointA.FromDec(ecPoint);
-    }
-    else{
-        ecPointA.FromHex(ecPoint); 
-    }
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+    
     std::pair<std::string,std::string> coords ;
-    if(dec){
-        coords= ecPointA.GetAffineCoords_GFp_Dec();
+    
+    if( dec )
+    {
+        ecpointA.get()->FromDec(ecPoint);
+        coords = ecpointA->GetAffineCoords_GFp_Dec();
     }
-    else{
-        coords = ecPointA.GetAffineCoords_GFp();
+    else
+    {
+        ecpointA.get()->FromHex(ecPoint);
+        coords = ecpointA->GetAffineCoords_GFp();     
     }
+
     return  Py_BuildValue("ss",coords.first.c_str(), coords.second.c_str());
 }
 
 
 
-
+/* ----------------------------------------------------------------
+ * wrap_GetCurveList 
+ */
 static PyObject* wrap_GetCurveList(PyObject* self, PyObject *args)
 {
-    std::vector<std::tuple<int, std::string, std::string>> curveList = getCurveList();
+    std::vector< std::tuple< int, std::string, std::string > > curveList = getCurveList();
     std::stringstream ss;
     ss << "{" << '\n';
     bool firstIter = true;
@@ -395,119 +407,131 @@ static PyObject* wrap_GetCurveList(PyObject* self, PyObject *args)
     return  Py_BuildValue("s", ss.str().c_str());
 }
 
+
+/* ----------------------------------------------------------------
+ * wrap_GetGenerator 
+ */
 static PyObject* wrap_GetGenerator(PyObject* self, PyObject *args)
 {
-    char *ecPoint;
-    int curveID;
-    int dec;
-     if (!PyArg_ParseTuple(args, "sii", &ecPoint,&curveID,&dec))
-        return NULL;
+    char *  ecPoint ; 
+    int     curveID     ( 0 ) ; 
+    int     dec         ( 0 ) ; 
+    int     compressed  ( 0 ) ;     
 
-    ECPoint ecPointA(curveID);
-    if(dec)
-        ecPointA.FromDec(ecPoint);
-    else
-        ecPointA.FromHex(ecPoint);
-    ECPoint ecPointG = ecPointA.getGenerator();
-    if(dec)
-        return Py_BuildValue("s", ecPointG.ToDec().c_str());
-    else
-        return Py_BuildValue("s", ecPointG.ToHex().c_str());
+    if ( !PyArg_ParseTuple(args, "siii", &ecPoint, &curveID, &dec, &compressed) )
+        return NULL;
+    
+    bool bCompress ;
+
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;  
+
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    if( dec )   { ecpointA.get()->FromDec( ecPoint ) ; }
+    else        { ecpointA.get()->FromHex( ecPoint ) ; }
+
+    ECPoint ecPointG = ecpointA->getGenerator();
+
+    if ( dec )  return Py_BuildValue("s", ecPointG.ToDec(bCompress).c_str()) ;
+    else        return Py_BuildValue("s", ecPointG.ToHex(bCompress).c_str()) ; 
 }
 
-static PyObject* wrap_GetGeneratorDec(PyObject* self, PyObject *args)
-{
-    char *ecPoint;
-    int curveID;
-     if (!PyArg_ParseTuple(args, "si", &ecPoint,&curveID))
-        return NULL;
 
-    ECPoint ecPointA(curveID);
-    ecPointA.FromDec(ecPoint);
-    ECPoint ecPointG = ecPointA.getGenerator();
-    return Py_BuildValue("s", ecPointG.ToDec().c_str());
-}
-
+/* ----------------------------------------------------------------
+ * wrap_GetGroupDegree 
+ */
 static PyObject* wrap_GetGroupDegree(PyObject* self, PyObject *args)
 {
-    char *ecPoint;
-    int curveID;
-     if (!PyArg_ParseTuple(args, "si", &ecPoint,&curveID))
+    char *  ecPoint ; 
+    int     curveID ( 0 ) ; 
+    int     dec     ( 0 ) ; 
+
+    if (!PyArg_ParseTuple( args, "sii", &ecPoint, &curveID, &dec ))
         return NULL;
 
-    ECPoint ecPointA(curveID);
-    ecPointA.FromHex(ecPoint);
-    return Py_BuildValue("i", ecPointA.getECGroupDegree());
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    if( dec )   { ecpointA.get()->FromDec( ecPoint ) ; }
+    else        { ecpointA.get()->FromHex( ecPoint ) ; }
+
+    return Py_BuildValue("i", ecpointA.get()->getECGroupDegree( ) );
 }
 
 
+/* ----------------------------------------------------------------
+ * wrap_GetGroupOrder 
+ */
 static PyObject* wrap_GetGroupOrder(PyObject* self, PyObject *args)
 {
-    char *ecPoint;
-    int curveID;
-     if (!PyArg_ParseTuple(args, "si", &ecPoint,&curveID))
+    char *  ecPoint ; 
+    int     curveID ( 0 ) ; 
+    int     dec     ( 0 ) ; 
+
+    if (!PyArg_ParseTuple( args, "sii", &ecPoint, &curveID, &dec ))
         return NULL;
 
-    ECPoint ecPointA(curveID);
-    ecPointA.FromHex(ecPoint);
-    BigNumber bnVal = ecPointA.getECGroupOrder();
-    return Py_BuildValue("s", bnVal.ToHex().c_str());
-}
-static PyObject* wrap_mulByGenHex(PyObject* self, PyObject *args){
+    std::unique_ptr< ECPoint > ecpointA = PY_ECPOINT::makeECPoint( curveID ) ;
 
-    char *bnPoint;
-    int curveID;
-     if (!PyArg_ParseTuple(args, "si", &bnPoint,&curveID))
+    if( dec )   { ecpointA.get()->FromDec( ecPoint ) ; }
+    else        { ecpointA.get()->FromHex( ecPoint ) ; }
+
+    BigNumber bnVal = ecpointA.get()->getECGroupOrder();
+
+    if ( dec )  return Py_BuildValue("s", bnVal.ToDec().c_str()) ;
+    else        return Py_BuildValue("s", bnVal.ToHex().c_str()) ;  
+}
+
+/* ----------------------------------------------------------------
+ * wrap_mulByGen
+ */
+static PyObject* wrap_mulByGen(PyObject* self, PyObject *args)
+{
+    char *  bnPoint ; 
+    int     curveID     ( 0 ) ; 
+    int     dec         ( 0 ) ; 
+    int     compressed  ( 0 ) ;     
+
+    if (!PyArg_ParseTuple(args, "siii", &bnPoint, &curveID, &dec, &compressed ))
         return NULL;
-    ECPoint gen(curveID);
-    ECPoint GEN  = gen.getGenerator();
-    ECPoint result = GEN.MulHex(bnPoint, std::string());
-    return Py_BuildValue("s", result.ToHex().c_str());
-}
-static PyObject* wrap_mulByGenDec(PyObject* self, PyObject *args){
+    
+    bool bCompress ;
 
-    char *bnPoint;
-    int curveID;
-     if (!PyArg_ParseTuple(args, "si", &bnPoint,&curveID))
-        return NULL;
+    if ( compressed )   bCompress = true ;
+    else                bCompress = false ;   
 
-    ECPoint gen(curveID);
-    ECPoint GEN  = gen.getGenerator();
-    ECPoint result = GEN.MulDec(bnPoint, std::string());
-    return Py_BuildValue("s", result.ToDec().c_str());
+    std::unique_ptr< ECPoint > gen = PY_ECPOINT::makeECPoint( curveID ) ;
+
+    ECPoint GEN     = gen.get()->getGenerator();
+    ECPoint result  = GEN.MulDec( bnPoint, std::string( ) );
+
+    if ( dec )  return Py_BuildValue("s", result.ToDec(bCompress).c_str()) ;
+    else        return Py_BuildValue("s", result.ToHex(bCompress).c_str()) ;   
 }
 
+
+
+/***********************************************************
+ * Python glue
+ ************************************************************/
 static PyMethodDef ModuleMethods[] =
 {
-    {"addFromHex", wrap_addFromHex, METH_VARARGS, "Add two ECPoints in hex with the default NID ==> NID_secp256k1"},
-    {"addFromHexWithCurveID", wrap_addFromHexWithCurveID,METH_VARARGS, "Add two ECPoints in hex with the supplied curve IDs"},
-    {"compare", wrap_compare, METH_VARARGS, "Compare two given ECPoints "},
-    {"compareCurve", wrap_compareOnCurve, METH_VARARGS, "Compare two given ECPoints with a Curve ID"},
-    {"doubleFromHex", wrap_doubleFromHex, METH_VARARGS, "Double the ECPoint in hex with the default NID ==> NID_secp256k1"},
-    {"doubleFomHexCurve", wrap_doubleFromHexOnCurve, METH_VARARGS,"Double the ECPoint in hex with the given curve ID"},
-    {"invertFromHex", wrap_invertFromHex, METH_VARARGS, "Invert the ECPoint in hex with the default NID ==> NID_secp256k1"},
-    {"invertFromHexCurve",wrap_invertFromHexOnCurve, METH_VARARGS,"Invert the ECPoint in hex with the given curve ID"},
-    {"checkInfinityFromHex", wrap_checkInfinityFromHex, METH_VARARGS, "Check if the given point is at infinity with default NID ==> NID_secp256k1"},
-    {"checkInfinityFromHexCurve", wrap_checkInfinityFromHexOnCurve, METH_VARARGS, "Check if the given point is at infinity on the given curve ID"},
-    {"CheckOnCurve", wrap_checkOnCurveFromHex, METH_VARARGS, "Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1"},
-    {"checkOnCurveFromHexOnCurve",wrap_checkOnCurveFromHexOnCurve, METH_VARARGS, "Check if the point is on the curve with supplied curve ID"},
-    {"GenerateRandomECHex", wrap_GenerateRandomECHex, METH_VARARGS ,"Generate a Random EC Point with default NID ==> NID_secp256k1"},
-    {"GenerateRandomECHexOnCurve", wrap_GenerateRandomECHexOnCurve, METH_VARARGS ,"Generate a Random EC Point with supplied NID"},
-    {"GenerateECHexFromHex", wrap_GenerateECFromHex, METH_VARARGS ,"Generate a EC Point from hex string with default NID ==> NID_secp256k1"},
-    {"GenerateECHexFromHexOnCurve",wrap_GenerateECFromHexOnCurve, METH_VARARGS ,"Generate a EC Point from hex string with supplied NID"},
-    {"MultiplyScalarM", wrap_MultiplyScalarECM, METH_VARARGS, "EC Point Scalar multiply with default NID => NID_secp256k1"},
-    {"MultiplyScalarMOnCurve", wrap_MultiplyScalarECMOnCurve, METH_VARARGS, "EC Point Scalar multiply on curve with supplied ID"},
-    {"MultiplyScalarMN", wrap_MultiplyScalarECMN, METH_VARARGS, "EC Point Scalar multiply with default NID => NID_secp256k1"},
-    {"MultiplyScalarMNOnCurve", wrap_MultiplyScalarECMNOnCurve, METH_VARARGS, "EC Point Scalar multiply with supplied curve ID"},
-    {"GetAffineCoOrdinates", wrap_GetAffineCoOrdinates, METH_VARARGS, "EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1"},
-    {"GetAffineCoOrdinatesOnCurve", wrap_GetAffineCoOrdinatesOnCurve, METH_VARARGS, "EC Point GetAffineCoOrdinates_GFp with supplied curve"},
+    {"Add", wrap_add, METH_VARARGS, "Add two ECPoints, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1 "},
+    {"Compare", wrap_compare, METH_VARARGS, "Compare two given ECPoints, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1 "},
+    {"Double", wrap_double, METH_VARARGS, "Double the ECPoint, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1 "},
+    {"Invert", wrap_invert, METH_VARARGS, "Invert the ECPoint, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1"},
+    {"CheckInfinity", wrap_checkInfinity, METH_VARARGS, "Check if the given point is at infinity, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1"},
+    {"CheckOnCurve", wrap_checkOnCurve, METH_VARARGS, "Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1"},
+    {"GenerateRandomEC", wrap_GenerateRandomEC, METH_VARARGS ,"Generate a Random EC Point, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1"},
+    {"GenerateEC", wrap_GenerateEC, METH_VARARGS ,"Generate an EC Point, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1"},
+    {"MultiplyScalarM", wrap_MultiplyScalarM, METH_VARARGS, "EC Point Scalar multiply, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1"},
+    {"MultiplyScalarMN", wrap_MultiplyScalarMN, METH_VARARGS, "EC Point Scalar multiply, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1"},
+    {"GetAffineCoOrdinates", wrap_GetAffineCoOrdinates, METH_VARARGS, "EC Point GetAffineCoOrdinates_GFp, Specify CurveID [ 0 ==> secp256k1],  Hex=0 | Dec=1"},
     {"GetCurveList", wrap_GetCurveList, METH_NOARGS, "Get list of all curves"},
     {"GetGenerator", wrap_GetGenerator, METH_VARARGS, "EC Point Generator with supplied curve"},
-    {"GetGeneratorDec", wrap_GetGeneratorDec, METH_VARARGS, "EC Point Generator with supplied curve"},
-    {"GetGroupDegreeFromHex", wrap_GetGroupDegree, METH_VARARGS, "EC Point Group Degree with supplied curve"},
-    {"GetGroupOrderFromHex", wrap_GetGroupOrder, METH_VARARGS, "EC Point Group Order with supplied curve"},
-    {"MultiplyByGeneratorHex", wrap_mulByGenHex,METH_VARARGS, "EC Point Group Order with supplied curve"},
-    {"MultiplyByGeneratorDec", wrap_mulByGenDec,METH_VARARGS, "EC Point Group Order with supplied curve"},
+    {"GetGroupDegree", wrap_GetGroupDegree, METH_VARARGS, "EC Point Group Degree with supplied curve"},
+    {"GetGroupOrder", wrap_GetGroupOrder, METH_VARARGS, "EC Point Group Order with supplied curve"},
+    {"MultiplyByGenerator", wrap_mulByGen,METH_VARARGS, "EC Point Group Order with supplied curve"},
     {NULL, NULL, 0, NULL},
 };
  

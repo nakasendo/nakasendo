@@ -229,7 +229,7 @@ def test_RandomPolynomialFixed_a_0_Dec():
 
         fx = str(randint(10, 100000))
         degree = randint(10, 15)
-        modulo = str(randint(1000, 100000))
+        modulo = str(randint(2001, 100000))
         a_0 = str(randint(1000, 2000))
         dec = 1
 

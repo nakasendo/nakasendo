@@ -210,86 +210,107 @@ class BigNum:
     
 
 class ECPoint:
-    def __init__ (self, nid=0,isDec=False,isCOmpressed=True):
-        self.isDec = isDec
-        self.isCompressed=True
-        if(nid==0):
-            self.value = PyECPoint.GenerateRandomECHex(self.isDec,self.isCompressed)
-            self.nid = 714 # Value for NID_secp256k1 (This needs a bit of though)
-        else:
-            self.nid = nid
-            self.value = PyECPoint.GenerateRandomECHexOnCurve(nid)
 
+    # class static - Value for NID_secp256k1 
+    defaultNID = 714
+
+
+    def __init__ (self, nid=0, isDec=False, isCompressed=True ) :
+        self.isDec          = isDec
+        self.isCompressed   = isCompressed
+
+        if( nid == 0) :
+            self.nid = self.defaultNID 
+        else :
+            self.nid = nid
+
+        self.isDec = isDec
+        self.value = PyECPoint.GenerateRandomEC( self.nid, self.isDec, self.isCompressed )            
+    
+        # self-check for valid value
+        if isDec :
+            if not ECPoint.isValidDec( self.value ) :
+                raise Exception( 'ECPoint value is not a valid decimal string.  value: {}'.format( self.value) )                            
+        else :
+            if not ECPoint.isValidHex( self.value ) :
+                raise Exception( 'ECPoint value is not a valid hexadecimal string.  value: {}'.format( self.value) )                            
+
+    @staticmethod
+    def isValidHex (s) :
+        return all(c in string.hexdigits for c in s)
+
+    @staticmethod
+    def isValidDec (s) :
+        return all(c in string.digits for c in s)
 
     def __add__(self, obj):
         if (self.nid != obj.nid):
             print ("Points not on the same curve %i and %i" % (self.nid, obj.nid))
             return none
 
-        sumVal = PyECPoint.addFromHexWithCurveID(self.value, obj.value, self.nid,self.isDec)
+        sumVal = PyECPoint.Add( self.value, obj.value, self.nid, self.isDec, self.isCompressed )
         ecpRetVal = ECPoint(self.nid,self.isDec)
         ecpRetVal.SetValue(sumVal)
-        return ecpRetVal ; 
+        return ecpRetVal 
 
     def __eq__ (self, obj):
         if ( self.nid == obj.nid):
-            return (PyECPoint.compareCurve(self.value, obj.value,self.nid,self.isDec))  
+            return ( PyECPoint.Compare( self.value, obj.value, self.nid, self.isDec ) )  
         else:
             return False
 
     def multipleScalar(self,objm):
-        mulVal = PyECPoint.MultiplyScalarMOnCurve(self.value, objm.value,self.nid,self.isDec)
+        mulVal = PyECPoint.MultiplyScalarM( self.value, objm.value, self.nid, self.isDec, self.isCompressed )
         ecpRetVal = ECPoint(self.nid,self.isDec)
         ecpRetVal.SetValue(mulVal)
-        return ecpRetVal;
+        return ecpRetVal
 
-    def multipltScalarEx(self, objm,objn):
-        mulVal = PyECPoint.MultiplyScalarMNOnCurve(self.value, objm.value, objn.value,self.nid)        
+    def multipltScalarEx(self, objm, objn):
+        mulVal = PyECPoint.MultiplyScalarMN( self.value, objm.value, objn.value, self.nid, self.isDec, self.isCompressed )        
         ecpRetVal = ECPoint(self.nid)
-        ecpRetVal.SetValue (mulVal); 
+        ecpRetVal.SetValue (mulVal)
         return ecpRetVal
 
     def GetAffineCoOrdinates(self):
-        points = PyECPoint.GetAffineCoOrdinatesOnCurve(self.value,self.nid,self.isDec)
+        points = PyECPoint.GetAffineCoOrdinates( self.value, self.nid, self.isDec )
         return points
         
     def x(self):
-        points = self.GetAffineCoOrdinates()
+        points = self.GetAffineCoOrdinates( )
         return points[0]
         
-        
-        
-    def SetValue(self, value):        
+    def SetValue(self, value) :
+        # self-check for valid value
+        if self.isDec :
+            if not ECPoint.isValidDec( value ) :
+                raise Exception( 'Value is not a valid decimal string.  value: {}'.format( self.value) )                            
+        else :
+            if not ECPoint.isValidHex( value ) :
+                raise Exception( 'Value is not a valid hexadecimal string.  value: {}'.format( self.value) )                            
+
         self.value = value; 
 
     def IsPointOnCurve (self):
-        if(PyECPoint.checkOnCurveFromHexOnCurve(self.value,self.nid,self.isDec)):
+        if(PyECPoint.CheckOnCurve(self.value, self.nid, self.isDec ) ) :
             return True
         return False
         
     def GetGeneratorPoint(self):
         genPoint = ECPoint(self.nid,self.isDec)
-        genPoint.value = PyECPoint.GetGenerator(self.value, self.nid,self.isDec);
+        genPoint.value = PyECPoint.GetGenerator(self.value, self.nid, self.isDec, self.isCompressed)
         return genPoint
         
-    def GetGeneratorPointDec(self):
-        genPoint = ECPoint(self.nid)
-        genPoint.value = self.value
-        genPoint.value = PyECPoint.GetGeneratorDec(self.value, self.nid);
-        return genPoint
-        
-    def multiplyByGenerator(self, m):
-        #
-        GenPoint = self.GetGeneratorPoint();
+    def multiplyByGenerator(self, m) :
+        GenPoint = self.GetGeneratorPoint()
         ecPointvalue = GenPoint.multipleScalar(m)
         return ecPointvalue
         
     def GetOrder (self):
-        order = PyECPoint.GetGroupOrderFromHex(self.value, self.nid);
+        order = PyECPoint.GetGroupOrder(self.value, self.nid, self.isDec )
         return order
     
     def GetDegree(self):
-        deg = PyECPoint.GetGroupDegreeFromHex(self.value, self.nid);
+        deg = PyECPoint.GetGroupDegree(self.value, self.nid, self.isDec )
         return deg
         
     def __str__(self):
@@ -299,15 +320,11 @@ class ECPoint:
         points = self.GetAffineCoOrdinates()
         return '({},{})'.format (points[0],points[1])
 
-def MultiplyByGenerator(m, nid=714):
-    pt = ECPoint(nid)
-    return pt.multiplyByGenerator(m)
+    def MultiplyByGenerator( m, nid=defaultNID ) :
+        pt = ECPoint(nid)
+        pt.value = PyECPoint.MultiplyByGenerator( m.value, nid, self.isDec, self.isCompressed )
+        return pt
 
-def MultiplyByGeneratorDec(m, nid=714):
-    value = PyECPoint.MultiplyByGeneratorDec(m.value,nid)
-    pt = ECPoint(nid)
-    pt.value = value
-    return pt
 
     
         
