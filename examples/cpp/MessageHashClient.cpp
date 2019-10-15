@@ -2,8 +2,8 @@
 #include <iostream>
 #include <memory>
 
+#include <MessageHash/MessageHashConfig.h>
 #include <MessageHash/MessageHash.h>
-#include <MessageHash/MessageHashAPI.h>
 #include "MessageHash/Base64EncDec.h"
 #include "MessageHash/Base58EncDec.h"
 
