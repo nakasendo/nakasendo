@@ -2,8 +2,10 @@
 #include <string.h>
 #include <string>
 #include <iostream>
-#include <MessageHash/MessageHashAPI.h>
-#include "MessageHash/Base64EncDec.h"
+#include <MessageHash/MessageHashConfig.h>
+#include <MessageHash/MessageHash.h>
+#include <MessageHash/Base64EncDec.h>
+#include <MessageHash/Base58EncDec.h>
 
 
 struct module_state {
@@ -37,14 +39,16 @@ static PyObject* wrap_HashMsg(PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "ss", &argA, &argB))
         return NULL;
 
-    std::string result = HashMsg(argA,argB);
+    MessageHash hashMess;
+    hashMess.Hash(argA, argB);
+    std::string result = hashMess.HashHex ();
     return Py_BuildValue("s",result.c_str());
 }
 
 static PyObject* wrap_ListHash(PyObject* self, PyObject *args)
 {
-	std::string result = ListHashFunc();
-	std::cout << result << std::endl;
+    MessageHash hashMess;
+	const std::string result = hashMess.ListAvailableHash () ;
 	return Py_BuildValue("s", result.c_str());
 }
 

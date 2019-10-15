@@ -1,6 +1,7 @@
 #ifndef __BASE58ENCDEC_H__
 #define __BASE58ENCDEC_H__
 
+#include <MessageHash/MessageHashConfig.h>
 #include <MessageHash/MessageHash.h>
 
 #include <memory>
@@ -34,5 +35,12 @@ class MessageHash_API Base58EncDec
         std::unique_ptr<Base58EncDecImpl> m_pImpl ; 
 };
 
+std::string MessageHash_API EncodeBase58(const std::string& msg);
+
+std::string MessageHash_API DecodeBase58(const std::string& msg);
+
+std::string MessageHash_API EncodeBase58Checked(const std::string& msg);
+
+std::string MessageHash_API DecodeBase58Checked(const std::string& msg);
 
 #endif //#ifndef __BASE58ENCDEC_H__

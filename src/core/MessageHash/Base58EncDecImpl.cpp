@@ -5,9 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "MessageHash/Base58EncDecImpl.h"
-#include "MessageHash/MessageHashAPI.h"
-
+#include <MessageHash/Base58EncDecImpl.h>
+#include <MessageHash/MessageHash.h>
 
 // Encode our raw data as a Base58 string.
 // Functionality lifted from Bitcoin-SV.
@@ -33,11 +32,8 @@ std::string Base58EncDecImpl::encodeCheck (const messageVec& vchIn){
     }
     // hash-twice for SV
     std::string hashVal = HashMsgSHA256(hashInput);
-    std::unique_ptr<unsigned char> hashVal2 = HashSha256(hashVal);
-
     
     // add the the first 4 bytes.
-
     for (int i=0; i<4; ++i)
     { vch.push_back(hashVal[i]); }
     
@@ -159,8 +155,6 @@ messageVec Base58EncDecImpl::decodeCheck(const std::string& msg){
     }
 
     std::string hashVal = HashMsgSHA256(hashInput);
-    std::unique_ptr<unsigned char> hashVal2 = HashSha256(hashVal);
-
     
     messageVec::iterator iter = retVal.end() - 4;     
     for (int i = 0 ; i<4; ++i ){
