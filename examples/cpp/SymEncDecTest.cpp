@@ -3,7 +3,6 @@
 #include <string>
 
 #include <sstream>
-#include <MessageHash/MessageHashAPI.h>
 #include <SymEncDec/SymEncDec.h>
 #include <SymEncDec/conversions.h>
 
