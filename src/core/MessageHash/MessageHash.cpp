@@ -41,3 +41,9 @@ std::string  MessageHash::ListAvailableHash ()
     return (m_pImpl->ListAvailableHash());
 }
 
+std::string HashMsgSHA256(const std::string& crMsg)
+{
+    MessageHash hashMess;
+    hashMess.HashSha256 (crMsg);
+    return hashMess.HashHex();
+}

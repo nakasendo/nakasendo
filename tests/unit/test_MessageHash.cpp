@@ -11,9 +11,10 @@
 #include <iostream>
 #include <memory>
 
+#include <MessageHash/MessageHashConfig.h>
 #include <MessageHash/MessageHash.h>
-#include <MessageHash/MessageHashAPI.h>
 #include <MessageHash/Base58EncDec.h>
+#include <MessageHash/Base64EncDec.h>
 
 BOOST_AUTO_TEST_SUITE(test_suite_MessageHash)
 

@@ -3,7 +3,6 @@
 #include <string>
 #include <iostream>
 
-#include <MessageHash/MessageHashAPI.h>
 #include <SymEncDec/SymEncDec.h>
 
 struct module_state {
