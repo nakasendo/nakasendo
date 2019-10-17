@@ -117,7 +117,7 @@ AsymKey AsymKey::derive(const std::string& crAdditiveMsg) const
 {
     AsymKey new_key(GroupNid());
     new_key.m_pImpl.reset(m_pImpl->derive_private(crAdditiveMsg));
-    return std::move(new_key);
+    return new_key;
 }
 
 std::pair<std::string, std::string> AsymKey::sign(const std::string& crMsg)const
@@ -139,6 +139,10 @@ bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, cons
     return impl_verify(crMsg,crPublicKeyPEMStr,rs);
 }
 
+bool AsymKey_API verifyDER(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::unique_ptr<unsigned char[]>& derSIG, const size_t& lenDERSig){
+    return impl_verifyDER(crMsg, crPublicKeyPEMStr, derSIG,lenDERSig);
+}
+
 std::string derive_pubkey(const std::string& crPubPEMkey, const std::string& crRandomMsg)
 {
     return impl_derive_pubkey(crPubPEMkey, crRandomMsg);
@@ -148,3 +152,8 @@ std::pair<std::string, std::string> AsymKey_API pubkey_pem2hex(const std::string
 {
     return impl_pubkey_pem2hex(crPubPEMkey);
 }
+
+std::unique_ptr<unsigned char[]> DEREncodedSignature(const BigNumber& r ,const BigNumber& s, size_t& len){
+    return impl_DEREncodedSignature(r,s,len);
+}
+

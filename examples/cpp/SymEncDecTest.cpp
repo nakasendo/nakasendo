@@ -4,7 +4,7 @@
 
 #include <sstream>
 #include <SymEncDec/SymEncDec.h>
-#include <SymEncDec/conversions.h>
+#include <MessageHash/conversions.h>
 
 int main (int argc, char** argv)
 {

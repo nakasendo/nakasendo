@@ -96,8 +96,8 @@ std::unique_ptr<BigNumberImpl> Mul_mod (const BigNumberImpl*  pLHS, const BigNum
 std::unique_ptr<BigNumberImpl> Div_mod (const BigNumberImpl*  pLHS, const BigNumberImpl*  pRHS, const BigNumberImpl*  pmod)
 {
     std::unique_ptr<BigNumberImpl> invRHS = Inv_mod(pRHS, pmod);
-    std::unique_ptr<BigNumberImpl> ResImpl = Mul_mod(pLHS, invRHS.get(),pmod);
-    return ResImpl;
+    std::unique_ptr<BigNumberImpl> resDIV = Mul_mod(pLHS, invRHS.get(),pmod);
+    return resDIV;
 }
 
 

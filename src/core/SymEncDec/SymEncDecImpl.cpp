@@ -145,7 +145,7 @@ void  NounceGenImpl(std::unique_ptr<unsigned char[]>& nounce,const int blocksize
 std::unique_ptr<unsigned char[]> KeyGenImpl 
 (std::unique_ptr<unsigned char[]>& pw, const unsigned int& pwlen, const std::unique_ptr<unsigned char[]>& salt, const uint64_t& saltlen, const unsigned int& ic, uint64_t& requiredKeyLen )
 {
-  unsigned long i, l,r; 
+  unsigned long i(0), l(0),r(0); 
   std::unique_ptr<unsigned char[]> final (new unsigned char[SHA256_DIGEST_LENGTH]);
   
   std::fill_n (final.get(), SHA256_DIGEST_LENGTH, 0x0);
@@ -164,11 +164,11 @@ std::unique_ptr<unsigned char[]> KeyGenImpl
       *(final.get()+(i-1)*SHA256_DIGEST_LENGTH) = finalr.get()[l];
     }
   }
-  return std::move(final);
+  return final;
 }
 
 void pkc5InitialPRF(unsigned char *p, size_t plen, unsigned char *salt,size_t saltlen, size_t i, unsigned char *out, size_t *outlen){
-  size_t swapped_i;
+  size_t swapped_i(0);
 
   HMAC_ptr ctx ( HMAC_CTX_new(),::HMAC_CTX_free); 
   HMAC_Init_ex(ctx.get(), p, plen, EVP_sha256(), 0);

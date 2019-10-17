@@ -11,6 +11,8 @@
 #include <openssl/ec.h>
 #include <openssl/pem.h>
 
+class BigNumber;
+
 class KeyShare; 
 
 class AsymKeyImpl
@@ -63,7 +65,12 @@ private:
 };
 
 bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
+bool impl_verifyDER
+(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::unique_ptr<unsigned char[]>& derSIG, const size_t& lenDERSig);
 
 std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string& crRandomMsg);
 std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPubPEMkey);
+
+std::unique_ptr<unsigned char []> impl_DEREncodedSignature(const BigNumber&, const BigNumber&, size_t& len);
+
 #endif /* ASYM_KEY_IMPL_H */

@@ -21,12 +21,12 @@ try:
     import PyMessageHash
     import PyAsymKey
     import PyPolynomial
+    import PyBCHAddress
     import Nakasendo
 except ImportError as e:
     print('Error while loading SDKLibraries python modules {}'.format(e.message))
     print('Try to define environment variable SDKLIBRARIES_ROOT pointing to the location of installed SDKLibraries or add this to PYTHONPATH')
     raise ImportError('Unable to load SDKLibraries python modules')
-
 
 if __name__ == "__main__":
     print ("starting.....")
@@ -346,3 +346,36 @@ if __name__ == "__main__":
     print ("LG Interpolation evaluation for %sth basis point where xValue=%s is %s" % \
         (basisPoint, xValue, valBasis ) )
 
+    #----------------------------------------------------------------
+    #----------------------------------------------------------------
+    #Test BCHAddress
+    #----------------------------------------------------------------
+    
+    print( "\n----------------------------------------------------------------\n")
+    print("1) Write out the public key and corresponding BCH address")
+    key = "023cba1f4d12d1ce0bced725373769b2262c6daa97be6a0588cfec8ce1a5f0bd09"
+    version = 0
+    address = Nakasendo.BCHAddress(key, version )
+    
+    print( "BCHAddress from key %s is %s\n" % (key, address.address ) )
+    
+    print( "2) Write out a string representation of the address object")
+    print("Address information\n%s" % address )
+
+    print( "3) access the object fields individually")
+    print("Valid: %s" % bool( address.valid ) )
+    print("Decoded address: %s" % address.decodedAddress )
+    print("Network Prefix: %s" % address.prefix )
+    print("Network Type: %s" % address.NetworkType)
+
+    print( "\n4) Create BCHAddress from existing address string")
+    addressStrInvalid   = "017nDmDt3ZsHqQWAwuc5H8y7cNdZqDyfXAd" 
+    addressStrValid     = "17nDmDt3ZsHqQWAwuc5H8y7cNdZqDyfXAd" 
+    try:
+        Nakasendo.BCHAddress.initFromAddress( addressStrInvalid )
+    except Exception as e : 
+        print( e )
+
+    address = Nakasendo.BCHAddress.initFromAddress( addressStrValid ) 
+    print("Address: %s has valid = %s" % (addressStrValid, bool( address.valid ) ) )
+    

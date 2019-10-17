@@ -112,13 +112,24 @@ bool ECPoint::CheckOnCurve()
     return  this->pImpl()->CheckOnCurve();
 }
 
-std::pair<std::string, std::string> ECPoint::GetAffineCoords_GFp (){
+std::pair<std::string, std::string> ECPoint::GetAffineCoords_GFp () const
+{
     return pImpl()->GetAffineCoords_GFp () ;
 }
 
-std::string ECPoint::ToHex()
+std::pair<std::string, std::string> ECPoint::GetAffineCoords_GFp_Dec () const
 {
-    return  this->pImpl()->ToHex();
+    return pImpl()->GetAffineCoords_GFp_Dec () ;
+}
+
+std::string ECPoint::ToHex(const bool& compressed) const
+{
+    return  this->pImpl()->ToHex(compressed);
+}
+
+std::string ECPoint::ToDec(const bool& compressed) const
+{
+    return  this->pImpl()->ToDec(compressed);
 }
 
 int ECPoint::GroupNid() const
@@ -126,11 +137,15 @@ int ECPoint::GroupNid() const
     return  this->pImpl()->getNid();
 }
 
-bool ECPoint::FromHex(const std::string& hexStr, int nid)
+bool ECPoint::FromHex(const std::string& hexStr, int nid) 
 {
     return this->pImpl()->FromHex(hexStr, nid);
 }
 
+bool ECPoint::FromDec(const std::string& decStr, int nid)
+{
+    return this->pImpl()->FromDec(decStr, nid);
+}
 std::vector<std::tuple<int, std::string, std::string>> getCurveList()
 {
     return  _getCurveList(); 
@@ -156,7 +171,7 @@ BigNumber ECPoint::getECGroupOrder() const
 {
     BigNumber bnVal;
     bnVal.FromHex(this->pImpl()->getGroupOrder());
-    return std::move(bnVal);
+    return bnVal;
 }
 
 int ECPoint::getECGroupDegree() const
@@ -169,5 +184,5 @@ ECPoint ECPoint::getGenerator() const
     std::unique_ptr<ECPointImpl> res1 = this->pImpl()->getGenerator();
     ECPoint res;
     res.m_pImpl.reset(new ECPointImpl(*res1));
-    return std::move(res);
+    return res;
 }

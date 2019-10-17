@@ -1,0 +1,12 @@
+#ifndef BCHADDRESS_CONFIG_H
+#define BCHADDRESS_CONFIG_H
+
+#include <DYNAMIC_LIBRARY_API.hpp>
+
+#ifdef EXPORT_BCHAddress
+#define BCHAddress_API EXPORT_DYNAMIC_LIBRARY
+#else
+#define BCHAddress_API IMPORT_DYNAMIC_LIBRARY
+#endif
+
+#endif /* BCHADDRESS_CONFIG_H */
