@@ -5,7 +5,8 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include <SymEncDec/conversions.h>
+#include <MessageHash/conversions.h>
+
 #define BYTES_PER_GROUP 4
 #define GROUPS_PER_LINE 4
 
@@ -91,7 +92,6 @@ std::unique_ptr<unsigned char[]> HexToBin(const std::unique_ptr<char[]>& input, 
       default:
         if (isspace(p[0])) p++;
         else {
-          std::cout << "ERR_NOT HEX FAIL" << std::endl;
           *l = ERR_NOT_HEX;
           delete [] ptr;
           delete [] ret; 
@@ -104,7 +104,6 @@ std::unique_ptr<unsigned char[]> HexToBin(const std::unique_ptr<char[]>& input, 
     }
   }
   if (!shift) {
-    std::cout << "ERR_BAD_SIZE FAIL" << std::endl;
     *l = ERR_BAD_SIZE;
     delete [] ptr;
     delete [] ret; 
@@ -134,6 +133,7 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
   unsigned char       *r, *ret;
   const unsigned char *p;
   
+
   r = ret = new unsigned char[input.length() / 2];
   if (ret == nullptr){
     *l = ERR_NO_MEM;
@@ -156,6 +156,7 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
   
   for (p = ptr;  isspace(*p);  p++);
   if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X')) p += 2;
+
 
   int index = 0; 
   //while (p[0] && index < lenInput) {
@@ -186,26 +187,30 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
       default:
         if (isspace(p[0])) p++;
         else {
-          std::cout << "ERR_NOT HEX FAIL" << std::endl;
           *l = ERR_NOT_HEX;
           delete [] ptr;
           delete [] ret; 
           return 0;
         }
     }
+
+  
+
     if ((shift = (shift + 4) % 8) != 0) {
       *r++ = value;
       value = 0;
     }
   }
+
+
   if (!shift) {
-    std::cout << "ERR_BAD_SIZE FAIL" << std::endl;
     *l = ERR_BAD_SIZE;
     delete [] ptr;
     delete [] ret; 
     return nullptr;
   }
   *l = (r - ret);
+
   
   std::unique_ptr<unsigned char[]> retVal ( new unsigned char[input.length()/ 2]); 
   if (retVal == nullptr){
@@ -223,4 +228,23 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
   return retVal;
 }
 
+std::vector<uint8_t> HexToUInt (const std::string& hexStr){
+  size_t len(0);
+  std::unique_ptr<unsigned char[]> binChar =  HexStrToBin(hexStr, &len);
+  std::vector<uint8_t> ret; 
+  if(len != 0){
+    for(int i = 0;i<len;++i){
+      ret.push_back(binChar[i]);
+    }
+  }
+  return ret;
+}
 
+std::string UintToHex(const std::vector<uint8_t>& UintRep){
+  std::unique_ptr<unsigned char[]> uncharRep (new unsigned char[UintRep.size()]);
+  int index(0);
+  for(std::vector<uint8_t>::const_iterator iter = UintRep.begin(); iter != UintRep.end(); ++iter){
+    uncharRep[index++] = *iter; 
+  }
+  return (binTohexStr(uncharRep, UintRep.size()));
+}

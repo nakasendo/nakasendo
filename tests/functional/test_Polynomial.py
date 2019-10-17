@@ -1,6 +1,7 @@
 import PyPolynomial
 import PyBigNumbers
 import PyECPoint
+import Nakasendo
 
 from random import randint
 
@@ -228,7 +229,7 @@ def test_RandomPolynomialFixed_a_0_Dec():
 
         fx = str(randint(10, 100000))
         degree = randint(10, 15)
-        modulo = str(randint(1000, 100000))
+        modulo = str(randint(2001, 100000))
         a_0 = str(randint(1000, 2000))
         dec = 1
 
@@ -365,18 +366,19 @@ def test_LGECInterpolatorFull():
     modulo = PyBigNumbers.GenerateRandPrimeHex(1000)
     xValue = PyBigNumbers.GenerateRandHex(1000)
     listTupleObj = []
+    dec = 0
 
     # Generating Random EC
     for x in range(10, 50):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
-        hexValue = PyECPoint.GenerateRandomECHex()
+        hexValue = Nakasendo.ECPoint()
 
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
-        assert PyECPoint.CheckOnCurve(hexValue), "Test failed"
+        assert hexValue.IsPointOnCurve(), "Test failed"
 
-        x_Axis, y_axis = PyECPoint.GetAffineCoOrdinates(hexValue)
+        x_Axis, y_axis = hexValue.GetAffineCoOrdinates()
         # EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1
         listTupleObj.append((x, x_Axis, y_axis))
 
-    lgInterpolatorX = PyPolynomial.LGECInterpolatorFull(listTupleObj, modulo, xValue)
+    lgInterpolatorX = PyPolynomial.LGECInterpolatorFull(listTupleObj, modulo, xValue,dec)
     assert type(lgInterpolatorX) == str, "Test failed"

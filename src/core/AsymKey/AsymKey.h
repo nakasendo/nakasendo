@@ -18,6 +18,7 @@
 
 class AsymKeyImpl; 
 class KeyShare; 
+class BigNumber;
 
 class AsymKey_API AsymKey
 {
@@ -73,9 +74,10 @@ class AsymKey_API AsymKey
 };
 
 bool AsymKey_API verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
+bool AsymKey_API verifyDER(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::unique_ptr<unsigned char[]>&, const size_t&);
 std::string AsymKey_API derive_pubkey(const std::string& crPubPEMkey, const std::string& crRandomMsg);
 std::pair<std::string, std::string> AsymKey_API pubkey_pem2hex(const std::string& crPubPEMkey);
-
+std::unique_ptr<unsigned char[]> AsymKey_API DEREncodedSignature(const BigNumber&, const BigNumber&, size_t& len);
 #endif /* ASYM_KEY_H */
 
 

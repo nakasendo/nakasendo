@@ -400,6 +400,7 @@ static PyObject* wrap_LGInterpolatorFull(PyObject* self, PyObject *args)
     char * argB ;
     int dec ;
 
+
     if ( !PyArg_ParseTuple( args, "Ossi", &obj, &argA, &argB, &dec ) )
         return NULL;
 
@@ -432,14 +433,19 @@ static PyObject* wrap_LGECInterpolatorFull(PyObject* self, PyObject *args)
     PyObject *obj ;
     char * argA ;
     char * argB ;
-     
+    int dec(0);
 
-    if ( !PyArg_ParseTuple( args, "Oss", &obj, &argA, &argB ) )
+    if ( !PyArg_ParseTuple( args, "Ossi", &obj, &argA, &argB, &dec ) )
         return NULL;
 
     BigNumber xValue, modulo ;
-    modulo.FromHex( argA ) ;
-    xValue.FromHex( argB ) ;
+    if(dec){
+        modulo.FromDec( argA ) ;
+        xValue.FromDec( argB ) ;
+    }else{
+        modulo.FromHex( argA ) ;
+        xValue.FromHex( argB ) ;
+    }
 //////////
     std::vector<std::pair<BigNumber, ECPoint> > tmpVec ;
     
@@ -462,10 +468,15 @@ static PyObject* wrap_LGECInterpolatorFull(PyObject* self, PyObject *args)
         BigNumber a ;
         BigNumber y1; 
         BigNumber y2; 
-
-        a.FromHex( std::to_string( argA ) ) ;
-        y1.FromHex(argB);
-        y2.FromHex(argC);
+        if(dec){
+            a.FromDec(std::to_string(argA));
+            y1.FromDec(argB);
+            y2.FromDec(argC);
+        }else{
+            a.FromHex( std::to_string( argA ) ) ;
+            y1.FromHex(argB);
+            y2.FromHex(argC);
+        }
         ECPoint b ( y1,y2 ) ;
 
         tmpVec.push_back( std::make_pair( a, b ) ) ;        
@@ -476,7 +487,10 @@ static PyObject* wrap_LGECInterpolatorFull(PyObject* self, PyObject *args)
     LGECInterpolator lgInterpolator (tmpVec, modulo) ;
     ECPoint val = lgInterpolator( xValue ) ;
 
-    return Py_BuildValue( "s", val.ToHex( ).c_str() ) ;  
+    if(dec)
+        return Py_BuildValue("s", val.ToDec().c_str());
+    else
+        return Py_BuildValue( "s", val.ToHex( ).c_str() ) ;  
 }
 
 

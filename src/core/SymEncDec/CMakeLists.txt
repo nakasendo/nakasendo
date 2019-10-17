@@ -7,7 +7,6 @@
 set(SymEncDec_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDec.h
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecConfig.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/conversions.h
 )
 set(SymEncDec__HPP_FILES_PRIVATE # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecImpl.h
@@ -16,7 +15,6 @@ set(SymEncDec__HPP_FILES_PRIVATE # Keep alphabet order
 set(SymEncDec_HPP_FILES ${SymEncDec_HPP_FILES_PUBLIC} ${SymEncDec__HPP_FILES_PRIVATE})
 
 set(SymEncDec_CPP_FILES # Keep alphabet order
-  ${CMAKE_CURRENT_SOURCE_DIR}/conversions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDec.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SymEncDecImpl.cpp
 )
@@ -26,7 +24,7 @@ add_library(SymEncDec ${LIBS_BUILD_TYPE} ${SymEncDec_SOURCE_FILES})
 if(WIN32) #https://github.com/openssl/openssl/pull/1062
 	target_link_libraries(SymEncDec crypt32 ws2_32)	
 endif()
-target_link_libraries(SymEncDec OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(SymEncDec MessageHash OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(SymEncDec PRIVATE EXPORT_SymEncDec)
 set_property(TARGET SymEncDec PROPERTY FOLDER "core")
 
