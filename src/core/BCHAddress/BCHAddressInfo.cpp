@@ -32,7 +32,8 @@ VersionConfig::VersionConfig()
 }
 
 
-const std::vector<uint8_t>& VersionConfig::getVersionBytes(const VersionPrefix& ver ){
+const std::vector<uint8_t>& VersionConfig::getVersionBytes(const VersionPrefix& ver ) const
+{
 
     VersionPrefixMap::const_iterator iter (mVersionPrefixMap.find(ver));
     if(iter == mVersionPrefixMap.end()){
@@ -45,7 +46,8 @@ const std::vector<uint8_t>& VersionConfig::getVersionBytes(const VersionPrefix& 
     
 }
 
-const NetworkType VersionConfig::getNetwork(const VersionPrefix& ver){
+NetworkType VersionConfig::getNetwork(const VersionPrefix& ver) const
+{
     VersionPrefixMap::const_iterator iter (mVersionPrefixMap.find(ver));
     if(iter == mVersionPrefixMap.end()){
         std::runtime_error err ("VersionConfig::getVersionBytes No version stored for version ");
@@ -57,7 +59,7 @@ const NetworkType VersionConfig::getNetwork(const VersionPrefix& ver){
 }
 
 
-const VersionPrefix VersionConfig::getVersionConfig(const std::vector<uint8_t>& bytes )
+VersionPrefix VersionConfig::getVersionConfig(const std::vector<uint8_t>& bytes ) const
 {
     for (auto const& x : mVersionPrefixMap )
     {
@@ -70,7 +72,7 @@ const VersionPrefix VersionConfig::getVersionConfig(const std::vector<uint8_t>& 
     throw err ;
 }
 
-const std::string VersionConfig::getReadableNetworkType(const std::vector<uint8_t>& bytes )
+std::string VersionConfig::getReadableNetworkType(const std::vector<uint8_t>& bytes ) const
 {
     for (auto const& x : mVersionPrefixMap )
     {

@@ -50,16 +50,16 @@ class ECPoint_API ECPoint
         bool CheckInfinity();
         bool CheckOnCurve();
 
-        std::string ToHex(const bool& compressed = true);
-        std::string ToDec(const bool& compressed = true);
+        std::string ToHex(const bool& compressed = true) const ;
+        std::string ToDec(const bool& compressed = true) const ;
 
         int GroupNid()const;
 
-        bool FromHex(const std::string& hexStr, int nid=-1);
-        bool FromDec(const std::string& decStr, int nid=-1);
+        bool FromHex(const std::string& hexStr, int nid=-1) ;
+        bool FromDec(const std::string& decStr, int nid=-1) ;
 
-        std::pair<std::string, std::string> GetAffineCoords_GFp () ;
-        std::pair<std::string, std::string> GetAffineCoords_GFp_Dec ();
+        std::pair<std::string, std::string> GetAffineCoords_GFp () const ;
+        std::pair<std::string, std::string> GetAffineCoords_GFp_Dec () const ;
 
         BigNumber getECGroupOrder() const;
         int getECGroupDegree() const;

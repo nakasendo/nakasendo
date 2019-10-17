@@ -18,7 +18,7 @@ class MessageHash_API MessageHash
         void HashSha256(const std::string&);
         void Hash(const std::string&, const std::string&);
         void Hash(const std::vector<uint8_t>&, const std::string&);
-        std::string HashHex (); 
+        std::string HashHex ();     
         std::unique_ptr<unsigned char[]> Value (); 
         std::vector<uint8_t> HashValueBytes();
 
@@ -36,10 +36,14 @@ class MessageHash_API MessageHash
 };
 
 
-MessageHash_API std::vector<uint8_t>&  Hash
+MessageHash_API std::vector<uint8_t>  Hash
     (
-        std::vector<uint8_t>&,  
+        std::vector<uint8_t>,  
         const std::string& 
     ) ;    
+
+std::string MessageHash_API HashMsgSHA256(const std::string& crMsg);
+
+std::unique_ptr<unsigned char[]> HashSha256 ( const std::string& );
 
 #endif //ifndef __MESSAGE_HASH_H__

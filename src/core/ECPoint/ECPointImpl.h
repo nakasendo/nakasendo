@@ -109,15 +109,15 @@ class ECPointImpl
         // Double the ECPointImpl
         std::unique_ptr<ECPointImpl> Double();
 
-        std::string ToHex(const bool& compressed = true);
-        bool FromHex(const std::string& hexStr, int nid);
+        std::string ToHex(const bool& compressed = true) const ;
+        bool FromHex(const std::string& hexStr, int nid) ;
 
-        std::string ToDec(const bool& compressed = true);
-        bool FromDec(const std::string& decStr, int nid); 
+        std::string ToDec(const bool& compressed = true) const ;
+        bool FromDec(const std::string& decStr, int nid) ; 
 
         void SetRandom ();
-        std::pair<std::string, std::string> GetAffineCoords_GFp ();
-        std::pair<std::string, std::string> GetAffineCoords_GFp_Dec ();
+        std::pair<std::string, std::string> GetAffineCoords_GFp () const ;
+        std::pair<std::string, std::string> GetAffineCoords_GFp_Dec () const ;
 
     private:
 

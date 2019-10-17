@@ -13,6 +13,7 @@
 
 #include <stdexcept>
 #include <cstring>
+#include <assert.h> 
 
 //// https://stackoverflow.com/questions/2228860/signing-a-message-using-ecdsa-in-openssl
 using SIG_ptr = std::unique_ptr< ECDSA_SIG, decltype(&ECDSA_SIG_free)>;
@@ -820,6 +821,13 @@ std::unique_ptr<unsigned char[]> impl_DEREncodedSignature(const BigNumber& r, co
 
     int new_sig_size = i2d_ECDSA_SIG(pSig.get(), &p);
     len = sig_size ; 
+
+    unsigned char * p = derSig.get(); 
+    int new_sig_size = i2d_ECDSA_SIG(pSig.get(), &p);
+    assert( sig_size == new_sig_size) ;
+
+    BN_free(raw_r) ;
+    BN_free(raw_s) ;
     
     return derSig; 
 }

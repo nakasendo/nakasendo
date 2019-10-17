@@ -11,14 +11,6 @@
 #include <vector>
 
 
-#include <DYNAMIC_LIBRARY_API.hpp>
-#ifdef EXPORT_SymEncDec
-#    define SymEncDec_API EXPORT_DYNAMIC_LIBRARY
-#else
-#    define SymEncDec_API IMPORT_DYNAMIC_LIBRARY
-#endif
-
-
 std::unique_ptr<unsigned char[]> SymEncDec_API HexToBin(const std::unique_ptr<char[]>& input, size_t *l);
 
 std::unique_ptr<unsigned char[]> SymEncDec_API HexStrToBin(const std::string& input, size_t *l);

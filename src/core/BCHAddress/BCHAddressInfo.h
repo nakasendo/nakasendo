@@ -64,10 +64,10 @@ class VersionConfig
     public:
     
         static std::unique_ptr<VersionConfig>& Instance();
-        const std::vector<uint8_t>& getVersionBytes(const VersionPrefix& ) ; 
-        const NetworkType getNetwork(const VersionPrefix&);
-        const VersionPrefix getVersionConfig(const std::vector<uint8_t>& bytes ) ;
-        const std::string getReadableNetworkType(const std::vector<uint8_t>& bytes ) ;
+        const std::vector<uint8_t>& getVersionBytes(const VersionPrefix& ) const ; 
+        NetworkType getNetwork(const VersionPrefix&) const ;
+        VersionPrefix getVersionConfig(const std::vector<uint8_t>& bytes ) const ;
+        std::string getReadableNetworkType(const std::vector<uint8_t>& bytes ) const ;
     private:
         VersionConfig();
         VersionConfig(const VersionConfig&);

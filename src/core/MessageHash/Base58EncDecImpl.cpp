@@ -25,7 +25,6 @@ std::string Base58EncDecImpl::encode (const messageVec& vch){
 std::string Base58EncDecImpl::encodeCheck (const messageVec& vchIn){
     // add 4-byte hash check to the end
     std::vector<uint8_t> vch(vchIn);
-    //uint256 hash = Hash(vch.begin(), vch.end());
     std::string hashInput;
     for (messageVec::const_iterator iter = vch.begin();iter != vch.end(); ++iter){
         hashInput.push_back(*iter);
@@ -35,7 +34,9 @@ std::string Base58EncDecImpl::encodeCheck (const messageVec& vchIn){
     
     // add the the first 4 bytes.
     for (int i=0; i<4; ++i)
-    { vch.push_back(hashVal[i]); }
+    { 
+        vch.push_back(hashVal[i]); 
+    }
     
     return encode(vch);
 }
@@ -104,7 +105,6 @@ messageVec Base58EncDecImpl::DecodeBase58(const char *psz){
     // Process the characters.
     while (*psz && !isspace(*psz)) {
         // Decode base58 character
-        //const char *ch = strchr(pszBase58, *psz);
         const char *ch = strchr(&Base58::b58table[0], *psz);
         if (ch == nullptr) {
             return messageVec();
@@ -148,14 +148,14 @@ messageVec Base58EncDecImpl::decode (const std::string& msg){
 messageVec Base58EncDecImpl::decodeCheck(const std::string& msg){
     messageVec retVal = DecodeBase58(msg.c_str());
     // Hash the msg twice (minus the last 4 bytes)
-   // hash-twice for SV
+    // hash-twice for SV
     std::string hashInput;
     for(messageVec::const_iterator iter = retVal.begin(); iter!=retVal.end()-4; ++ iter){
         hashInput.push_back(*iter);
     }
 
     std::string hashVal = HashMsgSHA256( HashMsgSHA256( hashInput ) ) ;
-    
+
     messageVec::iterator iter = retVal.end() - 4;     
     for (int i = 0 ; i<4; ++i ){
         if (*iter != hashVal[i] ){

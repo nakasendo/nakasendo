@@ -7,11 +7,8 @@
 #include "SymEncDec/conversions.h"
 #include "MessageHash/MessageHash.h"
 #include "AsymKey/AsymKey.h"
-#include <BCHAddressInfo.h>
+#include "BCHAddress/BCHAddress.h"
 
-/*
-g++ -o KeyTest -I. -I /Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/src/core KeyTest.cpp cashaddr.cpp BCHAddressInfo.cpp -I /Users/j.murphy/nChain/SDK-CLEAN/build/generated_hpp -L /Users/j.murphy/nChain/SDK-CLEAN/build/x64/release -lBigNumbers -lECPoint -lPolynomial -lAsymKey -lSymEncDec -lMessageHash -lssl -lcrypto -ldl -pthread -std=c++17
-*/
 
 int main(int argc,char * argv[]){
 
@@ -177,10 +174,10 @@ int main(int argc,char * argv[]){
     std::cout << sigDerHex << std::endl;
     
     const AsymKey randomKey;
-    const std::string random_str = randomKey.getPublicKeyHEXStr();
+    const std::string random_str = randomKey.exportPublicHEXStr();
 
     const AsymKey ecdsa;
-    const std::string pubkey = ecdsa.getPublicKeyPEM();
+    const std::string pubkey = ecdsa.exportPublicPEM();
     const std::pair<std::string, std::string> rs = ecdsa.sign(random_str);
     
     BigNumber rTest;

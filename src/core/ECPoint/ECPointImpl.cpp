@@ -258,7 +258,7 @@ bool ECPointImpl::CheckOnCurve()
 An EC Point is a point (X, Y)
 Its serialization is 04+X+Y as uncompressed, and (02+X as compressed if Y is even), and (03+X as compressed if Y is odd). X and Y are here the corresponding 64-character hexadecimal string
 */
-std::string ECPointImpl::ToHex(const bool& compressed)
+std::string ECPointImpl::ToHex(const bool& compressed) const
 {
     char *ecChar = nullptr; 
     
@@ -282,7 +282,7 @@ std::string ECPointImpl::ToHex(const bool& compressed)
     return ecStr;
 }
 
-std::string ECPointImpl::ToDec(const bool& compressed)
+std::string ECPointImpl::ToDec(const bool& compressed) const
 {
     char *ecChar = nullptr; 
     
@@ -387,7 +387,8 @@ void ECPointImpl::SetRandom(){
     return ;
 }
 
-std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp (){
+std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp ()const 
+{
     std::string xVal, yVal ;
 
     std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );
@@ -411,7 +412,8 @@ std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp (){
     return std::make_pair(xVal, yVal);
 }
 
-std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp_Dec (){
+std::pair<std::string, std::string> ECPointImpl::GetAffineCoords_GFp_Dec () const
+{
     std::string xVal, yVal ;
 
     std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)> ctxptr (BN_CTX_new(), &BN_CTX_free );

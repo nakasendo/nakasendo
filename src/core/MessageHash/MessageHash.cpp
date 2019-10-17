@@ -60,19 +60,36 @@ std::string  MessageHash::ListAvailableHash ()
 }
 
 
-std::vector<uint8_t>& Hash
+std::vector<uint8_t> Hash
     (
-        std::vector<uint8_t>& out,  
+        std::vector<uint8_t> in,  
         const std::string& hashFunction
     ) 
 {
+    std::vector<uint8_t> tempVec ;
+    std::string tempHashFunction( hashFunction ) ;
+
     /// do the hashing function
     MessageHashImpl hasher ;
-    hasher.Hash( out, hashFunction) ;
+    hasher.Hash( in, tempHashFunction) ;
 
-    out.clear( ) ;
-    out = HexToUInt( hasher.hashValHex() ) ;
+    tempVec = HexToUInt( hasher.hashValHex() ) ;
 
-    return out ;
+    return tempVec ;
+}
 
+
+std::string HashMsgSHA256(const std::string& crMsg)
+{
+    MessageHash hashMess;
+    hashMess.HashSha256 (crMsg);
+    return hashMess.HashHex();
+
+}
+
+std::unique_ptr<unsigned char[]> HashSha256 ( const std::string& msg )
+{
+    MessageHash hashMess; 
+    hashMess.HashSha256(msg);
+    return hashMess.Value(); 
 }
