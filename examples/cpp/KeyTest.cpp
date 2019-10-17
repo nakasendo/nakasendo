@@ -4,7 +4,7 @@
 #include <iostream>
 #include "ECPoint/ECPoint.h"
 #include "BigNumbers/BigNumbers.h"
-#include "SymEncDec/conversions.h"
+#include "MessageHash/conversions.h"
 #include "MessageHash/MessageHash.h"
 #include "AsymKey/AsymKey.h"
 #include "BCHAddress/BCHAddress.h"
@@ -32,6 +32,10 @@ int main(int argc,char * argv[]){
     std::cout << "Value of random ECPoint: " << ecPt.ToHex() << "\n"
                     << "Value of random ECPoint2: " << ecPt2.ToHex() << "\n"
                     << "Value of random ECPoint3: " << ecPt3.ToHex () << std::endl; 
+                    
+    std::cout << "Value of random ECPoint: " << ecPt.ToDec() << "\n"
+                    << "Value of random ECPoint2: " << ecPt2.ToDec() << "\n"
+                    << "Value of random ECPoint3: " << ecPt3.ToDec() << std::endl; 
         
     std::cout << "Random Elliptic Curve Point P: " << std::endl; 
     
@@ -151,7 +155,7 @@ int main(int argc,char * argv[]){
         std::cout << "SUCCESS" << std::endl;
     }
     
-    std::cout << EnumAsUnderlying(VersionConfig::Instance()->getNetwork(VersionPrefix::TESTNET_PUBLIC_KEY_ADDRESS)) << std::endl;
+    //std::cout << EnumAsUnderlying(VersionConfig::Instance()->getNetwork(VersionPrefix::TESTNET_PUBLIC_KEY_ADDRESS)) << std::endl;
     
     
     
@@ -161,7 +165,9 @@ int main(int argc,char * argv[]){
     sValue.FromHex ("0714C2452997F71538541D376B37D1F5C626ED534008569C678CFFECFA98D07A");
     
     size_t lenSigDer(-1);
+   
     std::unique_ptr<unsigned char[]>  sigDER = DEREncodedSignature(rValue, sValue,lenSigDer);
+    std::cout << "I bet you £5 it's broken" << std::endl;
     std::string sigDerHex = binTohexStr (sigDER,lenSigDer);
     
     
@@ -195,7 +201,7 @@ int main(int argc,char * argv[]){
     
     
     
-     const bool verify_ok = verify(random_str, pubkey, rs);
+    const bool verify_ok = verify(random_str, pubkey, rs);
     const bool verify_ok_der = verifyDER(random_str, pubkey, sigDERTest, len);
     
     if(verify_ok)

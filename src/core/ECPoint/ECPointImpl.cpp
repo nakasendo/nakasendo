@@ -351,14 +351,20 @@ bool ECPointImpl::FromDec(const std::string& decStr, int nid)
     if (ctxptr == nullptr) {
         return false;
     }
-    BN_ptr bn_obj_n_uptr {BN_new(), ::BN_free};
 
-    BIGNUM * ptr = bn_obj_n_uptr.get();
-    BN_dec2bn(&ptr, decStr.c_str());
-    m_ec = EC_POINT_bn2point(m_gp, bn_obj_n_uptr.get(), m_ec, ctxptr.get());
+    BIGNUM * bnptr = BN_new();
+
+    //BN_ptr bn_obj_n_uptr {BN_new(), ::BN_free};
+
+    //BIGNUM * bnptr = bn_obj_n_uptr.get();
+    BN_dec2bn(&bnptr, decStr.c_str());
+    m_ec = EC_POINT_bn2point(m_gp, bnptr, m_ec, ctxptr.get());
     if (m_ec == nullptr){
+        BN_free(bnptr);
         return false;
     }
+
+    BN_free(bnptr);
 
     return true;
 }

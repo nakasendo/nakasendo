@@ -1,5 +1,5 @@
 #include <BCHAddressInfo.h>
-#include <SymEncDec/conversions.h>
+#include <MessageHash/conversions.h>
 
 std::unique_ptr<VersionConfig> VersionConfig::m_Instance = nullptr;
 

@@ -5,7 +5,8 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include <SymEncDec/conversions.h>
+#include <MessageHash/conversions.h>
+
 #define BYTES_PER_GROUP 4
 #define GROUPS_PER_LINE 4
 
@@ -91,7 +92,6 @@ std::unique_ptr<unsigned char[]> HexToBin(const std::unique_ptr<char[]>& input, 
       default:
         if (isspace(p[0])) p++;
         else {
-          std::cout << "ERR_NOT HEX FAIL" << std::endl;
           *l = ERR_NOT_HEX;
           delete [] ptr;
           delete [] ret; 
@@ -104,7 +104,6 @@ std::unique_ptr<unsigned char[]> HexToBin(const std::unique_ptr<char[]>& input, 
     }
   }
   if (!shift) {
-    std::cout << "ERR_BAD_SIZE FAIL" << std::endl;
     *l = ERR_BAD_SIZE;
     delete [] ptr;
     delete [] ret; 
@@ -188,7 +187,6 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
       default:
         if (isspace(p[0])) p++;
         else {
-          std::cout << "ERR_NOT HEX FAIL" << std::endl;
           *l = ERR_NOT_HEX;
           delete [] ptr;
           delete [] ret; 
@@ -206,7 +204,6 @@ std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l
 
 
   if (!shift) {
-    std::cout << "ERR_BAD_SIZE FAIL" << std::endl;
     *l = ERR_BAD_SIZE;
     delete [] ptr;
     delete [] ret; 

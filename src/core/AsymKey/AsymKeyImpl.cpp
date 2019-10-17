@@ -807,27 +807,23 @@ std::unique_ptr<unsigned char[]> impl_DEREncodedSignature(const BigNumber& r, co
     /// Import <r,s> into BIGNUM
     BIGNUM* raw_r = BN_new();// Will be own by pSig
     BIGNUM* raw_s = BN_new();// Will be own by pSig
+
     BN_hex2bn(&raw_r, r.ToHex().c_str());
     BN_hex2bn(&raw_s, s.ToHex().c_str());
 
-    if (!ECDSA_SIG_set0(pSig.get(), raw_r, raw_s))
+    if (!ECDSA_SIG_set0(pSig.get(), raw_r, raw_s)){
+        BN_free(raw_r);
+        BN_free(raw_s);
         throw std::runtime_error("error importing <r,s> big numbers for ECDSA r["+ r.ToHex() +"] s["+ s.ToHex()+"]");
-
+    }
     
     int sig_size = i2d_ECDSA_SIG(pSig.get(), NULL);
     std::unique_ptr<unsigned char[]> derSig (new unsigned char [sig_size]);
-    
-    unsigned char * p = derSig.get(); 
-
-    int new_sig_size = i2d_ECDSA_SIG(pSig.get(), &p);
-    len = sig_size ; 
 
     unsigned char * p = derSig.get(); 
     int new_sig_size = i2d_ECDSA_SIG(pSig.get(), &p);
     assert( sig_size == new_sig_size) ;
-
-    BN_free(raw_r) ;
-    BN_free(raw_s) ;
+    len = sig_size ; 
     
     return derSig; 
 }

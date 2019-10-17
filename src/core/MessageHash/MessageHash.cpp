@@ -1,7 +1,7 @@
 #include <MessageHash/MessageHash.h>
 #include <vector>
 #include <MessageHash/MessageHashImpl.h>
-#include <SymEncDec/conversions.h>
+#include <MessageHash/conversions.h>
 #include <memory>
 #include <algorithm>
 #include <iostream>

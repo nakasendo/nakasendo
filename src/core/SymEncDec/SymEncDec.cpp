@@ -1,6 +1,6 @@
 #include <SymEncDec/SymEncDec.h>
 #include <SymEncDec/SymEncDecImpl.h>
-#include <SymEncDec/conversions.h>
+#include <MessageHash/conversions.h>
 
 
 SymEncDec::SymEncDec() : m_pImpl(new SymEncDecImpl){return;}
@@ -97,7 +97,7 @@ std::string Decode(const std::string& crMsg, const std::string& crKey, const std
     std::unique_ptr<unsigned char[]> recoveredBuf =  HexStrToBin(crMsg, &bufferLen);
 
     std::string retval;  
-    int decMsgLen = encdec.aes_decrypt(recoveredBuf, bufferLen, retval);
+    encdec.aes_decrypt(recoveredBuf, bufferLen, retval);
     return retval;
 }
 

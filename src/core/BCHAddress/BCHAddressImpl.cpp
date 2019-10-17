@@ -1,9 +1,8 @@
 #include <BCHAddress/BCHAddressImpl.h>
 #include <BCHAddress/BCHAddressInfo.h>
 #include <MessageHash/Base58EncDec.h>
-#include <SymEncDec/conversions.h>
+#include <MessageHash/conversions.h>
 
-#include <MessageHash/MessageHashAPI.h>
 #include <MessageHash/MessageHash.h>
 
 
@@ -195,7 +194,7 @@ bool BCHAddressImpl::valid( ) const
     versionByte.push_back( bytes[0]) ;
     try
     {
-        VersionPrefix vp = VersionConfig::Instance()->getVersionConfig ( versionByte ) ;
+        VersionConfig::Instance()->getVersionConfig ( versionByte ) ;
     }
     catch ( std::runtime_error )
     {

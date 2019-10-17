@@ -7,7 +7,7 @@
 #include <AsymKey/AsymKeyConfig.h>
 #include <AsymKey/AsymKey.h>
 #include <BigNumbers/BigNumbers.h>
-#include <SymEncDec/conversions.h>
+#include <MessageHash/conversions.h>
 #include <SecretSplit/KeyShare.h>
 
 struct module_state {

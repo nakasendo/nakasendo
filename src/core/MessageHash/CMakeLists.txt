@@ -7,6 +7,7 @@
 set(MessageHash_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Base58EncDec.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversions.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHash.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashConfig.h
 )
@@ -21,6 +22,7 @@ set(MessageHash_HPP_FILES ${MessageHash_HPP_FILES_PUBLIC} ${MessageHash_HPP_FILE
 set(MessageHash_CPP_FILES # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDecImpl.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHash.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashImpl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Base58EncDec.cpp
@@ -32,7 +34,7 @@ add_library(MessageHash ${LIBS_BUILD_TYPE} ${MessageHash_SOURCE_FILES})
 if(WIN32) #https://github.com/openssl/openssl/pull/1062
   target_link_libraries(MessageHash crypt32 ws2_32)
 endif()
-target_link_libraries(MessageHash SymEncDec OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(MessageHash OpenSSL::Crypto OpenSSL::SSL ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(MessageHash PRIVATE EXPORT_MessageHash)
 set_property(TARGET MessageHash PROPERTY FOLDER "core")
 
