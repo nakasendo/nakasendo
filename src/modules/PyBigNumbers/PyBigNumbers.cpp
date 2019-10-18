@@ -597,6 +597,51 @@ static PyObject* wrap_isPrimeFasttestDec(PyObject* self, PyObject *pyargs)
     return Py_BuildValue("i", isPrime);
 }
 
+static PyObject* wrap_isGreater(PyObject* self, PyObject *pyargs)
+{
+    char * aArg;
+    char * bArg; 
+    int dec(0);
+    if (!PyArg_ParseTuple(pyargs, "ssi", &aArg,&bArg,&dec))
+        return NULL;
+
+    BigNumber bnValA ;
+    BigNumber bnValB;
+    if(dec){
+        bnValA.FromDec(aArg);
+        bnValB.FromDec(bArg);
+    }else{
+        bnValA.FromHex(aArg);
+        bnValB.FromHex(bArg);
+    }
+
+    const int isGreater = bnValA > bnValB;
+    return Py_BuildValue("i", isGreater);
+}
+
+static PyObject* wrap_isEqual(PyObject* self, PyObject *pyargs)
+{
+    char * aArg;
+    char * bArg; 
+    int dec(0);
+    if (!PyArg_ParseTuple(pyargs, "ssi", &aArg,&bArg,&dec))
+        return NULL;
+
+    BigNumber bnValA ;
+    BigNumber bnValB;
+    if(dec){
+        bnValA.FromDec(aArg);
+        bnValB.FromDec(bArg);
+    }else{
+        bnValA.FromHex(aArg);
+        bnValB.FromHex(bArg);
+    }
+
+    const int isGreater = bnValA == bnValB;
+    return Py_BuildValue("i", isGreater);
+}
+
+
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
@@ -636,6 +681,8 @@ static PyMethodDef ModuleMethods[] =
     {"isPrimeFasttestHex",wrap_isPrimeFasttestHex,METH_VARARGS,"Check if hex big number is prime (fasttest)"},
     {"isPrimeDec",wrap_isPrimeDec,METH_VARARGS,"Check if dec big number is prime"},
     {"isPrimeFasttestDec",wrap_isPrimeFasttestDec,METH_VARARGS,"Check if dec big number is prime (fasttest)"},
+    {"isGreater", wrap_isGreater,METH_VARARGS,"Check if  big number a > bignumber b"},
+    {"isEqual", wrap_isEqual,METH_VARARGS,"Check if  big number a == bignumber b"},
     {NULL, NULL, 0, NULL},
 };
  

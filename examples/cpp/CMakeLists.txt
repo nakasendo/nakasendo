@@ -46,3 +46,8 @@ foreach(_cpp_file ${cpp_example_files})
 endforeach()
 install(FILES exCMakeLists.txt DESTINATION "example/cpp" COMPONENT "Examples" RENAME CMakeLists.txt)
 install(FILES exFindSDKLibraries.cmake DESTINATION "example/cpp/cmake" COMPONENT "Examples" RENAME FindSDKLibraries.cmake)
+
+add_executable(KeyTest KeyTest.cpp)
+target_link_libraries(KeyTest ECPoint SymEncDec BigNumbers MessageHash AsymKey BCHAddress)
+set_property(TARGET KeyTest PROPERTY FOLDER "examples")
+list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/KeyTest.cpp")

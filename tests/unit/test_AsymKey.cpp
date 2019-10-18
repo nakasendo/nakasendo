@@ -304,6 +304,32 @@ BOOST_AUTO_TEST_CASE(test_Sig_Verify_Random)
     }
 }
 
+BOOST_AUTO_TEST_CASE(test_Sig_DER_Verify_Random)
+{
+    const size_t nbIter = 10;
+    for (size_t i = 0; i < nbIter; ++i)
+    {
+        //// Use Key to generate different strings. It is not really random, but it generate different string each iteration
+        const AsymKey randomKey;
+        const std::string random_str = randomKey.exportPublicHEXStr();
+
+        const AsymKey ecdsa;
+        const std::string pubkey = ecdsa.exportPublicPEM();
+        const std::pair<std::string, std::string> rs = ecdsa.sign(random_str);
+        // create BigNumber versions of the r & s
+        BigNumber rTest;
+        rTest.FromHex(rs.first);
+        BigNumber sTest;
+        sTest.FromHex(rs.second);
+        // create a DER format of the signature
+        size_t len(-1); 
+        std::unique_ptr<unsigned char[]>  sigDERTest = DEREncodedSignature(rTest,sTest,len);
+        const bool verify_ok = verifyDER(random_str, pubkey, sigDERTest, len);
+        BOOST_CHECK(verify_ok);
+    }
+}
+
+
 BOOST_AUTO_TEST_CASE(test_SharedSecret)
 {   
     // Test a few iteration with keys randomly generated

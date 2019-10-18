@@ -990,12 +990,39 @@ if __name__ == '__main__':
     #Hm = FiniteGroup.hash_mod(msg, Order)
     msgEncoded =  bytes(msg, 'utf-8')
 
+
+    
     FiniteGroup.ec_sig_verify(msg=msgEncoded,
                               pubKey=player1Builder.calculatePublicKeyUsingSecretA0(), 
                               r_input=player1Builder.ecdsa_r(), 
                               s_input=player1Builder.generateSignatureInterpolation()
                              )
 
+    pub_key = player1Builder.calculatePublicKeyUsingSecretA0()
+    interpolated_r = player1Builder.ecdsa_r()
+    interpolated_s = player1Builder.generateSignatureInterpolation()
+    
+    
+    
+    print (pub_key, interpolated_r, interpolated_s)
+    
+    
+    pubKeyECDSA = ecdsa.ecdsa.Public_key (Generator, pub_key)
+    print (pubKeyECDSA)
+    
+    thresHoldSig = ecdsa.ecdsa.Signature(interpolated_r,interpolated_s)
+    print(thresHoldSig)
+    Hm = FiniteGroup.hash_mod(msg,None)
+    print(Hm)
+    if(pubKeyECDSA.verifies(Hm, thresHoldSig)):
+        print ("SUCESS WITH TS")
+    else:
+        print("FAILURE WITH TS")
+    #thresHoldSig = ecdsa.ecdsa.Signature(interpolated_r,interpolated_s)
+    #if(pub_key.verifies(Hm, thresHoldSig)):
+    #else:
+    #    print ("SUCESS WITH TS")
+    #    print("FAILURE WITH TS")
 
 
 ###################################################################################################

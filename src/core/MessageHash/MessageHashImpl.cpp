@@ -22,6 +22,8 @@ void ListHashCallback(const OBJ_NAME *obj, void *arg)
     sprintf(PtrHashFuncName.get(),"%s", obj->name);
     g_PtrHashFuncList.push_back(std::string(PtrHashFuncName.get()));
 }
+
+
 };
 
 MessageHashImpl::MessageHashImpl() : m_mPtr (new unsigned char[EVP_MAX_MD_SIZE])
@@ -48,6 +50,7 @@ void MessageHashImpl::printHash()
 
 void MessageHashImpl::Hash(const std::string& msg, const std::string& hashfunc)
 {
+    
   // check for available hashfunc    
     md_ptr mdctx (EVP_MD_CTX_create(),::EVP_MD_CTX_free); 
     const EVP_MD* md = nullptr;
@@ -58,6 +61,38 @@ void MessageHashImpl::Hash(const std::string& msg, const std::string& hashfunc)
     EVP_DigestUpdate(mdctx.get(), msg.c_str(), msg.size());
     EVP_DigestFinal_ex(mdctx.get(), m_mPtr.get(), &m_MessageHashLength);
 }
+
+void MessageHashImpl::Hash(const std::vector<uint8_t>& msg, const std::string& hashfunc)
+{
+    std::unique_ptr<unsigned char[]> vals (new unsigned char[msg.size()]);
+    int index(0);
+    for(std::vector<uint8_t>::const_iterator iter = msg.begin(); iter != msg.end(); ++iter){
+        vals[index++] = *iter; 
+    }
+  // check for available hashfunc    
+    md_ptr mdctx (EVP_MD_CTX_create(),::EVP_MD_CTX_free); 
+    const EVP_MD* md = nullptr;
+    md = EVP_get_digestbyname (hashfunc.c_str());
+    if (md == nullptr)
+        throw std::invalid_argument("Unknown message digest: " + hashfunc);
+    EVP_DigestInit_ex (mdctx.get(),md,NULL);
+    EVP_DigestUpdate(mdctx.get(), vals.get(), msg.size());
+    EVP_DigestFinal_ex(mdctx.get(), m_mPtr.get(), &m_MessageHashLength);
+}
+
+void MessageHashImpl::Hash(const messagePtr& msg, size_t length,  const std::string& hashfunc)
+{
+  // check for available hashfunc    
+    md_ptr mdctx (EVP_MD_CTX_create(),::EVP_MD_CTX_free); 
+    const EVP_MD* md = nullptr;
+    md = EVP_get_digestbyname (hashfunc.c_str());
+    if (md == nullptr)
+        throw std::invalid_argument("Unknown message digest: " + hashfunc);
+    EVP_DigestInit_ex (mdctx.get(),md,NULL);
+    EVP_DigestUpdate(mdctx.get(), msg.get(), length);
+    EVP_DigestFinal_ex(mdctx.get(), m_mPtr.get(), &m_MessageHashLength);
+}
+
 
 messagePtr MessageHashImpl::HashVal ()
 {
@@ -75,24 +110,21 @@ std::string MessageHashImpl::hashValHex ()
 }
 std::string MessageHashImpl::ListAvailableHash()
 {
-    void *my_arg = nullptr; 
     if ( !g_PtrHashFuncList.empty ()){
         g_PtrHashFuncList.clear (); 
-    } 
-#ifndef __EMSCRIPTEN__         
+    }      
+    void *my_arg = nullptr;
     OpenSSL_add_all_digests();
     
     OBJ_NAME_do_all (OBJ_NAME_TYPE_MD_METH,ListHashCallback, my_arg);
-#endif
 
     std::stringstream strOp; 
-#ifndef __EMSCRIPTEN__
+
     for (std::vector<std::string>::const_iterator iter = g_PtrHashFuncList.begin (); iter != g_PtrHashFuncList.end (); ++ iter)
     {
         strOp << *iter << "\n";
     }
-    EVP_cleanup();
-#endif        
+    EVP_cleanup();     
     return std::string (strOp.str());
 }
 
