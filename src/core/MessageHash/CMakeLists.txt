@@ -7,6 +7,7 @@
 set(MessageHash_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.h
   ${CMAKE_CURRENT_SOURCE_DIR}/Base58EncDec.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversions.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHash.h
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashConfig.h
 )
@@ -21,6 +22,7 @@ set(MessageHash_HPP_FILES ${MessageHash_HPP_FILES_PUBLIC} ${MessageHash_HPP_FILE
 set(MessageHash_CPP_FILES # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDec.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Base64EncDecImpl.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/conversions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHash.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/MessageHashImpl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Base58EncDec.cpp
