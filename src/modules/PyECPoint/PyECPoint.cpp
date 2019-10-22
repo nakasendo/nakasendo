@@ -503,10 +503,17 @@ static PyObject* wrap_mulByGen(PyObject* self, PyObject *args)
     std::unique_ptr< ECPoint > gen = PY_ECPOINT::makeECPoint( curveID ) ;
 
     ECPoint GEN     = gen.get()->getGenerator();
-    ECPoint result  = GEN.MulDec( bnPoint, std::string( ) );
 
-    if ( dec )  return Py_BuildValue("s", result.ToDec(bCompress).c_str()) ;
-    else        return Py_BuildValue("s", result.ToHex(bCompress).c_str()) ;   
+    if ( dec )  
+    {
+        ECPoint result  = GEN.MulDec( bnPoint, std::string( ) );
+        return Py_BuildValue("s", result.ToDec(bCompress).c_str()) ;
+    }
+    else
+    {
+        ECPoint result  = GEN.MulHex( bnPoint, std::string( ) );
+        return Py_BuildValue("s", result.ToHex(bCompress).c_str()) ;   
+    }
 }
 
 

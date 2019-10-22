@@ -75,5 +75,6 @@ class ECPoint_API ECPoint
 
 std::vector<std::tuple<int, std::string, std::string>> ECPoint_API getCurveList();
 int ECPoint_API getNidForString(const std::string& NIDstr);
+BigNumber ECPoint_API MultiplyByGenerator( const BigNumber& bigNum, int curveID ) ; 
 
 #endif //ifndef _EC_POINT__H__
