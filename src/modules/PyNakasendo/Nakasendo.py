@@ -300,11 +300,6 @@ class ECPoint:
         genPoint.value = PyECPoint.GetGenerator(self.value, self.nid, self.isDec, self.isCompressed)
         return genPoint
         
-    def multiplyByGenerator(self, m) :
-        GenPoint = self.GetGeneratorPoint()
-        ecPointvalue = GenPoint.multipleScalar(m)
-        return ecPointvalue
-        
     def GetOrder (self):
         order = PyECPoint.GetGroupOrder(self.value, self.nid, self.isDec )
         return order
@@ -320,10 +315,10 @@ class ECPoint:
         points = self.GetAffineCoOrdinates()
         return '({},{})'.format (points[0],points[1])
 
-    def MultiplyByGenerator( m, nid=defaultNID ) :
-        pt = ECPoint(nid)
-        pt.value = PyECPoint.MultiplyByGenerator( m.value, nid, self.isDec, self.isCompressed )
-        return pt
+def MultiplyByGenerator( m, nid=ECPoint.defaultNID ) :
+    pt = ECPoint(nid)
+    pt.value = PyECPoint.MultiplyByGenerator( m.value, nid, pt.isDec, pt.isCompressed )
+    return pt
 
 
     
