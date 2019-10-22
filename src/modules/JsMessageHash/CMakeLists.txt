@@ -14,13 +14,13 @@ wasm_get_js_file(JS_OUTPUT_FILE MessageHash)
 set(JS_MODULE_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/JsMessageHash.cpp")
 set(JS_MODULE_SOURCE_FILES ${JS_MODULE_CPP_FILES})
 
-set(WASM_JS_TARGET_NAME JsMessageHash)
-add_custom_target(${WASM_JS_TARGET_NAME} ALL SOURCES ${JS_MODULE_SOURCE_FILES})
-set_property(TARGET ${WASM_JS_TARGET_NAME} PROPERTY FOLDER "modules")
+set(JS_MODULE_TARGET_NAME JsMessageHash)
+add_custom_target(${JS_MODULE_TARGET_NAME} ALL SOURCES ${JS_MODULE_SOURCE_FILES})
+set_property(TARGET ${JS_MODULE_TARGET_NAME} PROPERTY FOLDER "modules")
 
-add_dependencies(${WASM_JS_TARGET_NAME} WASMMessageHash)
+add_dependencies(${JS_MODULE_TARGET_NAME} WASMMessageHash)
 
-add_custom_command(TARGET ${WASM_JS_TARGET_NAME} PRE_BUILD
+add_custom_command(TARGET ${JS_MODULE_TARGET_NAME} PRE_BUILD
                    COMMAND ${emcc_EXECUTABLE}
                    ARGS
                    ${JS_MODULE_CPP_FILES}
