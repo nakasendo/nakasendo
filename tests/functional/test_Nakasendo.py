@@ -280,9 +280,10 @@ def test_MultiplyByGenerator():
         x_axis, y_axis = hexValue.GetAffineCoOrdinates()
         assert len(x_axis) == 62 or len(x_axis) == 64, "Test failed"
 
-        # EC Point Scalar multiply on curve with supplied ID
-        actualValue = str(hexValue.multiplyByGenerator(hexValue))
-        assert len(actualValue) == 66, "Test failed"
+        # EC Point multiply by generator
+        actualValue = Nakasendo.MultiplyByGenerator( hexValue, nID )
+
+        assert len(actualValue.value) == 66, "Test failed"
 
 def test_SetKeyFromPem():
 
