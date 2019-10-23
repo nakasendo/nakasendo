@@ -8,7 +8,7 @@ var JsModuleName = 'JsBigNumbers'+ SDK_DEBUG_POSTFIX +'.js'
 const JSBigNumbers = require(JsModuleName);
 
 
-describe('Random generator', function() {
+describe('test_javascript_BigNumbers', function() {
   it('Generate random Hex', function() {
       const rand_hex_str  = JSBigNumbers.RandHex(128);
       console.log(rand_hex_str);

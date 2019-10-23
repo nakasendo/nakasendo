@@ -79,7 +79,7 @@ def _get_html_table(xml_junit):
         test_suite_errors = test_suite.errors
         total_failed = test_suite_failures + test_suite_errors
         total_passed = nb_test_cases-total_failed
-        passing_percentage = 0 if nb_test_cases == 0 else 100*((total_passed)/(nb_test_cases))
+        passing_percentage = 100 if nb_test_cases == 0 else 100*((total_passed)/(nb_test_cases))
         test_suite_color_str = _percentage_to_hex_color(passing_percentage)
         html_table_str += '    <td {}>\n'.format('style="background-color:{}"'.format(test_suite_color_str))
         html_table_str += '        <b>'+ test_suite_name + '</b><br>\n'
