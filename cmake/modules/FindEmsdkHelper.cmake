@@ -25,6 +25,8 @@ set(FindEmsdkHelper_Include TRUE)
 ## The cmake helper will find the two fundamental tools to compile and link :
 ##    ${emcc_EXECUTABLE}
 ##    ${emar_EXECUTABLE}
+##    ${node_EXECUTABLE}
+##    ${mocha_EXECUTABLE}
 ## emcc will know how to find all other tools  through emsdk environment variables. It find the openssl wasm library
 ##    ${SDK_OPENSSL_WASM_ROOT_DIR}
 ##    ${SDK_OPENSSL_WASM_INCLUDE_DIR}
@@ -47,6 +49,14 @@ macro(sdkHelpFindEMSDK)#########################################################
 
   find_program(emcc_EXECUTABLE NAMES emcc PATH_SUFFIXES bin)
   find_program(emar_EXECUTABLE NAMES emar PATH_SUFFIXES bin)
+
+  if(WIN32)
+    find_program(node_EXECUTABLE NAMES node.exe PATH_SUFFIXES bin)
+    find_program(mocha_EXECUTABLE NAMES mocha.cmd PATH_SUFFIXES bin)
+   else()
+    find_program(node_EXECUTABLE NAMES node PATH_SUFFIXES bin)
+    find_program(mocha_EXECUTABLE NAMES mocha PATH_SUFFIXES bin)
+   endif()
 
   #find_library(SDK_WASM_OPENSSL_LIB NAMES libssl.a ssl PATHS ${SDK_OPENSSL_WASM_ROOT_DIR} PATH_SUFFIXES lib)
   #find_library(SDK_WASM_CRYPTO_LIB NAMES libcrypto.a crypto PATHS ${SDK_OPENSSL_WASM_ROOT_DIR} PATH_SUFFIXES lib)
@@ -76,6 +86,8 @@ function(sdkPrintEmsdkInfo)
   message(" ---------- EMSDK_FOUND [${EMSDK_FOUND}]")
   message(" ---------- emcc_EXECUTABLE [${emcc_EXECUTABLE}]")
   message(" ---------- emar_EXECUTABLE [${emar_EXECUTABLE}]")
+  message(" ---------- node_EXECUTABLE [${node_EXECUTABLE}]")
+  message(" ---------- mocha_EXECUTABLE [${mocha_EXECUTABLE}]")
   message(" ---------- SDK_OPENSSL_WASM_ROOT_DIR [${SDK_OPENSSL_WASM_ROOT_DIR}]")
   message(" ---------- SDK_OPENSSL_WASM_INCLUDE_DIR [${SDK_OPENSSL_WASM_INCLUDE_DIR}]")
   message(" ---------- SDK_OPENSSL_WASM_LIBRARY_DIR [${SDK_OPENSSL_WASM_LIBRARY_DIR}]")
