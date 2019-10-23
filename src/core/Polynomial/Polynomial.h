@@ -63,6 +63,13 @@ class Polynomial_API Polynomial
 
     /*
      * Function
+     * Hide the coefficients using generator point
+     */
+    std::vector< BigNumber > hide( int curveID = 714 ) const;
+
+
+    /*
+     * Function
      * Evaluate the polynomial at value x
      */
     BigNumber operator( )(const BigNumber&) const;
