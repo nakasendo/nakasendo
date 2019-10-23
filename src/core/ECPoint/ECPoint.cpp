@@ -146,26 +146,9 @@ bool ECPoint::FromDec(const std::string& decStr, int nid)
 {
     return this->pImpl()->FromDec(decStr, nid);
 }
-std::vector<std::tuple<int, std::string, std::string>> getCurveList()
-{
-    return  _getCurveList(); 
-}
 
-int ECPoint_API getNidForString(const std::string& NIDstr)
-{
-    // get the curve vec list
-    std::vector<std::tuple<int, std::string, std::string>> nidVec = getCurveList();
 
-    // iterate over the vec list and look for the matched one
-    for(auto& nidTuple : nidVec)
-    {
-        if (std::get<1>(nidTuple) == NIDstr)
-        {
-            return std::get<0>(nidTuple);
-        }
-    }
-    return -1;
-}
+
 
 BigNumber ECPoint::getECGroupOrder() const
 {
@@ -185,4 +168,50 @@ ECPoint ECPoint::getGenerator() const
     ECPoint res;
     res.m_pImpl.reset(new ECPointImpl(*res1));
     return res;
+}
+
+
+
+//------------------------------------------------------------
+//  Free Functions
+//------------------------------------------------------------
+
+std::vector<std::tuple<int, std::string, std::string>> getCurveList()
+{
+    return  _getCurveList(); 
+}
+
+
+int ECPoint_API getNidForString(const std::string& NIDstr)
+{
+    // get the curve vec list
+    std::vector<std::tuple<int, std::string, std::string>> nidVec = getCurveList();
+
+    // iterate over the vec list and look for the matched one
+    for(auto& nidTuple : nidVec)
+    {
+        if (std::get<1>(nidTuple) == NIDstr)
+        {
+            return std::get<0>(nidTuple);
+        }
+    }
+    return -1;
+}
+
+
+BigNumber ECPoint_API MultiplyByGenerator( const BigNumber& value, int curveID ) 
+{
+    // create new EC point defaulted to NID_secp256k1
+    ECPoint point( curveID ) ;
+
+    // get the generator point
+    ECPoint GEN = point.getGenerator( ) ; 
+
+    // multiply the value (as Hex string) by the generator
+    ECPoint result = GEN.MulHex( value.ToHex( ), std::string( ) ) ;
+    
+    BigNumber bnResult ;
+    bnResult.FromHex( result.ToHex( ) ) ;
+
+    return bnResult ;
 }

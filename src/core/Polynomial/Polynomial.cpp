@@ -1,4 +1,5 @@
 #include <Polynomial/Polynomial.h>
+#include <ECPoint/ECPoint.h>
 
 /*
  *  Construct a polynomial from a vector of BigNumber
@@ -274,12 +275,29 @@ BigNumber Polynomial::operator( ) ( const BigNumber& x ) const
 }
 
 
+/*
+ * Hide using the generator point
+ * @param curveID   The ID of the cureve (defaulted to NID secp256k1)
+ * @return          Hidden Coefficients, as a vector of BigNumbers
+ */
+std::vector< BigNumber >  Polynomial::hide( int curveID ) const
+{
+    std::vector< BigNumber > hiddenCoefficients ;
+
+    for ( auto itr = m_coefficients.begin(); itr != m_coefficients.end(); ++itr )
+    {
+        // call function in ECPoint
+        hiddenCoefficients.push_back ( MultiplyByGenerator( *itr, curveID ) ) ;
+    }
+
+    return hiddenCoefficients ;
+}
+
 
 
 /* Friend function operator<<
  * for writing out polynomial in human-friendly form
  */
-
 std::ostream& operator<<( std::ostream &os, const Polynomial& poly )
 {
 
