@@ -33,12 +33,25 @@ def _append_testname_postfix(junit_xml, test_name_postfix):
             child.name += test_name_postfix
             child.classname += test_name_postfix
 
+## Test reported by mocha has 'testsuites' tag which junitparser in python don't like it. Change testsuites to testsuite make it work
+def _fix_testsuites_if_exist(xml_file):
+    has_testsuites=False
+    xml_content=''
+    with open(xml_file) as f:
+        xml_content = f.read()
+        if 'testsuites' in xml_content:
+            has_testsuites=True
+            xml_content=xml_content.replace('testsuites', 'testsuite')
+    if has_testsuites:
+        with open(xml_file, "w") as f:
+            f.write(xml_content)
 
 def get_consolidated_junitxml(result_dir_path, test_name_postfix=''):
     xml_file_list = sorted(result_dir_path.glob('*test*.xml'))
     #print('\n'.join(xml_file_list))
     junit_xml = junitparser.JUnitXml()
     for xml_file in xml_file_list:
+        _fix_testsuites_if_exist(xml_file)# Mocha junit reporter has testsuites which is incompatible with junitparser
         test_results = junitparser.JUnitXml.fromfile(xml_file)
         is_test_suites = False ## case where in the xml file is a test_suites (multiple test_suite)
         for suite in test_results.testsuites():
@@ -66,7 +79,7 @@ def _get_html_table(xml_junit):
         test_suite_errors = test_suite.errors
         total_failed = test_suite_failures + test_suite_errors
         total_passed = nb_test_cases-total_failed
-        passing_percentage = 0 if nb_test_cases == 0 else 100*((total_passed)/(nb_test_cases))
+        passing_percentage = 100 if nb_test_cases == 0 else 100*((total_passed)/(nb_test_cases))
         test_suite_color_str = _percentage_to_hex_color(passing_percentage)
         html_table_str += '    <td {}>\n'.format('style="background-color:{}"'.format(test_suite_color_str))
         html_table_str += '        <b>'+ test_suite_name + '</b><br>\n'
