@@ -256,6 +256,31 @@ BOOST_AUTO_TEST_CASE( test_polynomial_random1 )
     } 
 }
 
+// Check polynomial hide function
+BOOST_AUTO_TEST_CASE( test_polynomial_hide )
+{
+    std::vector< std::string >  strCoefficients { "3", "2", "1", "1" } ;
+    std::vector< BigNumber >    bnCoefficients ;
+
+    // create a polynomial from vector of strings
+    for ( auto & element : strCoefficients )
+    {
+        BigNumber big ;
+        big.FromDec( element ) ;
+        bnCoefficients.push_back( std::move( big ) ) ;
+    }   
+
+    Polynomial poly ( bnCoefficients, GenerateZero( ) ) ;
+
+    int curveID ( 714 ) ;
+
+    std::vector< BigNumber > hiddenCoefficients = poly.hide( curveID ) ;
+    Polynomial hiddenPoly ( hiddenCoefficients, GenerateZero( ) ) ;   
+
+    BOOST_CHECK( hiddenPoly[2] == hiddenPoly[3]) ;
+    BOOST_CHECK( hiddenPoly[0].ToDec() == "344295838914342996903890629191305488808654946672820536623545781571036035167993" ) ;
+}
+
 
 /***********************************************************
  *  Stress testing
@@ -526,6 +551,9 @@ BOOST_AUTO_TEST_CASE( test_polynomial_zero_high )
         );         
     
 }
+
+
+
 
 
 /***********************************************************

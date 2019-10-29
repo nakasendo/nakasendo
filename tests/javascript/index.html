@@ -1,0 +1,16 @@
+<!––
+  https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
+––>
+<!doctype html>
+<html>
+  <script>
+    var Module = {
+      onRuntimeInitialized: function() {
+        var randHex = Module.RandHex(512);
+        var randDec = Module.RandDec(512);
+        console.log("RandHex RandDec : ", randHex, randDec);
+      }
+    };
+  </script>
+  <script src="JsBigNumbers.js"></script>
+</html>

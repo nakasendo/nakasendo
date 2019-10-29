@@ -25,6 +25,25 @@ add_subdirectory(PyPolynomial)
 add_subdirectory(PyBCHAddress)
 add_subdirectory(PyNakasendo)
 
+
+## mocha test_Module.js -r path/to/moduleloader.js
+if(CMAKE_CONFIGURATION_TYPES)
+  set(SDK_JS_MODULE_LOADER_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/JsModuleLoader.js" CACHE PATH "Path to javascript module loader for Debug")
+  set(SDK_JS_MODULE_LOADER_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/JsModuleLoader.js" CACHE PATH "Path to javascript module loader for Release")
+
+  string(REGEX REPLACE "/" "\\\\\\\\" JS_MODULE_PATH_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
+  string(REGEX REPLACE "/" "\\\\\\\\" JS_MODULE_PATH_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
+
+  file(WRITE  "${SDK_JS_MODULE_LOADER_DEBUG}" "global.SDK_MODULE_PATH = '${JS_MODULE_PATH_DEBUG}';\nglobal.SDK_DEBUG_POSTFIX = 'd';")
+  file(WRITE  "${SDK_JS_MODULE_LOADER_RELEASE}" "global.SDK_MODULE_PATH = '${JS_MODULE_PATH_RELEASE}';\nglobal.SDK_DEBUG_POSTFIX = '';")
+else()
+  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(_debug_postfix d)
+  endif()
+  set(SDK_JS_MODULE_LOADER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/JsModuleLoader.js" CACHE PATH "Path to javascript module loader")
+  file(WRITE  "${SDK_JS_MODULE_LOADER}" "global.SDK_MODULE_PATH = '${CMAKE_RUNTIME_OUTPUT_DIRECTORY}';\nglobal.SDK_DEBUG_POSTFIX = '${_debug_postfix}';")
+endif()
+
 add_subdirectory(JsAsymKey)
 add_subdirectory(JsBigNumbers)
 add_subdirectory(JsMessageHash)
