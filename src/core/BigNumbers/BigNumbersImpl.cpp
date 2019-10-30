@@ -3,7 +3,8 @@
 
 //using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)> ; 
 
-inline void help_openssl_free_char(unsigned char* p) { OPENSSL_free(p); }
+inline void help_openssl_free_char(char* p) { OPENSSL_free(p); }
+inline void help_openssl_free_uchar(unsigned char* p) { OPENSSL_free(p); }
 
 
 std::unique_ptr<BigNumberImpl> Add (const BigNumberImpl* obj1, const BigNumberImpl* obj2){
@@ -41,7 +42,6 @@ std::unique_ptr<BigNumberImpl> Div (const BigNumberImpl* obj1, const BigNumberIm
     std::unique_ptr<BigNumberImpl> ResImpl (new BigNumberImpl (res) );
     return ResImpl;
 }
-
 
 std::unique_ptr<BigNumberImpl> Mod (const BigNumberImpl* obj1, const BigNumberImpl* obj2)
 {
@@ -191,18 +191,18 @@ BigNumberImpl& BigNumberImpl::operator--()
 
 std::string BigNumberImpl::ToHex () const
 {
-    char *charVal= BN_bn2hex(m_bn.get());
-    std::string val = charVal;
-    OPENSSL_free(charVal);
-    return val;
+    using SSL_CharPtr = std::unique_ptr<char, decltype(&help_openssl_free_char)>;
+    SSL_CharPtr hex_str(BN_bn2hex(m_bn.get()), &help_openssl_free_char);
+    std::string ret_str (hex_str.get());
+    return ret_str;
 }
 
 std::string BigNumberImpl::ToDec () const
 {
-    char *charVal = BN_bn2dec(m_bn.get());
-    std::string val = charVal;
-    OPENSSL_free(charVal);
-    return val;
+    using SSL_CharPtr = std::unique_ptr<char, decltype(&help_openssl_free_char)>;
+    SSL_CharPtr dec_str(BN_bn2dec(m_bn.get()), &help_openssl_free_char);
+    std::string ret_str(dec_str.get());
+    return ret_str;
 }
 
 int BigNumberImpl::FromHex (const std::string& val)
@@ -244,16 +244,15 @@ int BigNumberImpl::FromBin(std::vector<uint8_t>& val)
 
 std::vector<uint8_t>  BigNumberImpl::ToBin() const
 {
+    using SSL_UCharPtr = std::unique_ptr<unsigned char, decltype(&help_openssl_free_uchar)>;
     size_t len = BN_num_bytes(m_bn.get());
-    std::unique_ptr<unsigned char, decltype(&help_openssl_free_char)> binBn((unsigned char *)OPENSSL_malloc(len), &help_openssl_free_char);
+    SSL_UCharPtr binBn((unsigned char *)OPENSSL_malloc(len), &help_openssl_free_uchar);
     if (!binBn.get())
         return {};
 
     size_t ret = BN_bn2bin(m_bn.get(), binBn.get());
     if (ret != len)
-    {
-        return {};
-    }
+        return std::vector<uint8_t>();
 
     std::vector<uint8_t>  retVec(binBn.get(), binBn.get()+ret);
     return retVec;
@@ -272,13 +271,13 @@ void BigNumberImpl::generateNeg (const int& nsize)
     Negative();
 }
 
- void BigNumberImpl::generateRange (const BigNumberImpl* max)
- {
+void BigNumberImpl::generateRange (const BigNumberImpl* max)
+{
      // seed the PRNG
     if ( !BN_rand_range(m_bn.get(),max->m_bn.get()))
         throw std::range_error("error generating random number in range 0 - " + max->ToHex());
     return ; 
- }
+}
 
 void BigNumberImpl::generatePrime(const int& nsize)
 {
@@ -300,8 +299,7 @@ bool BigNumberImpl::isPrimeFasttest() const
     return res;
 }
 
- void BigNumberImpl::seedRNG (const std::string& seed)
- {
-     RAND_seed(seed.c_str(), (int)seed.size());
- }
-
+void BigNumberImpl::seedRNG (const std::string& seed)
+{
+    RAND_seed(seed.c_str(), (int)seed.size());
+}
