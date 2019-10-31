@@ -11,24 +11,43 @@ bool check_boundness(const std::vector<BigNumber>& crRandValues, const BigNumber
     return true;
 }
 
-bool check_randomness(const std::vector<BigNumber>& crRandValues)
+template<typename T>
+bool check_randomness(const std::vector<T>& crRandValues)
 {
     // Bruteforce pairwise check
     for (size_t i = 0; i < crRandValues.size(); ++i)
     {
-        const BigNumber& ran_i = crRandValues[i];
+        const T& ran_i = crRandValues[i];
         for (size_t j = i + 1; j < crRandValues.size(); ++j)
         {
-            const BigNumber& ran_j = crRandValues[j];
+            const T& ran_j = crRandValues[j];
             if (ran_i == ran_j)
                 return false;
         }
     }
-
     return true;
 }
 
 BOOST_AUTO_TEST_SUITE(test_suite_BigNumbersRandom)
+
+BOOST_AUTO_TEST_CASE(test_random_string_from_Bignumber)
+{
+    const int nsize = 128;
+    std::vector<std::string> vect_hex;
+    std::vector<std::string> vect_dec;
+    for (size_t i = 0; i < 10; ++i)
+    {
+        BigNumber bn;
+        const std::string rand_hex = bn.generateRandHex(nsize);
+        vect_hex.push_back(rand_hex);
+        const std::string rand_dec = bn.generateRandDec(nsize);
+        vect_dec.push_back(rand_dec);
+        BOOST_CHECK(rand_hex.size() == 32);
+        BOOST_CHECK(rand_dec.size() > 0);
+    }
+    BOOST_CHECK(check_randomness(vect_hex));
+    BOOST_CHECK(check_randomness(vect_dec));
+}
 
 BOOST_AUTO_TEST_CASE(test_basic_BigNumbers_Random_cpp)
 {
