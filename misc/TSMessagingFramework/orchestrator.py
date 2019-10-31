@@ -19,6 +19,8 @@ from twisted.internet import reactor
 #       - assumes nobody is being dishonest ('spoofing' other players, etc)
 #==========================================================================
 
+
+
 class GroupMetadata :
 
     def __init__ (self, id, proposer, m, n, t) :
@@ -31,6 +33,9 @@ class GroupMetadata :
         self.participantList = []
         self.groupIsSet = False
         self.proposer = proposer
+        self.collatedEvals = {}
+        self.collatedHidden = {}
+        self.numCollatedReplies = 0
 
     def __str__(self):
         string =  ("Group Metadata for " + str(self.id) + " :" \
@@ -44,6 +49,7 @@ class GroupMetadata :
             + "\n\tparticipantList = " )
             
         string += (', '.join(self.participantList ))
+        string += "\n\tnumCollatedReplies = " + str(self.numCollatedReplies) 
         return string
 
 #-----------------------------------------------------------------
@@ -111,6 +117,9 @@ class Orchestrator( pb.Root ) :
         
         return id 
 
+
+
+
     #-------------------------------------------------
     def acceptInvite(self, data ) :
         
@@ -157,42 +166,65 @@ class Orchestrator( pb.Root ) :
                   
             print ('sending groupIsSet message to {0}'.format(user))
             self.users[user].callRemote \
-                ( "groupIsSet", groupID.encode(), index, listExcludingUser ) \
-                    .addCallback(self.shareSecret)
+                ( "groupIsSet", groupID.encode(), index, listExcludingUser, group.t ) 
+                #\
+                #    .addCallbacks(self.shareSecret, self.groupError)
         return
 
     #-------------------------------------------------
-    def shareSecret(self, data): 
-        user        = data[0]
-        groupID     = (data[1]).decode()
-        message     = data[2]
+    # This sends a request for data to all participants of group
+    def remote_sharePublicKey( self, user, groupId ) :
+        groupId = groupId.decode()
 
-        print('shareSecret reply from {0} ({1} : {2})'.format(user, groupID, data))        
-        
-        group       = self.groups[groupID]
-        target      = group.m
+        if groupId not in self.groups :
+            errMsg = 'Group Id is not valid: {0}'.format(groupId)
+            raise OrchestratorError( errMsg )
 
-        group.numSecretReplies += 1
-        print('number of replies = {0}'.format(group.numSecretReplies))
+        group = self.groups[groupId]
+        if user not in group.participantList :
+            errMsg = 'user is not in the group: {0}'.format(user)
+            raise OrchestratorError( errMsg )      
 
-        if group.numSecretReplies == target :
-            self.collateCoefficients(groupID)
-
-    #-------------------------------------------------
-    def collateCoefficients(self, groupID) :
-        print("Collating coefficients...")
-        print("...finished")
-
-        group = self.groups[groupID]
-
-        # distribute coefficients to all users in group
-        print ('sending listCoefficients message to: ' + ', '.join(group.participantList))
         for user in group.participantList :
-            
-            self.users[user].callRemote \
-                ("listCoefficients", groupID.encode(), self.groups[groupID].participantList.index(user)) \
-                    #.addCallback(self.shareSecret)
+            self.users[user].callRemote("requestData", groupId).addCallback \
+                    (self.collateEncryptedCoeffs)        
         return
+
+    # collate data
+    def collateEncryptedCoeffs(self,  data ) :
+
+        groupId     = data[0]
+        ordinal     = data[1]
+        evals       = data[2] 
+        hiddenPoly  = data[3] 
+
+        group = self.groups[groupId]
+
+        group.collatedEvals[ordinal] = evals
+        group.collatedHidden[ordinal] = hiddenPoly
+        group.numCollatedReplies += 1
+        print("number encrypted coefficient replies = {0}".format(group.numCollatedReplies))
+        if group.numCollatedReplies == group.n :
+            print("Received all encrypted coefficient data, distribute")
+            
+            # send the public data out to all group participants
+            for user in group.participantList :
+                self.users[user].callRemote( "calculatePrivateKeyShare", groupId, group.collatedEvals, group.collatedHidden) \
+                    .addCallbacks(self.secretVerification, self.groupError)
+
+    #-------------------------------------------------
+    # This is here as a placeholder
+    # todo - Chandra?
+    def secretVerification(self, data) : 
+
+        print("secretVerification complete")
+        
+
+    def groupError(self, message):
+        print ("Error: {0}".format(message))
+        # do some stuff, delete the group / mark as being errored
+        # tell clients this group is not good
+
 
 
 #-----------------------------------------------------------------

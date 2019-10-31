@@ -15,7 +15,12 @@ from twisted.internet import stdio, reactor, protocol
 from twisted.protocols import basic
 from twisted.web import client
 
+from Player import Player
 
+# Error class 
+class ClientError(pb.Error):
+    """This is an Expected Exception. Something bad happened."""
+    pass
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
@@ -26,6 +31,7 @@ class ClientProtocol( pb.Referenceable ):
     def __init__(self ) :
         self.orchestratorRef = None
         self.user = sys.argv[1]
+        self.Player = Player( )
 
     #--------------------------------------------------
     def connect(self):
@@ -50,6 +56,16 @@ class ClientProtocol( pb.Referenceable ):
         d.addCallback   ( self.success_remote )
         d.addErrback    ( self.err_remote ) 
 
+    def sharePublicKey( self, gid ) :
+        if not self.Player.checkGroup( gid ) :
+            msg = "GroupID not found: {0}".format(gid)
+            print(msg)
+            raise ClientError( msg )
+
+        d = self.orchestratorRef.callRemote \
+            ( "sharePublicKey", self.user, gid.encode() )
+
+
     def err_remote(self, reason):
         print ("Error from server:", reason)
 
@@ -67,20 +83,34 @@ class ClientProtocol( pb.Referenceable ):
         print("Received invitation for group {0}, replying with Acceptance".format(gid))
         return [ self.user, gid, True ]
 
-    def remote_groupIsSet(self, gid, ordinal, ordinalList) :
-        print("GroupIsSet:\n\tgroupId =  {0}\n\tmy ordinal = {1}\n\trest of ordinals = {2}".format \
-            ( gid.decode(), ordinal, ordinalList))
-        print("Create & Verify shared secret....")
-        sleep(randint(4,12))
-        print("...returning")
+    def remote_groupIsSet(self, gid, ordinal, ordinalList, degree) :
+        gid = gid.decode()
+        
+        if not self.Player.addGroup ( gid, ordinal, ordinalList, degree ) :
+            raise  ClientError( "Group already exists")
+        
+        print(self.Player)
+        return
 
-        return [self.user, gid, "some shared secret data"]
+    def remote_requestData(self, gid) :
+        print ("Request for Data: gid = {0}".format(gid))
 
+        ordinal = self.Player.getOrdinal(gid)
+        evals = self.Player.getEvaluatedData(gid)
+        hiddenPoly = self.Player.getHiddenPoly(gid)
+        return [gid, ordinal, evals, hiddenPoly]
+
+    def remote_calculatePrivateKeyShare(self, gid, coeffs, hidden) :
+        #print("SetPublicCoeffs: gid = {0}, coeffs = {1}".format(gid, coeffs))
+        self.Player.calculatePrivateKeyShare( gid, coeffs, hidden )
+        return [ self.user, gid, True ]
+
+"""
     def remote_listCoefficients(self, gid, data) :
         print("ListCoefficients:\n\tgroupId =  {0}\n\tdata = {1}".format(gid.decode(), data))
         print("Do something with the data....")
         return
-
+"""
 
 
 #----------------------------------------------------------------------
@@ -150,6 +180,10 @@ class StdioClientProtocol(basic.LineReceiver):
     # Ask client to send createGroup message to remote
     def do_create(self, n, m):
         self.client.createGroup( n, m )
+        self.sendLine(b'>>>')
+
+    def do_share(self, gid) :        
+        self.client.sharePublicKey( gid )
         self.sendLine(b'>>>')
 
     def __checkSuccess(self, pageData):
