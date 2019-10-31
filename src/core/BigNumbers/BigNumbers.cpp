@@ -6,7 +6,6 @@
 #include <stdlib.h>
 
 #include <cassert>
-#define ASSERT assert
 
 BigNumber::BigNumber() : m_pImpl(new BigNumberImpl){}
 
