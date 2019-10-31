@@ -10,14 +10,13 @@ const JSBigNumbers = require(JsModuleName);
 
 describe('test_javascript_BigNumbers', function() {
   it('Generate random Hex', function() {
-      const rand_hex_str  = JSBigNumbers.RandHex(128);
-      console.log(rand_hex_str);
+    const rand_hex_str  = JSBigNumbers.RandHex(128);
+    assert(rand_hex_str.length == 32);
   });
   it('Generate random Dex', function() {
     const rand_dec_str  = JSBigNumbers.RandDec(128);
-    console.log(rand_dec_str);
+    assert(rand_dec_str.length > 0);
   });
-
 });
 
 // Remove the require cache
