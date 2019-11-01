@@ -33,5 +33,4 @@ add_custom_command(TARGET ${JS_MODULE_TARGET_NAME} PRE_BUILD
                    -o ${JS_OUTPUT_FILE}
 )
 
-install(FILES "${JS_OUTPUT_FILE}" DESTINATION "lib" COMPONENT WASMModules)
-install(FILES "${JS_OUTPUT_FILE}" DESTINATION "example/javascript" COMPONENT "Examples")
+install(FILES "${JS_OUTPUT_FILE}" DESTINATION "lib" COMPONENT JSModules)
