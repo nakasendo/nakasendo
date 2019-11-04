@@ -25,7 +25,7 @@ class ClientError(pb.Error):
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
 # Client Protocol 
-# handles commuications to the orchestrator server
+# handles communications to the orchestrator server
 class ClientProtocol( pb.Referenceable ):
     
     def __init__(self ) :
@@ -101,16 +101,9 @@ class ClientProtocol( pb.Referenceable ):
         return [gid, ordinal, evals, hiddenPoly]
 
     def remote_calculatePrivateKeyShare(self, gid, coeffs, hidden) :
-        #print("SetPublicCoeffs: gid = {0}, coeffs = {1}".format(gid, coeffs))
         self.Player.calculatePrivateKeyShare( gid, coeffs, hidden )
         return [ self.user, gid, True ]
 
-"""
-    def remote_listCoefficients(self, gid, data) :
-        print("ListCoefficients:\n\tgroupId =  {0}\n\tdata = {1}".format(gid.decode(), data))
-        print("Do something with the data....")
-        return
-"""
 
 
 #----------------------------------------------------------------------

@@ -3,8 +3,7 @@ from __future__ import print_function
 
 import uuid
 
-from twisted.spread import pb
-from twisted.internet import reactor
+
 
 
 
@@ -52,25 +51,16 @@ class GroupMetadata :
         string += "\n\tnumCollatedReplies = " + str(self.numCollatedReplies) 
         return string
 
-#-----------------------------------------------------------------
-# Error class 
-class OrchestratorError(pb.Error):
-    """This is an Expected Exception. Something bad happened."""
-    pass
 
-#-----------------------------------------------------------------
-# Exception class 
-class OrchestraterException(Exception):
-    """This is an Unexpected Exception. Something really bad happened."""
-    pass
 
 #-----------------------------------------------------------------
 # Orchestrator class 
-class Orchestrator( pb.Root ) :
+# Contains core logic for orchestrating (co-ordination) Threshold Signature
+class Orchestrator( ) :
 
     #-------------------------------------------------
     def __init__ (self) :
-        print("Orchestrator Running...")
+        print("__init__ Orchestrator")
         # dictionary of { user:remoteReference }
         self.users  = {}
         # dictionary of { groupID:GroupMetaData }
@@ -79,7 +69,7 @@ class Orchestrator( pb.Root ) :
 
     #-------------------------------------------------
     # Register user with Orchestrator
-    def remote_register(self, username, ref):
+    def register(self, username, ref):
 
         if username not in self.users:
             self.users[username] = ref 
@@ -92,41 +82,48 @@ class Orchestrator( pb.Root ) :
     # m = recombination number of private key
     # n = total number in group
     # t = degree of polynomial (dervied from m-1 )
-    def remote_createGroup(self, proposer, m, n):
+    def createGroup(self, proposer, m, n):
         print('createGroup: {0} of {1}'.format(m, n ))
 
-        # check parameters are valid, pull this out to BL
+
+        # check parameters are valid
         t = int(m) - 1
+
+        if t < 1 :
+            errMsg = 'Parameters are not valid! Failed check: t (degree of Polynomial) < 1'
+            print( errMsg )
+            raise Exception( errMsg )
+
         if not (2 * t) + 1 <= int(n) :
             errMsg = 'Parameters are not valid! Failed check: 2t + 1 <= n'
             print( errMsg )
-            raise OrchestratorError( errMsg )
+            raise Exception( errMsg )
 
-        id = str(uuid.uuid1())
-        self.groups[id] = GroupMetadata(id, proposer, int(m), int(n), t)
+        # check the #players is > 2
+        if int(n) <= 2 :
+            errMsg = 'Parameters are not valid! Failed check: group_size > 1'
+            print( errMsg )
+            raise Exception( errMsg )
 
-        for keys,values in self.groups.items():
-            print(values)
+        groupId = str(uuid.uuid1())
+        self.groups[groupId] = GroupMetadata(groupId, proposer, int(m), int(n), t)
 
         # proposer automatically gets into group.  Invite rest of users
-        self.groups[id].participantList.append(proposer)
+        self.groups[groupId].participantList.append(proposer)
+
+        invitees = []
         for user in self.users :
             if  user != proposer :
-                self.users[user].callRemote("invite", id).addCallback \
-                    (self.acceptInvite)
-        
-        return id 
+                    invitees.append(self.users[user])
+  
+        return groupId, invitees
 
 
 
 
     #-------------------------------------------------
-    def acceptInvite(self, data ) :
-        
-        user        = data[0]
-        groupID     = data[1]
-        acceptance  = data[2]        
-        
+    def acceptInvite(self, user, groupID, acceptance ) :
+           
         group       = self.groups[groupID]
         target      = group.n - 1           # participant is already part of group
 
@@ -142,75 +139,70 @@ class Orchestrator( pb.Root ) :
 
             if group.numPlayerReplies == target :
                 group.groupIsSet = True
+                return True
 
-                for keys,values in self.groups.items():
-                    print(values)
+        return False
 
-                self.groupIsSet(groupID)
-
+    
+    #-------------------------------------------------
+    def getParticipants(self, groupID ) :
+        return self.groups[groupID].participantList 
 
     #-------------------------------------------------
-    def groupIsSet(self, groupID):        
+    def validGroup(self, groupID) :
+        if groupID in self.groups :
+            return True
+        return False 
+    
+    #-------------------------------------------------
+    def getUserReferences(self, groupID ) :
+        participants = self.getParticipants(groupID) 
+        references = []
+        for participant in participants :
+            references.append(self.users[participant])
+        return references 
+
+    #-------------------------------------------------
+    def getUserRef(self, participant) :
+        return self.users[participant]
+
+    #-------------------------------------------------
+    # Returns a list of users which is the participant List, 
+    # without the ordinal
+    def getGroupIsSetParameters(self, user, groupID):        
 
         group = self.groups[groupID]
 
         # create list of ordinals 
         start = 1
-        ordinalList = list( range( start, start + len(group.participantList ) ) )
+        playerIds = list( range( start, start + len(group.participantList ) ) )
 
-        # send message to all users who are part of this group 
-        for user in group.participantList :
-            index = group.participantList.index( user ) + 1
-            listExcludingUser = list(ordinalList)
-            listExcludingUser.remove(index)
-                  
-            print ('sending groupIsSet message to {0}'.format(user))
-            self.users[user].callRemote \
-                ( "groupIsSet", groupID.encode(), index, listExcludingUser, group.t ) 
-                #\
-                #    .addCallbacks(self.shareSecret, self.groupError)
-        return
+        ordinal = group.participantList.index( user ) + 1
+        listExcludingUser = list(playerIds)
+        listExcludingUser.remove(ordinal)
+                
+        return ordinal, listExcludingUser, group.t
 
     #-------------------------------------------------
-    # This sends a request for data to all participants of group
-    def remote_sharePublicKey( self, user, groupId ) :
-        groupId = groupId.decode()
-
-        if groupId not in self.groups :
-            errMsg = 'Group Id is not valid: {0}'.format(groupId)
-            raise OrchestratorError( errMsg )
-
-        group = self.groups[groupId]
-        if user not in group.participantList :
-            errMsg = 'user is not in the group: {0}'.format(user)
-            raise OrchestratorError( errMsg )      
-
-        for user in group.participantList :
-            self.users[user].callRemote("requestData", groupId).addCallback \
-                    (self.collateEncryptedCoeffs)        
-        return
-
     # collate data
-    def collateEncryptedCoeffs(self,  data ) :
-
-        groupId     = data[0]
-        ordinal     = data[1]
-        evals       = data[2] 
-        hiddenPoly  = data[3] 
+    def collateData(self,  groupId, ordinal, evals, hiddenPoly ) :
 
         group = self.groups[groupId]
 
         group.collatedEvals[ordinal] = evals
         group.collatedHidden[ordinal] = hiddenPoly
         group.numCollatedReplies += 1
+
         print("number encrypted coefficient replies = {0}".format(group.numCollatedReplies))
         if group.numCollatedReplies == group.n :
             print("Received all encrypted coefficient data, distribute")
-            
-            # send the public data out to all group participants
-            for user in group.participantList :
-                self.users[user].callRemote( "calculatePrivateKeyShare", groupId, group.collatedEvals, group.collatedHidden) \
-                    .addCallbacks(self.secretVerification, self.groupError)
+            return True 
+        return False
+    
+    #-------------------------------------------------
+    def getCollatedData(self, groupId ) :
+        group = self.groups[groupId ]
+        return group.collatedEvals, group.collatedHidden
 
     #-------------------------------------------------
     # This is here as a placeholder
@@ -227,11 +219,5 @@ class Orchestrator( pb.Root ) :
 
 
 
-#-----------------------------------------------------------------
-
-if __name__ == '__main__':
-
-    reactor.listenTCP(8790, pb.PBServerFactory(Orchestrator()))
-    reactor.run()
 
 
