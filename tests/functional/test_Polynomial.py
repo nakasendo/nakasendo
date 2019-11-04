@@ -49,6 +49,32 @@ def test_InitFromListCoefficient():
     actualValue = polynomial_evaluate(lst, int(x), int(mod))
     assert polynomialFX == str(actualValue), "Test failed"
 
+def test_InitFromListCoefficientWithZeroDegree():
+
+    # The random polynomial generator refuses to generate a polynomial of degree 0. However,
+    # pushing coefficients via the coefficient constructor can construct a degree 0 polynomial,
+    # which the API should generate error.
+    coefficients = ["18"]
+    degree = 0
+    mod = "17"
+    x = "2"
+    dec = 1
+
+    # create a Polynomial from a list of coefficients
+    listCoefficients = PyPolynomial.initFromList(coefficients, dec)
+    assert len(listCoefficients) == degree + 1, "Test failed"
+
+    # Calling evaluate polynomial function
+    polynomialFX = polynomialEvaluation(listCoefficients, x, mod, dec)
+
+    # convert list of coefficients from string to decimal
+    lst = []
+    for i in range(len(coefficients)):
+        lst.append(int(coefficients[i]))
+
+    actualValue = polynomial_evaluate(lst, int(x), int(mod))
+    assert polynomialFX == str(actualValue), "Test failed"
+
 def test_InitFromListDec():
 
     for x in range(10, 15):

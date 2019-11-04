@@ -8,14 +8,16 @@ using namespace emscripten;
 
 std::string wasm_RandHex(const int size)
 {    
-    BigNumber rand_bn = GenerateRand (size);
-    return rand_bn.ToHex();
+    BigNumber bn;
+    const std::string rand_hex = bn.generateRandHex(size);
+    return rand_hex;
 }
 
 std::string wasm_RandDec(const int size)
 {    
-    BigNumber rand_bn = GenerateRand (size);
-    return rand_bn.ToDec();
+    BigNumber bn;
+    const std::string rand_dec = bn.generateRandDec(size);
+    return rand_dec;
 }
 
 EMSCRIPTEN_BINDINGS(JsBigNumbers) {
