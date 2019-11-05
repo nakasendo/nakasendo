@@ -63,7 +63,7 @@ class ClientProtocol( pb.Referenceable ):
             raise ClientError( msg )
 
         d = self.orchestratorRef.callRemote \
-            ( "sharePublicKey", self.user, gid.encode() )
+            ( "sharePublicKey", self.user, gid.encode(), b'PRIVATEKEYSHARE' )
 
     def presigning( self, gid, number ) :
         if not self.Player.checkGroup( gid ) :
@@ -100,22 +100,21 @@ class ClientProtocol( pb.Referenceable ):
         print(self.Player)
         return
 
-    def remote_requestData(self, gid) :
+    def remote_requestData(self, gid, calcType) :
         print ("Request for Data: gid = {0}".format(gid))
+        return self.Player.requestData( gid, calcType ) 
 
-        ordinal = self.Player.getOrdinal(gid)
-        evals = self.Player.getEvaluatedData(gid)
-        hiddenPoly = self.Player.getHiddenPoly(gid)
-        hiddenEvals = self.Player.getEvaluatedHiddenData(gid)
-        return [gid, ordinal, evals, hiddenPoly, hiddenEvals]
 
-    def remote_requestPresigningData(sellf, gid, number) :
-        print ("Reqest Presigning Data: gid = {0}, number={1}".format(gid, number))        
+    def remote_requestPresigningData(self, gid, number) :
+        print ("Request Presigning Data: gid = {0}, number={1}".format(gid, number))        
         return 
 
-    def remote_calculatePrivateKeyShare(self, gid, evals,  hidden, hiddenEvals) :
-        msg = self.Player.calculatePrivateKeyShare( gid, evals,  hidden, hiddenEvals )
-        return [self.user, gid, self.Player.getOrdinal(gid), msg]
+    def remote_createSecret(self, gid, calcType, evals,  hiddenPolys, hiddenEvals) :
+        try:
+            self.Player.createSecret( gid, calcType, evals,  hiddenPolys, hiddenEvals )
+        except Exception as inst:
+            raise ClientError( inst.args )
+        return [self.user, gid]
 
 
 
@@ -195,6 +194,9 @@ class StdioClientProtocol(basic.LineReceiver):
     def do_presign(self, gid, number=1) :        
         self.client.presigning( gid, number )
         self.sendLine(b'>>>')
+
+    def do_print(self, gid) :
+        self.sendLine(str(self.client.Player).encode())
 
     def __checkSuccess(self, pageData):
         msg = "Success: got {} bytes.".format(len(pageData))

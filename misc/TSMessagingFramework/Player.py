@@ -3,38 +3,113 @@ import Nakasendo
 import sys
 import ecdsa
 
-# Player Group metadata
-class PlayerGroupMetadata :
 
-    def __init__ (self, id, ordinal, ordinalList, degree) :
-        print ("__init__ PlayerGroupMetadata")
-        self.id = id
-        self.ordinal = ordinal             
-        self.ordinalList = ordinalList  
-        self.degree = degree
-        self.polynomial = None      # own Polynomial for this group
+# JVRSS class for transient data
+class JVRSS :
+    def __init__ ( self ) :
+        self.reset( )
+
+    def __str__(self):
+        string =  ("JVRSS :" \
+            + "\n\tf_x              =  " + str(self.f_x)  \
+            + "\n\tevals            =  " + str(self.evals)  \
+            + "\n\tpublicEvals      =  " + str(self.publicEvals)  \
+            + "\n\thiddenEvals      =  " + str(self.hiddenEvals)  \
+            + "\n\thiddenPolynomial =  " + str(self.hiddenPolynomial) \
+            + "\n\tallHiddenPolynomials =  " + str(self.allHiddenPolynomials) \
+            + "\n\tlittleK              =  " + str(self.littleK) \
+            + "\n\talpha                =  " + str(self.alpha) )
+
+        return string
+
+
+    def reset( self ) :
+        print("JVRSS: reset")
         self.f_x   = None           # f(x): Polynomial evaluated for own ordinal
         self.evals = {}             # dict ordinal:evaluated for each o in ordinallist
         self.publicEvals = {}       # dict of dict: all Players in group evaluations
-        self.hiddenEvals = {}  # Polynomial evaluated multiplied by generator point
-        self.shareOfSecret = None
+        self.hiddenEvals = {}       # Polynomial evaluations multiplied by generator point
         self.hiddenPolynomial = []  # coeffs multiplied by generator point
-        self.allHiddenPolynomials = None    # All Players Hidden coeffs
+        self.allHiddenPolynomials = {}
+        self.littleK = None         # little k (part of ephemeral key calc)
+        self.alpha   = None         # blinding value (part of ephemeral key calc)           
+
+
+# Player Group metadata
+class PlayerGroupMetadata :
+    
+
+    def __init__ (self, id, ordinal, ordinalList, degree) :
+        print ("__init__ PlayerGroupMetadata")
+        self.id                     = id            # Group ID
+        self.ordinal                = ordinal       # Label assigned by orchestrator
+        self.ordinalList            = ordinalList   # labels of other participants in the group
+        self.degree                 = degree        # degree of the polynomial
+        self.privateKeyPolynomial   = None          # Polynomial for this group
+        self.privateKeyShare        = None          # calculated share of secret
+        self.ephemeralKeyList       = []            # list of generated ephemeral keys
+
+        self.transientData          = JVRSS()       # transient data - reusable data structure
+
+
+
 
     def __str__(self):
         string =  ("Player Metadata for " + str(self.id) + " :" \
-            + "\n\tordinal          =  " + str(self.ordinal) \
-            + "\n\tordinalList      =  " + str(self.ordinalList)  \
-            + "\n\tdegree           =  " + str(self.degree)  \
-            + "\n\tpolynomial       =  " + str(self.polynomial)  \
-            + "\n\tf_x              =  " + str(self.f_x)  \
-            + "\n\tevals            =  " + str(self.evals)  \
-            + "\n\tshareOfSecret    =  " + str(self.shareOfSecret)  \
-            + "\n\thiddenPolynomial =  " + str(self.hiddenPolynomial))
-
-          
+            + "\n\tordinal              =  " + str(self.ordinal) \
+            + "\n\tordinalList          =  " + str(self.ordinalList)  \
+            + "\n\tdegree               =  " + str(self.degree)  \
+            + "\n\tprivateKeyPolynomial =  " + str(self.privateKeyPolynomial) \
+            + "\n\tprivateKeyShare      =  " + str(self.privateKeyShare) \
+            + "\n\tephemeralKeyList     =  " + str(self.ephemeralKeyList) \
+            + "\n\ttransientData        =  " + str(self.transientData ) )
             
         return string
+
+    # Method to do pre-calculation setup
+    # i.e. Using the Polynomial parameter, store calculated data in transient data
+    #       - Evaluate the polynomial for own ordinal
+    #       - Evaluate the polynomial for other player ordinals
+    #       - Hide (encrypt) the polynomial via Generator Point
+    #       - Hide (encrypt) the evals via Generator Point
+    #
+    def polynomialPreCalculation(self, poly, mod, ordinal ) :
+
+        self.transientData.reset( )
+
+        # evaluate polynomial for own ordinal
+        # polynomial is set to Hex, so convert the ordinal to hex string
+        self.transientData.f_x = poly('{:x}'.format(ordinal))
+        bignum = Nakasendo.BigNum( self.transientData.f_x, mod )
+        self.transientData.hiddenEvals[self.ordinal] = \
+            str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
+
+        # evaluate polynomials for the group ordinals
+        for ord in self.ordinalList :
+            self.transientData.evals[ord] = poly('{:x}'.format(ord))
+            bignum = Nakasendo.BigNum( self.transientData.evals[ord], mod )
+            self.transientData.hiddenEvals[ord] = \
+                str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
+
+        # hide own polynomial using generator point
+        GEN         = Nakasendo.ECPoint()
+        GENPOINT    = GEN.GetGeneratorPoint()
+
+        for index in poly.coefficients :
+            bignum  = Nakasendo.BigNum( index, mod )
+            res     = GENPOINT.multipleScalar(bignum)
+            self.transientData.hiddenPolynomial.append(res.value)
+
+    # reusable code to create a secret - used for privateKeyShare, little-k, alpha
+    def createSecret( self, ordinal ) :
+        
+        res = Nakasendo.BigNum(str( self.transientData.f_x))
+        # loop outer dictionary (keyed  on ordinal)
+        for outerOrd, dict2 in self.transientData.publicEvals.items() :
+            for innerOrd, fx in dict2.items() :
+                if innerOrd == ordinal :
+                    res += Nakasendo.BigNum(str(fx))
+        return res
 
 #-----------------------------------------------------------------
 # Error class 
@@ -61,6 +136,10 @@ class Player :
         else :
             return 0
 
+
+    
+
+
     #-------------------------------------------------
     # Add Group: This creates a polynomial, 
     #            Evaluates the polynomial for own ordinal,
@@ -79,28 +158,9 @@ class Player :
         self.groups[groupId] = PlayerGroupMetadata(groupId, ordinal, ordinalList, degree)
 
         group = self.groups[groupId] 
-        group.polynomial = self.createPolynomial(degree)
-
-        # evaluate polynomial for own ordinal
-        # polynomial is set to Hex, so convert the ordinal to hex string
-        group.f_x = group.polynomial('{:x}'.format(group.ordinal))
-        bignum = Nakasendo.BigNum(group.f_x, Player.modulo)
-        group.hiddenEvals[group.ordinal] = str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
-
-        # evaluate polynomials for the group ordinals
-        for ord in group.ordinalList :
-            group.evals[ord] = group.polynomial('{:x}'.format(ord))
-            bignum = Nakasendo.BigNum(group.evals[ord], Player.modulo)
-            group.hiddenEvals[ord] = str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
-
-        # hide own polynomial using generator point
-        GEN         = Nakasendo.ECPoint()
-        GENPOINT    = GEN.GetGeneratorPoint()
-
-        for index in group.polynomial.coefficients :
-            bignum = Nakasendo.BigNum(index, Player.modulo)
-            res = GENPOINT.multipleScalar(bignum)
-            group.hiddenPolynomial.append(res.value)
+        
+        group.privateKeyPolynomial = self.createPolynomial(degree)
+        group.polynomialPreCalculation( group.privateKeyPolynomial, Player.modulo, group.ordinal ) 
 
         return 1
 
@@ -111,78 +171,81 @@ class Player :
         else:
             return Nakasendo.Polynomial.initRandomHex(degree, Player.modulo)
 
-    #-------------------------------------------------
-    def getOrdinal(self, groupId) :
-        return self.groups[groupId].ordinal
-
-    #-------------------------------------------------
-    def getEvaluatedData(self, groupId) :
+    #------------------------------------------------- 
+    # 1st time through JVRSS don't need to generate new polynomial
+    # 2nd and 3rd times through JVRSS need to create new polynomial
+    def requestData(self, groupId, calcType) :
         group = self.groups[groupId]
-        data = group.evals
-        data[group.ordinal] = 0
-        return data
+
+        poly = None
+        # Not the 1st time through JVRSS sequence
+        if calcType != 'PRIVATEKEYSHARE' :
+            print("Creating New Polynomial")
+            poly = self.createPolynomial(group.degree)
+            group.polynomialPreCalculation(poly, Player.modulo, group.ordinal)
+
+        ordinal     = group.ordinal 
+        evals       = group.transientData.evals
+        hiddenPoly  = group.transientData.hiddenPolynomial
+        hiddenEvals = group.transientData.hiddenEvals
+
+        return [groupId, calcType, ordinal, evals, hiddenPoly, hiddenEvals]
+
 
     #-------------------------------------------------
-    def getEvaluatedHiddenData(self, groupId) :
+    # create a secret - used to create a privateKeyShare, little-k, alpha
+    def createSecret(self, groupId, calcType, evals, hiddenPolys, hiddenEvals) :
+
+        print("creating a secret....")
         group = self.groups[groupId]
-        data = group.hiddenEvals
-        return data
-    
-    #-------------------------------------------------
-    def getHiddenPoly(self, groupId) :
-        group = self.groups[groupId]
-        data = group.hiddenPolynomial
-        return data
+        
+        group.transientData.publicEvals             = evals 
+        group.transientData.allHiddenPolynomials    = hiddenPolys
 
-    #-------------------------------------------------
-    # change name to calucluate private key share ?
-    def calculatePrivateKeyShare(self, groupId, evals, hidden, hiddenEvals) :
-        group = self.groups[groupId]
-        group.publicEvals = evals 
-
-        myOrdinal = group.ordinal
-
-        res = Nakasendo.BigNum(str(group.f_x))
-        # loop outer dictionary (keyed  on ordinal)
-        for outerOrd, dict2 in evals.items() :
-            for innerOrd, fx in dict2.items() :
-                if innerOrd == myOrdinal :
-                    res += Nakasendo.BigNum(str(fx))
-
-        group.shareOfSecret = res
-        group.allHiddenPolynomials = hidden
+        result = group.createSecret( group.ordinal )
+        if calcType == 'PRIVATEKEYSHARE' :
+            group.privateKeyShare = result 
+        elif calcType == 'LITTLEK' :
+            group.transientData.littleK = result
+        elif calcType == 'ALPHA' :
+            group.transiendData.alpha = result
+        else:
+            msg = "Player:createSecret.calcType is not recognised: {0}".format(calcType)
+            print(msg)
+            raise PlayerError(msg)
        
-        print("\nHidden Polynomials = {0}".format(group.allHiddenPolynomials))
-        print(group)
+        #print("\nHidden Polynomials = {0}".format(group.transientData.allHiddenPolynomials))
+        #print(group)
 
-        msg = self.verificationOfHonesty(groupId, hiddenEvals, hidden)
+        self.verificationOfHonesty(groupId, hiddenEvals, hiddenPolys)
 
-        return msg
+        return groupId, result
 
     #-------------------------------------------------
     # Do verification of honesty step
-    def verificationOfHonesty(self, groupId, hiddenEvals, hidden) :
+    def verificationOfHonesty(self, groupId, hiddenEvals, hiddenPolys) :
         group = self.groups[groupId]
 
         print("\nVerification : groupId = {0}".format(groupId))
 
-        ordinalList = group.ordinalList
+        ordinalList = list(group.ordinalList)
         ordinalList.append(group.ordinal)
         for fromPlayerOrdinal in ordinalList :
             for toPlayerOrdinal in ordinalList :
                 if (fromPlayerOrdinal != toPlayerOrdinal):
-                    if (not self.getVerifyCoefficientForPlayer(groupId, hiddenEvals, hidden, fromPlayerOrdinal, toPlayerOrdinal)):
+                    if (not self.getVerifyCoefficientForPlayer(groupId, hiddenEvals, hiddenPolys, fromPlayerOrdinal, toPlayerOrdinal)):
                         msg =  ("Verification of honesty "+ str(fromPlayerOrdinal) + " to " + str(toPlayerOrdinal)+ " is failed.")
-                        return msg
-        return ""
+                        print(msg)
+                        raise PlayerError(msg)
 
-    def getVerifyCoefficientForPlayer(self, groupId, hiddenEvals, hidden, fromOrdinal, toOrdinal):
+    #-------------------------------------------------
+    def getVerifyCoefficientForPlayer(self, groupId, hiddenEvals, hiddenPolys, fromOrdinal, toOrdinal):
 
         # get the coefficients that 'from' player sent to all, where 'from' and 'to' are ordinals
         resCoeffEC = None
         multplier = toOrdinal
 
-        for coeffEC in hidden[fromOrdinal]:
+        for coeffEC in hiddenPolys[fromOrdinal]:
             coeffEC = Player.getECPoint(coeffEC)
             if (resCoeffEC is None) :
                 resCoeffEC = coeffEC

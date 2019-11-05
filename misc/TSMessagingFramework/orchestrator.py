@@ -24,32 +24,32 @@ class GroupMetadata :
 
     def __init__ (self, id, proposer, m, n, t) :
         self.id = id
-        self.m = m                  # recombination number
-        self.n = n                  # total number        
-        self.t = t                  # degree of polynomial
-        self.numPlayerReplies = 0
-        self.numSecretReplies = 0
-        self.participantList = []
-        self.groupIsSet = False
-        self.proposer = proposer
-        self.collatedEvals = {}
-        self.collatedPublicEvals = {}
-        self.collatedHidden = {}
-        self.collatedHiddenEvals = {}
-        self.numCollatedReplies = 0
-        self.verificationOfHonestyStatus = True
-        self.numCollectedVerificationStatusReplies = 0
+        self.m  = m                  # recombination number
+        self.n  = n                  # total number        
+        self.t  = t                  # degree of polynomial
+        self.numPlayerReplies       = 0
+        self.numSecretReplies       = 0
+        self.participantList        = []
+        self.groupIsSet             = False
+        self.proposer               = proposer
+        self.collatedEvals          = {}
+        self.collatedPublicEvals    = {}
+        self.collatedHiddenPolys    = {}
+        self.collatedHiddenEvals    = {}
+        self.numCollatedReplies     = 0
+        self.verificationOfHonestyStatus            = True
+        self.numCollectedVerificationStatusReplies  = 0
 
     def __str__(self):
         string =  ("Group Metadata for " + str(self.id) + " :" \
             + "\n\tm =  " + str(self.m) \
             + "\n\tn =  " + str(self.n) \
             + "\n\tt =  " + str(self.t) \
-            + "\n\tgroupIsSet =  " + str(self.groupIsSet) \
-            + "\n\tproposer =  " + self.proposer \
+            + "\n\tgroupIsSet       = " + str(self.groupIsSet) \
+            + "\n\tproposer         = " + self.proposer \
             + "\n\tnumPlayerReplies = " + str(self.numPlayerReplies) \
             + "\n\tnumSecretReplies = " + str(self.numSecretReplies) \
-            + "\n\tparticipantList = " )
+            + "\n\tparticipantList  = " )
             
         string += (', '.join(self.participantList ))
         string += "\n\tnumCollatedReplies = " + str(self.numCollatedReplies) 
@@ -194,7 +194,7 @@ class Orchestrator( ) :
         group = self.groups[groupId]
 
         group.collatedEvals[ordinal] = evals
-        group.collatedHidden[ordinal] = hiddenPoly
+        group.collatedHiddenPolys[ordinal] = hiddenPoly
         group.collatedHiddenEvals[ordinal] = hiddenEvals
         group.numCollatedReplies += 1
 
@@ -207,20 +207,14 @@ class Orchestrator( ) :
     #-------------------------------------------------
     def getCollatedData(self, groupId) :
         group = self.groups[groupId ]
-        print('collatedHiddenEval =')
-        print(group.collatedHiddenEvals)
-        return group.collatedEvals, group.collatedHidden, group.collatedHiddenEvals
+        return group.collatedEvals, group.collatedHiddenPolys, group.collatedHiddenEvals
 
     #-------------------------------------------------
     # This is here as a placeholder
-    def secretVerification(self, user, groupId, ordinal, msg) :
+    def secretVerification(self, user, groupId) :
 
         group = self.groups[groupId]
         group.numCollectedVerificationStatusReplies += 1
-        if (msg != ""):
-            group.verificationOfHonestyStatus = False
-            print("secretVerification failed with message :" + msg)
-            return False
 
         print("number verification status replies = {0}".format(group.numCollectedVerificationStatusReplies))
         if group.numCollectedVerificationStatusReplies == group.n :

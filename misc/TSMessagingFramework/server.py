@@ -76,7 +76,50 @@ class OrchestratorProtocol( pb.Root ) :
 
     #-------------------------------------------------
     # This sends a request for data to all participants of group
-    def remote_sharePublicKey( self, user, groupId ) :
+    def remote_sharePublicKey( self, user, groupId, calcType ) :
+        groupId = groupId.decode()
+        calcType = calcType.decode()
+
+        if not self.orchestrator.validGroup(groupId) :
+            errMsg = 'Group Id is not valid: {0}'.format(groupId)
+            raise OrchestratorError( errMsg )
+
+        participants = self.orchestrator.getParticipants(groupId)
+
+        if user not in participants :
+            errMsg = 'user is not in the group: {0}'.format(user)
+            raise OrchestratorError( errMsg ) 
+        
+        userRefs = self.orchestrator.getUserReferences(groupId)
+        for ref in userRefs :
+            ref.callRemote("requestData", groupId, calcType).addCallback \
+                (self.collateData)        
+        return 
+
+    #-------------------------------------------------
+    # collate data
+    def collateData(self,  data ) :
+
+        groupId     = data[0]
+        calcType    = data[1]
+        ordinal     = data[2]
+        evals       = data[3] 
+        hiddenPoly  = data[4]
+        hiddenEvals = data[5]
+
+        # if True then ready to distribute data
+        if self.orchestrator.collateData( groupId, ordinal, evals, hiddenPoly, hiddenEvals) :
+            collatedData = self.orchestrator.getCollatedData(groupId) 
+            
+            # send the public data out to all group participants
+            userRefs = self.orchestrator.getUserReferences( groupId )
+            for ref in userRefs :
+                ref.callRemote( "createSecret", groupId, calcType, collatedData[0], collatedData[1], collatedData[2])\
+                    .addCallbacks(self.secretVerification, self.verificationError)
+
+    #-------------------------------------------------
+    # This sends a request for data to all participants of group
+    def remote_presigning( self, user, groupId, number ) :
         groupId = groupId.decode()
 
         if not self.orchestrator.validGroup(groupId) :
@@ -96,63 +139,18 @@ class OrchestratorProtocol( pb.Root ) :
         return
 
     #-------------------------------------------------
-    # collate data
-    def collateData(self,  data ) :
-
-        groupId     = data[0]
-        ordinal     = data[1]
-        evals       = data[2] 
-        hiddenPoly  = data[3]
-        hiddenEvals = data[4]
-
-        # if True then ready to distribute data
-        if self.orchestrator.collateData( groupId, ordinal, evals, hiddenPoly, hiddenEvals) :
-            collatedData = self.orchestrator.getCollatedData(groupId) 
-            
-            # send the public data out to all group participants
-            userRefs = self.orchestrator.getUserReferences( groupId )
-            for ref in userRefs :
-                ref.callRemote( "calculatePrivateKeyShare", groupId, collatedData[0], collatedData[1], collatedData[2]) \
-                        .addCallbacks(self.secretVerification)
-
-    #-------------------------------------------------
-    # This sends a request for data to all participants of group
-    def remote_presigning( self, user, groupId, number ) :
-        groupId = groupId.decode()
-
-        if not self.orchestrator.validGroup(groupId) :
-            errMsg = 'Group Id is not valid: {0}'.format(groupId)
-            raise OrchestratorError( errMsg )
-
-        participants = self.orchestrator.getParticipants(groupId)
-
-        if user not in participants :
-            errMsg = 'user is not in the group: {0}'.format(user)
-            raise OrchestratorError( errMsg ) 
-        
-        userRefs = self.orchestrator.getUserReferences(groupId)
-        for ref in userRefs :
-            ref.callRemote("requestPresigningData", groupId, number)
-            # The idea is to use the same callback
-            # .addCallback \
-            #    (self.collateData)        
-        return
-
-    #-------------------------------------------------
     # This is here as a placeholder
     def secretVerification(self, data):
 
         user        = data[0]
         groupId     = data[1]
-        ordinal     = data[2]
-        msg         = data[3]
 
-        if self.orchestrator.secretVerification(user, groupId, ordinal, msg) :
+        if self.orchestrator.secretVerification(user, groupId) :
             print("secretVerification complete")
         
 
-    def groupError(self, message):
-        print ("Error: {0}".format(message))
+    def verificationError(self, reason):
+        print ("Error from client: {0}".format( reason ))
         # do some stuff, delete the group / mark as being errored
         # tell clients this group is not good
 
