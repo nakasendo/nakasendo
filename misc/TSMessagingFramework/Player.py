@@ -66,6 +66,7 @@ class Player :
     #            Evaluates the polynomial for own ordinal,
     #            Evaluates the polynomial for all other Player ordinals,
     #            Hides (encrypts) the polynomial using the Generator point
+    #            Hides (encrypts) the evals using using the Generator point
     def addGroup(self, groupId, ordinal, ordinalList, degree) :
         print("GroupIsSet:\n\tgroupId =  {0}\n\tmy ordinal = {1}\n\trest of ordinals = {2}".format \
             (groupId, ordinal, ordinalList))
@@ -84,19 +85,17 @@ class Player :
         # polynomial is set to Hex, so convert the ordinal to hex string
         group.f_x = group.polynomial('{:x}'.format(group.ordinal))
         bignum = Nakasendo.BigNum(group.f_x, Player.modulo)
-        #group.hiddenEvals[group.ordinal] = Nakasendo.MultiplyByGenerator(bignum).value
         group.hiddenEvals[group.ordinal] = str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
 
         # evaluate polynomials for the group ordinals
         for ord in group.ordinalList :
             group.evals[ord] = group.polynomial('{:x}'.format(ord))
             bignum = Nakasendo.BigNum(group.evals[ord], Player.modulo)
-            #group.hiddenEvals[ord] = Nakasendo.MultiplyByGenerator(bignum).value
             group.hiddenEvals[ord] = str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
 
         # hide own polynomial using generator point
         GEN         = Nakasendo.ECPoint()
-        GENPOINT = GEN.GetGeneratorPoint()
+        GENPOINT    = GEN.GetGeneratorPoint()
 
         for index in group.polynomial.coefficients :
             bignum = Nakasendo.BigNum(index, Player.modulo)

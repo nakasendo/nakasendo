@@ -92,12 +92,12 @@ class OrchestratorProtocol( pb.Root ) :
         userRefs = self.orchestrator.getUserReferences(groupId)
         for ref in userRefs :
             ref.callRemote("requestData", groupId).addCallback \
-                (self.collateEncryptedCoeffs)        
+                (self.collateData)        
         return
 
     #-------------------------------------------------
     # collate data
-    def collateEncryptedCoeffs(self,  data ) :
+    def collateData(self,  data ) :
 
         groupId     = data[0]
         ordinal     = data[1]
@@ -114,6 +114,29 @@ class OrchestratorProtocol( pb.Root ) :
             for ref in userRefs :
                 ref.callRemote( "calculatePrivateKeyShare", groupId, collatedData[0], collatedData[1], collatedData[2]) \
                         .addCallbacks(self.secretVerification)
+
+    #-------------------------------------------------
+    # This sends a request for data to all participants of group
+    def remote_presigning( self, user, groupId, number ) :
+        groupId = groupId.decode()
+
+        if not self.orchestrator.validGroup(groupId) :
+            errMsg = 'Group Id is not valid: {0}'.format(groupId)
+            raise OrchestratorError( errMsg )
+
+        participants = self.orchestrator.getParticipants(groupId)
+
+        if user not in participants :
+            errMsg = 'user is not in the group: {0}'.format(user)
+            raise OrchestratorError( errMsg ) 
+        
+        userRefs = self.orchestrator.getUserReferences(groupId)
+        for ref in userRefs :
+            ref.callRemote("requestPresigningData", groupId, number)
+            # The idea is to use the same callback
+            # .addCallback \
+            #    (self.collateData)        
+        return
 
     #-------------------------------------------------
     # This is here as a placeholder

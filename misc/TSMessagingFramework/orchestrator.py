@@ -207,6 +207,8 @@ class Orchestrator( ) :
     #-------------------------------------------------
     def getCollatedData(self, groupId) :
         group = self.groups[groupId ]
+        print('collatedHiddenEval =')
+        print(group.collatedHiddenEvals)
         return group.collatedEvals, group.collatedHidden, group.collatedHiddenEvals
 
     #-------------------------------------------------

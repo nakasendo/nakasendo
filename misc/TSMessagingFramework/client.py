@@ -65,6 +65,14 @@ class ClientProtocol( pb.Referenceable ):
         d = self.orchestratorRef.callRemote \
             ( "sharePublicKey", self.user, gid.encode() )
 
+    def presigning( self, gid, number ) :
+        if not self.Player.checkGroup( gid ) :
+            msg = "GroupID not found: {0}".format(gid)
+            print(msg)
+            raise ClientError( msg )
+
+        d = self.orchestratorRef.callRemote \
+            ( "presigning", self.user, gid.encode(), number )        
 
     def err_remote(self, reason):
         print ("Error from server:", reason)
@@ -100,6 +108,10 @@ class ClientProtocol( pb.Referenceable ):
         hiddenPoly = self.Player.getHiddenPoly(gid)
         hiddenEvals = self.Player.getEvaluatedHiddenData(gid)
         return [gid, ordinal, evals, hiddenPoly, hiddenEvals]
+
+    def remote_requestPresigningData(sellf, gid, number) :
+        print ("Reqest Presigning Data: gid = {0}, number={1}".format(gid, number))        
+        return 
 
     def remote_calculatePrivateKeyShare(self, gid, evals,  hidden, hiddenEvals) :
         msg = self.Player.calculatePrivateKeyShare( gid, evals,  hidden, hiddenEvals )
@@ -178,6 +190,10 @@ class StdioClientProtocol(basic.LineReceiver):
 
     def do_share(self, gid) :        
         self.client.sharePublicKey( gid )
+        self.sendLine(b'>>>')
+    
+    def do_presign(self, gid, number=1) :        
+        self.client.presigning( gid, number )
         self.sendLine(b'>>>')
 
     def __checkSuccess(self, pageData):
