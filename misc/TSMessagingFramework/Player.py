@@ -87,11 +87,14 @@ class Player :
             group.evals[ord] = group.polynomial('{:x}'.format(ord))
 
         # hide own polynomial using generator point
-        gen         = Nakasendo.ECPoint( )
-
+        #gen         = Nakasendo.ECPoint( )
+        GEN = Nakasendo.ECPoint(isDec=False)
+        GENPOINT = GEN.GetGeneratorPoint()
+        
         for index in group.polynomial.coefficients :
             bignum = Nakasendo.BigNum(index, Player.modulo)
-            group.hiddenPolynomial.append(Nakasendo.MultiplyByGenerator(bignum).value)
+            res = GENPOINT.multipleScalar(bignum)
+            group.hiddenPolynomial.append(res.value)
 
         return 1
 
