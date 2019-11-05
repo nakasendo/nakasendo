@@ -309,6 +309,26 @@ static PyObject* wrap_ExportFromEncryptedPEM(PyObject* self, PyObject *args)
 
 }
 
+static PyObject*  wrap_PubKeyPEMToHex(PyObject* self, PyObject *args)
+{
+    char* pubkeypem   = nullptr ;
+    int compressed=0;
+
+    if (!PyArg_ParseTuple(args, "si", &pubkeypem,&compressed))
+        return NULL;
+
+    const std::string pubkeystr( pubkeypem ) ;
+
+    std::string keyPt;
+    if(compressed){
+        keyPt = pubkey_pem2Hex_point(pubkeystr, true);
+    }else{
+        keyPt = pubkey_pem2Hex_point(pubkeystr, false);
+    }
+    return Py_BuildValue("s",keyPt.c_str());
+}
+
+
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
@@ -327,6 +347,7 @@ static PyMethodDef ModuleMethods[] =
     {"ImportFromEncryptedPEM"   , wrap_ImportFromEncryptedPEM, METH_VARARGS,"Imports a key in Encrypted PEM format, with pass phrase"},
     {"ExportFromEncryptedPEM"   , wrap_ExportFromEncryptedPEM, METH_VARARGS,"Exports a key to Encrypted PEM format, with pass phrase"},
     {"DERSignature"             , wrap_DERSignature, METH_VARARGS,"return a DER encoding of an (r,s) signature"},
+    {"PubKeyPEMToHexPt"         , wrap_PubKeyPEMToHex, METH_VARARGS,"Convert a PEM public key to a hex pt (compressed or uncompressed)"},
     {NULL, NULL, 0, NULL},
 };
  

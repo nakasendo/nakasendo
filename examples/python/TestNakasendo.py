@@ -185,6 +185,13 @@ if __name__ == "__main__":
     print ("public key = ", newKey.pubKey )
     print ("private key = ", newKey.priKey )
     
+    # generate a derived pub key PEM & convert to HEX (compressed & uncompressed)
+    pubkeyPEM = BobsKey.derivePublicKey(msg)
+    print ("Derived pub key PEM = ", pubkeyPEM)
+    derivedPubKeyHex = Nakasendo.pubKeyPEMasHex(pubkeyPEM)
+    print ("Dervied pub key hex uncompressed = ", derivedPubKeyHex)
+    derivedPubKeyHex = Nakasendo.pubKeyPEMasHex(pubkeyPEM,True)
+    print ("Dervied pub key hex uncompressed = ", derivedPubKeyHex)
 
     # Test1 randomPolynomial( degree, modulo )
     # Test2 randomPolynomial( degree, modulo, fixed a_0 )

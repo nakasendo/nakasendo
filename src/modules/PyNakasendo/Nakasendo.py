@@ -246,7 +246,7 @@ class ECPoint:
     def __add__(self, obj):
         if (self.nid != obj.nid):
             print ("Points not on the same curve %i and %i" % (self.nid, obj.nid))
-            return none
+            return None
 
         sumVal = PyECPoint.Add( self.value, obj.value, self.nid, self.isDec, self.isCompressed )
         ecpRetVal = ECPoint(self.nid,self.isDec)
@@ -314,7 +314,7 @@ class ECPoint:
     def __repr__(self):
         points = self.GetAffineCoOrdinates()
         return '({},{})'.format (points[0],points[1])
-        
+
 def MultiplyByGenerator( m, nid=ECPoint.defaultNID ) :
     pt = ECPoint(nid)
     pt.value = PyECPoint.MultiplyByGenerator( m.value, nid, pt.isDec, pt.isCompressed )
@@ -375,7 +375,8 @@ def createDERFormat(rValue, sValue):
     hexSigBN = BigNum(hexSig, rValue.mod, rValue.isDec)
     return hexSigBN
     
-
+def pubKeyPEMasHex(pubkey, compressed=False):
+    return PyAsymKey.PubKeyPEMToHexPt(pubkey, compressed)
 class Polynomial:
 
     def __init__(self, degree, modulo ):

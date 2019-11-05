@@ -766,6 +766,42 @@ std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string
     return pubkey_str;
 }
 
+std::string impl_pubkey_pem2Hex_point(const std::string& crPubPEMkey, const bool& compressed){
+    //Import the public key
+       /// Import public key
+    BIO_ptr bio(BIO_new(BIO_s_mem()), &BIO_free_all);
+    const int bio_write_ret = BIO_write(bio.get(), static_cast<const char*>(crPubPEMkey.c_str()), (int)crPubPEMkey.size());
+    if (bio_write_ret <= 0)
+        throw std::runtime_error("Error reading PEM string when verifying signature");
+
+    /// Import the public key
+    EC_KEY* raw_tmp_ec = nullptr;
+    if (!PEM_read_bio_EC_PUBKEY(bio.get(), &raw_tmp_ec, NULL, NULL))
+        throw std::runtime_error("Error reading public key when verifying signature");
+    EC_KEY_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
+    EC_KEY_set_asn1_flag(pEC.get(), OPENSSL_EC_NAMED_CURVE);
+
+    BN_CTX_ptr nb_ctx(BN_CTX_new(), &BN_CTX_free);
+
+    /// Get group generator point
+    const EC_GROUP* pEC_GROUP = EC_KEY_get0_group(pEC.get());
+    if (pEC_GROUP == nullptr)
+        throw std::runtime_error("Unable to import EC key group");
+
+    const EC_POINT* pEC_POINT = EC_KEY_get0_public_key(pEC.get());
+    if (pEC_POINT == nullptr)
+        throw std::runtime_error("Unable to import EC key point");
+
+    std::string pubkey_hex;
+    if(compressed){
+        STR_ptr pStr(EC_POINT_point2hex(pEC_GROUP, pEC_POINT, POINT_CONVERSION_COMPRESSED, nb_ctx.get()), &help_openssl_free_char);
+        pubkey_hex = pStr.get();
+    }else{
+        STR_ptr pStr(EC_POINT_point2hex(pEC_GROUP, pEC_POINT, POINT_CONVERSION_UNCOMPRESSED, nb_ctx.get()), &help_openssl_free_char);
+        pubkey_hex = pStr.get();
+    }
+    return pubkey_hex;
+}
 std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPubPEMkey)
 {
     /// Import public key
@@ -781,6 +817,7 @@ std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPub
     EC_KEY_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
     EC_KEY_set_asn1_flag(pEC.get(), OPENSSL_EC_NAMED_CURVE);
 
+    
     /// Get group generator point
     const EC_GROUP* pEC_GROUP = EC_KEY_get0_group(pEC.get());
     if (pEC_GROUP == nullptr)

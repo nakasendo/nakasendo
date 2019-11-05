@@ -1,7 +1,19 @@
 import json
-import Nakasendo
 import sys
 import ecdsa
+
+try:
+    import PyBigNumbers
+    import PyECPoint
+    import PySymEncDec
+    import PyMessageHash
+    import PyAsymKey
+    import PyPolynomial
+    import Nakasendo
+except ImportError as e:
+    print('Error while loading SDKLibraries python modules {}'.format(e.message))
+    print('Try to define environment variable SDKLIBRARIES_ROOT pointing to the location of installed SDKLibraries or add this to PYTHONPATH')
+    raise ImportError('Unable to load SDKLibraries python modules')
 
 
 # JVRSS class for transient data
@@ -125,14 +137,14 @@ class PlayerGroupMetadata :
         return v, w 
 
     # reusable code to create a secret - used for privateKeyShare, little-k, alpha
-    def createSecret( self, ordinal ) :
+    def createSecret( self, ordinal,mod ) :
         
-        res = Nakasendo.BigNum(str( self.transientData.f_x))
+        res = Nakasendo.BigNum(str( self.transientData.f_x),mod)
         # loop outer dictionary (keyed  on ordinal)
         for outerOrd, dict2 in self.transientData.publicEvals.items() :
             for innerOrd, fx in dict2.items() :
                 if innerOrd == ordinal :
-                    res += Nakasendo.BigNum(str(fx))
+                    res += Nakasendo.BigNum(str(fx),mod)
         return res
 
     #-------------------------------------------------
@@ -158,6 +170,7 @@ class PlayerGroupMetadata :
             else:
                 public_key = a0Point
         return public_key
+        
 
 #-----------------------------------------------------------------
 # Error class 
@@ -259,7 +272,7 @@ class Player :
         group.transientData.publicEvals             = evals 
         group.transientData.allHiddenPolynomials    = hiddenPolys
 
-        result = group.createSecret(group.ordinal)
+        result = group.createSecret(group.ordinal,Player.modulo)
         if calcType == 'PRIVATEKEYSHARE' :
             group.privateKeyShare = result 
             group.publicKeyOfKeyShare = group.createPublicKey()
