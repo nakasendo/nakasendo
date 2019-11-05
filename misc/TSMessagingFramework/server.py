@@ -102,24 +102,30 @@ class OrchestratorProtocol( pb.Root ) :
         groupId     = data[0]
         ordinal     = data[1]
         evals       = data[2] 
-        hiddenPoly  = data[3] 
+        hiddenPoly  = data[3]
+        hiddenEvals = data[4]
 
         # if True then ready to distribute data
-        if self.orchestrator.collateData( groupId, ordinal, evals, hiddenPoly) :
+        if self.orchestrator.collateData( groupId, ordinal, evals, hiddenPoly, hiddenEvals) :
             collatedData = self.orchestrator.getCollatedData(groupId) 
             
             # send the public data out to all group participants
             userRefs = self.orchestrator.getUserReferences( groupId )
             for ref in userRefs :
-                ref.callRemote( "calculatePrivateKeyShare", groupId, collatedData[0], collatedData[1]) \
-                        .addCallbacks(self.secretVerification, self.groupError)
+                ref.callRemote( "calculatePrivateKeyShare", groupId, collatedData[0], collatedData[1], collatedData[2]) \
+                        .addCallbacks(self.secretVerification)
 
     #-------------------------------------------------
     # This is here as a placeholder
-    # todo - Chandra?
-    def secretVerification(self, data) : 
+    def secretVerification(self, data):
 
-        print("secretVerification complete")
+        user        = data[0]
+        groupId     = data[1]
+        ordinal     = data[2]
+        msg         = data[3]
+
+        if self.orchestrator.secretVerification(user, groupId, ordinal, msg) :
+            print("secretVerification complete")
         
 
     def groupError(self, message):

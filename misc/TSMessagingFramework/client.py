@@ -98,11 +98,12 @@ class ClientProtocol( pb.Referenceable ):
         ordinal = self.Player.getOrdinal(gid)
         evals = self.Player.getEvaluatedData(gid)
         hiddenPoly = self.Player.getHiddenPoly(gid)
-        return [gid, ordinal, evals, hiddenPoly]
+        hiddenEvals = self.Player.getEvaluatedHiddenData(gid)
+        return [gid, ordinal, evals, hiddenPoly, hiddenEvals]
 
-    def remote_calculatePrivateKeyShare(self, gid, coeffs, hidden) :
-        self.Player.calculatePrivateKeyShare( gid, coeffs, hidden )
-        return [ self.user, gid, True ]
+    def remote_calculatePrivateKeyShare(self, gid, evals,  hidden, hiddenEvals) :
+        msg = self.Player.calculatePrivateKeyShare( gid, evals,  hidden, hiddenEvals )
+        return [self.user, gid, self.Player.getOrdinal(gid), msg]
 
 
 

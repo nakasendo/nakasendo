@@ -33,8 +33,12 @@ class GroupMetadata :
         self.groupIsSet = False
         self.proposer = proposer
         self.collatedEvals = {}
+        self.collatedPublicEvals = {}
         self.collatedHidden = {}
+        self.collatedHiddenEvals = {}
         self.numCollatedReplies = 0
+        self.verificationOfHonestyStatus = True
+        self.numCollectedVerificationStatusReplies = 0
 
     def __str__(self):
         string =  ("Group Metadata for " + str(self.id) + " :" \
@@ -185,12 +189,13 @@ class Orchestrator( ) :
 
     #-------------------------------------------------
     # collate data
-    def collateData(self,  groupId, ordinal, evals, hiddenPoly ) :
+    def collateData(self,  groupId, ordinal, evals, hiddenPoly, hiddenEvals) :
 
         group = self.groups[groupId]
 
         group.collatedEvals[ordinal] = evals
         group.collatedHidden[ordinal] = hiddenPoly
+        group.collatedHiddenEvals[ordinal] = hiddenEvals
         group.numCollatedReplies += 1
 
         print("number encrypted coefficient replies = {0}".format(group.numCollatedReplies))
@@ -200,17 +205,27 @@ class Orchestrator( ) :
         return False
     
     #-------------------------------------------------
-    def getCollatedData(self, groupId ) :
+    def getCollatedData(self, groupId) :
         group = self.groups[groupId ]
-        return group.collatedEvals, group.collatedHidden
+        return group.collatedEvals, group.collatedHidden, group.collatedHiddenEvals
 
     #-------------------------------------------------
     # This is here as a placeholder
-    # todo - Chandra?
-    def secretVerification(self, data) : 
+    def secretVerification(self, user, groupId, ordinal, msg) :
 
-        print("secretVerification complete")
-        
+        group = self.groups[groupId]
+        group.numCollectedVerificationStatusReplies += 1
+        if (msg != ""):
+            group.verificationOfHonestyStatus = False
+            print("secretVerification failed with message :" + msg)
+            return False
+
+        print("number verification status replies = {0}".format(group.numCollectedVerificationStatusReplies))
+        if group.numCollectedVerificationStatusReplies == group.n :
+            print("secretVerification ")
+            return True
+
+        return False
 
     def groupError(self, message):
         print ("Error: {0}".format(message))
