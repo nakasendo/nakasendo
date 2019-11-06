@@ -1,5 +1,5 @@
-#ifndef __BCH_ADDRESS_INFO_H__
-#define __BCH_ADDRESS_INFO_H__
+#ifndef __BSV_ADDRESS_INFO_H__
+#define __BSV_ADDRESS_INFO_H__
 
 #include <type_traits>
 #include <iostream>
@@ -76,5 +76,5 @@ class VersionConfig
         VersionPrefixMap mVersionPrefixMap;          
 };
    
-#endif //#ifndef __BCH_ADDRESS_INFO_H__
+#endif //#ifndef __BSV_ADDRESS_INFO_H__
 

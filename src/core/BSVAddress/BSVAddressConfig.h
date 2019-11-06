@@ -1,0 +1,12 @@
+#ifndef BSVADDRESS_CONFIG_H
+#define BSVADDRESS_CONFIG_H
+
+#include <DYNAMIC_LIBRARY_API.hpp>
+
+#ifdef EXPORT_BSVAddress
+#define BSVAddress_API EXPORT_DYNAMIC_LIBRARY
+#else
+#define BSVAddress_API IMPORT_DYNAMIC_LIBRARY
+#endif
+
+#endif /* BSVADDRESS_CONFIG_H */

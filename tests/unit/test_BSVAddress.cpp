@@ -1,15 +1,15 @@
 /// Define test module name with debug postfix
 #ifdef NDEBUG 
-#  define BOOST_TEST_MODULE test_BCHAddress
+#  define BOOST_TEST_MODULE test_BSVAddress
 #else
-#  define BOOST_TEST_MODULE test_BCHAddressd
+#  define BOOST_TEST_MODULE test_BSVAddressd
 #endif
 
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <BCHAddress/BCHAddress.h>
-#include <BCHAddress/BCHAddressInfo.h>
+#include <BSVAddress/BSVAddress.h>
+#include <BSVAddress/BSVAddressInfo.h>
 #include <AsymKey/AsymKey.h>
 
 
@@ -20,7 +20,7 @@
 
 
 
-BOOST_AUTO_TEST_SUITE(test_suite_BCHAddress)
+BOOST_AUTO_TEST_SUITE(test_suite_BSVAddress)
 
 BOOST_AUTO_TEST_CASE( test_number_one )
 {
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( test_number_one )
 
     VersionPrefix version = VersionPrefix::PUBLIC_KEY_ADDRESS ; // main_net
 
-    BCHAddress addressOne 
+    BSVAddress addressOne 
         ( 
             key.exportPublicHEXStr( ), 
             VersionPrefix::PUBLIC_KEY_ADDRESS  
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( test_number_one )
     BOOST_CHECK( addressOne.getVersionPrefix() == VersionPrefix::PUBLIC_KEY_ADDRESS  ) ;
 
 
-    BCHAddress addressTwo 
+    BSVAddress addressTwo 
         ( 
             "023cba1f4d12d1ce0bced725373769b2262c6daa97be6a0588cfec8ce1a5f0bd09", 
             VersionPrefix::TESTNET_PUBLIC_KEY_ADDRESS 
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( test_number_one )
 
 
     // check creating from existing address
-    BCHAddress validAddress ( "17nDmDt3ZsHqQWAwuc5H8y7cNdZqDyfXAd") ;
+    BSVAddress validAddress ( "17nDmDt3ZsHqQWAwuc5H8y7cNdZqDyfXAd") ;
 
     BOOST_CHECK( validAddress.valid() == true ) ;
     BOOST_CHECK( validAddress.decode() == "004a5e2064e49baf44a7811a40b7138b46350ab4f3ad766b56" ) ;
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( test_number_one )
     // check creating from invalid address
     BOOST_CHECK_THROW
         ( 
-            BCHAddress invalidAddress ( "017nDmDt3ZsHqQWAwuc5H8y7cNdZqDyfXAd") ,
+            BSVAddress invalidAddress ( "017nDmDt3ZsHqQWAwuc5H8y7cNdZqDyfXAd") ,
             std::runtime_error  
         );
 }
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( test_against_web )
             ++key, ++address
         ) 
     {
-        BCHAddress bch( *key, version ) ;
+        BSVAddress bch( *key, version ) ;
         BOOST_CHECK ( bch.getAddress( ) == *address ) ;
     }  
 
