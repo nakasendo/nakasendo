@@ -45,6 +45,7 @@ class PlayerGroupMetadata :
         self.degree                 = degree        # degree of the polynomial
         self.privateKeyPolynomial   = None          # Polynomial for this group
         self.privateKeyShare        = None          # calculated share of secret
+        self.publicKeyOfKeyShare    = None          # calculated public key of share of secret
         self.ephemeralKeyList       = []            # list of generated ephemeral keys
         self.littleK                = None          # little k (part of ephemeral key calc)
         self.alpha                  = None          # blinding value (part of ephemeral key calc)         
@@ -62,6 +63,7 @@ class PlayerGroupMetadata :
             + "\n\tdegree               =  " + str(self.degree)  \
             + "\n\tprivateKeyPolynomial =  " + str(self.privateKeyPolynomial) \
             + "\n\tprivateKeyShare      =  " + str(self.privateKeyShare) \
+            + "\n\tpublicKeyOfKeyShare  =  " + str(self.publicKeyOfKeyShare) \
             + "\n\tephemeralKeyList     =  " + str(self.ephemeralKeyList) \
             + "\n\tlittleK              =  " + str(self.littleK) \
             + "\n\talpha                =  " + str(self.alpha) \
@@ -133,23 +135,29 @@ class PlayerGroupMetadata :
                     res += Nakasendo.BigNum(str(fx))
         return res
 
-
+    #-------------------------------------------------
     def calculateShareOfVW( self, mod ) : 
-        print("in dummy function, modulo = {0}".format(mod) )  
-
+ 
         # littleK * alpha
-        littleK = Nakasendo.BigNum( self.littleK, mod )
-        alpha   = Nakasendo.BigNum( self.alpha, mod )
+        v = self.littleK * self.alpha
 
-        v = littleK * alpha
-
-        # hide own polynomial using generator point
+        # alpha * Generator Point
         GEN         = Nakasendo.ECPoint()
         GENPOINT    = GEN.GetGeneratorPoint()        
+        w           = GENPOINT.multipleScalar( self.alpha )  
 
-        w           = GENPOINT.multipleScalar( alpha )  
+        return v.value, w.value
 
-        return v, w
+    #-------------------------------------------------
+    def createPublicKey(self):
+        public_key = None
+        for ordinal, coeffList in self.transientData.allHiddenPolynomials.items():
+            a0Point = Player.getECPoint(coeffList[0])
+            if (public_key):
+                public_key = public_key + a0Point
+            else:
+                public_key = a0Point
+        return public_key
 
 #-----------------------------------------------------------------
 # Error class 
@@ -251,9 +259,10 @@ class Player :
         group.transientData.publicEvals             = evals 
         group.transientData.allHiddenPolynomials    = hiddenPolys
 
-        result = group.createSecret( group.ordinal )
+        result = group.createSecret(group.ordinal)
         if calcType == 'PRIVATEKEYSHARE' :
             group.privateKeyShare = result 
+            group.publicKeyOfKeyShare = group.createPublicKey()
         elif calcType == 'LITTLEK' :
             group.littleK = result
         elif calcType == 'ALPHA' :
@@ -264,15 +273,36 @@ class Player :
             raise PlayerError(msg)
 
         self.verificationOfHonesty(groupId, hiddenEvals, hiddenPolys)
+        self.verifyCorrectness(groupId, hiddenEvals, hiddenPolys)
 
         return groupId, result
+
+    def verifyCorrectness(self, groupId, hiddenEvals, hiddenPolys):
+
+        print("\nVerification of Correctness : groupId = {0}".format(groupId))
+
+        group = self.groups[groupId]
+        ordinalList = list(group.ordinalList)
+        ordinalList.append(group.ordinal)
+        for Ordinal in ordinalList :
+            curvepoint = []
+            for ofOrdinal, pubPoly in hiddenEvals[Ordinal].items():
+                pubPoly = Player.getECPoint(pubPoly)
+                x, y = pubPoly.GetAffineCoOrdinates()
+                curvepoint.append((ofOrdinal,  x, y))
+            interpolator = Nakasendo.LGECInterpolator(xfx=curvepoint, modulo=self.modulo, decimal=False)
+            zero_interpolator = interpolator(xValue='0')
+            if (str(zero_interpolator) != str(hiddenPolys[Ordinal][0])):
+                msg =  ("Verification of Correctness "+ str(Ordinal) + " is failed.")
+                print(msg)
+                raise PlayerError(msg)
 
     #-------------------------------------------------
     # Do verification of honesty step
     def verificationOfHonesty(self, groupId, hiddenEvals, hiddenPolys) :
         group = self.groups[groupId]
 
-        print("\nVerification : groupId = {0}".format(groupId))
+        print("\nVerification of honesty : groupId = {0}".format(groupId))
 
         ordinalList = list(group.ordinalList)
         ordinalList.append(group.ordinal)
@@ -291,8 +321,8 @@ class Player :
         resCoeffEC = None
         multplier = toOrdinal
 
-        for coeffEC in hiddenPolys[fromOrdinal]:
-            coeffEC = Player.getECPoint(coeffEC)
+        for coeff in hiddenPolys[fromOrdinal]:
+            coeffEC = Player.getECPoint(coeff)
             if (resCoeffEC is None) :
                 resCoeffEC = coeffEC
             else:
