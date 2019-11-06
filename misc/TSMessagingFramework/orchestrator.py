@@ -39,6 +39,7 @@ class GroupMetadata :
         self.numCollatedReplies     = 0
         self.verificationOfHonestyStatus            = True
         self.numCollectedVerificationStatusReplies  = 0
+        self.calculationType        = ''
 
     def __str__(self):
         string =  ("Group Metadata for " + str(self.id) + " :" \
@@ -53,6 +54,7 @@ class GroupMetadata :
             
         string += (', '.join(self.participantList ))
         string += "\n\tnumCollatedReplies = " + str(self.numCollatedReplies) 
+        string += "\n\tcalculationType = " + str(self.calculationType ) 
         return string
 
 
@@ -216,9 +218,9 @@ class Orchestrator( ) :
         group = self.groups[groupId]
         group.numCollectedVerificationStatusReplies += 1
 
-        print("number verification status replies = {0}".format(group.numCollectedVerificationStatusReplies))
+
+        print("Secret verification from: {0}, number replies = {1}".format(user, group.numCollectedVerificationStatusReplies))
         if group.numCollectedVerificationStatusReplies == group.n :
-            print("secretVerification ")
             return True
 
         return False
@@ -230,5 +232,8 @@ class Orchestrator( ) :
 
 
 
-
-
+    # Reset counters used in multiple rounds of communications
+    def resetCounters( self, groupId) :
+        print ("resetting counters")
+        self.groups[groupId].numCollatedReplies     = 0
+        self.groups[groupId].numCollectedVerificationStatusReplies  = 0       

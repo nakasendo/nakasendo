@@ -71,8 +71,10 @@ class ClientProtocol( pb.Referenceable ):
             print(msg)
             raise ClientError( msg )
 
+        self.Player.setPresignInitiator(gid)
         d = self.orchestratorRef.callRemote \
-            ( "presigning", self.user, gid.encode(), number )        
+            ( "presigning", self.user, gid.encode(), b'LITTLEK' )
+     
 
     def err_remote(self, reason):
         print ("Error from server:", reason)
@@ -105,9 +107,9 @@ class ClientProtocol( pb.Referenceable ):
         return self.Player.requestData( gid, calcType ) 
 
 
-    def remote_requestPresigningData(self, gid, number) :
-        print ("Request Presigning Data: gid = {0}, number={1}".format(gid, number))        
-        return 
+    #def remote_requestPresigningData(self, gid, number) :
+    #    print ("Request Presigning Data: gid = {0}, number={1}".format(gid, number))        
+    #    return 
 
     def remote_createSecret(self, gid, calcType, evals,  hiddenPolys, hiddenEvals) :
         try:
@@ -115,6 +117,23 @@ class ClientProtocol( pb.Referenceable ):
         except Exception as inst:
             raise ClientError( inst.args )
         return [self.user, gid]
+
+    def remote_groupIsVerified( self, gid, calcType ) :
+        print("groupisVerified: gid = {0}, calcType = {1}".format(gid, calcType ))
+        
+        
+        if calcType == 'LITTLEK' :
+            print("presign initiator = {0}".format(self.Player.isPresignInitiator(gid)))
+            if  self.Player.isPresignInitiator(gid) :
+                print("calling remote_presigning for ALPHA")
+                d  = self.orchestratorRef.callRemote \
+                    ( "presigning", self.user, gid.encode(), b'ALPHA' ) 
+            
+        if calcType == 'ALPHA' : 
+            print("Calculate littleK * alpha")
+            print("Calculate alpha * G ")
+            res = self.Player.getVWshares( gid )
+            print ("results = {0}".format(res) )
 
 
 

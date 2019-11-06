@@ -16,9 +16,8 @@ class JVRSS :
             + "\n\tpublicEvals      =  " + str(self.publicEvals)  \
             + "\n\thiddenEvals      =  " + str(self.hiddenEvals)  \
             + "\n\thiddenPolynomial =  " + str(self.hiddenPolynomial) \
-            + "\n\tallHiddenPolynomials =  " + str(self.allHiddenPolynomials) \
-            + "\n\tlittleK              =  " + str(self.littleK) \
-            + "\n\talpha                =  " + str(self.alpha) )
+            + "\n\tallHiddenPolynomials =  " + str(self.allHiddenPolynomials) )
+
 
         return string
 
@@ -31,8 +30,7 @@ class JVRSS :
         self.hiddenEvals = {}       # Polynomial evaluations multiplied by generator point
         self.hiddenPolynomial = []  # coeffs multiplied by generator point
         self.allHiddenPolynomials = {}
-        self.littleK = None         # little k (part of ephemeral key calc)
-        self.alpha   = None         # blinding value (part of ephemeral key calc)           
+          
 
 
 # Player Group metadata
@@ -48,6 +46,9 @@ class PlayerGroupMetadata :
         self.privateKeyPolynomial   = None          # Polynomial for this group
         self.privateKeyShare        = None          # calculated share of secret
         self.ephemeralKeyList       = []            # list of generated ephemeral keys
+        self.littleK                = None          # little k (part of ephemeral key calc)
+        self.alpha                  = None          # blinding value (part of ephemeral key calc)         
+        self.presignInitiator       = False         # need to co-ordinate JVRSS     
 
         self.transientData          = JVRSS()       # transient data - reusable data structure
 
@@ -62,6 +63,9 @@ class PlayerGroupMetadata :
             + "\n\tprivateKeyPolynomial =  " + str(self.privateKeyPolynomial) \
             + "\n\tprivateKeyShare      =  " + str(self.privateKeyShare) \
             + "\n\tephemeralKeyList     =  " + str(self.ephemeralKeyList) \
+            + "\n\tlittleK              =  " + str(self.littleK) \
+            + "\n\talpha                =  " + str(self.alpha) \
+            + "\n\tpresignInitiator     =  " + str(self.presignInitiator)  \
             + "\n\ttransientData        =  " + str(self.transientData ) )
             
         return string
@@ -99,6 +103,24 @@ class PlayerGroupMetadata :
             bignum  = Nakasendo.BigNum( index, mod )
             res     = GENPOINT.multipleScalar(bignum)
             self.transientData.hiddenPolynomial.append(res.value)
+    
+    #-------------------------------------------------
+    def calculateVWshares( self, mod ) :
+        print("in calculateVWshared")
+
+        # littleK * alpha
+        littleK = Nakasendo.BigNum( self.littleK, mod )
+        alpha   = Nakasendo.BigNum( self.alpha, mod )
+
+        v = littleK * alpha
+
+        # hide own polynomial using generator point
+        GEN         = Nakasendo.ECPoint()
+        GENPOINT    = GEN.GetGeneratorPoint()        
+
+        w           = GENPOINT.multipleScalar( alpha )        
+
+        return v, w 
 
     # reusable code to create a secret - used for privateKeyShare, little-k, alpha
     def createSecret( self, ordinal ) :
@@ -110,6 +132,24 @@ class PlayerGroupMetadata :
                 if innerOrd == ordinal :
                     res += Nakasendo.BigNum(str(fx))
         return res
+
+
+    def calculateShareOfVW( self, mod ) : 
+        print("in dummy function, modulo = {0}".format(mod) )  
+
+        # littleK * alpha
+        littleK = Nakasendo.BigNum( self.littleK, mod )
+        alpha   = Nakasendo.BigNum( self.alpha, mod )
+
+        v = littleK * alpha
+
+        # hide own polynomial using generator point
+        GEN         = Nakasendo.ECPoint()
+        GENPOINT    = GEN.GetGeneratorPoint()        
+
+        w           = GENPOINT.multipleScalar( alpha )  
+
+        return v, w
 
 #-----------------------------------------------------------------
 # Error class 
@@ -135,6 +175,15 @@ class Player :
             return 1
         else :
             return 0
+
+    def setPresignInitiator( self, groupId ) :
+        
+        self.groups[groupId].presignInitiator = True 
+        print("setting presignInitiator to: {0}".format(self.groups[groupId].presignInitiator))
+
+    def isPresignInitiator( self, groupId ) :
+        return self.groups[groupId].presignInitiator
+
 
 
     
@@ -189,7 +238,7 @@ class Player :
         hiddenPoly  = group.transientData.hiddenPolynomial
         hiddenEvals = group.transientData.hiddenEvals
 
-        return [groupId, calcType, ordinal, evals, hiddenPoly, hiddenEvals]
+        return [groupId, ordinal, evals, hiddenPoly, hiddenEvals]
 
 
     #-------------------------------------------------
@@ -206,16 +255,13 @@ class Player :
         if calcType == 'PRIVATEKEYSHARE' :
             group.privateKeyShare = result 
         elif calcType == 'LITTLEK' :
-            group.transientData.littleK = result
+            group.littleK = result
         elif calcType == 'ALPHA' :
-            group.transiendData.alpha = result
+            group.alpha = result
         else:
             msg = "Player:createSecret.calcType is not recognised: {0}".format(calcType)
             print(msg)
             raise PlayerError(msg)
-       
-        #print("\nHidden Polynomials = {0}".format(group.transientData.allHiddenPolynomials))
-        #print(group)
 
         self.verificationOfHonesty(groupId, hiddenEvals, hiddenPolys)
 
@@ -262,7 +308,26 @@ class Player :
                    return False
 
         return False
+    #-------------------------------------------------
 
+
+    def getVWshares( self, groupId ) :       
+        print("calculate intermediary shares of v and w....")
+        group = self.groups[groupId] 
+
+        res = group.calculateShareOfVW( Player.modulo )
+        #print(group)
+
+        #b = group.
+        #res = group.calculateVWShares( Player.modulo ) 
+        #print("getVWShares: {0}".format(res))  
+
+        return { group.ordinal, res }  
+
+    #-------------------------------------------------
+    #-------------------------------------------------
+    # Static Methods
+    #-------------------------------------------------
     @staticmethod
     def getECPoint(value):
         ecpoint = Nakasendo.ECPoint()

@@ -78,7 +78,7 @@ class OrchestratorProtocol( pb.Root ) :
     # This sends a request for data to all participants of group
     def remote_sharePublicKey( self, user, groupId, calcType ) :
         groupId = groupId.decode()
-        calcType = calcType.decode()
+        self.orchestrator.calcType = calcType.decode()         
 
         if not self.orchestrator.validGroup(groupId) :
             errMsg = 'Group Id is not valid: {0}'.format(groupId)
@@ -92,20 +92,18 @@ class OrchestratorProtocol( pb.Root ) :
         
         userRefs = self.orchestrator.getUserReferences(groupId)
         for ref in userRefs :
-            ref.callRemote("requestData", groupId, calcType).addCallback \
+            ref.callRemote("requestData", groupId, self.orchestrator.calcType).addCallback \
                 (self.collateData)        
         return 
 
     #-------------------------------------------------
     # collate data
     def collateData(self,  data ) :
-
         groupId     = data[0]
-        calcType    = data[1]
-        ordinal     = data[2]
-        evals       = data[3] 
-        hiddenPoly  = data[4]
-        hiddenEvals = data[5]
+        ordinal     = data[1]
+        evals       = data[2] 
+        hiddenPoly  = data[3]
+        hiddenEvals = data[4]
 
         # if True then ready to distribute data
         if self.orchestrator.collateData( groupId, ordinal, evals, hiddenPoly, hiddenEvals) :
@@ -114,13 +112,17 @@ class OrchestratorProtocol( pb.Root ) :
             # send the public data out to all group participants
             userRefs = self.orchestrator.getUserReferences( groupId )
             for ref in userRefs :
-                ref.callRemote( "createSecret", groupId, calcType, collatedData[0], collatedData[1], collatedData[2])\
+                ref.callRemote( "createSecret", groupId, self.orchestrator.calcType, collatedData[0], collatedData[1], collatedData[2])\
                     .addCallbacks(self.secretVerification, self.verificationError)
 
     #-------------------------------------------------
     # This sends a request for data to all participants of group
-    def remote_presigning( self, user, groupId, number ) :
+    def remote_presigning( self, user, groupId, calcType ) :
+        
         groupId = groupId.decode()
+        self.orchestrator.calcType = calcType.decode() 
+       
+        print("presigning: user={0}, groupId={1}, calcType={2}".format(user, groupId, self.orchestrator.calcType))
 
         if not self.orchestrator.validGroup(groupId) :
             errMsg = 'Group Id is not valid: {0}'.format(groupId)
@@ -131,10 +133,10 @@ class OrchestratorProtocol( pb.Root ) :
         if user not in participants :
             errMsg = 'user is not in the group: {0}'.format(user)
             raise OrchestratorError( errMsg ) 
-        
+
         userRefs = self.orchestrator.getUserReferences(groupId)
         for ref in userRefs :
-            ref.callRemote("requestData", groupId).addCallback \
+            ref.callRemote("requestData", groupId, self.orchestrator.calcType).addCallback \
                 (self.collateData)        
         return
 
@@ -146,11 +148,19 @@ class OrchestratorProtocol( pb.Root ) :
         groupId     = data[1]
 
         if self.orchestrator.secretVerification(user, groupId) :
-            print("secretVerification complete")
-        
+            print("secretVerification complete for: {0}".format(self.orchestrator.calcType))
+
+            # reset any counters 
+            self.orchestrator.resetCounters(groupId) 
+
+            # contact all the group participants with verification success
+            userRefs = self.orchestrator.getUserReferences(groupId)
+            for ref in userRefs :
+                ref.callRemote("groupIsVerified", groupId, self.orchestrator.calcType)
+
 
     def verificationError(self, reason):
-        print ("Error from client: {0}".format( reason ))
+        print ("Error: calcType={0}, from client: {1}".format( self.orchestrator.calcType, reason ))
         # do some stuff, delete the group / mark as being errored
         # tell clients this group is not good
 
