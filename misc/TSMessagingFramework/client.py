@@ -74,6 +74,8 @@ class ClientProtocol( pb.Referenceable ):
         self.Player.setPresignInitiator(gid)
         d = self.orchestratorRef.callRemote \
             ( "presigning", self.user, gid.encode(), b'LITTLEK' )
+
+
      
 
     def err_remote(self, reason):
@@ -130,10 +132,14 @@ class ClientProtocol( pb.Referenceable ):
                     ( "presigning", self.user, gid.encode(), b'ALPHA' ) 
             
         if calcType == 'ALPHA' : 
-            print("Calculate littleK * alpha")
-            print("Calculate alpha * G ")
+
             res = self.Player.getVWshares( gid )
-            print ("results = {0}".format(res) )
+            d = self.orchestratorRef.callRemote \
+                ( "collateVWData", gid.encode(), res[0], res[1])
+
+    def remote_sharedVWData( self, gid, data ) :
+        self.Player.setSharedVWData(gid, data)
+
 
 
 

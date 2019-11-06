@@ -36,7 +36,9 @@ class GroupMetadata :
         self.collatedPublicEvals    = {}
         self.collatedHiddenPolys    = {}
         self.collatedHiddenEvals    = {}
+        self.collatedVWs            = {}
         self.numCollatedReplies     = 0
+        self.numVWReplies           = 0
         self.verificationOfHonestyStatus            = True
         self.numCollectedVerificationStatusReplies  = 0
         self.calculationType        = ''
@@ -210,6 +212,25 @@ class Orchestrator( ) :
     def getCollatedData(self, groupId) :
         group = self.groups[groupId ]
         return group.collatedEvals, group.collatedHiddenPolys, group.collatedHiddenEvals
+
+    #-------------------------------------------------
+    # collate data
+    def collateVWData(self,  groupId, ordinal, data) : 
+        group = self.groups[groupId]
+
+        group.collatedVWs[ordinal] = data
+        group.numVWReplies += 1
+
+        print("number VW data replies = {0}".format(group.numVWReplies))
+        if group.numVWReplies == group.n :
+            print("Received all VW data, distribute")
+            return True 
+        return False
+    
+    #-------------------------------------------------
+    def getCollatedVWData(self, groupId) :
+        group = self.groups[groupId ]
+        return group.collatedVWs
 
     #-------------------------------------------------
     # This is here as a placeholder

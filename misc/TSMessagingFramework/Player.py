@@ -28,7 +28,9 @@ class JVRSS :
             + "\n\tpublicEvals      =  " + str(self.publicEvals)  \
             + "\n\thiddenEvals      =  " + str(self.hiddenEvals)  \
             + "\n\thiddenPolynomial =  " + str(self.hiddenPolynomial) \
-            + "\n\tallHiddenPolynomials =  " + str(self.allHiddenPolynomials) )
+            + "\n\tallHiddenPolynomials =  " + str(self.allHiddenPolynomials) \
+            + "\n\tallVWshares          =  " + str(self.allVWshares) )
+
 
 
         return string
@@ -42,6 +44,7 @@ class JVRSS :
         self.hiddenEvals = {}       # Polynomial evaluations multiplied by generator point
         self.hiddenPolynomial = []  # coeffs multiplied by generator point
         self.allHiddenPolynomials = {}
+        self.allVWshares = {}       # dict of V W shares from all players
           
 
 
@@ -119,6 +122,7 @@ class PlayerGroupMetadata :
             self.transientData.hiddenPolynomial.append(res.value)
     
     #-------------------------------------------------
+<<<<<<< HEAD
     def calculateVWshares( self, mod ) :
         print("in calculateVWshared")
 
@@ -136,6 +140,8 @@ class PlayerGroupMetadata :
 
         return v, w 
 
+=======
+>>>>>>> 68eecd5... SL-329 : collated and distributed VW shares
     # reusable code to create a secret - used for privateKeyShare, little-k, alpha
     def createSecret( self, ordinal,mod ) :
         
@@ -211,11 +217,8 @@ class Player :
 
 
     #-------------------------------------------------
-    # Add Group: This creates a polynomial, 
-    #            Evaluates the polynomial for own ordinal,
-    #            Evaluates the polynomial for all other Player ordinals,
-    #            Hides (encrypts) the polynomial using the Generator point
-    #            Hides (encrypts) the evals using using the Generator point
+    # Add Group - create the PlayerGroupMetadata
+    #           - create the Polynomial, and call pre-calculation
     def addGroup(self, groupId, ordinal, ordinalList, degree) :
         print("GroupIsSet:\n\tgroupId =  {0}\n\tmy ordinal = {1}\n\trest of ordinals = {2}".format \
             (groupId, ordinal, ordinalList))
@@ -353,19 +356,19 @@ class Player :
         return False
     #-------------------------------------------------
 
-
+    # get the calculate V and W share for this Player
     def getVWshares( self, groupId ) :       
         print("calculate intermediary shares of v and w....")
         group = self.groups[groupId] 
-
+ 
         res = group.calculateShareOfVW( Player.modulo )
-        #print(group)
+    
+        return [group.ordinal, res]  
 
-        #b = group.
-        #res = group.calculateVWShares( Player.modulo ) 
-        #print("getVWShares: {0}".format(res))  
-
-        return { group.ordinal, res }  
+    # sets the collated VW Data for all players in group
+    def setSharedVWData( self, groupId, data ) :
+        print("setting Shared VW Data...")
+        self.groups[groupId].transientData.allVWshares = data
 
     #-------------------------------------------------
     #-------------------------------------------------

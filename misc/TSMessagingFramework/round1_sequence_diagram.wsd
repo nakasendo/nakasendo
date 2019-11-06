@@ -91,5 +91,17 @@ PlayerClient2 --> Orchestrator : verified secret complete
 deactivate PlayerClient2
 
 
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : << groupIsVerified >>
+& Orchestrator -> PlayerClient2 : << groupIsVerified >>
+
+
+note right Player_1
+    - go to round2 sequence diagram -
+end note
+
 deactivate Orchestrator
+
+
 @enduml

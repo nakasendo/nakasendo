@@ -165,6 +165,19 @@ class OrchestratorProtocol( pb.Root ) :
         # tell clients this group is not good
 
 
+    def remote_collateVWData( self, groupId, ordinal, data ) :
+        print("Collating VW Data")
+        groupId = groupId.decode()
+        if self.orchestrator.collateVWData( groupId, ordinal, data ) :
+            collatedData = self.orchestrator.getCollatedVWData( groupId )
+
+        # send the public data out to all group participants
+            userRefs = self.orchestrator.getUserReferences( groupId )
+            for ref in userRefs :
+                ref.callRemote( "sharedVWData", groupId, collatedData)
+
+        
+
 
 #-----------------------------------------------------------------
 
