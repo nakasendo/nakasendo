@@ -1,8 +1,9 @@
 
 from twisted.spread import pb
 from twisted.internet import reactor
-
+from twisted.python import log
 from orchestrator import Orchestrator
+import sys
 
 #-----------------------------------------------------------------
 # Error class 
@@ -24,7 +25,8 @@ class OrchestratorProtocol( pb.Root ) :
 
     #-------------------------------------------------
     def __init__ (self) :
-        print("Server Running...")
+        log.startLogging(sys.stdout)
+        log.msg("Server Running...")
         self.orchestrator = Orchestrator( )
 
 

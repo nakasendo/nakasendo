@@ -430,7 +430,11 @@ class Player :
         ecpoint.SetValue(value)
         return ecpoint
 
-            
+    
+    def GroupIDs(self):
+        keys = self.groups.keys()
+        listToStr = '\n'.join([str(elem) for elem in keys])
+        return listToStr 
     #-------------------------------------------------
     def __str__(self):
         string = "Player:\nNumber of groups = " + str(len(self.groups))

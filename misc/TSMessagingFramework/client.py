@@ -14,6 +14,8 @@ from twisted.spread import pb
 from twisted.internet import stdio, reactor, protocol
 from twisted.protocols import basic
 from twisted.web import client
+from twisted.python import log
+
 
 from Player import Player
 
@@ -29,6 +31,7 @@ class ClientError(pb.Error):
 class ClientProtocol( pb.Referenceable ):
     
     def __init__(self ) :
+        log.startLogging(sys.stdout)
         self.orchestratorRef = None
         self.user = sys.argv[1]
         self.Player = Player( )
@@ -45,11 +48,13 @@ class ClientProtocol( pb.Referenceable ):
         self.orchestratorRef.callRemote("register", self.user, self)
         
     def err_obj1(self, reason):
-        print ("error getting object: ",reason)
+        #print ("error getting object: ",reason)
+        log.msg("error getting object: {0}".format(reason))
 
     #--------------------------------------------------
     def createGroup(self, n, m):
-        print ('calling remote createGroup with {0}, {1}'.format(n,m))
+        #print ('calling remote createGroup with {0}, {1}'.format(n,m))
+        log.msg('calling remote createGroup with {0}, {1}'.format(n,m))
 
         d = self.orchestratorRef.callRemote \
             ( "createGroup", self.user, n, m )
@@ -59,7 +64,8 @@ class ClientProtocol( pb.Referenceable ):
     def sharePublicKey( self, gid ) :
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
-            print(msg)
+            #print(msg)
+            log.msg(msg)
             raise ClientError( msg )
 
         d = self.orchestratorRef.callRemote \
@@ -68,7 +74,8 @@ class ClientProtocol( pb.Referenceable ):
     def presigning( self, gid, number ) :
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
-            print(msg)
+            #print(msg)
+            log.msg(msg)
             raise ClientError( msg )
 
         self.Player.setPresignInitiator(gid, number)
@@ -82,8 +89,8 @@ class ClientProtocol( pb.Referenceable ):
         print ("Error from server:", reason)
 
     def success_remote(self, result):
-        print ("Operation succeeded, groupID = ", result)
-
+        #print ("Operation succeeded, groupID = ", result)
+        log.msg("Operation succeeded, groupID = {}".format(result))
 
     
     #--------------------------------------------------
@@ -91,8 +98,10 @@ class ClientProtocol( pb.Referenceable ):
     #--------------------------------------------------
          
     def remote_invite(self, gid):
+        #why is there a random sleep here?
         sleep(randint(4,12))
-        print("Received invitation for group {0}, replying with Acceptance".format(gid))
+        #print("Received invitation for group {0}, replying with Acceptance".format(gid))
+        log.msg("Received invitation for group {0}, replying with Acceptance".format(gid))
         return [ self.user, gid, True ]
 
     def remote_groupIsSet(self, gid, ordinal, ordinalList, degree) :
@@ -116,10 +125,11 @@ class ClientProtocol( pb.Referenceable ):
 
     def remote_groupIsVerified( self, gid, calcType ) :
         print("groupisVerified: gid = {0}, calcType = {1}".format(gid, calcType ))
+        #log.msg("groupisVerified: gid = {0}, calcType = {1}".format(gid, calcType ))
         
         
         if calcType == 'LITTLEK' :
-            print("presign initiator = {0}".format(self.Player.isPresignInitiator(gid)))
+            log.msg("presign initiator = {0}".format(self.Player.isPresignInitiator(gid)))
             if  self.Player.isPresignInitiator(gid) :
                 print("calling remote_presigning for ALPHA")
                 d  = self.orchestratorRef.callRemote \
@@ -228,6 +238,9 @@ class StdioClientProtocol(basic.LineReceiver):
 
     def do_print(self, gid) :
         self.sendLine(str(self.client.Player).encode())
+        
+    def do_groupids(self):
+        self.sendLine(self.client.Player.GroupIDs().encode())
 
     def __checkSuccess(self, pageData):
         msg = "Success: got {} bytes.".format(len(pageData))
@@ -236,6 +249,8 @@ class StdioClientProtocol(basic.LineReceiver):
     def __checkFailure(self, failure):
         msg = "Failure: " + failure.getErrorMessage()
         self.sendLine(msg.encode("ascii"))
+        
+    
 
     def connectionLost(self, reason):
         reactor.stop()
