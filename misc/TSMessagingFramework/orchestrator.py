@@ -41,6 +41,7 @@ class GroupMetadata :
         self.numVWReplies           = 0
         self.verificationOfHonestyStatus            = True
         self.numCollectedVerificationStatusReplies  = 0
+        self.numEphemeralKeyCompletedReplies        = 0
         self.calculationType        = ''
 
     def __str__(self):
@@ -68,7 +69,6 @@ class Orchestrator( ) :
 
     #-------------------------------------------------
     def __init__ (self) :
-        print("__init__ Orchestrator")
         # dictionary of { user:remoteReference }
         self.users  = {}
         # dictionary of { groupID:GroupMetaData }
@@ -252,9 +252,22 @@ class Orchestrator( ) :
         # tell clients this group is not good
 
 
+    def allEphemeralKeysCompleted( self, user, groupId) :
+        group = self.groups[groupId]
+        group.numEphemeralKeyCompletedReplies += 1
+
+
+        print("Ephemeral Keys Completed from: {0}, number replies = {1}".format(user, group.numEphemeralKeyCompletedReplies))
+        if group.numEphemeralKeyCompletedReplies == group.n :
+            return True
+
+        return False
+
 
     # Reset counters used in multiple rounds of communications
     def resetCounters( self, groupId) :
         print ("resetting counters")
         self.groups[groupId].numCollatedReplies     = 0
         self.groups[groupId].numCollectedVerificationStatusReplies  = 0       
+        self.groups[groupId].numVWReplies  = 0       
+        self.groups[groupId].numEphemeralKeyCompletedReplies  = 0       

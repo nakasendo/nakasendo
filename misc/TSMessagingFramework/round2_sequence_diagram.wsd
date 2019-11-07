@@ -19,7 +19,7 @@ activate PlayerClient
 PlayerClient -> Orchestrator : presign 
 deactivate PlayerClient
 
-group JVRSS 
+group JVRSS
 loop "k", "alpha"
 Orchestrator -> PlayerClient : << requestData >>
 & Orchestrator -> PlayerClient2 : << requestData >>
@@ -44,8 +44,8 @@ activate PlayerClient
 activate PlayerClient2
 
 
-PlayerClient -> PlayerClient : calculate "createSecret \n secret verification"
-PlayerClient2 -> PlayerClient2 : calculate "createSecret" \n secret verification
+PlayerClient -> PlayerClient :  createSecret \n verification of honesty
+PlayerClient2 -> PlayerClient2 : createSecret \n verification of honesty
 
 PlayerClient --> Orchestrator : verified secret complete
 deactivate PlayerClient
@@ -67,5 +67,24 @@ PlayerClient2 -> Orchestrator : collateVW
 
 Orchestrator -> PlayerClient : << sharedVWData >>
 & Orchestrator -> PlayerClient2 : << sharedVWData >>
+activate PlayerClient
+activate PlayerClient2
+
+PlayerClient -> PlayerClient : create ephemeral key
+PlayerClient2 -> PlayerClient2 : create ephemeral key
+PlayerClient -> Orchestrator : ephemeral key complete
+PlayerClient2 -> Orchestrator : ephemeral key complete
+
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : << All completed >>
+& Orchestrator -> PlayerClient2 : << All completed >>
+
+deactivate PlayerClient2
+
+PlayerClient -> Orchestrator : presign (repeat x number times )
+deactivate PlayerClient
+
+
 
 @enduml

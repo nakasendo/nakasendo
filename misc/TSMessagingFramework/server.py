@@ -171,12 +171,22 @@ class OrchestratorProtocol( pb.Root ) :
         if self.orchestrator.collateVWData( groupId, ordinal, data ) :
             collatedData = self.orchestrator.getCollatedVWData( groupId )
 
-        # send the public data out to all group participants
+            # send the public data out to all group participants
             userRefs = self.orchestrator.getUserReferences( groupId )
             for ref in userRefs :
                 ref.callRemote( "sharedVWData", groupId, collatedData)
 
         
+    def remote_ephemeralKeyCompleted( self, groupId, user ) :
+        groupId = groupId.decode()
+        print("EphemeralKey has been completed, groupId = {0}, user = {1}".format \
+            (groupId, user))
+        
+        if self.orchestrator.allEphemeralKeysCompleted( user, groupId ) :
+            # send the public data out to all group participants
+            userRefs = self.orchestrator.getUserReferences( groupId )
+            for ref in userRefs :
+                ref.callRemote( "completed", groupId)
 
 
 #-----------------------------------------------------------------

@@ -1,6 +1,5 @@
 import json
 import sys
-import ecdsa
 
 try:
     import PyBigNumbers
@@ -37,7 +36,7 @@ class JVRSS :
 
 
     def reset( self ) :
-        print("JVRSS: reset")
+        #print("JVRSS: reset")
         self.f_x   = None           # f(x): Polynomial evaluated for own ordinal
         self.evals = {}             # dict ordinal:evaluated for each o in ordinallist
         self.publicEvals = {}       # dict of dict: all Players in group evaluations
@@ -53,7 +52,6 @@ class PlayerGroupMetadata :
     
 
     def __init__ (self, id, ordinal, ordinalList, degree) :
-        print ("__init__ PlayerGroupMetadata")
         self.id                     = id            # Group ID
         self.ordinal                = ordinal       # Label assigned by orchestrator
         self.ordinalList            = ordinalList   # labels of other participants in the group
@@ -65,6 +63,7 @@ class PlayerGroupMetadata :
         self.littleK                = None          # little k (part of ephemeral key calc)
         self.alpha                  = None          # blinding value (part of ephemeral key calc)         
         self.presignInitiator       = False         # need to co-ordinate JVRSS     
+        self.numberPresigns         = 1             # number presigns left to do (default is 1)
 
         self.transientData          = JVRSS()       # transient data - reusable data structure
 
@@ -83,6 +82,7 @@ class PlayerGroupMetadata :
             + "\n\tlittleK              =  " + str(self.littleK) \
             + "\n\talpha                =  " + str(self.alpha) \
             + "\n\tpresignInitiator     =  " + str(self.presignInitiator)  \
+            + "\n\tnumberPresigns       =  " + str(self.numberPresigns)  \
             + "\n\ttransientData        =  " + str(self.transientData ) )
             
         return string
@@ -91,7 +91,7 @@ class PlayerGroupMetadata :
     # i.e. Using the Polynomial parameter, store calculated data in transient data
     #       - Evaluate the polynomial for own ordinal
     #       - Evaluate the polynomial for other player ordinals
-    #       - Hide (encrypt) the polynomial via Generator Point
+    #       - Hide (encrypt) the polynomial via Generatreor Point
     #       - Hide (encrypt) the evals via Generator Point
     #
     def polynomialPreCalculation(self, poly, mod, ordinal ) :
@@ -189,11 +189,9 @@ class PlayerError(Exception):
 class Player :
 
     modulo = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"
-    #modulo = ecdsa.SECP256k1.order
 
 
     def __init__(self) :
-        print("__init__ Player")
         # dictionary of { groupID:PlayerGroupMetadata }
         self.groups = {}
  
@@ -203,15 +201,23 @@ class Player :
         else :
             return 0
 
-    def setPresignInitiator( self, groupId ) :
+    def setPresignInitiator( self, groupId, number ) :
+        group = self.groups[groupId]
         
-        self.groups[groupId].presignInitiator = True 
-        print("setting presignInitiator to: {0}".format(self.groups[groupId].presignInitiator))
+        group.presignInitiator = True 
+        group.numberPresigns = number 
+        print("setting presignInitiator to: {0}, number of ephemeral keys left to do: {1}".format \
+            (group.presignInitiator, group.numberPresigns))
 
     def isPresignInitiator( self, groupId ) :
         return self.groups[groupId].presignInitiator
 
 
+    def numberPresignsLeftToDo( self, groupId ) :
+        group = self.groups[groupId]
+        numberPresigns = group.numberPresigns - 1
+        return numberPresigns
+        
 
     
 
@@ -253,7 +259,6 @@ class Player :
         poly = None
         # Not the 1st time through JVRSS sequence
         if calcType != 'PRIVATEKEYSHARE' :
-            print("Creating New Polynomial")
             poly = self.createPolynomial(group.degree)
             group.polynomialPreCalculation(poly, Player.modulo, group.ordinal)
 
@@ -289,13 +294,11 @@ class Player :
             raise PlayerError(msg)
 
         self.verificationOfHonesty(groupId, hiddenEvals, hiddenPolys)
-        self.verifyCorrectness(groupId, hiddenEvals, hiddenPolys)
+        #self.verifyCorrectness(groupId, hiddenEvals, hiddenPolys)
 
         return groupId, result
 
     def verifyCorrectness(self, groupId, hiddenEvals, hiddenPolys):
-
-        print("\nVerification of Correctness : groupId = {0}".format(groupId))
 
         group = self.groups[groupId]
         ordinalList = list(group.ordinalList)
@@ -310,15 +313,12 @@ class Player :
             zero_interpolator = interpolator(xValue='0')
             if (str(zero_interpolator) != str(hiddenPolys[Ordinal][0])):
                 msg =  ("Verification of Correctness "+ str(Ordinal) + " is failed.")
-                print(msg)
                 raise PlayerError(msg)
 
     #-------------------------------------------------
     # Do verification of honesty step
     def verificationOfHonesty(self, groupId, hiddenEvals, hiddenPolys) :
         group = self.groups[groupId]
-
-        print("\nVerification of honesty : groupId = {0}".format(groupId))
 
         ordinalList = list(group.ordinalList)
         ordinalList.append(group.ordinal)
@@ -327,7 +327,6 @@ class Player :
                 if (fromPlayerOrdinal != toPlayerOrdinal):
                     if (not self.getVerifyCoefficientForPlayer(groupId, hiddenEvals, hiddenPolys, fromPlayerOrdinal, toPlayerOrdinal)):
                         msg =  ("Verification of honesty "+ str(fromPlayerOrdinal) + " to " + str(toPlayerOrdinal)+ " is failed.")
-                        print(msg)
                         raise PlayerError(msg)
 
     #-------------------------------------------------
@@ -342,7 +341,7 @@ class Player :
             if (resCoeffEC is None) :
                 resCoeffEC = coeffEC
             else:
-                resCoeffEC = resCoeffEC + coeffEC.multipleScalar(Nakasendo.BigNum(str(multplier)))
+                resCoeffEC = resCoeffEC + coeffEC.multipleScalar(Nakasendo.BigNum('{:x}'.format(multplier) ))
                 multplier = (multplier * toOrdinal)
 
         for ofOrdinal, pubPoly in hiddenEvals[fromOrdinal].items():
@@ -358,7 +357,6 @@ class Player :
 
     # get the calculate V and W share for this Player
     def getVWshares( self, groupId ) :       
-        print("calculate intermediary shares of v and w....")
         group = self.groups[groupId] 
  
         res = group.calculateShareOfVW( Player.modulo )
@@ -367,8 +365,58 @@ class Player :
 
     # sets the collated VW Data for all players in group
     def setSharedVWData( self, groupId, data ) :
-        print("setting Shared VW Data...")
-        self.groups[groupId].transientData.allVWshares = data
+        group = self.groups[groupId]
+        group.transientData.allVWshares = data
+
+        self.calculateEphemeralKey( groupId )
+
+    # LGInterplate at 0 to get V
+    # ECLGInterplate at 0 to get W
+    def calculateEphemeralKey(self, groupId ) :
+        
+        group = self.groups[groupId]
+        print("Calculating Ephemeral Key...")
+
+        xfx_v = []
+        xfx_w = []
+
+        allOrdinals = list(group.ordinalList)
+        allOrdinals.append(group.ordinal)
+
+        for ord in allOrdinals :
+            vw = group.transientData.allVWshares[ord]
+            xfx_v.append( (ord, vw[0]) )
+            point = Nakasendo.ECPoint()
+            point.SetValue( vw[1] )
+            w_points = point.GetAffineCoOrdinates()
+
+            xfx_w.append( (ord,  w_points[0],w_points[1] ) )
+        
+
+        v_interpolator = Nakasendo.LGInterpolator \
+            ( xfx_v, Player.modulo, decimal=False)
+        w_interpolator = Nakasendo.LGECInterpolator \
+            ( xfx_w, Player.modulo, decimal=False)
+
+        vZeroVal = v_interpolator('0')
+        wZeroVal = w_interpolator('0')
+        
+        vZeroValInv = vZeroVal.inverse()
+
+        interpolated_r = wZeroVal.multipleScalar(vZeroValInv)
+        if ( interpolated_r.IsPointOnCurve() is not True ) :
+            msg = ("Error in Player:calculateEphemeralKey: point not on curve")
+            print(msg)
+            raise PlayerError(msg)
+
+        interpolated_r_points = interpolated_r.GetAffineCoOrdinates()
+
+        r_bn = Nakasendo.BigNum( interpolated_r_points[0], Player.modulo )
+        ephemeralKey = [ group.littleK , r_bn ]
+        
+        group.ephemeralKeyList.append( ephemeralKey )
+
+
 
     #-------------------------------------------------
     #-------------------------------------------------

@@ -71,7 +71,7 @@ class ClientProtocol( pb.Referenceable ):
             print(msg)
             raise ClientError( msg )
 
-        self.Player.setPresignInitiator(gid)
+        self.Player.setPresignInitiator(gid, number)
         d = self.orchestratorRef.callRemote \
             ( "presigning", self.user, gid.encode(), b'LITTLEK' )
 
@@ -101,17 +101,11 @@ class ClientProtocol( pb.Referenceable ):
         if not self.Player.addGroup ( gid, ordinal, ordinalList, degree ) :
             raise  ClientError( "Group already exists")
         
-        print(self.Player)
         return
 
     def remote_requestData(self, gid, calcType) :
-        print ("Request for Data: gid = {0}".format(gid))
         return self.Player.requestData( gid, calcType ) 
 
-
-    #def remote_requestPresigningData(self, gid, number) :
-    #    print ("Request Presigning Data: gid = {0}, number={1}".format(gid, number))        
-    #    return 
 
     def remote_createSecret(self, gid, calcType, evals,  hiddenPolys, hiddenEvals) :
         try:
@@ -139,6 +133,18 @@ class ClientProtocol( pb.Referenceable ):
 
     def remote_sharedVWData( self, gid, data ) :
         self.Player.setSharedVWData(gid, data)
+        d = self.orchestratorRef.callRemote \
+                ( "ephemeralKeyCompleted", gid.encode(), self.user )        
+
+
+    def remote_completed( self, gid ) :
+        if self.Player.isPresignInitiator(gid) :
+            numberPresignsLeft = self.Player.numberPresignsLeftToDo( gid )
+            if numberPresignsLeft > 0 :
+                self.presigning( gid, numberPresignsLeft )
+            else: 
+                print("I was the presign initiator.  Looks like we're FINISHED!!!")
+        
 
 
 
@@ -217,7 +223,7 @@ class StdioClientProtocol(basic.LineReceiver):
         self.sendLine(b'>>>')
     
     def do_presign(self, gid, number=1) :        
-        self.client.presigning( gid, number )
+        self.client.presigning( gid, int(number) )
         self.sendLine(b'>>>')
 
     def do_print(self, gid) :
