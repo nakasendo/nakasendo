@@ -502,6 +502,7 @@ static PyObject* wrap_mulByGen(PyObject* self, PyObject *args)
 
     std::unique_ptr< ECPoint > gen = PY_ECPOINT::makeECPoint( curveID ) ;
 
+    
     ECPoint GEN     = gen.get()->getGenerator();
 
     if ( dec )  

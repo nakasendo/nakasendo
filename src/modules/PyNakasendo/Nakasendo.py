@@ -315,9 +315,9 @@ class ECPoint:
         points = self.GetAffineCoOrdinates()
         return '({},{})'.format (points[0],points[1])
 
-def MultiplyByGenerator( m, nid=ECPoint.defaultNID ) :
-    pt = ECPoint(nid)
-    pt.value = PyECPoint.MultiplyByGenerator( m.value, nid, pt.isDec, pt.isCompressed )
+def MultiplyByGenerator( m,isDec=False, nid=ECPoint.defaultNID, compressed=False ) :
+    pt = ECPoint(nid=nid,isDec=isDec)
+    pt.value = PyECPoint.MultiplyByGenerator( m.value, nid, isDec, compressed)
     return pt
 
 

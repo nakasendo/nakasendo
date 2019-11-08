@@ -275,15 +275,15 @@ def test_MultiplyByGenerator():
 
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         hexValue = Nakasendo.ECPoint(nID)
-
+        bigNumB = Nakasendo.BigNum()
         # EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1
         x_axis, y_axis = hexValue.GetAffineCoOrdinates()
         assert len(x_axis) == 62 or len(x_axis) == 64, "Test failed"
 
-        # EC Point multiply by generator
-        actualValue = Nakasendo.MultiplyByGenerator( hexValue, nID )
+        # EC Point Scalar multiply on curve with supplied ID
+        actualValue = str(Nakasendo.MultiplyByGenerator(bigNumB))
+        assert len(actualValue) == 66, "Test failed"
 
-        assert len(actualValue.value) == 66, "Test failed"
 
 def test_SetKeyFromPem():
 
@@ -711,7 +711,6 @@ def test_LGInterpolatorSingleHex():
     modulo = str(1238275102653497496038888277977)
     hex_value = 0
     xValue = str(randint(10, 100000))
-
     for x in range(1, 6):
         xPoint = str(x)
         # LGInterpolator, evaluate the ith basis polynomial at xValue
@@ -725,18 +724,18 @@ def test_LGECInterpolatorFull():
     modulo = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"
     xValue = Nakasendo.BigNum().value
     listTupleObj = []
-    hex_value = 0
+    hex_value = False
     # Generating Random EC
     for x in range(10, 50):
         # Generate a Random EC Point with default NID ==> NID_secp256k1
         hexValue = Nakasendo.ECPoint()
-
+        print(hexValue.value)
         # Check if the point is on the curve with the supplied NID default NID ==> NID_secp256k1
         assert hexValue.IsPointOnCurve(), "Test failed"
 
         x_Axis, y_axis = hexValue.GetAffineCoOrdinates()
         # EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1
-        listTupleObj.append((x, x_Axis, y_axis))
+        listTupleObj.append((str(x), x_Axis, y_axis))
 
     lgInterpolatorX = Nakasendo.LGECInterpolator(listTupleObj, modulo,hex_value)
     lgInterpolatorX = lgInterpolatorX(xValue)

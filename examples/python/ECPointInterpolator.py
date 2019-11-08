@@ -66,25 +66,28 @@ if __name__ == "__main__":
     for i in range (1,5):
         pt = Nakasendo.ECPoint()
         coords = pt.GetAffineCoOrdinates()
-        ECPoints.append((i,coords[0],coords[1] ))
+        ECPoints.append((str(i),coords[0],coords[1] ))
     
     #create interpolator
     modulo='FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141'
     print (ECPoints)
-    lgECInterpolator = Nakasendo.LGECInterpolator( ECPoints, modulo ) 
+    lgECInterpolator = Nakasendo.LGECInterpolator( ECPoints, modulo,False ) 
     print ("lgInterpolator = ", lgECInterpolator )
 
     xValue = 0;
     valueECPoint = lgECInterpolator( str(xValue)) 
-    print ("Full LG Interpolation evaluation for xValue=%s is %s" % (xValue, valueECPoint.GetAffineCoOrdinates() ) )
+    print ("Full LG EC Interpolation evaluation for xValue=%s is %s" % (xValue, valueECPoint.GetAffineCoOrdinates() ) )
    
-    
-  
+    xValue = 1;
+    valueECPoint = lgECInterpolator( str(xValue)) 
+    print ("Full LG EC Interpolation evaluation for xValue=%s is %s" % (xValue, valueECPoint.GetAffineCoOrdinates() ) )
+ 
+ 
     print ("Hiding the BigNumber %s by multiplying it by the CurveGenerator Point %s" % ( bigNumA, GENPOINTA.GetAffineCoOrdinates()))
     
-    hiddenVal = valueECPoint.multiplyByGenerator(bigNumA)
+    hiddenVal = Nakasendo.MultiplyByGenerator(bigNumA)
     print(hiddenVal)
-    
+    print(len(hiddenVal.value))
     hiddenVal2 = Nakasendo.MultiplyByGenerator(bigNumA)
     print(hiddenVal)
     
@@ -93,6 +96,59 @@ if __name__ == "__main__":
     xValue = 1;
     value1 = lgECInterpolator( str(xValue)) 
     print ("Full LG Interpolation evaluation for xValue=%s is %s" % (xValue, value1.GetAffineCoOrdinates() ) )
+    
+    
+    
+    isDecimal = False
+    if(isDecimal):
+        modulo = str(ecdsa.SECP256k1.order)
+    degree = random.randint(20, 100)
+    #degree = 3
+    # create a poly..
+    poly1 = None
+    if(isDecimal):
+        print(modulo)
+        poly1 = Nakasendo.Polynomial.initRandomDec( degree, modulo )
+    else:
+        poly1 = Nakasendo.Polynomial.initRandomHex( degree, modulo )
+    print(poly1)
+    # evalulate for a few points 
+    ordlist = [1,2,3,4,5]
+    evalRes = []
+    for val in ordlist:
+        evalRes.append(poly1(str(val)))
+        
+    print(' '.join(evalRes))
+    # encryt the poly
+    
+    
+    encryptedCoeffs = []
+    for coeff in poly1.coefficients:
+        bigNumb = Nakasendo.BigNum(coeff,modulo,isDecimal)
+        val = Nakasendo.MultiplyByGenerator(bigNumb,isDecimal)
+        encryptedCoeffs.append(val)
+        
+    
+
+    for label in ordlist:
+        bignumLabel = Nakasendo.BigNum(str(label),modulo, isDecimal)
+        movingLabel = Nakasendo.BigNum(str(label),modulo, isDecimal)
+        sumpoints = encryptedCoeffs[0]
+        for points in encryptedCoeffs[1:]:
+            labelTimesPoints = points.multipleScalar(movingLabel)
+            sumpoints = sumpoints + labelTimesPoints
+            movingLabel = movingLabel * bignumLabel
+        
+        bigNumb = Nakasendo.BigNum(evalRes[label-1],modulo,isDecimal)
+        val = Nakasendo.MultiplyByGenerator(bigNumb,isDecimal,compressed=True)
+        
+        assert(sumpoints == val)
+      
+  
+    
+    
+    
+   
     
     
     
