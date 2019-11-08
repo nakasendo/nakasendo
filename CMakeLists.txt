@@ -22,8 +22,9 @@
 ##
 ## Packaging :
 ##   Windows : cpack -G NSIS -C Release ## Require to install NSIS
+##             cpack --config CPackSourceConfig.cmake -G ZIP
 ##   Linus   : cpack -G TGZ ## use at cmake time to get the precise os type installer name : -DCUSTOM_SYSTEM_OS_NAME=Ubuntu
-
+##             cpack --config CPackSourceConfig.cmake -G TGZ
 
 cmake_minimum_required(VERSION 3.12)
 project(SDKLibraries)
