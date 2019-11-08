@@ -49,4 +49,6 @@ set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/misc/SDKLibrariesLogo.ico")
 set(CPACK_NSIS_DISPLAY_NAME "${CMAKE_PROJECT_NAME} version ${SDK_VERSION_STRING}")
 set(CPACK_NSIS_PACKAGE_NAME "${CMAKE_PROJECT_NAME} ${SDK_VERSION_STRING}")
 
-
+## Specific source ##################################
+set(CPACK_SOURCE_IGNORE_FILES "demo/;jenkins/;misc/;tests/;/\\\\.git/")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${SDK_BASE_PACKAGE_FIXEDNAME}_source")

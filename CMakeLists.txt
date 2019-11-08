@@ -18,17 +18,18 @@
 ##   cmake -G"Visual Studio 15 2017" -A x64 ..\SDKLibraries && msbuild SDKLibraries.sln -v:q -maxcpucount:4 /p:Configuration=Debug && msbuild SDKLibraries.sln  -v:q -maxcpucount:4 /p:Configuration=Release
 ##
 ## On Linux (Ubuntu)
-##   cmake ..\SDKLibraries -DCMAKE_BUILD_TYPE=Debug; time -p make -j8 ; ctest ; make install
+##   cmake ../SDKLibraries -DCMAKE_BUILD_TYPE=Debug -DCUSTOM_SYSTEM_OS_NAME=Ubuntu; time -p make -j8 ; ctest ; make install; cpack -G TGZ
 ##
 ## Packaging :
 ##   Windows : cpack -G NSIS -C Release ## Require to install NSIS
+##             cpack --config CPackSourceConfig.cmake -G ZIP
 ##   Linus   : cpack -G TGZ ## use at cmake time to get the precise os type installer name : -DCUSTOM_SYSTEM_OS_NAME=Ubuntu
-
+##             cpack --config CPackSourceConfig.cmake -G TGZ
 
 cmake_minimum_required(VERSION 3.12)
 project(SDKLibraries)
 
-set(SDK_VERSION_MAJOR "1" CACHE INTERNAL "framework major version")
+set(SDK_VERSION_MAJOR "2" CACHE INTERNAL "framework major version")
 set(SDK_VERSION_MINOR "0" CACHE INTERNAL "framework minor version")
 set(SDK_VERSION_PATCH "0" CACHE INTERNAL "framework patch version")
 
