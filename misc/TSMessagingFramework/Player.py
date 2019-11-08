@@ -294,7 +294,7 @@ class Player :
             raise PlayerError(msg)
 
         self.verificationOfHonesty(groupId, hiddenEvals, hiddenPolys)
-        #self.verifyCorrectness(groupId, hiddenEvals, hiddenPolys)
+        self.verifyCorrectness(groupId, hiddenEvals, hiddenPolys)
 
         return groupId, result
 
@@ -308,10 +308,12 @@ class Player :
             for ofOrdinal, pubPoly in hiddenEvals[Ordinal].items():
                 pubPoly = Player.getECPoint(pubPoly)
                 x, y = pubPoly.GetAffineCoOrdinates()
+                x, y = str(int(x, 16)), str(int(y, 16))
                 curvepoint.append((ofOrdinal,  x, y))
-            interpolator = Nakasendo.LGECInterpolator(xfx=curvepoint, modulo=self.modulo, decimal=False)
+
+            interpolator = Nakasendo.LGECInterpolator(xfx=curvepoint, modulo=str(int(self.modulo, 16)), decimal=1)
             zero_interpolator = interpolator(xValue='0')
-            if (str(zero_interpolator) != str(hiddenPolys[Ordinal][0])):
+            if (str(zero_interpolator) != str(int(hiddenPolys[Ordinal][0], 16))):
                 msg =  ("Verification of Correctness "+ str(Ordinal) + " is failed.")
                 raise PlayerError(msg)
 
