@@ -309,7 +309,7 @@ class Player :
                 pubPoly = Player.getECPoint(pubPoly)
                 x, y = pubPoly.GetAffineCoOrdinates()
                 x, y = str(int(x, 16)), str(int(y, 16))
-                curvepoint.append((ofOrdinal,  x, y))
+                curvepoint.append((str(ofOrdinal),  x, y))
 
             interpolator = Nakasendo.LGECInterpolator(xfx=curvepoint, modulo=str(int(self.modulo, 16)), decimal=1)
             zero_interpolator = interpolator(xValue='0')
@@ -332,11 +332,14 @@ class Player :
                         raise PlayerError(msg)
 
     #-------------------------------------------------
+    '''
     def getVerifyCoefficientForPlayer(self, groupId, hiddenEvals, hiddenPolys, fromOrdinal, toOrdinal):
 
         # get the coefficients that 'from' player sent to all, where 'from' and 'to' are ordinals
         resCoeffEC = None
         multplier = toOrdinal
+        
+        
 
         for coeff in hiddenPolys[fromOrdinal]:
             coeffEC = Player.getECPoint(coeff)
@@ -345,6 +348,33 @@ class Player :
             else:
                 resCoeffEC = resCoeffEC + coeffEC.multipleScalar(Nakasendo.BigNum('{:x}'.format(multplier) ))
                 multplier = (multplier * toOrdinal)
+
+        for ofOrdinal, pubPoly in hiddenEvals[fromOrdinal].items():
+            pubPoly = Player.getECPoint(pubPoly)
+            if (ofOrdinal == toOrdinal):
+               if (pubPoly == resCoeffEC):
+                   return True
+               else:
+                   return False
+
+        return False
+    '''
+    def getVerifyCoefficientForPlayer(self, groupId, hiddenEvals, hiddenPolys, fromOrdinal, toOrdinal):
+
+        # get the coefficients that 'from' player sent to all, where 'from' and 'to' are ordinals
+        resCoeffEC = None
+        multplier = toOrdinal
+        multplierBN = Nakasendo.BigNum(str(toOrdinal), self.modulo)
+        toOrdinalBN = Nakasendo.BigNum(str(toOrdinal), self.modulo)
+           
+        encryptedCoeffs = hiddenPolys[fromOrdinal]
+        resCoeffEC = Player.getECPoint(encryptedCoeffs[0])    
+        for coeff in encryptedCoeffs[1:]:           
+            coeffEC = Player.getECPoint(coeff)          
+            labelTimesPoints = coeffEC.multipleScalar(multplierBN)          
+            resCoeffEC = resCoeffEC + labelTimesPoints          
+            multplierBN = multplierBN * toOrdinalBN
+        
 
         for ofOrdinal, pubPoly in hiddenEvals[fromOrdinal].items():
             pubPoly = Player.getECPoint(pubPoly)
@@ -392,7 +422,7 @@ class Player :
             point.SetValue( vw[1] )
             w_points = point.GetAffineCoOrdinates()
 
-            xfx_w.append( (ord,  w_points[0],w_points[1] ) )
+            xfx_w.append( (str(ord),  w_points[0],w_points[1] ) )
         
 
         v_interpolator = Nakasendo.LGInterpolator \
@@ -425,7 +455,7 @@ class Player :
     # Static Methods
     #-------------------------------------------------
     @staticmethod
-    def getECPoint(value):
+    def getECPoint(value,isDecimal=False):
         ecpoint = Nakasendo.ECPoint()
         ecpoint.SetValue(value)
         return ecpoint

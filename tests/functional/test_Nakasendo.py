@@ -281,7 +281,7 @@ def test_MultiplyByGenerator():
         assert len(x_axis) == 62 or len(x_axis) == 64, "Test failed"
 
         # EC Point Scalar multiply on curve with supplied ID
-        actualValue = str(Nakasendo.MultiplyByGenerator(bigNumB))
+        actualValue = str(Nakasendo.MultiplyByGenerator(bigNumB,compressed=True))
         assert len(actualValue) == 66, "Test failed"
 
 
