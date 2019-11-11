@@ -113,12 +113,13 @@ if __name__ == "__main__":
         poly1 = Nakasendo.Polynomial.initRandomHex( degree, modulo )
     print(poly1)
     # evalulate for a few points 
-    ordlist = [1,2,3,4,5]
-    evalRes = []
+    ordlist = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+    #ordlist = [10,11,12]
+    evalRes = {}
     for val in ordlist:
-        evalRes.append(poly1(str(val)))
+        evalRes[val] = poly1(str(val))
         
-    print(' '.join(evalRes))
+    print(evalRes)
     # encryt the poly
     
     
@@ -129,19 +130,25 @@ if __name__ == "__main__":
         encryptedCoeffs.append(val)
         
     
+    print(encryptedCoeffs)
+    
 
     for label in ordlist:
         bignumLabel = Nakasendo.BigNum(str(label),modulo, isDecimal)
         movingLabel = Nakasendo.BigNum(str(label),modulo, isDecimal)
+        bignumLabel = Nakasendo.BigNum('{:x}'.format(label),modulo, isDecimal)
+        movingLabel = Nakasendo.BigNum('{:x}'.format(label),modulo, isDecimal)
         sumpoints = encryptedCoeffs[0]
         for points in encryptedCoeffs[1:]:
             labelTimesPoints = points.multipleScalar(movingLabel)
             sumpoints = sumpoints + labelTimesPoints
             movingLabel = movingLabel * bignumLabel
+            print ('%s * %s = %s' % (movingLabel, bignumLabel, movingLabel))
         
-        bigNumb = Nakasendo.BigNum(evalRes[label-1],modulo,isDecimal)
+        print(sumpoints)
+        bigNumb = Nakasendo.BigNum(evalRes[label],modulo,isDecimal)
         val = Nakasendo.MultiplyByGenerator(bigNumb,isDecimal,compressed=True)
-        
+        print(val)     
         assert(sumpoints == val)
       
   

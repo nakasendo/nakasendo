@@ -100,14 +100,14 @@ class PlayerGroupMetadata :
 
         # evaluate polynomial for own ordinal
         # polynomial is set to Hex, so convert the ordinal to hex string
-        self.transientData.f_x = poly('{:x}'.format(ordinal))
+        self.transientData.f_x = poly(str(ordinal))
         bignum = Nakasendo.BigNum( self.transientData.f_x, mod )
         self.transientData.hiddenEvals[self.ordinal] = \
             str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
 
         # evaluate polynomials for the group ordinals
         for ord in self.ordinalList :
-            self.transientData.evals[ord] = poly('{:x}'.format(ord))
+            self.transientData.evals[ord] = poly(str(ord))
             bignum = Nakasendo.BigNum( self.transientData.evals[ord], mod )
             self.transientData.hiddenEvals[ord] = \
                 str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
@@ -298,6 +298,7 @@ class Player :
 
         return groupId, result
 
+
     def verifyCorrectness(self, groupId, hiddenEvals, hiddenPolys):
 
         group = self.groups[groupId]
@@ -307,16 +308,14 @@ class Player :
             curvepoint = []
             for ofOrdinal, pubPoly in hiddenEvals[Ordinal].items():
                 pubPoly = Player.getECPoint(pubPoly)
-                x, y = pubPoly.GetAffineCoOrdinates()
-                x, y = str(int(x, 16)), str(int(y, 16))
-                curvepoint.append((str(ofOrdinal),  x, y))
+                points = pubPoly.GetAffineCoOrdinates()
+                curvepoint.append((str(ofOrdinal),  points[0], points[1]))
 
-            interpolator = Nakasendo.LGECInterpolator(xfx=curvepoint, modulo=str(int(self.modulo, 16)), decimal=1)
+            interpolator = Nakasendo.LGECInterpolator(xfx=curvepoint, modulo=self.modulo, decimal=False)
             zero_interpolator = interpolator(xValue='0')
-            if (str(zero_interpolator) != str(int(hiddenPolys[Ordinal][0], 16))):
+            if (str(zero_interpolator) != str(hiddenPolys[Ordinal][0])):
                 msg =  ("Verification of Correctness "+ str(Ordinal) + " is failed.")
                 raise PlayerError(msg)
-
     #-------------------------------------------------
     # Do verification of honesty step
     def verificationOfHonesty(self, groupId, hiddenEvals, hiddenPolys) :
@@ -332,33 +331,7 @@ class Player :
                         raise PlayerError(msg)
 
     #-------------------------------------------------
-    '''
-    def getVerifyCoefficientForPlayer(self, groupId, hiddenEvals, hiddenPolys, fromOrdinal, toOrdinal):
 
-        # get the coefficients that 'from' player sent to all, where 'from' and 'to' are ordinals
-        resCoeffEC = None
-        multplier = toOrdinal
-        
-        
-
-        for coeff in hiddenPolys[fromOrdinal]:
-            coeffEC = Player.getECPoint(coeff)
-            if (resCoeffEC is None) :
-                resCoeffEC = coeffEC
-            else:
-                resCoeffEC = resCoeffEC + coeffEC.multipleScalar(Nakasendo.BigNum('{:x}'.format(multplier) ))
-                multplier = (multplier * toOrdinal)
-
-        for ofOrdinal, pubPoly in hiddenEvals[fromOrdinal].items():
-            pubPoly = Player.getECPoint(pubPoly)
-            if (ofOrdinal == toOrdinal):
-               if (pubPoly == resCoeffEC):
-                   return True
-               else:
-                   return False
-
-        return False
-    '''
     def getVerifyCoefficientForPlayer(self, groupId, hiddenEvals, hiddenPolys, fromOrdinal, toOrdinal):
 
         # get the coefficients that 'from' player sent to all, where 'from' and 'to' are ordinals
@@ -366,7 +339,8 @@ class Player :
         multplier = toOrdinal
         multplierBN = Nakasendo.BigNum(str(toOrdinal), self.modulo)
         toOrdinalBN = Nakasendo.BigNum(str(toOrdinal), self.modulo)
-           
+        
+        
         encryptedCoeffs = hiddenPolys[fromOrdinal]
         resCoeffEC = Player.getECPoint(encryptedCoeffs[0])    
         for coeff in encryptedCoeffs[1:]:           
