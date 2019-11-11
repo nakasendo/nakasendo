@@ -143,7 +143,7 @@ class OrchestratorProtocol( pb.Root ) :
         return
 
     #-------------------------------------------------
-    # This is here as a placeholder
+    # Receives verification from all group members
     def secretVerification(self, data):
 
         user        = data[0]
@@ -151,9 +151,6 @@ class OrchestratorProtocol( pb.Root ) :
 
         if self.orchestrator.secretVerification(user, groupId) :
             print("secretVerification complete for: {0}".format(self.orchestrator.calcType))
-
-            # reset any counters 
-            self.orchestrator.resetCounters(groupId) 
 
             # contact all the group participants with verification success
             userRefs = self.orchestrator.getUserReferences(groupId)
@@ -190,6 +187,57 @@ class OrchestratorProtocol( pb.Root ) :
             for ref in userRefs :
                 ref.callRemote( "completed", groupId)
 
+    #-------------------------------------------------
+    # This sends a request for data to all participants of group
+    def remote_sign( self, user, groupId, msg ) :
+        print("remote_sign")
+        groupId = groupId.decode()
+        msg = msg.decode()
+       
+        print("sign: user={0}, groupId={1}, msg={2}".format(user, groupId, msg))
+
+        if not self.orchestrator.validGroup(groupId) :
+            errMsg = 'Group Id is not valid: {0}'.format(groupId)
+            raise OrchestratorError( errMsg )
+
+        participants = self.orchestrator.getParticipants(groupId)
+
+        # check the user is in the group, then set the signer
+        if user not in participants :
+            errMsg = 'user is not in the group: {0}'.format(user)
+            raise OrchestratorError( errMsg ) 
+        self.orchestrator.setSigner(groupId, user)
+
+        userRefs = self.orchestrator.getUserReferences(groupId)
+        for ref in userRefs :
+            ref.callRemote("requestSignatureData", groupId, msg).addCallback \
+                (self.signingCallback)        
+        return
+
+    # Signing callback with data: 
+    def signingCallback(self,  data ) :
+        print("signingCallback")
+        groupId     = data[0]
+        ordinal     = data[1]
+        sig         = data[2]
+        msg         = data[3]
+
+        print("\ngroupId={0}, ordinal={1}, sig={2}, msg={3}".format(groupId, ordinal, sig, msg))
+        
+        # if True then ready to distribute data
+        if self.orchestrator.signature( groupId, ordinal, sig) :
+            signatureData = self.orchestrator.getSignatureData(groupId) 
+            
+            # send the signature data out to the signer
+            userRef = self.orchestrator.getSignerReference( groupId )
+            userRef.callRemote( "readyToSign", groupId, msg, signatureData) \
+                .addCallbacks(self.signingCompletedCallback, self.signingErrorCallback)
+
+    def signingCompletedCallback ( self, gid ) :
+        print("signingCompletedCallback: gid = {0}".format(gid))
+
+    def signingErrorCallback ( self, gid ) :
+        print("signingErrorCallback: gid = {0}".format(gid))        
 
 #-----------------------------------------------------------------
 

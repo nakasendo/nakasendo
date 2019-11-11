@@ -48,12 +48,10 @@ class ClientProtocol( pb.Referenceable ):
         self.orchestratorRef.callRemote("register", self.user, self)
         
     def err_obj1(self, reason):
-        #print ("error getting object: ",reason)
         log.msg("error getting object: {0}".format(reason))
 
     #--------------------------------------------------
     def createGroup(self, n, m):
-        #print ('calling remote createGroup with {0}, {1}'.format(n,m))
         log.msg('calling remote createGroup with {0}, {1}'.format(n,m))
 
         d = self.orchestratorRef.callRemote \
@@ -64,7 +62,6 @@ class ClientProtocol( pb.Referenceable ):
     def sharePublicKey( self, gid ) :
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
-            #print(msg)
             log.msg(msg)
             raise ClientError( msg )
 
@@ -74,7 +71,6 @@ class ClientProtocol( pb.Referenceable ):
     def presigning( self, gid, number ) :
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
-            #print(msg)
             log.msg(msg)
             raise ClientError( msg )
 
@@ -82,14 +78,23 @@ class ClientProtocol( pb.Referenceable ):
         d = self.orchestratorRef.callRemote \
             ( "presigning", self.user, gid.encode(), b'LITTLEK' )
 
+    def sign ( self, gid, msg ) :
+        print("in sign, gid = {0}, msg={1}".format(gid, msg))
+        msg = "I love deadlines. I love the whooshing noise they make as they go by."
+        if not self.Player.checkGroup( gid ) :
+            msg = "GroupID not found: {0}".format(gid)
+            log.msg(msg)
+            raise ClientError( msg )     
 
-     
+        self.Player.setSigningInitiator( gid )
+        d = self.orchestratorRef.callRemote \
+            ( "sign", self.user, gid.encode(), msg.encode() )  
+
 
     def err_remote(self, reason):
         print ("Error from server:", reason)
 
     def success_remote(self, result):
-        #print ("Operation succeeded, groupID = ", result)
         log.msg("Operation succeeded, groupID = {}".format(result))
 
     
@@ -100,7 +105,6 @@ class ClientProtocol( pb.Referenceable ):
     def remote_invite(self, gid):
         #why is there a random sleep here?
         sleep(randint(4,12))
-        #print("Received invitation for group {0}, replying with Acceptance".format(gid))
         log.msg("Received invitation for group {0}, replying with Acceptance".format(gid))
         return [ self.user, gid, True ]
 
@@ -154,8 +158,16 @@ class ClientProtocol( pb.Referenceable ):
                 self.presigning( gid, numberPresignsLeft )
             else: 
                 print("I was the presign initiator.  Looks like we're FINISHED!!!")
-        
 
+
+    def remote_requestSignatureData( self, gid, message ) :
+        return self.Player.requestSignatureData( gid, message )
+
+
+    def remote_readyToSign( self, gid, message, signatureData ) :
+        print("readyToSign - should only receive this in one place")
+        self.Player.sign( gid, message, signatureData )
+        return gid
 
 
 
@@ -190,7 +202,14 @@ class StdioClientProtocol(basic.LineReceiver):
         # Parse the command
         commandParts = line.split()
         command = commandParts[0].lower()
-        args = commandParts[1:]
+        args = []
+        args.append( commandParts[1] )
+        if command == 'sign' :
+            strval = ' '.join(commandParts[2:])
+            args.append( strval )
+        else :
+            for item in commandParts[ 2: ] :
+                args.append(item )
 
         # Dispatch the command to the appropriate method.  
         # Note to implement a new command add another do_* method.
@@ -241,6 +260,9 @@ class StdioClientProtocol(basic.LineReceiver):
         
     def do_groupids(self):
         self.sendLine(self.client.Player.GroupIDs().encode())
+    
+    def do_sign( self, gid, msg ) :
+        self.client.sign( gid, msg )
 
     def __checkSuccess(self, pageData):
         msg = "Success: got {} bytes.".format(len(pageData))

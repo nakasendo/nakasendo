@@ -27,22 +27,19 @@ class GroupMetadata :
         self.m  = m                  # recombination number
         self.n  = n                  # total number        
         self.t  = t                  # degree of polynomial
-        self.numPlayerReplies       = 0
-        self.numSecretReplies       = 0
+        self.numReplies             = 0
         self.participantList        = []
         self.groupIsSet             = False
+        self.signatureIsSet         = False
         self.proposer               = proposer
         self.collatedEvals          = {}
         self.collatedPublicEvals    = {}
         self.collatedHiddenPolys    = {}
         self.collatedHiddenEvals    = {}
         self.collatedVWs            = {}
-        self.numCollatedReplies     = 0
-        self.numVWReplies           = 0
-        self.verificationOfHonestyStatus            = True
-        self.numCollectedVerificationStatusReplies  = 0
-        self.numEphemeralKeyCompletedReplies        = 0
+        self.collatedSignatures     = {}
         self.calculationType        = ''
+        self.signer                 = ''
 
     def __str__(self):
         string =  ("Group Metadata for " + str(self.id) + " :" \
@@ -51,12 +48,10 @@ class GroupMetadata :
             + "\n\tt =  " + str(self.t) \
             + "\n\tgroupIsSet       = " + str(self.groupIsSet) \
             + "\n\tproposer         = " + self.proposer \
-            + "\n\tnumPlayerReplies = " + str(self.numPlayerReplies) \
-            + "\n\tnumSecretReplies = " + str(self.numSecretReplies) \
+            + "\n\tnumReplies = " + str(self.numReplies) \
             + "\n\tparticipantList  = " )
             
         string += (', '.join(self.participantList ))
-        string += "\n\tnumCollatedReplies = " + str(self.numCollatedReplies) 
         string += "\n\tcalculationType = " + str(self.calculationType ) 
         return string
 
@@ -71,7 +66,7 @@ class Orchestrator( ) :
     def __init__ (self) :
         # dictionary of { user:remoteReference }
         self.users  = {}
-        # dictionary of { groupID:GroupMetaData }
+        # dictionary of { groupId:GroupMetaData }
         self.groups = {}
 
 
@@ -130,41 +125,47 @@ class Orchestrator( ) :
 
 
     #-------------------------------------------------
-    def acceptInvite(self, user, groupID, acceptance ) :
+    def acceptInvite(self, user, groupId, acceptance ) :
            
-        group       = self.groups[groupID]
+        group       = self.groups[groupId]
         target      = group.n - 1           # participant is already part of group
 
-        print('invitation reply from {0} ({1} : {2})'.format(user, acceptance, groupID))
+        print('invitation reply from {0} ({1} : {2})'.format(user, acceptance, groupId))
 
         if not group.groupIsSet :
             if acceptance :
-                group.numPlayerReplies += 1
-                # assume 'user' is valid
+                group.numReplies += 1
+                # assume 'user' already exist do not allow into group
+                if user in group.participantList :
+                    print("{0} already exists in group".format(user))
+                    return False
+                
                 group.participantList.append(user)
+                
             
-            print('number of replies = {0}'.format(group.numPlayerReplies))
+            print('number of replies = {0}'.format(group.numReplies))
 
-            if group.numPlayerReplies == target :
+            if group.numReplies == target :
                 group.groupIsSet = True
+                self.receivedAllReplies(groupId)
                 return True
 
         return False
 
     
     #-------------------------------------------------
-    def getParticipants(self, groupID ) :
-        return self.groups[groupID].participantList 
+    def getParticipants(self, groupId ) :
+        return self.groups[groupId].participantList 
 
     #-------------------------------------------------
-    def validGroup(self, groupID) :
-        if groupID in self.groups :
+    def validGroup(self, groupId) :
+        if groupId in self.groups :
             return True
         return False 
     
     #-------------------------------------------------
-    def getUserReferences(self, groupID ) :
-        participants = self.getParticipants(groupID) 
+    def getUserReferences(self, groupId ) :
+        participants = self.getParticipants(groupId) 
         references = []
         for participant in participants :
             references.append(self.users[participant])
@@ -177,9 +178,9 @@ class Orchestrator( ) :
     #-------------------------------------------------
     # Returns a list of users which is the participant List, 
     # without the ordinal
-    def getGroupIsSetParameters(self, user, groupID):        
+    def getGroupIsSetParameters(self, user, groupId):        
 
-        group = self.groups[groupID]
+        group = self.groups[groupId]
 
         # create list of ordinals 
         start = 1
@@ -200,11 +201,12 @@ class Orchestrator( ) :
         group.collatedEvals[ordinal] = evals
         group.collatedHiddenPolys[ordinal] = hiddenPoly
         group.collatedHiddenEvals[ordinal] = hiddenEvals
-        group.numCollatedReplies += 1
+        group.numReplies += 1
 
-        print("number encrypted coefficient replies = {0}".format(group.numCollatedReplies))
-        if group.numCollatedReplies == group.n :
+        print("number encrypted coefficient replies = {0}".format(group.numReplies))
+        if group.numReplies == group.n :
             print("Received all encrypted coefficient data, distribute")
+            self.receivedAllReplies( groupId )
             return True 
         return False
     
@@ -214,34 +216,70 @@ class Orchestrator( ) :
         return group.collatedEvals, group.collatedHiddenPolys, group.collatedHiddenEvals
 
     #-------------------------------------------------
-    # collate data
+    # collate V and W data
     def collateVWData(self,  groupId, ordinal, data) : 
         group = self.groups[groupId]
 
         group.collatedVWs[ordinal] = data
-        group.numVWReplies += 1
+        group.numReplies += 1
 
-        print("number VW data replies = {0}".format(group.numVWReplies))
-        if group.numVWReplies == group.n :
+        print("number VW data replies = {0}".format(group.numReplies))
+        if group.numReplies == group.n :
             print("Received all VW data, distribute")
+            self.receivedAllReplies( groupId )
             return True 
         return False
     
     #-------------------------------------------------
+    # get collated V and W data
     def getCollatedVWData(self, groupId) :
         group = self.groups[groupId ]
         return group.collatedVWs
+
+
+    #-------------------------------------------------
+    # collate signature data
+    def signature( self, groupId, ordinal, sig) :
+        print("groupId = {0}, ordinal={1}, signature={2}".format(groupId, ordinal, sig))
+        group = self.groups[groupId]
+
+        if not group.signatureIsSet :
+
+            group.collatedSignatures[ordinal] = sig
+            group.numReplies += 1 
+
+            print("number signature replies = {0}".format(group.numReplies))
+            two_t_plus_1 = (group.t * 2) + 1
+
+            if group.numReplies == two_t_plus_1 :
+                group.signatureIsSet = True
+                print("Received 2t+1 replies")
+                self.receivedAllReplies(groupId)                
+                return True
+
+        return False
+
+
+
+    #-------------------------------------------------
+    # get collated signature data
+    def getSignatureData(self, groupId) :
+        group = self.groups[groupId ]
+        return group.collatedSignatures
+
 
     #-------------------------------------------------
     # This is here as a placeholder
     def secretVerification(self, user, groupId) :
 
         group = self.groups[groupId]
-        group.numCollectedVerificationStatusReplies += 1
+        group.numReplies += 1
 
 
-        print("Secret verification from: {0}, number replies = {1}".format(user, group.numCollectedVerificationStatusReplies))
-        if group.numCollectedVerificationStatusReplies == group.n :
+        print("Secret verification from: {0}, number replies = {1}".format(user, group.numReplies))
+        if group.numReplies == group.n :
+            print("Received all secret verfications")
+            self.receivedAllReplies( groupId )
             return True
 
         return False
@@ -254,23 +292,34 @@ class Orchestrator( ) :
 
     def allEphemeralKeysCompleted( self, user, groupId) :
         group = self.groups[groupId]
-        group.numEphemeralKeyCompletedReplies += 1
+        group.numReplies += 1
 
 
-        print("Ephemeral Keys Completed from: {0}, number replies = {1}".format(user, group.numEphemeralKeyCompletedReplies))
-        if group.numEphemeralKeyCompletedReplies == group.n :
+        print("Ephemeral Keys Completed from: {0}, number replies = {1}".format(user, group.numReplies))
+        if group.numReplies == group.n :
+            self.receivedAllReplies( groupId )
             return True
 
         return False
 
 
-    # Reset counters used in multiple rounds of communications
-    def resetCounters( self, groupId) :
-        print ("resetting counters")
-        self.groups[groupId].numCollatedReplies     = 0
-        self.groups[groupId].numCollectedVerificationStatusReplies  = 0       
-        self.groups[groupId].numVWReplies  = 0       
-        self.groups[groupId].numEphemeralKeyCompletedReplies  = 0       
+    def receivedAllReplies( self, groupId) :
+        print("resetting replies counter")
+        self.groups[groupId].numReplies = 0     
         
+    
         
+    def setSigner( self, groupId, signer ) :
+        self.groups[groupId].signer = signer 
+
+    def getSignerReference( self, groupId ) :
+        participants = self.getParticipants(groupId) 
+        signer = self.groups[groupId].signer
+        print("signer = {0}".format(signer))
+        print("participants = {0}".format(participants))
+        
+        userref = self.users[signer] 
+
+        return userref 
+
         

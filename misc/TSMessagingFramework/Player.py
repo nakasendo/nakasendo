@@ -58,12 +58,14 @@ class PlayerGroupMetadata :
         self.degree                 = degree        # degree of the polynomial
         self.privateKeyPolynomial   = None          # Polynomial for this group
         self.privateKeyShare        = None          # calculated share of secret
-        self.publicKeyOfKeyShare    = None          # calculated public key of share of secret
+        #self.publicKeyOfKeyShare    = None          # calculated public key of share of secret
         self.ephemeralKeyList       = []            # list of generated ephemeral keys
         self.littleK                = None          # little k (part of ephemeral key calc)
         self.alpha                  = None          # blinding value (part of ephemeral key calc)         
-        self.presignInitiator       = False         # need to co-ordinate JVRSS     
+        self.presignInitiator       = False         # needed to co-ordinate JVRSS     
+        self.signingInitiator       = False         # indicates player initiats signing    
         self.numberPresigns         = 1             # number presigns left to do (default is 1)
+        self.signer_r               = None
 
         self.transientData          = JVRSS()       # transient data - reusable data structure
 
@@ -77,7 +79,7 @@ class PlayerGroupMetadata :
             + "\n\tdegree               =  " + str(self.degree)  \
             + "\n\tprivateKeyPolynomial =  " + str(self.privateKeyPolynomial) \
             + "\n\tprivateKeyShare      =  " + str(self.privateKeyShare) \
-            + "\n\tpublicKeyOfKeyShare  =  " + str(self.publicKeyOfKeyShare) \
+            #+ "\n\tpublicKeyOfKeyShare  =  " + str(self.publicKeyOfKeyShare) \
             + "\n\tephemeralKeyList     =  " + str(self.ephemeralKeyList) \
             + "\n\tlittleK              =  " + str(self.littleK) \
             + "\n\talpha                =  " + str(self.alpha) \
@@ -122,26 +124,6 @@ class PlayerGroupMetadata :
             self.transientData.hiddenPolynomial.append(res.value)
     
     #-------------------------------------------------
-<<<<<<< HEAD
-    def calculateVWshares( self, mod ) :
-        print("in calculateVWshared")
-
-        # littleK * alpha
-        littleK = Nakasendo.BigNum( self.littleK, mod )
-        alpha   = Nakasendo.BigNum( self.alpha, mod )
-
-        v = littleK * alpha
-
-        # hide own polynomial using generator point
-        GEN         = Nakasendo.ECPoint()
-        GENPOINT    = GEN.GetGeneratorPoint()        
-
-        w           = GENPOINT.multipleScalar( alpha )        
-
-        return v, w 
-
-=======
->>>>>>> 68eecd5... SL-329 : collated and distributed VW shares
     # reusable code to create a secret - used for privateKeyShare, little-k, alpha
     def createSecret( self, ordinal,mod ) :
         
@@ -176,7 +158,7 @@ class PlayerGroupMetadata :
             else:
                 public_key = a0Point
         return public_key
-        
+
 
 #-----------------------------------------------------------------
 # Error class 
@@ -218,7 +200,11 @@ class Player :
         numberPresigns = group.numberPresigns - 1
         return numberPresigns
         
-
+    def setSigningInitiator( self, groupId ) :
+        group = self.groups[groupId]
+        
+        group.signingInitiator = True 
+        print("setting signingInitiator to: {0}".format (group.signingInitiator) )
     
 
 
@@ -283,7 +269,7 @@ class Player :
         result = group.createSecret(group.ordinal,Player.modulo)
         if calcType == 'PRIVATEKEYSHARE' :
             group.privateKeyShare = result 
-            group.publicKeyOfKeyShare = group.createPublicKey()
+            #group.publicKeyOfKeyShare = group.createPublicKey()
         elif calcType == 'LITTLEK' :
             group.littleK = result
         elif calcType == 'ALPHA' :
@@ -421,6 +407,65 @@ class Player :
         ephemeralKey = [ group.littleK , r_bn ]
         
         group.ephemeralKeyList.append( ephemeralKey )
+
+
+    def requestSignatureData( self, groupId, message ) :
+        group = self.groups[groupId]
+
+        ephemeralKey = group.ephemeralKeyList.pop( ) 
+        littleK = ephemeralKey[ 0 ]
+        r_bn    = ephemeralKey[ 1 ]
+        pks     = group.privateKeyShare
+
+        if group.signingInitiator == True :
+            group.signer_r = r_bn
+        
+        # hash the message
+        #Hm = Nakasendo.BigNum( message, Player.modulo )
+        #HASHMSG 
+        Hm = Nakasendo.hash256( message )
+        Hm.mod = Player.modulo
+        #Hm = Nakasendo.BigNum( HASHMSG.value, Player.modulo )        
+
+        s = littleK * (Hm + (pks * r_bn))
+
+        print("s = {0}".format(s))
+
+        # need to return something readable, send s.value
+        return [ groupId, group.ordinal, s.value, message ]
+
+
+    def sign( self, groupId, message, signatureData ) :
+
+        group = self.groups[groupId]
+        print("groupId = {0}, message = {1}, signatureData = {2} ".format(groupId, message, signatureData))
+
+        # convert dictionary to list of points
+        points = list( signatureData.items() )
+        interpolator = Nakasendo.LGInterpolator \
+            ( points, Player.modulo, decimal=False)
+        
+        s_at_zero = interpolator('0')
+
+
+        #DER FORMAT (move this into the Nakasendo
+        mod_bn = Nakasendo.BigNum( Player.modulo, Player.modulo )
+
+        TWO = Nakasendo.BigNum('2', Player.modulo, isDec=False)
+        modDivByTwo = mod_bn / TWO  
+        canonizedInteropolated_s = s_at_zero
+
+        if ( s_at_zero > modDivByTwo):
+
+            canonizedInteropolated_s = mod_bn - s_at_zero
+
+        DerFormatSig = Nakasendo.createDERFormat( group.signer_r, canonizedInteropolated_s)    
+
+        mySignature = [ group.signer_r, s_at_zero ]    
+
+        print("DER formatted signature = {0}, signature = {1}"\
+            .format(DerFormatSig,mySignature ))
+        return 
 
 
 
