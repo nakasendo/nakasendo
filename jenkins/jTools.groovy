@@ -136,8 +136,11 @@ def pack_on_windows() {
         if not exist %WINDOWS_POSTBUILD_DIR% mkdir %WINDOWS_POSTBUILD_DIR%
         cpack --config %WINDOWS_BUILD_DIR%\\CPackConfig.cmake -G NSIS -C Debug
         cpack --config %WINDOWS_BUILD_DIR%\\CPackConfig.cmake -G NSIS -C Release
+        cpack --config %WINDOWS_BUILD_DIR%\\CPackSourceConfig.cmake -G ZIP
         move SDKLibraries-v*Windows*.exe %WINDOWS_POSTBUILD_DIR%
         dir %WINDOWS_POSTBUILD_DIR%\\*.exe
+        move SDKLibraries-v*source*.zip %WINDOWS_POSTBUILD_DIR%
+        dir %WINDOWS_POSTBUILD_DIR%\\*.zip
     '''
 }
 
@@ -208,6 +211,8 @@ def pack_on_linux() {
         cpack --config $LINUX_BUILD_DIR_DEBUG/CPackConfig.cmake -G TGZ
         cpack --config $LINUX_BUILD_DIR_RELEASE/CPackConfig.cmake -G TGZ
         mv SDKLibraries-v*Ubuntu*.tar.gz $LINUX_POSTBUILD_DIR
+        cpack --config $LINUX_BUILD_DIR_RELEASE/CPackSourceConfig.cmake -G TGZ
+        mv SDKLibraries-v*source*.tar.gz $LINUX_POSTBUILD_DIR
         ls -Ss1pq --block-size=M $LINUX_POSTBUILD_DIR/*.tar.gz
     '''
 }
