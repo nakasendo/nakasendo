@@ -58,10 +58,11 @@ class PlayerGroupMetadata :
         self.degree                 = degree        # degree of the polynomial
         self.privateKeyPolynomial   = None          # Polynomial for this group
         self.privateKeyShare        = None          # calculated share of secret
-        #self.publicKeyOfKeyShare    = None          # calculated public key of share of secret
+        self.publicKeyShare         = None          # calculated public key of share of secret
         self.ephemeralKeyList       = []            # list of generated ephemeral keys
         self.littleK                = None          # little k (part of ephemeral key calc)
         self.alpha                  = None          # blinding value (part of ephemeral key calc)         
+        self.shareInitiator         = False         # indicates player initiating the share     
         self.presignInitiator       = False         # needed to co-ordinate JVRSS     
         self.signingInitiator       = False         # indicates player initiats signing    
         self.numberPresigns         = 1             # number presigns left to do (default is 1)
@@ -79,7 +80,7 @@ class PlayerGroupMetadata :
             + "\n\tdegree               =  " + str(self.degree)  \
             + "\n\tprivateKeyPolynomial =  " + str(self.privateKeyPolynomial) \
             + "\n\tprivateKeyShare      =  " + str(self.privateKeyShare) \
-            #+ "\n\tpublicKeyOfKeyShare  =  " + str(self.publicKeyOfKeyShare) \
+            + "\n\tpublicKeyShare       =  " + str(self.publicKeyShare) \
             + "\n\tephemeralKeyList     =  " + str(self.ephemeralKeyList) \
             + "\n\tlittleK              =  " + str(self.littleK) \
             + "\n\talpha                =  " + str(self.alpha) \
@@ -183,6 +184,17 @@ class Player :
         else :
             return 0
 
+    def GroupIDs(self):
+        keys = self.groups.keys()
+        listToStr = '\n'.join([str(elem) for elem in keys])
+        return listToStr            
+
+    def setShareInitiator( self, groupId ) :
+        self.groups[groupId].shareInitiator = True
+
+    def isShareInitiator( self, groupId ) :
+        return self.groups[groupId].shareInitiator
+
     def setPresignInitiator( self, groupId, number ) :
         group = self.groups[groupId]
         
@@ -221,8 +233,9 @@ class Player :
             return 0 
 
         self.groups[groupId] = PlayerGroupMetadata(groupId, ordinal, ordinalList, degree)
-
+        
         group = self.groups[groupId] 
+        
         
         group.privateKeyPolynomial = self.createPolynomial(degree)
         group.polynomialPreCalculation( group.privateKeyPolynomial, Player.modulo, group.ordinal ) 
@@ -269,7 +282,7 @@ class Player :
         result = group.createSecret(group.ordinal,Player.modulo)
         if calcType == 'PRIVATEKEYSHARE' :
             group.privateKeyShare = result 
-            #group.publicKeyOfKeyShare = group.createPublicKey()
+            group.publicKeyShare = group.createPublicKey()
         elif calcType == 'LITTLEK' :
             group.littleK = result
         elif calcType == 'ALPHA' :
@@ -284,7 +297,7 @@ class Player :
 
         return groupId, result
 
-
+    #-------------------------------------------------
     def verifyCorrectness(self, groupId, hiddenEvals, hiddenPolys):
 
         group = self.groups[groupId]
@@ -345,8 +358,8 @@ class Player :
                    return False
 
         return False
-    #-------------------------------------------------
 
+    #-------------------------------------------------
     # get the calculate V and W share for this Player
     def getVWshares( self, groupId ) :       
         group = self.groups[groupId] 
@@ -355,6 +368,7 @@ class Player :
     
         return [group.ordinal, res]  
 
+    #-------------------------------------------------
     # sets the collated VW Data for all players in group
     def setSharedVWData( self, groupId, data ) :
         group = self.groups[groupId]
@@ -362,6 +376,7 @@ class Player :
 
         self.calculateEphemeralKey( groupId )
 
+    #-------------------------------------------------
     # LGInterplate at 0 to get V
     # ECLGInterplate at 0 to get W
     def calculateEphemeralKey(self, groupId ) :
@@ -408,7 +423,7 @@ class Player :
         
         group.ephemeralKeyList.append( ephemeralKey )
 
-
+    #-------------------------------------------------
     def requestSignatureData( self, groupId, message ) :
         group = self.groups[groupId]
 
@@ -421,20 +436,16 @@ class Player :
             group.signer_r = r_bn
         
         # hash the message
-        #Hm = Nakasendo.BigNum( message, Player.modulo )
-        #HASHMSG 
         Hm = Nakasendo.hash256( message )
-        Hm.mod = Player.modulo
-        #Hm = Nakasendo.BigNum( HASHMSG.value, Player.modulo )        
+        Hm.mod = Player.modulo       
 
         s = littleK * (Hm + (pks * r_bn))
 
         print("s = {0}".format(s))
 
-        # need to return something readable, send s.value
         return [ groupId, group.ordinal, s.value, message ]
 
-
+    #-------------------------------------------------
     def sign( self, groupId, message, signatureData ) :
 
         group = self.groups[groupId]
@@ -448,7 +459,7 @@ class Player :
         s_at_zero = interpolator('0')
 
 
-        #DER FORMAT (move this into the Nakasendo
+        #DER format
         mod_bn = Nakasendo.BigNum( Player.modulo, Player.modulo )
 
         TWO = Nakasendo.BigNum('2', Player.modulo, isDec=False)
@@ -480,10 +491,7 @@ class Player :
         return ecpoint
 
     
-    def GroupIDs(self):
-        keys = self.groups.keys()
-        listToStr = '\n'.join([str(elem) for elem in keys])
-        return listToStr 
+
     #-------------------------------------------------
     def __str__(self):
         string = "Player:\nNumber of groups = " + str(len(self.groups))

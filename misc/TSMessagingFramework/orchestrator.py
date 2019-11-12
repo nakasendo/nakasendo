@@ -38,8 +38,10 @@ class GroupMetadata :
         self.collatedHiddenEvals    = {}
         self.collatedVWs            = {}
         self.collatedSignatures     = {}
+        self.verificationOfHonestyStatus            = True
         self.calculationType        = ''
         self.signer                 = ''
+        self.locked                 = False
 
     def __str__(self):
         string =  ("Group Metadata for " + str(self.id) + " :" \
@@ -80,6 +82,17 @@ class Orchestrator( ) :
         print ('{0} registered '.format(username))
 
 
+    def isLocked( self, groupId ) :
+        return self.groups[groupId].locked
+
+
+    def lock( self, groupId ) :
+        print("Group LOCKED (groupId = {0}".format(groupId))
+        self.groups[groupId].locked = True
+
+    def unLock( self, groupId ) :
+        print("Group UN-LOCKED (groupId = {0}".format(groupId))
+        self.groups[groupId].locked = False
 
     #-------------------------------------------------
     # m = recombination number of private key
@@ -120,8 +133,6 @@ class Orchestrator( ) :
                     invitees.append(self.users[user])
   
         return groupId, invitees
-
-
 
 
     #-------------------------------------------------
@@ -321,5 +332,7 @@ class Orchestrator( ) :
         userref = self.users[signer] 
 
         return userref 
+
+       
 
         

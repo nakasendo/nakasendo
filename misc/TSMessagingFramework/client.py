@@ -58,16 +58,20 @@ class ClientProtocol( pb.Referenceable ):
             ( "createGroup", self.user, n, m )
         d.addCallback   ( self.success_remote )
         d.addErrback    ( self.err_remote ) 
-
+    
+    #--------------------------------------------------
     def sharePublicKey( self, gid ) :
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
             log.msg(msg)
             raise ClientError( msg )
 
+        self.Player.setShareInitiator( gid )
+
         d = self.orchestratorRef.callRemote \
             ( "sharePublicKey", self.user, gid.encode(), b'PRIVATEKEYSHARE' )
-
+    
+    #--------------------------------------------------
     def presigning( self, gid, number ) :
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
@@ -75,9 +79,12 @@ class ClientProtocol( pb.Referenceable ):
             raise ClientError( msg )
 
         self.Player.setPresignInitiator(gid, number)
-        d = self.orchestratorRef.callRemote \
-            ( "presigning", self.user, gid.encode(), b'LITTLEK' )
+        ret = self.orchestratorRef.callRemote \
+            ( "initiatePresigning", self.user, gid.encode() ).addCallbacks\
+                (self.initiateSuccessCallback, self.initiateErrorCallback)
 
+
+    #--------------------------------------------------
     def sign ( self, gid, msg ) :
         print("in sign, gid = {0}, msg={1}".format(gid, msg))
         msg = "I love deadlines. I love the whooshing noise they make as they go by."
@@ -139,11 +146,17 @@ class ClientProtocol( pb.Referenceable ):
                 d  = self.orchestratorRef.callRemote \
                     ( "presigning", self.user, gid.encode(), b'ALPHA' ) 
             
-        if calcType == 'ALPHA' : 
+        elif calcType == 'ALPHA' : 
 
             res = self.Player.getVWshares( gid )
             d = self.orchestratorRef.callRemote \
                 ( "collateVWData", gid.encode(), res[0], res[1])
+                
+        elif calcType == 'PRIVATEKEYSHARE' :
+            if self.Player.isShareInitiator( gid ) :
+                d = self.orchestratorRef.callRemote \
+                    ( "sharePublicKeyCompleted", gid.encode(), self.user )
+
 
     def remote_sharedVWData( self, gid, data ) :
         self.Player.setSharedVWData(gid, data)
@@ -158,6 +171,8 @@ class ClientProtocol( pb.Referenceable ):
                 self.presigning( gid, numberPresignsLeft )
             else: 
                 print("I was the presign initiator.  Looks like we're FINISHED!!!")
+                d = self.orchestratorRef.callRemote \
+                    ( "presigningCompleted", gid.encode() )
 
 
     def remote_requestSignatureData( self, gid, message ) :
@@ -169,7 +184,20 @@ class ClientProtocol( pb.Referenceable ):
         self.Player.sign( gid, message, signatureData )
         return gid
 
+    #--------------------------------------------------
+    # Callback operations available in this section
+    #-------------------------------------------------- 
+    def initiateSuccessCallback( self, data ) :
+        
+        user        = data[0]
+        groupId     = data[1]
 
+        print("starting presigning ")  
+        d = self.orchestratorRef.callRemote \
+            ( "presigning", self.user, groupId.encode(), b'LITTLEK' )        
+    
+    def initiateErrorCallback( self, reason ) :
+        print ("Error:  from server: {1}".format( reason ))        
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
