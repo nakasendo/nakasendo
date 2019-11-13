@@ -1,5 +1,6 @@
 import json
 import sys
+from twisted.python import log
 
 try:
     import PyBigNumbers
@@ -36,7 +37,7 @@ class JVRSS :
 
 
     def reset( self ) :
-        #print("JVRSS: reset")
+
         self.f_x   = None           # f(x): Polynomial evaluated for own ordinal
         self.evals = {}             # dict ordinal:evaluated for each o in ordinallist
         self.publicEvals = {}       # dict of dict: all Players in group evaluations
@@ -52,6 +53,8 @@ class PlayerGroupMetadata :
     
 
     def __init__ (self, id, ordinal, ordinalList, degree) :
+        log.msg("starting Player")
+
         self.id                     = id            # Group ID
         self.ordinal                = ordinal       # Label assigned by orchestrator
         self.ordinalList            = ordinalList   # labels of other participants in the group
@@ -165,6 +168,7 @@ class PlayerGroupMetadata :
 # Error class 
 class PlayerError(Exception):
     """This is an Expected Exception. Something bad happened."""
+
     pass
 
 #-----------------------------------------------------------------
@@ -184,6 +188,11 @@ class Player :
         else :
             return 0
 
+    def deleteGroup(self, groupId ) :
+        if groupId in self.groups: 
+            log.msg("Verification failed. Deleting group: {0}".format(groupId) )
+            del self.groups[ groupId ]
+
     def GroupIDs(self):
         keys = self.groups.keys()
         listToStr = '\n'.join([str(elem) for elem in keys])
@@ -200,7 +209,7 @@ class Player :
         
         group.presignInitiator = True 
         group.numberPresigns = int(number)
-        print("setting presignInitiator to: {0}, number of ephemeral keys left to do: {1}".format \
+        log.msg("setting presignInitiator to: {0}, number of ephemeral keys left to do: {1}".format \
             (group.presignInitiator, group.numberPresigns))            
 
     def isPresignInitiator( self, groupId ) :
@@ -221,20 +230,21 @@ class Player :
         group = self.groups[groupId]
         
         group.signingInitiator = True 
-        print("setting signingInitiator to: {0}".format (group.signingInitiator) )
+        log.msg("setting signingInitiator to: {0}".format (group.signingInitiator) )
     
-
+    def getPublicKeyShare( self, groupId ) :
+        return str( self.groups[groupId].publicKeyShare )
 
     #-------------------------------------------------
     # Add Group - create the PlayerGroupMetadata
     #           - create the Polynomial, and call pre-calculation
     def addGroup(self, groupId, ordinal, ordinalList, degree) :
-        print("GroupIsSet:\n\tgroupId =  {0}\n\tmy ordinal = {1}\n\trest of ordinals = {2}".format \
+        log.msg("GroupIsSet:\n\tgroupId =  {0}\n\tmy ordinal = {1}\n\trest of ordinals = {2}".format \
             (groupId, ordinal, ordinalList))
  
         if groupId in self.groups :             
             errMsg = 'groupId = {0} already exists!'.format(groupId)
-            print(errMsg)
+            log.msg(errMsg)
             return 0 
 
         self.groups[groupId] = PlayerGroupMetadata(groupId, ordinal, ordinalList, degree)
@@ -278,7 +288,7 @@ class Player :
     # create a secret - used to create a privateKeyShare, little-k, alpha
     def createSecret(self, groupId, calcType, evals, hiddenPolys, hiddenEvals) :
 
-        print("creating a secret....")
+        log.msg("creating a secret....")
         group = self.groups[groupId]
         
         group.transientData.publicEvals             = evals 
@@ -294,7 +304,7 @@ class Player :
             group.alpha = result
         else:
             msg = "Player:createSecret.calcType is not recognised: {0}".format(calcType)
-            print(msg)
+            log.msg(msg)
             raise PlayerError(msg)
 
         self.verificationOfHonesty(groupId, hiddenEvals, hiddenPolys)
@@ -387,7 +397,7 @@ class Player :
     def calculateEphemeralKey(self, groupId ) :
         
         group = self.groups[groupId]
-        print("Calculating Ephemeral Key...")
+        log.msg("Calculating Ephemeral Key...")
 
         xfx_v = []
         xfx_w = []
@@ -418,7 +428,7 @@ class Player :
         interpolated_r = wZeroVal.multipleScalar(vZeroValInv)
         if ( interpolated_r.IsPointOnCurve() is not True ) :
             msg = ("Error in Player:calculateEphemeralKey: point not on curve")
-            print(msg)
+            log.msg(msg)
             raise PlayerError(msg)
 
         interpolated_r_points = interpolated_r.GetAffineCoOrdinates()
@@ -427,6 +437,11 @@ class Player :
         ephemeralKey = [ group.littleK , r_bn ]
         
         group.ephemeralKeyList.append( ephemeralKey )
+
+    def hashMessage( self, message ) :
+        # hash the message
+        Hm = Nakasendo.hash256( message )
+        return Hm.value
 
     #-------------------------------------------------
     def requestSignatureData( self, groupId, message ) :
@@ -440,13 +455,12 @@ class Player :
         if group.signingInitiator == True :
             group.signer_r = r_bn
         
-        # hash the message
-        Hm = Nakasendo.hash256( message )
-        Hm.mod = Player.modulo       
+        # message needs to be in BigNum format
+        Hm = Nakasendo.BigNum( message, Player.modulo )
 
         s = littleK * (Hm + (pks * r_bn))
 
-        print("s = {0}".format(s))
+        log.msg("s = {0}".format(s))
 
         return [ groupId, group.ordinal, s.value, message ]
 
@@ -454,7 +468,7 @@ class Player :
     def sign( self, groupId, message, signatureData ) :
 
         group = self.groups[groupId]
-        print("groupId = {0}, message = {1}, signatureData = {2} ".format(groupId, message, signatureData))
+        log.msg("Player.sign: groupId = {0}, message = {1}, signatureData = {2} ".format(groupId, message, signatureData))
 
         # convert dictionary to list of points
         points = list( signatureData.items() )
@@ -479,7 +493,7 @@ class Player :
 
         mySignature = [ group.signer_r, s_at_zero ]    
 
-        print("DER formatted signature = {0}, signature = {1}"\
+        log.msg("DER formatted signature = {0}, signature = {1}"\
             .format(DerFormatSig,mySignature ))
         return 
 

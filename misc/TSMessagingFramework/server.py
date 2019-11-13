@@ -37,7 +37,7 @@ class OrchestratorProtocol( pb.Root ) :
         for user in participants :
             params = self.orchestrator.getGroupIsSetParameters( user, groupID )
 
-            print ('sending groupIsSet message to {0}'.format(user))
+            log.msg ('sending groupIsSet message to {0}'.format(user))
             
             self.orchestrator.getUserRef(user).callRemote \
                 ( "groupIsSet", groupID.encode(), params[0], params[1], params[2] ) 
@@ -71,9 +71,8 @@ class OrchestratorProtocol( pb.Root ) :
     #-------------------------------------------------
     # This sends a request for data to all participants of group
     def remote_sharePublicKey( self, user, groupId, calcType ) :
-        print("remote_sharePublicKey")
         groupId = groupId.decode()
-        self.orchestrator.calcType = calcType.decode()         
+        self.orchestrator.setCalcType (groupId, calcType.decode())         
 
         if not self.orchestrator.validGroup(groupId) :
             errMsg = 'Group Id is not valid: {0}'.format(groupId)
@@ -92,8 +91,9 @@ class OrchestratorProtocol( pb.Root ) :
             raise OrchestratorError( errMsg ) 
         
         userRefs = self.orchestrator.getUserReferences(groupId)
+        calcType = self.orchestrator.calcType( groupId )
         for ref in userRefs :
-            ref.callRemote("requestData", groupId, self.orchestrator.calcType).addCallback \
+            ref.callRemote("requestData", groupId, calcType).addCallback \
                 (self.collateDataCallback)        
         return 
 
@@ -104,7 +104,6 @@ class OrchestratorProtocol( pb.Root ) :
 
 
     def remote_initiatePresigning( self, user, groupId, number ) :
-        print("remote_initiatePresigning")
         groupId = groupId.decode()
                 
         if self.orchestrator.isLocked(groupId) :
@@ -119,9 +118,10 @@ class OrchestratorProtocol( pb.Root ) :
     def remote_presigning( self, user, groupId, calcType ) :
         
         groupId = groupId.decode()
-        self.orchestrator.calcType = calcType.decode() 
+        calcType = calcType.decode()
+        self.orchestrator.setCalcType( groupId, calcType )
        
-        print("presigning: user={0}, groupId={1}, calcType={2}".format(user, groupId, self.orchestrator.calcType))
+        log.msg("presigning: user={0}, groupId={1}, calcType={2}".format(user, groupId, calcType) )
 
         if not self.orchestrator.validGroup(groupId) :
             errMsg = 'Group Id is not valid: {0}'.format(groupId)
@@ -136,7 +136,7 @@ class OrchestratorProtocol( pb.Root ) :
 
         userRefs = self.orchestrator.getUserReferences(groupId)
         for ref in userRefs :
-            ref.callRemote("requestData", groupId, self.orchestrator.calcType).addCallback \
+            ref.callRemote("requestData", groupId, calcType).addCallback \
                 (self.collateDataCallback)        
         return
     
@@ -153,7 +153,7 @@ class OrchestratorProtocol( pb.Root ) :
 
     #-------------------------------------------------
     def remote_collateVWData( self, groupId, ordinal, data ) :
-        print("Collating VW Data")
+        log.msg("Collating VW Data")
         groupId = groupId.decode()
         if self.orchestrator.collateVWData( groupId, ordinal, data ) :
             collatedData = self.orchestrator.getCollatedVWData( groupId )
@@ -167,7 +167,7 @@ class OrchestratorProtocol( pb.Root ) :
     #-------------------------------------------------        
     def remote_ephemeralKeyCompleted( self, groupId, user ) :
         groupId = groupId.decode()
-        print("EphemeralKey has been completed, groupId = {0}, user = {1}".format \
+        log.msg("EphemeralKey has been completed, groupId = {0}, user = {1}".format \
             (groupId, user))
         
         if self.orchestrator.allEphemeralKeysCompleted( user, groupId ) :
@@ -180,11 +180,11 @@ class OrchestratorProtocol( pb.Root ) :
     #-------------------------------------------------
     # This sends a request for data to all participants of group
     def remote_sign( self, user, groupId, msg ) :
-        print("remote_sign")
+        log.msg("remote_sign")
         groupId = groupId.decode()
         msg = msg.decode()
        
-        print("sign: user={0}, groupId={1}, msg={2}".format(user, groupId, msg))
+        log.msg("sign: user={0}, groupId={1}, msg={2}".format(user, groupId, msg))
 
         if not self.orchestrator.validGroup(groupId) :
             errMsg = 'Group Id is not valid: {0}'.format(groupId)
@@ -240,7 +240,7 @@ class OrchestratorProtocol( pb.Root ) :
             # send the public data out to all group participants
             userRefs = self.orchestrator.getUserReferences( groupId )
             for ref in userRefs :
-                ref.callRemote( "createSecret", groupId, self.orchestrator.calcType, collatedData[0], collatedData[1], collatedData[2])\
+                ref.callRemote( "createSecret", groupId, self.orchestrator.calcType(groupId), collatedData[0], collatedData[1], collatedData[2])\
                     .addCallbacks(self.secretVerificationCallback, self.verificationErrorCallback)
 
 
@@ -251,25 +251,38 @@ class OrchestratorProtocol( pb.Root ) :
         user        = data[0]
         groupId     = data[1]
 
+
         if self.orchestrator.secretVerification(user, groupId) :
-            print("secretVerification complete for: {0}".format(self.orchestrator.calcType))
+            calcType = self.orchestrator.calcType(groupId)
+            log.msg("secretVerification complete for: {0}".format(calcType))
 
             # contact all the group participants with verification success
             userRefs = self.orchestrator.getUserReferences(groupId)
             for ref in userRefs :
-                ref.callRemote("groupIsVerified", groupId, self.orchestrator.calcType)
+                ref.callRemote("groupIsVerified", groupId, calcType)
 
 
     #-------------------------------------------------
-    def verificationErrorCallback(self, reason):
-        print ("Error: calcType={0}, from client: {1}".format( self.orchestrator.calcType, reason ))
-        # do some stuff, delete the group / mark as being errored
-        # tell clients this group is not good
+    def verificationErrorCallback(self, data):
+
+        l = data.value.split("'")[1::2]
+
+        user    = l[0]
+        groupId = l[1]
+        reason  = l[2]
+
+        log.msg ("Verification Error: groupId = {0}, user = {1}, reason = {2}".format\
+                ( groupId, user, reason ))
+
+        # contact all the group participants to delete group
+        userRefs = self.orchestrator.getUserReferences(groupId)
+        for ref in userRefs :
+            ref.callRemote("deleteGroup", groupId )
 
     #-------------------------------------------------
     # Signing callback with data: 
     def signingCallback(self,  data ) :
-        print("signingCallback")
+        log.msg("signingCallback")
         groupId     = data[0]
         ordinal     = data[1]
         sig         = data[2]
@@ -286,13 +299,13 @@ class OrchestratorProtocol( pb.Root ) :
 
     #-------------------------------------------------- 
     def signingCompletedCallback ( self, groupId ) :
-        print("signingCompletedCallback: groupId = {0}".format(groupId))
+        log.msg("signingCompletedCallback: groupId = {0}".format(groupId))
 
         self.orchestrator.unLock(groupId)
 
     #-------------------------------------------------- 
     def signingErrorCallback ( self, groupId ) :
-        print("signingErrorCallback: groupId = {0}".format(groupId)) 
+        log.msg("signingErrorCallback: groupId = {0}".format(groupId)) 
 
 #-----------------------------------------------------------------
 

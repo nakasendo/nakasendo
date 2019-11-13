@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 import uuid
-
+from twisted.python import log
 
 
 
@@ -38,7 +38,6 @@ class GroupMetadata :
         self.collatedHiddenEvals    = {}
         self.collatedVWs            = {}
         self.collatedSignatures     = {}
-        self.verificationOfHonestyStatus            = True
         self.calculationType        = ''
         self.signer                 = ''
         self.locked                 = False
@@ -66,6 +65,7 @@ class Orchestrator( ) :
 
     #-------------------------------------------------
     def __init__ (self) :
+        log.msg("starting orchestrator")
         # dictionary of { user:remoteReference }
         self.users  = {}
         # dictionary of { groupId:GroupMetaData }
@@ -79,7 +79,7 @@ class Orchestrator( ) :
         if username not in self.users:
             self.users[username] = ref 
         
-        print ('{0} registered '.format(username))
+        log.msg ('{0} registered '.format(username))
 
 
     def isLocked( self, groupId ) :
@@ -87,19 +87,25 @@ class Orchestrator( ) :
 
 
     def lock( self, groupId ) :
-        print("Group LOCKED (groupId = {0}".format(groupId))
+        log.msg("Group LOCKED (groupId = {0}".format(groupId))
         self.groups[groupId].locked = True
 
     def unLock( self, groupId ) :
-        print("Group UN-LOCKED (groupId = {0}".format(groupId))
+        log.msg("Group UN-LOCKED (groupId = {0}".format(groupId))
         self.groups[groupId].locked = False
+
+    def setCalcType( self, groupId, calcType ) :
+        self.groups[groupId].calculationType = calcType
+
+    def calcType( self, groupId ) :
+        return self.groups[groupId].calculationType
 
     #-------------------------------------------------
     # m = recombination number of private key
     # n = total number in group
     # t = degree of polynomial (dervied from m-1 )
     def createGroup(self, proposer, m, n):
-        print('createGroup: {0} of {1}'.format(m, n ))
+        log.msg('createGroup: {0} of {1}'.format(m, n ))
 
 
         # check parameters are valid
@@ -107,18 +113,18 @@ class Orchestrator( ) :
 
         if t < 1 :
             errMsg = 'Parameters are not valid! Failed check: t (degree of Polynomial) < 1'
-            print( errMsg )
+            log.msg( errMsg )
             raise Exception( errMsg )
 
         if not (2 * t) + 1 <= int(n) :
             errMsg = 'Parameters are not valid! Failed check: 2t + 1 <= n'
-            print( errMsg )
+            log.msg( errMsg )
             raise Exception( errMsg )
 
         # check the #players is > 2
         if int(n) <= 2 :
             errMsg = 'Parameters are not valid! Failed check: group_size > 1'
-            print( errMsg )
+            log.msg( errMsg )
             raise Exception( errMsg )
 
         groupId = str(uuid.uuid1())
@@ -141,20 +147,20 @@ class Orchestrator( ) :
         group       = self.groups[groupId]
         target      = group.n - 1           # participant is already part of group
 
-        print('invitation reply from {0} ({1} : {2})'.format(user, acceptance, groupId))
+        log.msg('invitation reply from {0} ({1} : {2})'.format(user, acceptance, groupId))
 
         if not group.groupIsSet :
             if acceptance :
                 group.numReplies += 1
                 # assume 'user' already exist do not allow into group
                 if user in group.participantList :
-                    print("{0} already exists in group".format(user))
+                    log.msg("{0} already exists in group".format(user))
                     return False
                 
                 group.participantList.append(user)
                 
             
-            print('number of replies = {0}'.format(group.numReplies))
+            log.msg('number of replies = {0}'.format(group.numReplies))
 
             if group.numReplies == target :
                 group.groupIsSet = True
@@ -214,9 +220,9 @@ class Orchestrator( ) :
         group.collatedHiddenEvals[ordinal] = hiddenEvals
         group.numReplies += 1
 
-        print("number encrypted coefficient replies = {0}".format(group.numReplies))
+        log.msg("number encrypted coefficient replies = {0}".format(group.numReplies))
         if group.numReplies == group.n :
-            print("Received all encrypted coefficient data, distribute")
+            log.msg("Received all encrypted coefficient data, distribute")
             self.receivedAllReplies( groupId )
             return True 
         return False
@@ -234,9 +240,9 @@ class Orchestrator( ) :
         group.collatedVWs[ordinal] = data
         group.numReplies += 1
 
-        print("number VW data replies = {0}".format(group.numReplies))
+        log.msg("number VW data replies = {0}".format(group.numReplies))
         if group.numReplies == group.n :
-            print("Received all VW data, distribute")
+            log.msg("Received all VW data, distribute")
             self.receivedAllReplies( groupId )
             return True 
         return False
@@ -251,7 +257,7 @@ class Orchestrator( ) :
     #-------------------------------------------------
     # collate signature data
     def signature( self, groupId, ordinal, sig) :
-        print("groupId = {0}, ordinal={1}, signature={2}".format(groupId, ordinal, sig))
+        log.msg("groupId = {0}, ordinal={1}, signature={2}".format(groupId, ordinal, sig))
         group = self.groups[groupId]
 
         if not group.signatureIsSet :
@@ -259,12 +265,12 @@ class Orchestrator( ) :
             group.collatedSignatures[ordinal] = sig
             group.numReplies += 1 
 
-            print("number signature replies = {0}".format(group.numReplies))
+            log.msg("number signature replies = {0}".format(group.numReplies))
             two_t_plus_1 = (group.t * 2) + 1
 
             if group.numReplies == two_t_plus_1 :
                 group.signatureIsSet = True
-                print("Received 2t+1 replies")
+                log.msg("Received 2t+1 replies")
                 self.receivedAllReplies(groupId)                
                 return True
 
@@ -287,16 +293,16 @@ class Orchestrator( ) :
         group.numReplies += 1
 
 
-        print("Secret verification from: {0}, number replies = {1}".format(user, group.numReplies))
+        log.msg("Secret verification from: {0}, number replies = {1}".format(user, group.numReplies))
         if group.numReplies == group.n :
-            print("Received all secret verfications")
+            log.msg("Received all secret verfications")
             self.receivedAllReplies( groupId )
             return True
 
         return False
 
     def groupError(self, message):
-        print ("Error: {0}".format(message))
+        log.msg ("Error: {0}".format(message))
         # do some stuff, delete the group / mark as being errored
         # tell clients this group is not good
 
@@ -306,7 +312,7 @@ class Orchestrator( ) :
         group.numReplies += 1
 
 
-        print("Ephemeral Keys Completed from: {0}, number replies = {1}".format(user, group.numReplies))
+        log.msg("Ephemeral Keys Completed from: {0}, number replies = {1}".format(user, group.numReplies))
         if group.numReplies == group.n :
             self.receivedAllReplies( groupId )
             return True
@@ -315,7 +321,7 @@ class Orchestrator( ) :
 
 
     def receivedAllReplies( self, groupId) :
-        print("resetting replies counter")
+        log.msg("resetting replies counter")
         self.groups[groupId].numReplies = 0     
         
     
@@ -326,8 +332,8 @@ class Orchestrator( ) :
     def getSignerReference( self, groupId ) :
         participants = self.getParticipants(groupId) 
         signer = self.groups[groupId].signer
-        print("signer = {0}".format(signer))
-        print("participants = {0}".format(participants))
+        log.msg("signer = {0}".format(signer))
+        log.msg("participants = {0}".format(participants))
         
         userref = self.users[signer] 
 
