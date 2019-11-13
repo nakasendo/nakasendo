@@ -199,9 +199,9 @@ class Player :
         group = self.groups[groupId]
         
         group.presignInitiator = True 
-        group.numberPresigns = number 
+        group.numberPresigns = int(number)
         print("setting presignInitiator to: {0}, number of ephemeral keys left to do: {1}".format \
-            (group.presignInitiator, group.numberPresigns))
+            (group.presignInitiator, group.numberPresigns))            
 
     def isPresignInitiator( self, groupId ) :
         return self.groups[groupId].presignInitiator
@@ -209,8 +209,13 @@ class Player :
 
     def numberPresignsLeftToDo( self, groupId ) :
         group = self.groups[groupId]
-        numberPresigns = group.numberPresigns - 1
-        return numberPresigns
+        group.numberPresigns = group.numberPresigns - 1
+
+        # unset the presign initiator to allow another set of keys to be generated
+        if group.numberPresigns == 0 :    
+            group.presignInitiator = False
+        
+        return group.numberPresigns
         
     def setSigningInitiator( self, groupId ) :
         group = self.groups[groupId]

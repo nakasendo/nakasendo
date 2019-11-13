@@ -71,6 +71,7 @@ class OrchestratorProtocol( pb.Root ) :
     #-------------------------------------------------
     # This sends a request for data to all participants of group
     def remote_sharePublicKey( self, user, groupId, calcType ) :
+        print("remote_sharePublicKey")
         groupId = groupId.decode()
         self.orchestrator.calcType = calcType.decode()         
 
@@ -102,7 +103,8 @@ class OrchestratorProtocol( pb.Root ) :
         self.orchestrator.unLock( groupId )
 
 
-    def remote_initiatePresigning( self, user, groupId ) :
+    def remote_initiatePresigning( self, user, groupId, number ) :
+        print("remote_initiatePresigning")
         groupId = groupId.decode()
                 
         if self.orchestrator.isLocked(groupId) :
@@ -110,7 +112,7 @@ class OrchestratorProtocol( pb.Root ) :
             raise OrchestratorError( errMsg )  
 
         self.orchestrator.lock( groupId ) 
-        return [user, groupId]
+        return [user, groupId, number]
 
     #-------------------------------------------------
     # This sends a request for data to all participants of group
@@ -125,11 +127,6 @@ class OrchestratorProtocol( pb.Root ) :
             errMsg = 'Group Id is not valid: {0}'.format(groupId)
             raise OrchestratorError( errMsg )
 
-       # if self.orchestrator.isLocked(groupId) :
-        #    errMsg = 'Group Id is locked, try again later: {0}'.format(groupId)
-        #    raise OrchestratorError( errMsg )
-        
-        #self.orchestrator.lock(groupId)
 
         participants = self.orchestrator.getParticipants(groupId)
 

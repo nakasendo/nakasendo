@@ -73,14 +73,15 @@ class ClientProtocol( pb.Referenceable ):
     
     #--------------------------------------------------
     def presigning( self, gid, number ) :
+        print("presigning")
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
             log.msg(msg)
             raise ClientError( msg )
 
-        self.Player.setPresignInitiator(gid, number)
+        
         ret = self.orchestratorRef.callRemote \
-            ( "initiatePresigning", self.user, gid.encode() ).addCallbacks\
+            ( "initiatePresigning", self.user, gid.encode(), number ).addCallbacks\
                 (self.initiateSuccessCallback, self.initiateErrorCallback)
 
 
@@ -147,7 +148,6 @@ class ClientProtocol( pb.Referenceable ):
                     ( "presigning", self.user, gid.encode(), b'ALPHA' ) 
             
         elif calcType == 'ALPHA' : 
-
             res = self.Player.getVWshares( gid )
             d = self.orchestratorRef.callRemote \
                 ( "collateVWData", gid.encode(), res[0], res[1])
@@ -165,10 +165,18 @@ class ClientProtocol( pb.Referenceable ):
 
 
     def remote_completed( self, gid ) :
+        print("remote_completed")
         if self.Player.isPresignInitiator(gid) :
+            
             numberPresignsLeft = self.Player.numberPresignsLeftToDo( gid )
             if numberPresignsLeft > 0 :
-                self.presigning( gid, numberPresignsLeft )
+                print("number presign left to do = {0}".format(numberPresignsLeft))
+                #self.Player.setPresignInitiator(groupId, number)
+                print("calling remote_presigning for LITTLEK")
+                d = self.orchestratorRef.callRemote \
+                    ( "presigning", self.user, gid.encode(), b'LITTLEK' )  
+
+                #self.presigning( gid, numberPresignsLeft )
             else: 
                 print("I was the presign initiator.  Looks like we're FINISHED!!!")
                 d = self.orchestratorRef.callRemote \
@@ -191,13 +199,17 @@ class ClientProtocol( pb.Referenceable ):
         
         user        = data[0]
         groupId     = data[1]
+        number      = data[2]
 
         print("starting presigning ")  
+
+        self.Player.setPresignInitiator(groupId, number)
+
         d = self.orchestratorRef.callRemote \
             ( "presigning", self.user, groupId.encode(), b'LITTLEK' )        
     
     def initiateErrorCallback( self, reason ) :
-        print ("Error:  from server: {1}".format( reason ))        
+        print ("Error:  from server: {0}".format( reason ))        
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
@@ -227,17 +239,19 @@ class StdioClientProtocol(basic.LineReceiver):
         if not line: return
         line = line.decode("ascii")
 
+
         # Parse the command
         commandParts = line.split()
         command = commandParts[0].lower()
         args = []
-        args.append( commandParts[1] )
-        if command == 'sign' :
-            strval = ' '.join(commandParts[2:])
-            args.append( strval )
-        else :
-            for item in commandParts[ 2: ] :
-                args.append(item )
+        if command != 'groupids' and command != 'help' and command != 'quit':
+            args.append( commandParts[1] )
+            if command == 'sign' :
+                strval = ' '.join(commandParts[2:])
+                args.append( strval )
+            else :
+                for item in commandParts[ 2: ] :
+                    args.append(item ) 
 
         # Dispatch the command to the appropriate method.  
         # Note to implement a new command add another do_* method.
