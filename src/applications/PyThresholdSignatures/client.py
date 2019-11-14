@@ -17,7 +17,7 @@ from twisted.web import client
 from twisted.python import log
 
 
-from Player import Player
+from player import Player
 
 # Error class 
 class ClientError(pb.Error):
