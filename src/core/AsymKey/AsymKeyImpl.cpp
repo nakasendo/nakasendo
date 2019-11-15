@@ -31,33 +31,14 @@ using STR_ptr = std::unique_ptr<char, decltype(&help_openssl_free_char)>;//
 
 std::string _do_hash_msg(const std::string& crMsg)
 {
-    /*
-    MessageHash hasher;
-    hasher.HashSha256(crMsg);
-    return std::move(hasher.HashHex());
-    */
-
-    /// This is a quick version hashing small string
-    auto buff2hexstr_helper = [](unsigned char* buff, size_t buff_len)->std::string
-    {
-        /// OPENSSL_buf2hexstr doesn't work as expected, it returned hex string with parts separated by comma (file $OPENSSL_ROOT_DIR/crypto/o_str.c:OPENSSL_buf2hexstr)
-        /// Use manual converter here could give flexibility https://stackoverflow.com/questions/10723403/char-array-to-hex-string-c
-        constexpr char hexmap[] = "0123456789ABCDEF";
-        std::string hexstr(2 * buff_len, ' ');
-
-        for (size_t i = 0; i < buff_len; ++i)
-        {
-            hexstr[2 * i] = hexmap[(buff[i] & 0xF0) >> 4];
-            hexstr[2 * i + 1] = hexmap[(buff[i] & 0x0F) >> 0];
-        }
-        return hexstr;
-    };
-
-    /// For longer string, need to use buffer and sha update mechanism
-    unsigned char hash_buff[SHA256_DIGEST_LENGTH];
-    SHA256(reinterpret_cast<const unsigned char*>(crMsg.c_str()), crMsg.size(), hash_buff);
-    const std::string output = buff2hexstr_helper(hash_buff, SHA256_DIGEST_LENGTH);
-    return output;
+    SHA256_CTX ctx;
+    std::string digest(SHA256_DIGEST_LENGTH,'0');
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, reinterpret_cast<const unsigned char *>(crMsg.data()), crMsg.size());
+    char* md = const_cast<char*>(digest.c_str());// need that conversion to make it work for emscripten. directly  cast digest.data to <unsigned char*> won't work
+    SHA256_Final(reinterpret_cast<unsigned char *>(md), &ctx);
+    OPENSSL_cleanse(&ctx, sizeof(ctx));
+    return digest;
 }
 
 AsymKeyImpl::~AsymKeyImpl()
@@ -284,7 +265,7 @@ std::string AsymKeyImpl::exportPrivatePEMStr() const
 std::string AsymKeyImpl::exportPrivatePEMEncrypted( const std::string& passphrase ) const
 {
 
-    int length = passphrase.length( ) ;
+    const int length = (int) passphrase.length( ) ;
     std::unique_ptr < unsigned char[] > passPhrasePtr ( new unsigned char [ length + 1 ] ) ;
 
     std::fill_n( passPhrasePtr.get(), length+1, 0x00 ) ;
@@ -326,7 +307,7 @@ std::string AsymKeyImpl::exportPrivatePEMEncrypted( const std::string& passphras
 void AsymKeyImpl::importPrivatePEMEncrypted( const std::string& encryptedPEM, const std::string& passphrase )
 {
 
-    int length = passphrase.length( ) ;
+    const int length = (int) passphrase.length( ) ;
     std::unique_ptr < unsigned char[] > passPhrasePtr ( new unsigned char [ length + 1 ] ) ;
     
     std::fill_n( passPhrasePtr.get(), length+1, 0x00 ) ;
@@ -511,10 +492,9 @@ AsymKeyImpl* AsymKeyImpl::derive_private(const std::string& crAdditiveMsg) const
         throw std::runtime_error("Unable to get key group order");
 
     const std::string hashed_msg = _do_hash_msg(crAdditiveMsg);
-    BIGNUM* pBN = nullptr;
-    if (!BN_hex2bn(&pBN, hashed_msg.c_str()))
-        throw std::runtime_error("Unable to hash message as additive big number");
-    BIGNUM_ptr additive_bn(pBN, &BN_free);
+    BIGNUM_ptr additive_bn(BN_bin2bn(reinterpret_cast<const unsigned char*>(hashed_msg.data()), hashed_msg.size(), nullptr), &BN_free);
+    if (additive_bn == nullptr)
+        throw std::runtime_error("Unable to hash message as additive bignumber");
 
     /// Get private key
     const BIGNUM* my_private_key = EC_KEY_get0_private_key(m_key.get());
@@ -545,7 +525,7 @@ AsymKeyImpl* AsymKeyImpl::derive_private(const std::string& crAdditiveMsg) const
     return new_key;
 }
 
-std::pair<std::string, std::string> AsymKeyImpl::sign(const std::string& crMsg)const
+std::pair<std::string, std::string> AsymKeyImpl::impl_sign(const std::string& crMsg)const
 {
     const std::string msg_hash = _do_hash_msg(crMsg);
     SIG_ptr pSig (ECDSA_do_sign((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), m_key.get()), &ECDSA_SIG_free);
@@ -561,6 +541,32 @@ std::pair<std::string, std::string> AsymKeyImpl::sign(const std::string& crMsg)c
     const std::string s_hex_str(sStr.get());
 
     return std::make_pair(r_hex_str,s_hex_str);
+}
+
+std::pair<std::string, std::string> AsymKeyImpl::impl_sign_ex(const std::string& crMsg, const std::string& inv_k_hex, const std::string& r_hex) const
+{
+    using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
+    BIGNUM* raw_inv_k = nullptr;
+    BIGNUM* raw_r = nullptr;
+    BN_hex2bn(&raw_inv_k, inv_k_hex.c_str());
+    BN_hex2bn(&raw_r, r_hex.c_str());
+    BN_ptr pInvK(raw_inv_k, ::BN_free);
+    BN_ptr pR(raw_r, ::BN_free);
+
+    const std::string msg_hash = _do_hash_msg(crMsg);
+    SIG_ptr pSig(ECDSA_do_sign_ex((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pInvK.get(),pR.get(), m_key.get()), &ECDSA_SIG_free);
+    if (pSig == nullptr)
+        throw std::runtime_error("error signing message");
+
+    const BIGNUM* bnR = ECDSA_SIG_get0_r(pSig.get());
+    const BIGNUM* bnS = ECDSA_SIG_get0_s(pSig.get());
+
+    STR_ptr rStr(BN_bn2hex(bnR), &help_openssl_free_char);
+    STR_ptr sStr(BN_bn2hex(bnS), &help_openssl_free_char);
+    const std::string r_hex_str(rStr.get());
+    const std::string s_hex_str(sStr.get());
+
+    return std::make_pair(r_hex_str, s_hex_str);
 }
 
 // split the key into multiple parts
@@ -598,7 +604,8 @@ void AsymKeyImpl::recover (const std::vector<KeyShare>& shares){
         secret = RecoverSecret(shares, mod); 
         importPrivateHEX (secret.ToHex());
     }
-    catch(std::exception& err){
+    catch(std::exception& e){
+        (void)e;// Remove warning for MSVC
         throw;
     }
     return ;
@@ -723,10 +730,9 @@ std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string
         throw std::runtime_error("Unable to get public key group generator");
 
     const std::string hashed_msg = _do_hash_msg(crRandomMsg);
-    BIGNUM* pBN = nullptr;
-    if(!BN_hex2bn(&pBN, hashed_msg.c_str()))
+    BIGNUM_ptr additive_bn(BN_bin2bn(reinterpret_cast<const unsigned char*>(hashed_msg.data()), hashed_msg.size(), nullptr), &BN_free);
+    if (additive_bn == nullptr)
         throw std::runtime_error("Unable to hash message as additive bignumber");
-    BIGNUM_ptr additive_bn(pBN, &BN_free);
 
     EC_POINT_ptr additive_point(EC_POINT_new(imported_group), &EC_POINT_free);
     BN_CTX_ptr pCTX_mul(BN_CTX_new(), &BN_CTX_free);

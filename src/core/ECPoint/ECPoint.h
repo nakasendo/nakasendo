@@ -41,9 +41,9 @@ class ECPoint_API ECPoint
         ECPoint(const ECPoint& obj);
         ECPoint& operator=(const ECPoint& obj);
 
-        ECPoint MulHex(const std::string& objm, const std::string& objn);
-        ECPoint MulDec(const std::string& objm, const std::string& objn);
-        ECPoint Double();
+        ECPoint MulHex(const std::string& objm, const std::string& objn) const ;
+        ECPoint MulDec(const std::string& objm, const std::string& objn) const ;
+        ECPoint Double() const;
 
         void SetRandom() ; 
         void Invert();

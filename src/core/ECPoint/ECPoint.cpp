@@ -68,7 +68,7 @@ bool operator != (const ECPoint& obj1, const ECPoint& obj2)
     return !Compare(obj1.pImpl(), obj2.pImpl());
 }
 
-ECPoint ECPoint::MulHex(const std::string& objm, const std::string& objn)
+ECPoint ECPoint::MulHex(const std::string& objm, const std::string& objn) const
 {
     std::unique_ptr<ECPointImpl> res1 = this->pImpl()->MultiplyWithHexBigNum(objm, objn);
     ECPoint res;
@@ -76,7 +76,7 @@ ECPoint ECPoint::MulHex(const std::string& objm, const std::string& objn)
     return res;
 }
 
-ECPoint ECPoint::MulDec(const std::string& objm, const std::string& objn)
+ECPoint ECPoint::MulDec(const std::string& objm, const std::string& objn) const
 {
     std::unique_ptr<ECPointImpl> res1 = this->pImpl()->MultiplyWithDecBigNum(objm, objn);
     ECPoint res;
@@ -84,7 +84,7 @@ ECPoint ECPoint::MulDec(const std::string& objm, const std::string& objn)
     return res;
 }
 
-ECPoint ECPoint::Double()
+ECPoint ECPoint::Double() const
 {
     std::unique_ptr<ECPointImpl> res1 = this->pImpl()->Double();
     ECPoint res;
