@@ -166,3 +166,6 @@ std::unique_ptr<unsigned char[]> DEREncodedSignature(const BigNumber& r ,const B
     return impl_DEREncodedSignature(r,s,len);
 }
 
+std::string AsymKey_API pubkey_coordinates2pem(const std::string& xval, const std::string& yval, const int nid){
+    return impl_pubkey_coordinates2pem(xval, yval,  nid);
+}

@@ -43,11 +43,16 @@ std::string _do_hash_msg(const std::string& crMsg)
 
 AsymKeyImpl::~AsymKeyImpl()
 {
+    return ;
 }
 
 AsymKeyImpl::AsymKeyImpl()
-: m_key(EC_KEY_new_by_curve_name(OBJ_txt2nid("secp256k1")), &EC_KEY_free)
+    : m_key(EC_KEY_new(), &EC_KEY_free)
+//: m_key(EC_KEY_new_by_curve_name(OBJ_txt2nid("secp256k1")), &EC_KEY_free)
 {
+    //m_key.reset(EC_KEY_new(), &EC_KEY_free);
+    EC_GROUP *ec_group = EC_GROUP_new_by_curve_name(NID_secp256k1);
+    EC_KEY_set_group(m_key.get(), ec_group);
     EC_KEY_set_asn1_flag(m_key.get(), OPENSSL_EC_NAMED_CURVE);
     if(!EC_KEY_generate_key(m_key.get()))
         throw std::runtime_error("Unable to generate EC Key");
@@ -639,9 +644,21 @@ bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr,
         throw std::runtime_error("Error reading public key when verifying signature");
     EC_KEY_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
     EC_KEY_set_asn1_flag(pEC.get(), OPENSSL_EC_NAMED_CURVE);
-
+    EC_GROUP *grp = EC_GROUP_new_by_curve_name(NID_secp256k1);
+    if (grp == nullptr){
+        std::cout << "Unable to set group for the public key .. throw exception here" << std::endl;
+    }
+    int set_group_status = EC_KEY_set_group(pEC.get(),grp);
+    if(set_group_status != 1){
+        std::cout << "Unable to set the group" << std::endl;
+    }
     const std::string msg_hash = _do_hash_msg(crMsg);
+    //std::unique_ptr<unsigned char []> msgHashBytes (new unsigned char[msg_hash.length()]);
+    //for(int index=0;index<msg_hash.length(); ++index){
+    //    msgHashBytes[index]=msg_hash[index];
+    //}
     const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSig.get(), pEC.get());
+    //const int verify_status = ECDSA_do_verify(msgHashBytes.get(), msg_hash.length(), pSig.get(), pEC.get());
 
     if(verify_status<0)
         throw std::runtime_error("error veryfying ECDSA signature r[" + rs.first + "] s[" + rs.second + "] msg_hash["+ msg_hash +"]");
@@ -679,12 +696,19 @@ bool impl_verifyDER
     EC_KEY* raw_tmp_ec = nullptr;
     if (!PEM_read_bio_EC_PUBKEY(bio.get(), &raw_tmp_ec, NULL, NULL))
         throw std::runtime_error("Error reading public key when verifying signature");
-    EC_KEY_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
-    EC_KEY_set_asn1_flag(pEC.get(), OPENSSL_EC_NAMED_CURVE);
-
+    //EC_KEY_ptr pEC(raw_tmp_ec, &EC_KEY_free);// wrap to unique_ptr for safety
+    EC_KEY_set_asn1_flag(raw_tmp_ec, OPENSSL_EC_NAMED_CURVE);
+    EC_GROUP *grp = EC_GROUP_new_by_curve_name(NID_secp256k1);
+    if (grp == nullptr){
+        std::cout << "Unable to set group for the public key .. throw exception here" << std::endl;
+    }
+    int set_group_status = EC_KEY_set_group(raw_tmp_ec,grp);
+    if(set_group_status != 1){
+        std::cout << "Unable to set the group" << std::endl;
+    }
     const std::string msg_hash = _do_hash_msg(crMsg);
     //const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSig.get(), pEC.get());
-    const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSigRaw, pEC.get());
+    const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSigRaw, raw_tmp_ec);
 
     if(verify_status<0)
         throw std::runtime_error("error veryfying ECDSA der signature  with msg_hash["+ msg_hash +"]");
@@ -839,6 +863,36 @@ std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPub
     const std::string y_hex_str(yStr.get());
 
     return (std::make_pair(x_hex_str, y_hex_str));
+}
+
+std::string impl_pubkey_coordinates2pem(const std::string& xval, const std::string& yval, const int nid){
+
+    EC_KEY *eckey = NULL;
+    std::cout << OBJ_txt2nid("secp256k1") << std::endl; 
+    eckey = EC_KEY_new_by_curve_name(OBJ_txt2nid("secp256k1"));
+
+    BIGNUM* xPtr = BN_new();
+    BIGNUM* yPtr = BN_new();
+
+    BN_hex2bn(&xPtr, xval.c_str());
+    BN_hex2bn(&yPtr, yval.c_str());
+
+
+    EC_KEY_set_public_key_affine_coordinates(eckey, xPtr, yPtr);
+    EC_KEY_set_asn1_flag(eckey, OPENSSL_EC_NAMED_CURVE);
+
+    BIO_ptr outbio (BIO_new(BIO_s_mem()),&BIO_free_all);
+    if (!PEM_write_bio_EC_PUBKEY(outbio.get(), eckey))                                                                                                                                                                                                    
+        throw std::runtime_error("Error writting public key");
+    
+    const int pubKeyLen = BIO_pending(outbio.get());
+    std::string pubkey_str(pubKeyLen, '0');
+    BIO_read(outbio.get(), (void*)&(pubkey_str.front()), pubKeyLen);
+
+    BN_free(xPtr);
+    BN_free(yPtr);
+    EC_KEY_free(eckey);
+    return pubkey_str;
 }
 
 std::unique_ptr<unsigned char[]> impl_DEREncodedSignature(const BigNumber& r, const BigNumber& s, size_t& len){

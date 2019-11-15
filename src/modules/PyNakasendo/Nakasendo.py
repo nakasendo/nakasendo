@@ -377,6 +377,11 @@ def createDERFormat(rValue, sValue):
     
 def pubKeyPEMasHex(pubkey, compressed=False):
     return PyAsymKey.PubKeyPEMToHexPt(pubkey, compressed)
+
+def pubKeyHexPtasPem(xPt,yPt, nid=714):
+    return PyAsymKey.PubKeyHexPtToPEM(xPt,yPt,nid)
+
+
 class Polynomial:
 
     def __init__(self, degree, modulo ):

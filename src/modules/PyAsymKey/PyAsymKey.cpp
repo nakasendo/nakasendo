@@ -329,6 +329,18 @@ static PyObject*  wrap_PubKeyPEMToHex(PyObject* self, PyObject *args)
 }
 
 
+static PyObject*  wrap_PubKeyHexPtToPEM(PyObject* self, PyObject *args){
+    char* xpt = nullptr;
+    char* ypt = nullptr;
+    int nid=0;
+
+    if (!PyArg_ParseTuple(args, "ssi", &xpt,&ypt,&nid))
+        return NULL;
+    
+    std::string pemPubKey = pubkey_coordinates2pem(xpt,ypt, nid);
+    return Py_BuildValue("s",pemPubKey.c_str());
+}
+
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
@@ -348,6 +360,7 @@ static PyMethodDef ModuleMethods[] =
     {"ExportFromEncryptedPEM"   , wrap_ExportFromEncryptedPEM, METH_VARARGS,"Exports a key to Encrypted PEM format, with pass phrase"},
     {"DERSignature"             , wrap_DERSignature, METH_VARARGS,"return a DER encoding of an (r,s) signature"},
     {"PubKeyPEMToHexPt"         , wrap_PubKeyPEMToHex, METH_VARARGS,"Convert a PEM public key to a hex pt (compressed or uncompressed)"},
+    {"PubKeyHexPtToPEM"         , wrap_PubKeyHexPtToPEM, METH_VARARGS,"Convert an EC public key (affine coordinates to PEM"},
     {NULL, NULL, 0, NULL},
 };
  
