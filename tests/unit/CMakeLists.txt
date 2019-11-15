@@ -50,13 +50,12 @@ set_target_properties(test_SecretSplit PROPERTIES  FOLDER "tests/unit" DEBUG_POS
 sdk_add_unit_test(test_SecretSplit)
 
 add_executable(test_ECPoint test_ECPoints.cpp)
-target_link_libraries(test_ECPoint ECPoint)
-target_link_libraries(test_ECPoint BigNumbers)
+target_link_libraries(test_ECPoint ECPoint BigNumbers)
 set_target_properties(test_ECPoint PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 sdk_add_unit_test(test_ECPoint)
 
 add_executable(test_AsymKey test_AsymKey.cpp)
-target_link_libraries(test_AsymKey AsymKey)
+target_link_libraries(test_AsymKey AsymKey BigNumbers ECPoint)
 set_target_properties(test_AsymKey PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 sdk_add_unit_test(test_AsymKey)
 

@@ -11,6 +11,7 @@
 #include <AsymKey/AsymKey.h>
 #include <AsymKey/AsymKeyConfig.h>
 #include <BigNumbers/BigNumbers.h>
+#include <ECPoint/ECPoint.h>
 #include <Polynomial/Polynomial.h>
 #include <SecretSplit/KeyShare.h>
 #include <SecretSplit/SecretSplit.h>
@@ -280,11 +281,49 @@ BOOST_AUTO_TEST_CASE(test_IO_more)
 BOOST_AUTO_TEST_CASE(test_Sig_Verify)
 {
     const std::string msg{"Alice want to say hello to Bob"};
-    const AsymKey ecdsa;
-    const std::string pubkey = ecdsa.exportPublicPEM();
-    const std::pair<std::string, std::string> rs = ecdsa.sign(msg);
-    const bool verify_ok = verify(msg, pubkey,rs);
-    BOOST_CHECK(verify_ok);
+    const int nb_iter = 10;
+    for (int i = 0; i < nb_iter; ++i)
+    {
+        const AsymKey ecdsa;
+        const std::string pubkey = ecdsa.exportPublicPEM();
+        const std::pair<std::string, std::string> rs = ecdsa.sign(msg);
+        const bool verify_ok = verify(msg, pubkey, rs);
+        BOOST_CHECK(verify_ok);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_SigEx_Verify)
+{
+    const std::string msg{ "Alice want to say hello to Bob" };
+    const int nb_iter = 10;
+    for (int i = 0; i < nb_iter; ++i)
+    {
+        /// This part manage to get the random ephemeral key and its inverse
+        const AsymKey random_hex;
+        const std::string G_x_hex = random_hex.Group_G_x();
+        const std::string G_y_hex = random_hex.Group_G_y();
+        const std::string G_n_hex = random_hex.Group_n();
+        const std::string k_hex = random_hex.exportPrivateHEX();
+
+        BigNumber Gx; Gx.FromHex(G_x_hex);
+        BigNumber Gy; Gy.FromHex(G_y_hex);
+        BigNumber Gn; Gn.FromHex(G_n_hex);
+        BigNumber k; k.FromHex(k_hex);
+        BigNumber inv_k; inv_k = Inv_mod(k, Gn);
+        ECPoint G(Gx, Gy);
+        const ECPoint kG = G.MulHex(k_hex, std::string());
+        const std::pair<std::string, std::string> kG_xy = kG.GetAffineCoords_GFp();
+        const std::string r_hex = kG_xy.first;
+        const std::string inv_k_hex = inv_k.ToHex();
+
+        const AsymKey ecdsa;
+        const std::string pubkey = ecdsa.exportPublicPEM();
+        const std::pair<std::string, std::string> rs = ecdsa.sign_ex(msg, inv_k_hex, r_hex);
+        const std::string sig_r_hex = rs.first;
+        const bool verify_ok = verify(msg, pubkey, rs);
+        BOOST_CHECK(sig_r_hex == r_hex);
+        BOOST_CHECK(verify_ok);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(test_Sig_Verify_Random)
@@ -328,7 +367,6 @@ BOOST_AUTO_TEST_CASE(test_Sig_DER_Verify_Random)
         BOOST_CHECK(verify_ok);
     }
 }
-
 
 BOOST_AUTO_TEST_CASE(test_SharedSecret)
 {   
@@ -447,6 +485,40 @@ BOOST_AUTO_TEST_CASE(test_private_key_with_encryption)
     }
 }
 
+BOOST_AUTO_TEST_CASE(test_fixbug_SL364_sign_ex)
+{
+    //// https://nchain.atlassian.net/browse/SL-364
+    const std::string msg{ "I love deadlines. I love the whooshing noise they make as they go by." };
+    /// This part manage to get the random ephemeral key and its inverse
+    const AsymKey random_hex;
+    const std::string G_x_hex = random_hex.Group_G_x();
+    const std::string G_y_hex = random_hex.Group_G_y();
+    const std::string G_n_hex = random_hex.Group_n();
+    const std::string d_hex{"B0BD078D3A70DA8407398E764712680B762EDC0AE417B71AC29DB1DB19E6135F"};
+    const std::string k_hex{"C5BDF8673298782F3587BDF2BAC0A5FA5E37C1B48A74426007C02A8A140A26F7"};
+    const std::string test_sig_s_hex{ "B1164242138D07C2828CF4E71FECFFB414EA78DA828C352E3381773788065F6B"};// Input from python ecdsa
 
+    BigNumber Gx; Gx.FromHex(G_x_hex);
+    BigNumber Gy; Gy.FromHex(G_y_hex);
+    BigNumber Gn; Gn.FromHex(G_n_hex);
+    BigNumber k; k.FromHex(k_hex);
+    BigNumber inv_k; inv_k = Inv_mod(k, Gn);
+    const std::string invk_hex = inv_k.ToHex();
+    ECPoint G(Gx, Gy);
+    const ECPoint kG = G.MulHex(k_hex, std::string());
+    const std::pair<std::string, std::string> kG_xy = kG.GetAffineCoords_GFp();
+    const std::string r_hex = kG_xy.first;
+    const std::string inv_k_hex = inv_k.ToHex();
+
+    AsymKey ecdsa; ecdsa.importPrivateHEX(d_hex);
+    const std::string pubkey = ecdsa.exportPublicPEM();
+    const std::pair<std::string, std::string> rs = ecdsa.sign_ex(msg, inv_k_hex, r_hex);
+    const std::string sig_r_hex = rs.first;
+    const std::string sig_s_hex = rs.second;
+    const bool verify_ok = verify(msg, pubkey, rs);
+    BOOST_CHECK(sig_r_hex == r_hex);
+    BOOST_CHECK(sig_s_hex == test_sig_s_hex);
+    BOOST_CHECK(verify_ok);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
