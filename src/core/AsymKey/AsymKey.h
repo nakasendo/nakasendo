@@ -60,6 +60,8 @@ class AsymKey_API AsymKey
 
         /// Sign the message, return <r,s>  component
         std::pair<std::string, std::string> sign(const std::string& crMsg) const;
+        /// Sign the message, return <r,s>  component with the provided inv_k and r
+        std::pair<std::string, std::string> sign_ex(const std::string& crMsg, const std::string& inv_k_hex, const std::string& r_hex) const;
 
         // split the key into multiple parts
         std::vector<KeyShare> split (const int&, const int&);

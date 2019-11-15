@@ -122,7 +122,12 @@ AsymKey AsymKey::derive(const std::string& crAdditiveMsg) const
 
 std::pair<std::string, std::string> AsymKey::sign(const std::string& crMsg)const
 {
-    return m_pImpl->sign(crMsg);
+    return m_pImpl->impl_sign(crMsg);
+}
+
+std::pair<std::string, std::string> AsymKey::sign_ex(const std::string& crMsg, const std::string& inv_k_hex, const std::string& r_hex) const
+{
+    return m_pImpl->impl_sign_ex(crMsg, inv_k_hex, r_hex);
 }
 
 // split the key into multiple parts
