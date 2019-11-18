@@ -29,6 +29,7 @@ using BIGNUM_ptr = std::unique_ptr<BIGNUM, decltype(&BN_free)>;
 inline void help_openssl_free_char(char* p) { OPENSSL_free(p); }
 using STR_ptr = std::unique_ptr<char, decltype(&help_openssl_free_char)>;//
 
+
 std::string _do_hash_msg(const std::string& crMsg)
 {
     SHA256_CTX ctx;
@@ -40,7 +41,19 @@ std::string _do_hash_msg(const std::string& crMsg)
     OPENSSL_cleanse(&ctx, sizeof(ctx));
     return digest;
 }
-
+#if 0 
+std::string _do_hash_msg(const std::string& crMsg)
+{
+    SHA256_CTX ctx;
+    std::string digest(SHA256_DIGEST_LENGTH,'0');
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, reinterpret_cast<const unsigned char *>(crMsg.data()), crMsg.size());
+    char* md = const_cast<char*>(digest.c_str());// need that conversion to make it work for emscripten. directly  cast digest.data to <unsigned char*> won't work
+    SHA256_Final(reinterpret_cast<unsigned char *>(md), &ctx);
+    OPENSSL_cleanse(&ctx, sizeof(ctx));
+    return digest;
+}
+#endif
 AsymKeyImpl::~AsymKeyImpl()
 {
     return ;
