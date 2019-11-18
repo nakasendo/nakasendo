@@ -136,6 +136,29 @@ static PyObject* wrap_DERSignature(PyObject* self, PyObject *args)
     }
 }
 
+static PyObject* wrap_verifyDER(PyObject* self, PyObject *args)
+{
+    char* cSig = nullptr;
+    char* cPubKey = nullptr;
+    char* msg = nullptr;
+    int dec(0);
+
+    if (!PyArg_ParseTuple(args, "sssi",&msg, &cPubKey, &cSig,&dec))
+        return NULL;
+
+    std::string sig(cSig);
+    std::string key(cPubKey); 
+    std::string msgStr(msg);
+
+    size_t sigBinLen(0);
+    std::unique_ptr<unsigned char[]> sigBin = HexStrToBin(sig,&sigBinLen);
+
+    const bool verifyOK = verifyDER(msgStr, key, sigBin,sigBinLen);
+
+    return Py_BuildValue("i", verifyOK);
+}
+
+
 static PyObject* wrap_ShareSecret(PyObject* self, PyObject *args)
 {
     char* cMyPrivateKeyPEM = nullptr;
@@ -361,6 +384,7 @@ static PyMethodDef ModuleMethods[] =
     {"DERSignature"             , wrap_DERSignature, METH_VARARGS,"return a DER encoding of an (r,s) signature"},
     {"PubKeyPEMToHexPt"         , wrap_PubKeyPEMToHex, METH_VARARGS,"Convert a PEM public key to a hex pt (compressed or uncompressed)"},
     {"PubKeyHexPtToPEM"         , wrap_PubKeyHexPtToPEM, METH_VARARGS,"Convert an EC public key (affine coordinates to PEM"},
+    {"VerifyDER"                , wrap_verifyDER,METH_VARARGS,"Verify message's signature in DER format with public key"},
     {NULL, NULL, 0, NULL},
 };
  

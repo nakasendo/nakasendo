@@ -43,18 +43,16 @@ class MessageHash:
     def __str__(self):
         return '{}'.format (self.message);
         
-def hash256(message):
+def hash256(message,modulo=None, isdecimal=False):
     MH = MessageHash(message)
     hashedVal = MH.HashSha256()
-    retVal = BigNum()
-    retVal.value = hashedVal
+    retVal = BigNum(value=hashedVal,mod=modulo,isDec=isdecimal)
     return retVal
     
-def hash(message,hashfunc=None):
+def hash(message,hashfunc=None,modulo=None,isdecimal=False):
     MH = MessageHash(message)
     hashedVal = MH.Hash(hashfunc)
-    retVal = BigNum()
-    retVal.value = hashedVal
+    retVal = BigNum(value=hashedVal,mod=modulo,isDec=isdecimal)
     return retVal
     
 def ListHashFuncs():
@@ -324,8 +322,11 @@ def MultiplyByGenerator( m,isDec=False, nid=ECPoint.defaultNID, compressed=False
     
         
 class ECKey256K1:
-    def __init__ (self):
-        self.pubKey, self.priKey = PyAsymKey.GenerateKeyPairPEM(); 
+    def __init__ (self,asHex=False):
+        if(asHex):
+            self.pubKey, self.priKey = PyAsymKey.GenerateKeyPairHEX(); 
+        else:
+            self.pubKey, self.priKey = PyAsymKey.GenerateKeyPairPEM(); 
     
     def FromPEMStr (self, keyPemForm):
         self.pubKey, self.priKey = PyAsymKey.ImportFromPem(keyPemForm);
@@ -368,6 +369,9 @@ class ECKey256K1:
       
 def verify(msg, pubkey, rval, sval):
     return PyAsymKey.Verify(msg, pubkey, rval,sval)
+
+def verifyDER(msg, pubkey, DERSig,isDec=False):
+    return PyAsymKey.VerifyDER(msg, pubkey,DERSig,isDec )
     
 def createDERFormat(rValue, sValue):
     assert(rValue.isDec == sValue.isDec)

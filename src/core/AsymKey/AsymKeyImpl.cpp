@@ -30,30 +30,23 @@ inline void help_openssl_free_char(char* p) { OPENSSL_free(p); }
 using STR_ptr = std::unique_ptr<char, decltype(&help_openssl_free_char)>;//
 
 
-std::string _do_hash_msg(const std::string& crMsg)
+std::unique_ptr<unsigned char []> _do_hash_msg(const std::string& crMsg, int& len)
 {
     SHA256_CTX ctx;
-    std::string digest(SHA256_DIGEST_LENGTH,'0');
+    std::unique_ptr<unsigned char []> msg (new unsigned char[crMsg.size()]);
+    int index(0);
+    for(std::string::const_iterator iter = crMsg.begin(); iter != crMsg.end(); ++ iter){
+        msg[index++] = *iter;
+    }
+    std::unique_ptr<unsigned char []> digest (new unsigned char[SHA256_DIGEST_LENGTH]);
     SHA256_Init(&ctx);
-    SHA256_Update(&ctx, reinterpret_cast<const unsigned char *>(crMsg.data()), crMsg.size());
-    char* md = const_cast<char*>(digest.c_str());// need that conversion to make it work for emscripten. directly  cast digest.data to <unsigned char*> won't work
-    SHA256_Final(reinterpret_cast<unsigned char *>(md), &ctx);
+    SHA256_Update(&ctx, msg.get(), crMsg.size());
+    SHA256_Final(digest.get(), &ctx);
     OPENSSL_cleanse(&ctx, sizeof(ctx));
+    len = SHA256_DIGEST_LENGTH;
     return digest;
 }
-#if 0 
-std::string _do_hash_msg(const std::string& crMsg)
-{
-    SHA256_CTX ctx;
-    std::string digest(SHA256_DIGEST_LENGTH,'0');
-    SHA256_Init(&ctx);
-    SHA256_Update(&ctx, reinterpret_cast<const unsigned char *>(crMsg.data()), crMsg.size());
-    char* md = const_cast<char*>(digest.c_str());// need that conversion to make it work for emscripten. directly  cast digest.data to <unsigned char*> won't work
-    SHA256_Final(reinterpret_cast<unsigned char *>(md), &ctx);
-    OPENSSL_cleanse(&ctx, sizeof(ctx));
-    return digest;
-}
-#endif
+
 AsymKeyImpl::~AsymKeyImpl()
 {
     return ;
@@ -61,9 +54,7 @@ AsymKeyImpl::~AsymKeyImpl()
 
 AsymKeyImpl::AsymKeyImpl()
     : m_key(EC_KEY_new(), &EC_KEY_free)
-//: m_key(EC_KEY_new_by_curve_name(OBJ_txt2nid("secp256k1")), &EC_KEY_free)
 {
-    //m_key.reset(EC_KEY_new(), &EC_KEY_free);
     EC_GROUP *ec_group = EC_GROUP_new_by_curve_name(NID_secp256k1);
     EC_KEY_set_group(m_key.get(), ec_group);
     EC_KEY_set_asn1_flag(m_key.get(), OPENSSL_EC_NAMED_CURVE);
@@ -510,9 +501,10 @@ AsymKeyImpl* AsymKeyImpl::derive_private(const std::string& crAdditiveMsg) const
         throw std::runtime_error("Unable to get key group order");
 
     const std::string hashed_msg = _do_hash_msg(crAdditiveMsg);
-    BIGNUM_ptr additive_bn(BN_bin2bn(reinterpret_cast<const unsigned char*>(hashed_msg.data()), hashed_msg.size(), nullptr), &BN_free);
-    if (additive_bn == nullptr)
-        throw std::runtime_error("Unable to hash message as additive bignumber");
+    BIGNUM* pBN = nullptr;
+    if (!BN_hex2bn(&pBN, hashed_msg.c_str()))
+        throw std::runtime_error("Unable to hash message as additive big number");
+    BIGNUM_ptr additive_bn(pBN, &BN_free);
 
     /// Get private key
     const BIGNUM* my_private_key = EC_KEY_get0_private_key(m_key.get());
@@ -545,8 +537,9 @@ AsymKeyImpl* AsymKeyImpl::derive_private(const std::string& crAdditiveMsg) const
 
 std::pair<std::string, std::string> AsymKeyImpl::impl_sign(const std::string& crMsg)const
 {
-    const std::string msg_hash = _do_hash_msg(crMsg);
-    SIG_ptr pSig (ECDSA_do_sign((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), m_key.get()), &ECDSA_SIG_free);
+    int msgLen(-1);
+    std::unique_ptr<unsigned char []> msg_hash = _do_hash_msg(crMsg,msgLen);
+    SIG_ptr pSig (ECDSA_do_sign(msg_hash.get(), msgLen, m_key.get()), &ECDSA_SIG_free);
     if (pSig ==nullptr)
         throw std::runtime_error("error signing message");
 
@@ -665,17 +658,17 @@ bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr,
     if(set_group_status != 1){
         std::cout << "Unable to set the group" << std::endl;
     }
-    const std::string msg_hash = _do_hash_msg(crMsg);
-    //std::unique_ptr<unsigned char []> msgHashBytes (new unsigned char[msg_hash.length()]);
-    //for(int index=0;index<msg_hash.length(); ++index){
-    //    msgHashBytes[index]=msg_hash[index];
-    //}
-    const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSig.get(), pEC.get());
-    //const int verify_status = ECDSA_do_verify(msgHashBytes.get(), msg_hash.length(), pSig.get(), pEC.get());
+    int msgLen(-1);
+    std::unique_ptr<unsigned char []> msg_hash = _do_hash_msg(crMsg,msgLen);
 
-    if(verify_status<0)
-        throw std::runtime_error("error veryfying ECDSA signature r[" + rs.first + "] s[" + rs.second + "] msg_hash["+ msg_hash +"]");
-
+    const int verify_status = ECDSA_do_verify(msg_hash.get(), msgLen, pSig.get(), pEC.get());
+    if(verify_status<0){
+        std::string msgHash;
+        for(int i=0;i<msgLen;++i){
+            msgHash.push_back(msg_hash[i]);
+        }
+        throw std::runtime_error("error veryfying ECDSA signature r[" + rs.first + "] s[" + rs.second + "] msg_hash["+ msgHash +"]");
+    }
     const bool verify_OK = (1== verify_status);
     return verify_OK;
 }
@@ -719,13 +712,17 @@ bool impl_verifyDER
     if(set_group_status != 1){
         std::cout << "Unable to set the group" << std::endl;
     }
-    const std::string msg_hash = _do_hash_msg(crMsg);
-    //const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSig.get(), pEC.get());
-    const int verify_status = ECDSA_do_verify((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pSigRaw, raw_tmp_ec);
+    int msgLen(-1);
+    std::unique_ptr<unsigned char[]>  msg_hash = _do_hash_msg(crMsg,msgLen);
+    const int verify_status = ECDSA_do_verify(msg_hash.get(), msgLen, pSigRaw, raw_tmp_ec);
 
-    if(verify_status<0)
-        throw std::runtime_error("error veryfying ECDSA der signature  with msg_hash["+ msg_hash +"]");
-
+    if(verify_status<0){
+        std::string msgHash;
+        for(int i=0;i<msgLen;++i){
+            msgHash.push_back(msg_hash[i]);
+        }
+        throw std::runtime_error("error veryfying ECDSA der signature  with msg_hash["+ msgHash +"]");
+    }
     const bool verify_OK = (1== verify_status);
     return verify_OK;
 
@@ -767,9 +764,10 @@ std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string
         throw std::runtime_error("Unable to get public key group generator");
 
     const std::string hashed_msg = _do_hash_msg(crRandomMsg);
-    BIGNUM_ptr additive_bn(BN_bin2bn(reinterpret_cast<const unsigned char*>(hashed_msg.data()), hashed_msg.size(), nullptr), &BN_free);
-    if (additive_bn == nullptr)
+    BIGNUM* pBN = nullptr;
+    if(!BN_hex2bn(&pBN, hashed_msg.c_str()))
         throw std::runtime_error("Unable to hash message as additive bignumber");
+    BIGNUM_ptr additive_bn(pBN, &BN_free);
 
     EC_POINT_ptr additive_point(EC_POINT_new(imported_group), &EC_POINT_free);
     BN_CTX_ptr pCTX_mul(BN_CTX_new(), &BN_CTX_free);
