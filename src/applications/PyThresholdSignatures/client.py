@@ -260,7 +260,7 @@ class StdioClientProtocol(basic.LineReceiver):
                 args.append( commandParts[1] )
                 if command == 'sign' :
                     strval = ' '.join(commandParts[2:])
-                    args.append( strval )
+                    args.append(strval.strip('\''))
                 else :
                     for item in commandParts[ 2: ] :
                         args.append(item ) 
