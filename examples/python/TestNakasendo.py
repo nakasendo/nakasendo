@@ -5,6 +5,13 @@ import json
 import string
 import pathlib
 import random
+import ecdsa
+import hashlib
+import binascii
+
+G= ecdsa.SECP256k1.generator
+N = ecdsa.SECP256k1.order
+
 
 ## Try to prepend the $SDKLIBRARIES_ROOT to the system path
 if 'SDKLIBRARIES_ROOT' in os.environ:
@@ -185,6 +192,13 @@ if __name__ == "__main__":
     print ("public key = ", newKey.pubKey )
     print ("private key = ", newKey.priKey )
     
+    # generate a derived pub key PEM & convert to HEX (compressed & uncompressed)
+    pubkeyPEM = BobsKey.derivePublicKey(msg)
+    print ("Derived pub key PEM = ", pubkeyPEM)
+    derivedPubKeyHex = Nakasendo.pubKeyPEMasHex(pubkeyPEM)
+    print ("Dervied pub key hex uncompressed = ", derivedPubKeyHex)
+    derivedPubKeyHex = Nakasendo.pubKeyPEMasHex(pubkeyPEM,True)
+    print ("Dervied pub key hex uncompressed = ", derivedPubKeyHex)
 
     # Test1 randomPolynomial( degree, modulo )
     # Test2 randomPolynomial( degree, modulo, fixed a_0 )
@@ -378,4 +392,42 @@ if __name__ == "__main__":
 
     address = Nakasendo.BCHAddress.initFromAddress( addressStrValid ) 
     print("Address: %s has valid = %s" % (addressStrValid, bool( address.valid ) ) )
+    
+    
+    
+    #creata an Asmkey .. 
+    #use ECDSA to sign
+    #use Nakasendo to verify
+    AliceKey = Nakasendo.ECKey256K1(asHex=True);
+    ecdsaPubKey = int(AliceKey.priKey,16)*G
+    print ('Public Key for ecdsa verification %s' %ecdsaPubKey)
+    points = ecdsaPubKey
+    xval = hex(ecdsaPubKey.x())[2:]
+    yval = hex(ecdsaPubKey.y())[2:]
+    pempubkey = Nakasendo.pubKeyHexPtasPem(xval,yval)
+    pubkeytest = ecdsa.ecdsa.Public_key(G, ecdsaPubKey) 
+    privkeytest = ecdsa.ecdsa.Private_key(pubkeytest,int(AliceKey.priKey,16))
+
+    #print ('private key %s' % secret.value )
+
+    #ecdsa_sig = privkeytest.sign(int(Hm.value,16),int(inv_k.value,16))
+    
+    #signature = ecdsa.util.sigencode_der_canonize(ecdsa_sig.r, ecdsa_sig.s,int(modulo_n.value,16))
+    message = 'Im a message and Im about to be hashed'
+    
+    print ('Private Key in Hex %s \n Public Key Hex %s' %(AliceKey.priKey, AliceKey.pubKey))
+    hashedT = Nakasendo.hash256(message)
+    print (hashedT)
+    ecdsa_sig = privkeytest.sign(int(hashedT.value,16),int(AliceKey.priKey,16))
+    
+    signature = ecdsa.util.sigencode_der_canonize(ecdsa_sig.r, ecdsa_sig.s,int("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141",16))
+    
+    #print (signature)
+    print('ecdsa r %s \n ecdsa s %s' % (hex(ecdsa_sig.r)[2:], hex(ecdsa_sig.s)[2:]))
+    
+    veifySign = Nakasendo.verify(message,pempubkey, hex(ecdsa_sig.r)[2:], hex(ecdsa_sig.s)[2:])
+    if(veifySign == True):
+        print ('Signed via ECDSA verified by Naksendo')
+        
+    
     

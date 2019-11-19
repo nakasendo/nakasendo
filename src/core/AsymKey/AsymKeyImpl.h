@@ -73,7 +73,9 @@ bool impl_verifyDER
 
 std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string& crRandomMsg);
 std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPubPEMkey);
+std::string impl_pubkey_pem2Hex_point(const std::string& crPubPEMkey, const bool& compressed=true);
 
 std::unique_ptr<unsigned char []> impl_DEREncodedSignature(const BigNumber&, const BigNumber&, size_t& len);
 
+std::string impl_pubkey_coordinates2pem(const std::string& xval, const std::string& yval, const int nid=714);
 #endif /* ASYM_KEY_IMPL_H */
