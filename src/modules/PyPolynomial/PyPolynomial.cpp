@@ -459,21 +459,21 @@ static PyObject* wrap_LGECInterpolatorFull(PyObject* self, PyObject *args)
             break;
         }
 
-        int argA ;
+        char * argA ;
         char * argB ;
         char * argC ;
-        if (!PyArg_ParseTuple (next, "iss", &argA, &argB,&argC )){
+        if (!PyArg_ParseTuple (next, "sss", &argA, &argB,&argC )){
             break;
         }
         BigNumber a ;
         BigNumber y1; 
         BigNumber y2; 
         if(dec){
-            a.FromDec(std::to_string(argA));
+            a.FromDec(argA);
             y1.FromDec(argB);
             y2.FromDec(argC);
         }else{
-            a.FromHex( std::to_string( argA ) ) ;
+            a.FromHex( argA ) ;
             y1.FromHex(argB);
             y2.FromHex(argC);
         }

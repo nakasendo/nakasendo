@@ -1,0 +1,48 @@
+@startuml
+@startuml
+!pragma teoz true
+
+header TS Messaging Framework
+title Round 3 Communications
+hide footbox
+actor Player_1
+participant PlayerClient
+control Orchestrator
+participant PlayerClient2
+actor Player_2
+
+activate Orchestrator
+
+
+Player_1 -> PlayerClient : sign <msg> 
+activate PlayerClient
+PlayerClient -> Orchestrator : sign <msg> 
+deactivate PlayerClient
+
+
+Orchestrator -> PlayerClient : << please sign >>
+& Orchestrator -> PlayerClient2 : << please sign >>
+activate PlayerClient
+activate PlayerClient2
+
+PlayerClient -> PlayerClient : signing, calculate s \npop ephemeral key from list
+PlayerClient2 -> PlayerClient2 : signing, calculate s \npop ephemeral key from list
+
+
+PlayerClient --> Orchestrator : response with s
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : response with s
+deactivate PlayerClient2
+
+... wait for number of responses (2t+1) ...
+
+Orchestrator -> Orchestrator : combine s information
+Orchestrator -> PlayerClient : << send signing information >>
+activate PlayerClient
+
+PlayerClient -> PlayerClient : interpolate to create signature
+
+
+PlayerClient --> Orchestrator : finished
+deactivate PlayerClient
+@enduml

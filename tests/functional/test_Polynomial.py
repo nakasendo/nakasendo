@@ -392,7 +392,7 @@ def test_LGECInterpolatorFull():
     modulo = PyBigNumbers.GenerateRandPrimeHex(1000)
     xValue = PyBigNumbers.GenerateRandHex(1000)
     listTupleObj = []
-    dec = 0
+    dec = False
 
     # Generating Random EC
     for x in range(10, 50):
@@ -404,7 +404,7 @@ def test_LGECInterpolatorFull():
 
         x_Axis, y_axis = hexValue.GetAffineCoOrdinates()
         # EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1
-        listTupleObj.append((x, x_Axis, y_axis))
+        listTupleObj.append((str(x), x_Axis, y_axis))
 
     lgInterpolatorX = PyPolynomial.LGECInterpolatorFull(listTupleObj, modulo, xValue,dec)
     assert type(lgInterpolatorX) == str, "Test failed"

@@ -13,6 +13,7 @@ import random
 import hashlib
 import binascii
 import TransactionHandling
+import bsvrawtransaction
 
 G= ecdsa.SECP256k1.generator
 N = ecdsa.SECP256k1.order
@@ -54,6 +55,46 @@ def b58_encode(d):
         p -= 1
 
     return out
+
+'''
+def serializeTX(prev_hash_input, index_input, scriptSig_input, value_input, scriptPubkey_input):
+    tx = b'\x02\x00\x00\x00' #version
+    tx += b'\x01' #input count
+    tx += binascii.unhexlify(prev_hash_input)[::-1]
+    tx += index_input.to_bytes(4,'little')
+    scriptSig_bytes = binascii.unhexlify(scriptSig_input)
+    script_length = len(scriptSig_bytes)
+    tx += script_length.to_bytes((script_length.bit_length()+7)//8, 'big')
+    tx += scriptSig_bytes
+    if script_length == 0:
+        tx += b'\x00'
+    tx += b'\xff\xff\xff\xff' #sequence
+    tx += b'\x01' #output count
+    tx += value_input.to_bytes(8,'little')
+    scriptPubkey_bytes = binascii.unhexlify(scriptPubkey_input)
+    script_length = len(scriptPubkey_bytes)
+    tx += script_length.to_bytes((script_length.bit_length()+7)//8, 'big')
+    tx += scriptPubkey_bytes
+    tx += b'\x00\x00\x00\x00' # locktime
+    #tx += b'\x01\x00\x00\x00' # sighash_all This is not required when submitting raw transaction
+    return binascii.hexlify(tx)
+    
+    
+def CreateSignedTx(signature,pkCompressed):
+    print("Strings encoding of the signature is \n{}".format(binascii.hexlify(signature)))
+
+    signature_length = len(signature) + 1 # 1 byte will be added later for sighash flag
+    signature_length = signature_length.to_bytes((signature_length.bit_length()+7)//8,'big')
+
+
+    #41 is hex for 65 and is the sighash flag for ALL and FORKID
+    #21 is the length of the compressed public key.
+    #These values are hard coded for testing purpose.
+   # scriptSig_final = binascii.hexlify(signature_length) + binascii.hexlify(signature) + b'4121' + binascii.hexlify(binascii.unhexlify(pkCompressed))
+
+    #signedTX = serializeTX(prevTxId, prevIndex, scriptSig_final, value, scriptPubkey)
+    #print("\nThe final transaction to be submitted: {}". format(signedTX))
+'''
 
 def ripemd160(x):
     d = hashlib.new("ripemd160")
@@ -170,11 +211,10 @@ if __name__ == "__main__":
     
     start_time = time.time()
  
-    #tt = random.randint(2, 3)
+    tt = random.randint(2, 64)
     #tt = 2
-    tt = 1
-    #msg = 'The argparse module makes it easy to write user-friendly command-line interfaces. The program defines what arguments it requires, and argparse will figure out how to parse those out of sys.argv. The argparse module also automatically generates help and usage messages and issues errors when users give the program invalid arguments'
-    msg = 'I love deadlines. I love the whooshing noise they make as they go by.'
+    msg = 'The argparse module makes it easy to write user-friendly command-line interfaces. The program defines what arguments it requires, and argparse will figure out how to parse those out of sys.argv. The argparse module also automatically generates help and usage messages and issues errors when users give the program invalid arguments'
+    
     '''
     try:
         opts, args = getopt.getopt(sys.argv[1], "t:m:",["threshold=","message="])
@@ -203,20 +243,19 @@ if __name__ == "__main__":
     Hm = HashMsg(msg, modulo_n)
     margin = random.randint(0,15)
     #tt = 2
-    #nn = 2 * tt + 1 + margin
-    nn = 2 * tt +1
-    print ('the degree t %s, the Signing Threshold is %s and group size %s' % (tt,(2*tt +1), nn))
+    nn = 2 * tt + 1 + margin
+    print ('the degree t %s and group size %s' % (tt, nn))
     
     #calculate Key shares & the private key
     Players=[]
     
     start_time = time.time()
-    definedPolys = DefinedPolys._get_defined_polynomials_deg_2_3_privKey(modulo_n.value)
+    definedPolys = DefinedPolys._get_defined_polynomials_deg_2(2,modulo_n.value)
     for i in range(nn):
         label = "p" + str(i+1)
         new_player = PyPlayer.Player(label, i+1, False, False)
-        #new_player.CreatePolynomial (tt, modulo_n.value,decimal=False) 
-        new_player.polynomial = definedPolys[i]
+        new_player.CreatePolynomial (tt, modulo_n.value,decimal=False) 
+        #new_player.polynomial = definedPolys[i]
         Players.append(new_player)
     
     #for i in range(nn):
@@ -240,7 +279,7 @@ if __name__ == "__main__":
     #print('Players SubGroup')
     
     vect_d = CalculateSecret(Players, modulo_n.value,isDec=False)
-    print(vect_d)
+    #print(vect_d)
     secret = DerivePubKey(Players,modulo_n.value,isDec=False)
     
     
@@ -254,8 +293,6 @@ if __name__ == "__main__":
     print ('private key %s' % secret.value )
      #can we recover the key from a subgroup with interpolation
         
-    #Recover the public key from a t+1 group. 
-    print('Recover the public/private key pair from a group size of t+1 = %s'% (tt +1))
     private_d_points=[]
     for i in subGroupPlayersIndex:
         label_j = Players[i].getOrdinal()
@@ -283,11 +320,6 @@ if __name__ == "__main__":
     assert(PubKeyPoints[0] == keySumPoints[0])
     assert(PubKeyPoints[1] == keySumPoints[1])
     
-    print('Orginal public key = %s \nRecovered public key %s'%(HiddenPoint,keySum))
-    
-    pauseVal=input()
-    
-    print('Derviving & validating key shares')
     
     #print ("Create a blockchain address from the recovered public key")
     #CreateBCAddr(keySum)
@@ -296,14 +328,11 @@ if __name__ == "__main__":
     #Pick a new polynomial of degree t k
     #pick a new polynomial of degree t for alpha
     
-    definedPolys = DefinedPolys._get_defined_polynomials_deg_2_3_k(modulo_n.value)
     for i in range (len(Players)):
-        #Players[i].CreatePolynomial(tt,modulo_n.value,decimal=False)
-        Players[i].polynomial = definedPolys[i]
+        Players[i].CreatePolynomial(tt,modulo_n.value,decimal=False)
     
     vect_k = CalculateSecret(Players, modulo_n.value, isDec=False)
  
-    print(vect_k)
     #calculate s signature before hiding k
      
     k = DerivePubKey(Players,modulo_n.value,isDec=False)
@@ -315,11 +344,8 @@ if __name__ == "__main__":
     sig_r = CalcSigPoints[0]
     print ('calculated signature from k (r,s) = (%s ,%s)' % (CalcSigPoints[0],CalcSigPoints[1]))
     #Take a subset of players with a 
-    definedPolys = DefinedPolys._get_defined_polynomials_deg_2_3_alpha(modulo_n.value)
     for i in range(len(Players)):
-        #Players[i].CreatePolynomial(tt,modulo_n.value, decimal=False)
-        Players[i].polynomial = definedPolys[i]
-        
+        Players[i].CreatePolynomial(tt,modulo_n.value, decimal=False)
         
     vect_alpha = CalculateSecret(Players, modulo_n.value, isDec=False)
     
@@ -343,7 +369,7 @@ if __name__ == "__main__":
         w_j = vect_w[i]
         w_j_points = w_j.GetAffineCoOrdinates()
         xfx_v.append((int(label_j),k_j.value))
-        xfx_w.append((str(label_j),w_j_points[0],w_j_points[1]))
+        xfx_w.append((int(label_j),w_j_points[0],w_j_points[1]))
         
     v_interpolator = Nakasendo.LGInterpolator(xfx_v, modulo_n.value, decimal=False)
     vZeroVal = v_interpolator('0')
@@ -367,7 +393,7 @@ if __name__ == "__main__":
     interpolated_r_points = interpolated_r.GetAffineCoOrdinates()
     
     
-    #print('interpolated_r (%s,%s)' % ( interpolated_r_points[0],interpolated_r_points[1]))
+    print('interpolated_r (%s,%s)' % ( interpolated_r_points[0],interpolated_r_points[1]))
     
     
     RPOINTS = R.GetAffineCoOrdinates()
@@ -377,37 +403,36 @@ if __name__ == "__main__":
     #Standard ECDSA requires a hash
     #but for the demo we removed the hash
    
-    userTXInput=False
-    print ('do you wish to enter TX information')
-    userInput = input()
-    if (userInput == 'y'):
-        userTXInput=True
-        print('Please enter funding TX')
-        newMsg = None   
-        newMsg = sys.stdin.readlines()
-        if(len(newMsg) > 0):
-            prevtxid, prevvalue, prevScriptKeyHash = TransactionHandling.ParseInfoFromTX(newMsg)
-            '''
-            print('NewMessage is %s' % newMsg)
-            msg = newMsg
-            Hm = Nakasendo.BigNum(msg,modulo_n.value,isDec=False)
-            #Hm=HashMsg(msg, modulo_n)
-            '''
-            
-        print('Please enter unsigned TX')
-        newMsg = None   
-        newMsg = sys.stdin.readlines()
-        if(len(newMsg) > 0):
-            txid, value, scriptKeyHash = TransactionHandling.ParseInfoFromTX(newMsg)
-            
-            transaction = TransactionHandling.CreateTransaction(prevtxid,prevScriptKeyHash,prevvalue,value,scriptKeyHash,HiddenPoint,prevIndex=0,sequenceNumber=4294967295)
-        #print(' transaction is: %s ' % transaction)
-
-        hashedT = hashlib.sha256(transaction).hexdigest()
-        Hm=Nakasendo.BigNum(hashedT,modulo_n.value,isDec=False)
-    else:
+    print('Please enter funding TX')
+    newMsg = None   
+    newMsg = sys.stdin.readlines()
+    if(len(newMsg) > 0):
+        prevtxid, prevvalue, prevScriptKeyHash = TransactionHandling.ParseInfoFromTX(newMsg)
+        print('txid %s \n value %s \n scripthash %s' % (prevtxid, prevvalue, prevScriptKeyHash))
+        '''
+        print('NewMessage is %s' % newMsg)
+        msg = newMsg
         Hm = Nakasendo.BigNum(msg,modulo_n.value,isDec=False)
-        Hm=HashMsg(msg, modulo_n)
+        #Hm=HashMsg(msg, modulo_n)
+        '''
+        
+    print('Please enter unsigned TX')
+    newMsg = None   
+    newMsg = sys.stdin.readlines()
+    if(len(newMsg) > 0):
+        txid, value, scriptKeyHash = TransactionHandling.ParseInfoFromTX(newMsg)
+        print('txid %s \n value %s \n scripthash %s' % (txid, value, scriptKeyHash))
+        
+        transaction = TransactionHandling.CreateTransaction(prevtxid,prevScriptKeyHash,prevvalue,value,scriptKeyHash,HiddenPoint,prevIndex=0,sequenceNumber=4294967295)
+    print(' transaction is: %s ' % transaction)
+    
+    #Hash This
+    #Hm=HashMsg(transaction, modulo_n)
+    hashedT = hashlib.sha256(transaction).hexdigest()
+    print(hashedT)
+    Hm=Nakasendo.BigNum(hashedT,modulo_n.value,isDec=False)
+    
+    print('Decimal rep of Hm %s \n Hm %s' % (int(Hm.value,16), Hm.value))
     msg = Hm
     
     vect_s=[]
@@ -415,9 +440,7 @@ if __name__ == "__main__":
     for j in range(len(vect_k)):
         vect_inv_k_j=vect_k[j]
         d_j = vect_d[j]
-        #s = littleK * (Hm + (pks * r_bn))
         val_j = vect_inv_k_j * (Hm + (d_j * interpR))
-        print ('%s * (%s + (%s * %s)) = %s' % (vect_inv_k_j, Hm, d_j, interpR,val_j ))
         vect_s.append(val_j)
     
     #print(vect_s)
@@ -429,41 +452,46 @@ if __name__ == "__main__":
         s_j    = vect_s[index_j]
         s_points.append((int(label_j) , s_j.value))
         
-    print(s_points)
     s_interpolator = Nakasendo.LGInterpolator(s_points, modulo_n.value,decimal=False)
     interpolated_s = s_interpolator ('0')
     
     
-    #DER FORMAT (move this into the Nakasendo
+    #DER FORMAT
     TWO = Nakasendo.BigNum('2',modulo_n,isDec=False)
     modDivByTwo = modulo_n / TWO  
     canonizedInteropolated_s = interpolated_s
     
+    print('%s / %s = %s' % (modulo_n, TWO, modDivByTwo))
     if ( interpolated_s > modDivByTwo):
         canonizedInteropolated_s = modulo_n - interpolated_s
         
     DerFormatSig = Nakasendo.createDERFormat(interpR,canonizedInteropolated_s)
-    #print('Signature -> %s' % DerFormatSig)
+    print('Signature -> %s' % DerFormatSig)
     
+    signature_length = len(DerFormatSig.value) + 1 # 1 byte will be added later for sighash flag
+    signature_length = signature_length.to_bytes((signature_length.bit_length()+7)//8,'big')
 
-    if(userTXInput):
-        #41 is hex for 65 and is the sighash flag for ALL and FORKID
-        #21 is the length of the compressed public key.
-        #These values are hard coded for testing purpose.
-        SigBytes = bytes.fromhex(DerFormatSig.value)
-        HexSigBytes = binascii.hexlify(SigBytes)
-        signature_length = len(SigBytes) + 1 # 1 byte will be added later for sighash flag
-        signature_length = signature_length.to_bytes((signature_length.bit_length()+7)//8,'big')
-        scriptSig_final = binascii.hexlify(signature_length) + HexSigBytes + b'4121' + binascii.hexlify(binascii.unhexlify(HiddenPoint.value))
-        
-        
-        signedTX = TransactionHandling.SerialiseFinalTx(prevtxid,scriptSig_final,value,scriptKeyHash)
-        print("\nThe final transaction to be submitted: {}". format(signedTX))
+
+    #41 is hex for 65 and is the sighash flag for ALL and FORKID
+    #21 is the length of the compressed public key.
+    #These values are hard coded for testing purpose.
+    print ('public key %s \n hexlify(unhexilfy{public key)) %s' % (HiddenPoint, binascii.hexlify(binascii.unhexlify(HiddenPoint.value))))
+    
+    SigBytes = bytes.fromhex(DerFormatSig.value)
+    HexSigBytes = binascii.hexlify(SigBytes)
+    print('Signature as Hex but bytes %s' % (HexSigBytes))
+    scriptSig_final = binascii.hexlify(signature_length) + binascii.hexlify(binascii.unhexlify(DerFormatSig.value)) + b'4121' +                         binascii.hexlify(binascii.unhexlify(HiddenPoint.value))
+    
+    
+    
+    # 0 -> prevIndex
+    signedTX = bsvrawtransaction.serializeOldTX(prevtxid, 0, scriptSig_final, value, scriptKeyHash)
+    print("\nThe final transaction to be submitted: {}". format(signedTX))
     
     
     
     
-    #Verification via ECDSA library
+ 
     SIG_R = Nakasendo.BigNum(sig_r, modulo_n.value, isDec=False)
     _sig_s = inv_k * (Hm + secret*SIG_R)
     print('recalc   sig_s = {}'.format(_sig_s.value))
@@ -481,7 +509,7 @@ if __name__ == "__main__":
     pubkeytest = ecdsa.ecdsa.Public_key(G, ecdsaPubKey) 
     privkeytest = ecdsa.ecdsa.Private_key(pubkeytest,int(secret.value,16))
 
-    #print ('private key %s' % secret.value )
+    print ('private key %s' % secret.value )
 
     ecdsa_sig = privkeytest.sign(int(Hm.value,16),int(inv_k.value,16))
     
@@ -497,6 +525,26 @@ if __name__ == "__main__":
     assert(int(interpolated_s.value,16) == ecdsa_sig.s)
     assert (int(interpolated_r_points[0],16) == ecdsa_sig.r)
     
+    #create a DER format for the signature
+    interpR = Nakasendo.BigNum(interpolated_r_points[0],interpolated_s.mod, interpolated_s.isDec)
+    
+    
+    TWO = Nakasendo.BigNum('2',modulo_n,isDec=False)
+    modDivByTwo = modulo_n / TWO
+    
+    
+    canonizedInteropolated_s = interpolated_s
+    
+    print('%s / %s = %s' % (modulo_n, TWO, modDivByTwo))
+    if ( interpolated_s > modDivByTwo):
+        canonizedInteropolated_s = modulo_n - interpolated_s
+        
+    DerFormatSig = Nakasendo.createDERFormat(interpR,interpolated_s)
+    DerFormatSigCanonized = Nakasendo.createDERFormat(interpR,canonizedInteropolated_s)
+    
+    print('DER format in hex % s' % DerFormatSig)
+    print('DER cannonised format in hex %s' % DerFormatSigCanonized)
+    print('DER ECDSA format %s \n %s' % (signature, binascii.hexlify(signature)))
     
     print ("verify with ECDSA" )
     if (pubkeytest.verifies (int(Hm.value,16),ecdsa_sig)):
@@ -504,10 +552,11 @@ if __name__ == "__main__":
     else:
         print ("ERROR WITH ECDSA")
     
-    msgBollocks ='A fake message'
+    msgBollocks ='A bollocks message'
     hmB = HashMsg(msgBollocks,modulo_n,IsDec=False)
     
     thresHoldSig = ecdsa.ecdsa.Signature(int(interpolated_r_points[0],16),int(interpolated_s.value,16))
+    print(thresHoldSig)
     if(pubkeytest.verifies(int(Hm.value,16), thresHoldSig)):
         print ("SUCESS WITH TS")
     else:

@@ -136,6 +136,29 @@ static PyObject* wrap_DERSignature(PyObject* self, PyObject *args)
     }
 }
 
+static PyObject* wrap_verifyDER(PyObject* self, PyObject *args)
+{
+    char* cSig = nullptr;
+    char* cPubKey = nullptr;
+    char* msg = nullptr;
+    int dec(0);
+
+    if (!PyArg_ParseTuple(args, "sssi",&msg, &cPubKey, &cSig,&dec))
+        return NULL;
+
+    std::string sig(cSig);
+    std::string key(cPubKey); 
+    std::string msgStr(msg);
+
+    size_t sigBinLen(0);
+    std::unique_ptr<unsigned char[]> sigBin = HexStrToBin(sig,&sigBinLen);
+
+    const bool verifyOK = verifyDER(msgStr, key, sigBin,sigBinLen);
+
+    return Py_BuildValue("i", verifyOK);
+}
+
+
 static PyObject* wrap_ShareSecret(PyObject* self, PyObject *args)
 {
     char* cMyPrivateKeyPEM = nullptr;
@@ -309,6 +332,38 @@ static PyObject* wrap_ExportFromEncryptedPEM(PyObject* self, PyObject *args)
 
 }
 
+static PyObject*  wrap_PubKeyPEMToHex(PyObject* self, PyObject *args)
+{
+    char* pubkeypem   = nullptr ;
+    int compressed=0;
+
+    if (!PyArg_ParseTuple(args, "si", &pubkeypem,&compressed))
+        return NULL;
+
+    const std::string pubkeystr( pubkeypem ) ;
+
+    std::string keyPt;
+    if(compressed){
+        keyPt = pubkey_pem2Hex_point(pubkeystr, true);
+    }else{
+        keyPt = pubkey_pem2Hex_point(pubkeystr, false);
+    }
+    return Py_BuildValue("s",keyPt.c_str());
+}
+
+
+static PyObject*  wrap_PubKeyHexPtToPEM(PyObject* self, PyObject *args){
+    char* xpt = nullptr;
+    char* ypt = nullptr;
+    int nid=0;
+
+    if (!PyArg_ParseTuple(args, "ssi", &xpt,&ypt,&nid))
+        return NULL;
+    
+    std::string pemPubKey = pubkey_coordinates2pem(xpt,ypt, nid);
+    return Py_BuildValue("s",pemPubKey.c_str());
+}
+
 static PyMethodDef ModuleMethods[] =
 {
     // {"test_get_data_nulls", wrap_test_get_data_nulls, METH_NOARGS, "Get a string of fixed length with embedded nulls"},
@@ -327,6 +382,9 @@ static PyMethodDef ModuleMethods[] =
     {"ImportFromEncryptedPEM"   , wrap_ImportFromEncryptedPEM, METH_VARARGS,"Imports a key in Encrypted PEM format, with pass phrase"},
     {"ExportFromEncryptedPEM"   , wrap_ExportFromEncryptedPEM, METH_VARARGS,"Exports a key to Encrypted PEM format, with pass phrase"},
     {"DERSignature"             , wrap_DERSignature, METH_VARARGS,"return a DER encoding of an (r,s) signature"},
+    {"PubKeyPEMToHexPt"         , wrap_PubKeyPEMToHex, METH_VARARGS,"Convert a PEM public key to a hex pt (compressed or uncompressed)"},
+    {"PubKeyHexPtToPEM"         , wrap_PubKeyHexPtToPEM, METH_VARARGS,"Convert an EC public key (affine coordinates to PEM"},
+    {"VerifyDER"                , wrap_verifyDER,METH_VARARGS,"Verify message's signature in DER format with public key"},
     {NULL, NULL, 0, NULL},
 };
  
