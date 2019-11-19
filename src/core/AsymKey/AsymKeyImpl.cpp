@@ -659,15 +659,17 @@ bool impl_verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr,
     EC_KEY_set_asn1_flag(pEC.get(), OPENSSL_EC_NAMED_CURVE);
     EC_GROUP *grp = EC_GROUP_new_by_curve_name(NID_secp256k1);
     if (grp == nullptr){
-        std::cout << "Unable to set group for the public key .. throw exception here" << std::endl;
+        throw std::runtime_error("verify failure. Unable to create the group for the public key");
     }
     int set_group_status = EC_KEY_set_group(pEC.get(),grp);
     if(set_group_status != 1){
-        std::cout << "Unable to set the group" << std::endl;
+        throw std::runtime_error("verify failure. Unable to set the group for the public key");
     }
     int msgLen(-1);
     std::unique_ptr<unsigned char []> msg_hash = _do_hash_msg(crMsg,msgLen);
-
+    if(msgLen == -1){
+        throw std::runtime_error("Unable to create a message hash");
+    }
     const int verify_status = ECDSA_do_verify(msg_hash.get(), msgLen, pSig.get(), pEC.get());
     if(verify_status<0){
         std::string msgHash;
@@ -713,14 +715,16 @@ bool impl_verifyDER
     EC_KEY_set_asn1_flag(raw_tmp_ec, OPENSSL_EC_NAMED_CURVE);
     EC_GROUP *grp = EC_GROUP_new_by_curve_name(NID_secp256k1);
     if (grp == nullptr){
-        std::cout << "Unable to set group for the public key .. throw exception here" << std::endl;
+        throw std::runtime_error("verifyDer Unable to create a group for the public key");
     }
     int set_group_status = EC_KEY_set_group(raw_tmp_ec,grp);
     if(set_group_status != 1){
-        std::cout << "Unable to set the group" << std::endl;
+        throw std::runtime_error("verifyDER Unable to set the group for the public key");
     }
     int msgLen(-1);
     std::unique_ptr<unsigned char[]>  msg_hash = _do_hash_msg(crMsg,msgLen);
+    if(msgLen == -1)
+        throw std::runtime_error("Unable to create a message hash");
     const int verify_status = ECDSA_do_verify(msg_hash.get(), msgLen, pSigRaw, raw_tmp_ec);
 
     if(verify_status<0){
@@ -889,7 +893,6 @@ std::pair<std::string, std::string> impl_pubkey_pem2hex(const std::string& crPub
 std::string impl_pubkey_coordinates2pem(const std::string& xval, const std::string& yval, const int nid){
 
     EC_KEY *eckey = NULL;
-    std::cout << OBJ_txt2nid("secp256k1") << std::endl; 
     eckey = EC_KEY_new_by_curve_name(OBJ_txt2nid("secp256k1"));
 
     BIGNUM* xPtr = BN_new();
