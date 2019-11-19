@@ -274,7 +274,7 @@ std::string AsymKeyImpl::exportPrivatePEMStr() const
 std::string AsymKeyImpl::exportPrivatePEMEncrypted( const std::string& passphrase ) const
 {
 
-    const int length = (int) passphrase.length( ) ;
+    int length = passphrase.length( ) ;
     std::unique_ptr < unsigned char[] > passPhrasePtr ( new unsigned char [ length + 1 ] ) ;
 
     std::fill_n( passPhrasePtr.get(), length+1, 0x00 ) ;
@@ -316,7 +316,7 @@ std::string AsymKeyImpl::exportPrivatePEMEncrypted( const std::string& passphras
 void AsymKeyImpl::importPrivatePEMEncrypted( const std::string& encryptedPEM, const std::string& passphrase )
 {
 
-    const int length = (int) passphrase.length( ) ;
+    int length = passphrase.length( ) ;
     std::unique_ptr < unsigned char[] > passPhrasePtr ( new unsigned char [ length + 1 ] ) ;
     
     std::fill_n( passPhrasePtr.get(), length+1, 0x00 ) ;
@@ -500,10 +500,16 @@ AsymKeyImpl* AsymKeyImpl::derive_private(const std::string& crAdditiveMsg) const
     if(!EC_GROUP_get_order(pEC_GROUP, n.get(), pCTX_get_order.get()))
         throw std::runtime_error("Unable to get key group order");
 
-    const std::string hashed_msg = _do_hash_msg(crAdditiveMsg);
-    BIGNUM* pBN = nullptr;
-    if (!BN_hex2bn(&pBN, hashed_msg.c_str()))
-        throw std::runtime_error("Unable to hash message as additive big number");
+    //const std::string hashed_msg = _do_hash_msg(crAdditiveMsg);
+    int msgLen(-1); 
+    std::unique_ptr<unsigned char []> hashed_msg = _do_hash_msg(crAdditiveMsg,msgLen);
+    if(msgLen == -1)
+        throw std::runtime_error("Unable to hash message for additive big number");
+    BIGNUM* pBN = BN_bin2bn(hashed_msg.get(),msgLen,NULL);
+
+    if(pBN == nullptr){
+        throw std::runtime_error("Unable to convert a hashed msg to a big number");
+    }
     BIGNUM_ptr additive_bn(pBN, &BN_free);
 
     /// Get private key
@@ -564,8 +570,9 @@ std::pair<std::string, std::string> AsymKeyImpl::impl_sign_ex(const std::string&
     BN_ptr pInvK(raw_inv_k, ::BN_free);
     BN_ptr pR(raw_r, ::BN_free);
 
-    const std::string msg_hash = _do_hash_msg(crMsg);
-    SIG_ptr pSig(ECDSA_do_sign_ex((const unsigned char*)msg_hash.c_str(), (int)strlen(msg_hash.c_str()), pInvK.get(),pR.get(), m_key.get()), &ECDSA_SIG_free);
+    int msgLen(-1);
+    std::unique_ptr<unsigned char []> msg_hash = _do_hash_msg(crMsg,msgLen);
+    SIG_ptr pSig(ECDSA_do_sign_ex(msg_hash.get(), msgLen, pInvK.get(),pR.get(), m_key.get()), &ECDSA_SIG_free);
     if (pSig == nullptr)
         throw std::runtime_error("error signing message");
 
@@ -579,6 +586,7 @@ std::pair<std::string, std::string> AsymKeyImpl::impl_sign_ex(const std::string&
 
     return std::make_pair(r_hex_str, s_hex_str);
 }
+
 
 // split the key into multiple parts
 std::vector<KeyShare> AsymKeyImpl::split (const int& threshold, const int& maxshares){
@@ -615,8 +623,7 @@ void AsymKeyImpl::recover (const std::vector<KeyShare>& shares){
         secret = RecoverSecret(shares, mod); 
         importPrivateHEX (secret.ToHex());
     }
-    catch(std::exception& e){
-        (void)e;// Remove warning for MSVC
+    catch(std::exception& err){
         throw;
     }
     return ;
@@ -763,10 +770,13 @@ std::string impl_derive_pubkey(const std::string& crPubPEMkey, const std::string
     if (imported_generator == nullptr)
         throw std::runtime_error("Unable to get public key group generator");
 
-    const std::string hashed_msg = _do_hash_msg(crRandomMsg);
-    BIGNUM* pBN = nullptr;
-    if(!BN_hex2bn(&pBN, hashed_msg.c_str()))
-        throw std::runtime_error("Unable to hash message as additive bignumber");
+    int msgLen(0);
+    std::unique_ptr<unsigned char []>  hashed_msg = _do_hash_msg(crRandomMsg,msgLen);
+    BIGNUM* pBN = BN_bin2bn(hashed_msg.get(),msgLen,NULL);
+    
+    if(pBN == nullptr)
+        throw std::runtime_error("Unable to createa big number from hash");
+
     BIGNUM_ptr additive_bn(pBN, &BN_free);
 
     EC_POINT_ptr additive_point(EC_POINT_new(imported_group), &EC_POINT_free);
