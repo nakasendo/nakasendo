@@ -84,3 +84,75 @@ def _get_defined_polynomials_deg_2(deg, modulo=None):
     poly5.modulo = modulo
     polys.append(poly5)
     return polys
+    
+    
+    
+    
+def _get_defined_polynomials_deg_2_3_privKey(modulo=None):
+    polys = []
+    polys=[]
+    poly1 = Nakasendo.Polynomial.initFromListModuloHex(['9EDB9EB292D5EFD9FC71AB2D8CA80B693526DE68A61176D1258A8A841F77BCDD','36173D161035E0CA53B560F2F43ABA90672A0CFB357C2671595D8C4B1548F00B'],modulo)
+    poly1.modulo = modulo
+    polys.append(poly1)
+    
+    poly2 = Nakasendo.Polynomial.initFromListModuloHex(['AB0B87ABF066FFB901FA42EBA1C88FA1AEF967814373E489EE60DB7EB3843F66','56811B760AA883FD0FCE2EF8ABC1D383F1314939056BDBACAB238CCA1765866B'],modulo)
+    poly2.modulo = modulo
+    polys.append(poly2)
+    
+    poly3 = Nakasendo.Polynomial.initFromListModuloHex(['7A64B803656EB3F17E035BE721F71525D5E761510F6F8E0555CAF555C7980C2E','B09FE54F8FB48344FBC54DC6D8AF2D81865611D25428A3D8EAC6BE6607C962D1'],modulo)
+    poly3.modulo = modulo
+    polys.append(poly3)
+    
+    return polys
+    
+
+def _get_defined_polynomials_deg_2_3_k(modulo=None):
+    polys = []
+    polys=[]
+    poly1 = Nakasendo.Polynomial.initFromListModuloHex(['D0A48E448025A5E4114B87DC5DD1513A6FD6E1CBF489DE4842CAA71EE78F2AF4','9B15AF066F4095AF7B9CA2526A350E1419246713445D8F2388B434E737C3478D'],modulo)
+    poly1.modulo = modulo
+    polys.append(poly1)
+    
+    poly2 = Nakasendo.Polynomial.initFromListModuloHex(['A9EDD1D17CE3977487F97DF19F85ABA915E4FED827A12DDD7464EB2227FB282F','279BC640013B9E058A740713F417152ED6C0AC05F946C937E7123338C69C1203'],modulo)
+    poly2.modulo = modulo
+    polys.append(poly2)
+    
+    poly3 = Nakasendo.Polynomial.initFromListModuloHex(['2F881CFC58002291B148F4FEEB08FBF37D6029FC64A31D92DD20205CCB835E66','B08C71181E6F0546E69135E2053B41BD6BE3BAB1573B9239B2715654A215499B'],modulo)
+    poly3.modulo = modulo
+    polys.append(poly3)
+    
+    return polys
+
+
+def _get_defined_polynomials_deg_2_3_alpha(modulo=None):
+    polys = []
+    polys=[]
+    poly1 = Nakasendo.Polynomial.initFromListModuloHex(['0AEE9DB0B8191A4BCFA4CE75FD38D1B38BE56C2D1204029C157447112431C698','7B199B2C6B410548EDE657B604B18A3CD14B41AB118BBE93C71DCD44E4EC7751'],modulo)
+    poly1.modulo = modulo
+    polys.append(poly1)
+    
+    poly2 = Nakasendo.Polynomial.initFromListModuloHex(['FFFF56167E67B686D2AACB92B28BF847E1000DFF8B8B40437DEC1B902D206D68','68BB608C92C0F4CDB1799FE66A8978E6C5C14F542724D255A92A1E66358D37A6'],modulo)
+    poly2.modulo = modulo
+    polys.append(poly2)
+    
+    poly3 = Nakasendo.Polynomial.initFromListModuloHex(['4F09E06ABDBF47D7A6E9917B294BCE588B14A75CA59ABE3CB44538FE079DEB0B','7297346BA9761EED302CDB094853E791A2B39C2DE9513080980F6860793E9CD1'],modulo)
+    poly3.modulo = modulo
+    polys.append(poly3)
+    
+    return polys
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

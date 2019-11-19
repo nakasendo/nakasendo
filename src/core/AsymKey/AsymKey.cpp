@@ -158,7 +158,14 @@ std::pair<std::string, std::string> AsymKey_API pubkey_pem2hex(const std::string
     return impl_pubkey_pem2hex(crPubPEMkey);
 }
 
+
+std::string AsymKey_API pubkey_pem2Hex_point(const std::string& crPubPEMkey, const bool& compressed){
+    return impl_pubkey_pem2Hex_point(crPubPEMkey,compressed);
+}
 std::unique_ptr<unsigned char[]> DEREncodedSignature(const BigNumber& r ,const BigNumber& s, size_t& len){
     return impl_DEREncodedSignature(r,s,len);
 }
 
+std::string AsymKey_API pubkey_coordinates2pem(const std::string& xval, const std::string& yval, const int nid){
+    return impl_pubkey_coordinates2pem(xval, yval,  nid);
+}

@@ -79,6 +79,8 @@ bool AsymKey_API verify(const std::string& crMsg, const std::string& crPublicKey
 bool AsymKey_API verifyDER(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::unique_ptr<unsigned char[]>&, const size_t&);
 std::string AsymKey_API derive_pubkey(const std::string& crPubPEMkey, const std::string& crRandomMsg);
 std::pair<std::string, std::string> AsymKey_API pubkey_pem2hex(const std::string& crPubPEMkey);
+std::string AsymKey_API pubkey_pem2Hex_point(const std::string& crPubPEMkey, const bool& compressed=true);
+std::string AsymKey_API pubkey_coordinates2pem(const std::string&, const std::string&, const int nid = 714);
 std::unique_ptr<unsigned char[]> AsymKey_API DEREncodedSignature(const BigNumber&, const BigNumber&, size_t& len);
 #endif /* ASYM_KEY_H */
 
