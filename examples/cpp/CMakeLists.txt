@@ -48,6 +48,6 @@ install(FILES exCMakeLists.txt DESTINATION "example/cpp" COMPONENT "Examples" RE
 install(FILES exFindSDKLibraries.cmake DESTINATION "example/cpp/cmake" COMPONENT "Examples" RENAME FindSDKLibraries.cmake)
 
 add_executable(KeyTest KeyTest.cpp)
-target_link_libraries(KeyTest ECPoint SymEncDec BigNumbers MessageHash AsymKey BCHAddress)
+target_link_libraries(KeyTest ECPoint SymEncDec BigNumbers MessageHash AsymKey BSVAddress)
 set_property(TARGET KeyTest PROPERTY FOLDER "examples")
 list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/KeyTest.cpp")

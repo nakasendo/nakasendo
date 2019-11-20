@@ -2,8 +2,8 @@
 #include <sstream>
 #include <string>
 #include <iostream>
-#include <BCHAddress/BCHAddress.h>
-#include <BCHAddress/BCHAddressInfo.h>
+#include <BSVAddress/BSVAddress.h>
+#include <BSVAddress/BSVAddressInfo.h>
 
 
 struct module_state {
@@ -24,11 +24,11 @@ static struct module_state _state;
 
 
 /***********************************************************
- * BCHAddress wrappers
+ * BSVAddress wrappers
  ************************************************************/
 
-// Create a BCHAddress from public key and network type 
-static PyObject* wrap_BCHAddress(PyObject* self, PyObject *args) 
+// Create a BSVAddress from public key and network type 
+static PyObject* wrap_BSVAddress(PyObject* self, PyObject *args) 
 { 
     char * key ;
     int version ;
@@ -40,7 +40,7 @@ static PyObject* wrap_BCHAddress(PyObject* self, PyObject *args)
 
 
     // construct using key and version prefix    
-    BCHAddress address = BCHAddress( key, versionPrefix ) ;
+    BSVAddress address = BSVAddress( key, versionPrefix ) ;
 
     Py_ssize_t len      = 5 ;
 
@@ -62,8 +62,8 @@ static PyObject* wrap_BCHAddress(PyObject* self, PyObject *args)
 
 }
 
-// Create a BCHAddress from public key and network type 
-static PyObject* wrap_importBCHAddress(PyObject* self, PyObject *args) 
+// Create a BSVAddress from public key and network type 
+static PyObject* wrap_importBSVAddress(PyObject* self, PyObject *args) 
 { 
     char * addressStr ;
 
@@ -74,7 +74,7 @@ static PyObject* wrap_importBCHAddress(PyObject* self, PyObject *args)
     // construct using the address string
     try
     {     
-        BCHAddress address = BCHAddress( addressStr ) ;
+        BSVAddress address = BSVAddress( addressStr ) ;
 
         Py_ssize_t len = 5 ;
 
@@ -101,8 +101,8 @@ static PyObject* wrap_importBCHAddress(PyObject* self, PyObject *args)
     }
 }
 
-// Create a BCHAddress from public key and network type 
-static PyObject* wrap_BCHAddress_outputOperator(PyObject* self, PyObject *args) 
+// Create a BSVAddress from public key and network type 
+static PyObject* wrap_BSVAddress_outputOperator(PyObject* self, PyObject *args) 
 { 
     char * argA ;
 
@@ -110,7 +110,7 @@ static PyObject* wrap_BCHAddress_outputOperator(PyObject* self, PyObject *args)
         return NULL;
 
     std::string addressStr( argA ) ;
-    BCHAddress address = BCHAddress( addressStr ) ;
+    BSVAddress address = BSVAddress( addressStr ) ;
 
     
     std::stringstream ss ;
@@ -126,20 +126,20 @@ static PyObject* wrap_BCHAddress_outputOperator(PyObject* self, PyObject *args)
 
 static PyMethodDef ModuleMethods[] =
 {
-    {"createAddress",wrap_BCHAddress,METH_VARARGS,"create a BCH Address from public key"},    
-    {"importAddress",wrap_importBCHAddress,METH_VARARGS,"create a BCH Address a string representaiton of an existing address"},    
-    {"print",wrap_BCHAddress_outputOperator,METH_VARARGS,"get the printable output from BCHAddress"},    
+    {"createAddress",wrap_BSVAddress,METH_VARARGS,"create a BSV Address from public key"},    
+    {"importAddress",wrap_importBSVAddress,METH_VARARGS,"create a BSV Address a string representaiton of an existing address"},    
+    {"print",wrap_BSVAddress_outputOperator,METH_VARARGS,"get the printable output from BSVAddress"},    
     {NULL, NULL, 0, NULL},
 };
  
 #if PY_MAJOR_VERSION >= 3
 
-static int PyBCHAddress_traverse(PyObject *m, visitproc visit, void *arg) {
+static int PyBSVAddress_traverse(PyObject *m, visitproc visit, void *arg) {
     Py_VISIT(GETSTATE(m)->error);
     return 0;
 }
 
-static int PyBCHAddress_clear(PyObject *m) {
+static int PyBSVAddress_clear(PyObject *m) {
     Py_CLEAR(GETSTATE(m)->error);
     return 0;
 }
@@ -147,20 +147,20 @@ static int PyBCHAddress_clear(PyObject *m) {
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
-        "PyBCHAddress",
+        "PyBSVAddress",
         NULL,
         sizeof(struct module_state),
         ModuleMethods,
         NULL,
-        PyBCHAddress_traverse,
-        PyBCHAddress_clear,
+        PyBSVAddress_traverse,
+        PyBSVAddress_clear,
         NULL
 };
 
 #define INITERROR return NULL
 
 PyMODINIT_FUNC
-PyInit_PyBCHAddress(void)
+PyInit_PyBSVAddress(void)
 
 #else
 #define INITERROR return
@@ -172,14 +172,14 @@ initmyextension(void)
 #if PY_MAJOR_VERSION >= 3
     PyObject *module = PyModule_Create(&moduledef);
 #else
-    PyObject *module = Py_InitModule("PyBCHAddress", myextension_methods);
+    PyObject *module = Py_InitModule("PyBSVAddress", myextension_methods);
 #endif
 
     if (module == NULL)
         INITERROR;
     struct module_state *st = GETSTATE(module);
 
-    st->error = PyErr_NewException("PyBCHAddress.Error", NULL, NULL);
+    st->error = PyErr_NewException("PyBSVAddress.Error", NULL, NULL);
     if (st->error == NULL) {
         Py_DECREF(module);
         INITERROR;

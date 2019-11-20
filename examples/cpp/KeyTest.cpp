@@ -9,7 +9,7 @@
 #include "MessageHash/conversions.h"
 #include "MessageHash/MessageHash.h"
 #include "AsymKey/AsymKey.h"
-#include "BCHAddress/BCHAddress.h"
+#include "BSVAddress/BSVAddress.h"
 
 
 int main(int argc,char * argv[]){

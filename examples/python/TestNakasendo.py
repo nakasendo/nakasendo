@@ -28,7 +28,7 @@ try:
     import PyMessageHash
     import PyAsymKey
     import PyPolynomial
-    import PyBCHAddress
+    import PyBSVAddress
     import Nakasendo
 except ImportError as e:
     print('Error while loading SDKLibraries python modules {}'.format(e.message))
@@ -197,8 +197,12 @@ if __name__ == "__main__":
     print ("Derived pub key PEM = ", pubkeyPEM)
     derivedPubKeyHex = Nakasendo.pubKeyPEMasHex(pubkeyPEM)
     print ("Dervied pub key hex uncompressed = ", derivedPubKeyHex)
+    
     derivedPubKeyHex = Nakasendo.pubKeyPEMasHex(pubkeyPEM,True)
     print ("Dervied pub key hex uncompressed = ", derivedPubKeyHex)
+    print ('convert the public key from PEM to hex pt(compressed & uncompressed)')
+    print ('uncompressed key %s', Nakasendo.pubKeyPEMasHex(newKey.pubKey))
+    print ('compressed key %s', Nakasendo.pubKeyPEMasHex(newKey.pubKey,True))
 
     # Test1 randomPolynomial( degree, modulo )
     # Test2 randomPolynomial( degree, modulo, fixed a_0 )
@@ -362,16 +366,16 @@ if __name__ == "__main__":
 
     #----------------------------------------------------------------
     #----------------------------------------------------------------
-    #Test BCHAddress
+    #Test BSVAddress
     #----------------------------------------------------------------
     
     print( "\n----------------------------------------------------------------\n")
-    print("1) Write out the public key and corresponding BCH address")
+    print("1) Write out the public key and corresponding BSV address")
     key = "023cba1f4d12d1ce0bced725373769b2262c6daa97be6a0588cfec8ce1a5f0bd09"
     version = 0
-    address = Nakasendo.BCHAddress(key, version )
+    address = Nakasendo.BSVAddress(key, version )
     
-    print( "BCHAddress from key %s is %s\n" % (key, address.address ) )
+    print( "BSVAddress from key %s is %s\n" % (key, address.address ) )
     
     print( "2) Write out a string representation of the address object")
     print("Address information\n%s" % address )
@@ -382,18 +386,16 @@ if __name__ == "__main__":
     print("Network Prefix: %s" % address.prefix )
     print("Network Type: %s" % address.NetworkType)
 
-    print( "\n4) Create BCHAddress from existing address string")
+    print( "\n4) Create BSVAddress from existing address string")
     addressStrInvalid   = "017nDmDt3ZsHqQWAwuc5H8y7cNdZqDyfXAd" 
     addressStrValid     = "17nDmDt3ZsHqQWAwuc5H8y7cNdZqDyfXAd" 
     try:
-        Nakasendo.BCHAddress.initFromAddress( addressStrInvalid )
+        Nakasendo.BSVAddress.initFromAddress( addressStrInvalid )
     except Exception as e : 
         print( e )
 
-    address = Nakasendo.BCHAddress.initFromAddress( addressStrValid ) 
+    address = Nakasendo.BSVAddress.initFromAddress( addressStrValid ) 
     print("Address: %s has valid = %s" % (addressStrValid, bool( address.valid ) ) )
-    
-    
     
     #creata an Asmkey .. 
     #use ECDSA to sign
@@ -429,5 +431,3 @@ if __name__ == "__main__":
     if(veifySign == True):
         print ('Signed via ECDSA verified by Naksendo')
         
-    
-    
