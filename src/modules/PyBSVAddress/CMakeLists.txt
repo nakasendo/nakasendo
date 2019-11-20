@@ -5,11 +5,11 @@
 #  Copyright (c) 2019 nChain Limited. All rights reserved       #
 #################################################################
 
-set(_PY_MODULE_NAME PyBCHAddress)
-set(_PY_MODULE_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/PyBCHAddress.cpp)
+set(_PY_MODULE_NAME PyBSVAddress)
+set(_PY_MODULE_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/PyBSVAddress.cpp)
 
 Python_add_library(${_PY_MODULE_NAME} ${_PY_MODULE_SOURCE_FILES})
-target_link_libraries(${_PY_MODULE_NAME} PRIVATE BCHAddress)
+target_link_libraries(${_PY_MODULE_NAME} PRIVATE BSVAddress)
 if(CMAKE_CONFIGURATION_TYPES)
   set_target_properties(${_PY_MODULE_NAME} PROPERTIES FOLDER "modules" DEBUG_POSTFIX "_d")# On dual build mode system, need to add postfix _d
 else()

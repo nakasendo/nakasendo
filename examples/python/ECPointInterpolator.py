@@ -136,8 +136,6 @@ if __name__ == "__main__":
     for label in ordlist:
         bignumLabel = Nakasendo.BigNum(str(label),modulo, isDecimal)
         movingLabel = Nakasendo.BigNum(str(label),modulo, isDecimal)
-        bignumLabel = Nakasendo.BigNum('{:x}'.format(label),modulo, isDecimal)
-        movingLabel = Nakasendo.BigNum('{:x}'.format(label),modulo, isDecimal)
         sumpoints = encryptedCoeffs[0]
         for points in encryptedCoeffs[1:]:
             labelTimesPoints = points.multipleScalar(movingLabel)
