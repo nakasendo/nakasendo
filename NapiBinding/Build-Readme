@@ -1,0 +1,23 @@
+# Hello and welcome to the Napi build for Nakasendo. 
+# Please ensure that your installation of NPM is update and you have a working version of gcc/llvm/MSVC installed
+
+# Please update the 'include_dirs' section of the binding.gyp as follows:
+
+            'include_dirs': [
+            "<!@(node -p \"require('node-addon-api').include\")",
+            "/usr/local/include",
+            "PATH_TO_SDKLIBRARIES-Release/include"
+            ]
+            
+            'libraries': ['-Wl,/usr/local/lib/libcrypto.a -L PATH_TO_SDKLIBRARIES-Release/lib -lBigNumbers -lPolynomial -lECPoint -lMessageHash -lSymEncDec -lAsymKey -lBSVAddress']
+            
+            
+
+
+# Then run npm run build
+
+# Please set your LD_LIBRARY_PATH (unix/macosx) or PATH (Windows) to include the location of the installed Nakasendo libraries # and then run node index.js
+
+# This test will execute various parts of the Nakasendo library.
+
+

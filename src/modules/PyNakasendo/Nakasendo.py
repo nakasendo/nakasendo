@@ -9,7 +9,7 @@ import PySymEncDec
 import PyMessageHash
 import PyAsymKey
 import PyPolynomial
-import PyBCHAddress
+import PyBSVAddress
 
 class MessageHash:
     def __init__(self, msg):
@@ -378,6 +378,9 @@ def createDERFormat(rValue, sValue):
     hexSig = PyAsymKey.DERSignature(rValue.value, sValue.value, rValue.isDec)
     hexSigBN = BigNum(hexSig, rValue.mod, rValue.isDec)
     return hexSigBN
+
+def pubKeyPEMasHex(pubkey, compressed=False):
+    return PyAsymKey.PubKeyPEMToHexPt(pubkey, compressed)
     
 def pubKeyPEMasHex(pubkey, compressed=False):
     return PyAsymKey.PubKeyPEMToHexPt(pubkey, compressed)
@@ -598,13 +601,13 @@ class LGECInterpolator:
         return "points: {0}, modulo: {1}".format (self.points, self.modulo)
 
 
-class BCHAddress:
+class BSVAddress:
     def __init__(self, key, version, l=None ):
         self.key = key
         self.version = version
 
         if l : list = l
-        else : list = PyBCHAddress.createAddress(key, version)
+        else : list = PyBSVAddress.createAddress(key, version)
 
         self.address            = list[0] 
         self.valid              = list[1] 
@@ -614,17 +617,17 @@ class BCHAddress:
 
 
     @classmethod
-    def initFromAddress( cls, bchAddress ) :
-        list = PyBCHAddress.importAddress( bchAddress )
+    def initFromAddress( cls, BSVAddress ) :
+        list = PyBSVAddress.importAddress( BSVAddress )
 
         if list :
             obj = cls( "", "", list )
             return obj
   
         else :
-            raise Exception( 'Address: ' + bchAddress + ' is not valid'  )  
+            raise Exception( 'Address: ' + BSVAddress + ' is not valid'  )  
 
 
     def __str__(self):
-        prettyStr = PyBCHAddress.print( self.address )
+        prettyStr = PyBSVAddress.print( self.address )
         return prettyStr

@@ -1,27 +1,27 @@
-#ifndef BCH_ADDRESS_H
-#define BCH_ADDRESS_H
+#ifndef BSV_ADDRESS_H
+#define BSV_ADDRESS_H
 
 #include <memory> 
-#include <BCHAddress/BCHAddressInfo.h>
-#include <BCHAddress/BCHAddressConfig.h>
+#include <BSVAddress/BSVAddressInfo.h>
+#include <BSVAddress/BSVAddressConfig.h>
 
 
-class BCHAddressImpl ;
+class BSVAddressImpl ;
 
-class BCHAddress_API BCHAddress
+class BSVAddress_API BSVAddress
 {
 
     public: 
 
         // Create an address object from an existing address
-        BCHAddress( const std::string& ) ;
+        BSVAddress( const std::string& ) ;
 
         // Create an address from public key and version prefix
-        BCHAddress( const std::string&,  VersionPrefix ) ;
+        BSVAddress( const std::string&,  VersionPrefix ) ;
         
-        ~BCHAddress( ) ;
+        ~BSVAddress( ) ;
 
-        // Returns the BCH address as a string
+        // Returns the BSV address as a string
         std::string getAddress( ) const ;
 
         // Returns a boolean  indicating the address is valid 
@@ -39,16 +39,16 @@ class BCHAddress_API BCHAddress
         std::string decode( ) const  ;
 
         // output operator
-        friend BCHAddress_API std::ostream&  operator<< ( std::ostream&, const BCHAddress& ) ;
+        friend BSVAddress_API std::ostream&  operator<< ( std::ostream&, const BSVAddress& ) ;
 
 
     private:
         
-        BCHAddress(const BCHAddress& ) ;
-        BCHAddress& operator=(const BCHAddress& ) ;
-        std::unique_ptr< BCHAddressImpl > m_pImpl ;
+        BSVAddress(const BSVAddress& ) ;
+        BSVAddress& operator=(const BSVAddress& ) ;
+        std::unique_ptr< BSVAddressImpl > m_pImpl ;
 
 } ;
 
 
-#endif // BCH_ADDRESS_H
+#endif // BSV_ADDRESS_H
