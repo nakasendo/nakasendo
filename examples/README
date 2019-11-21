@@ -1,12 +1,17 @@
-## SDKLibraries examples in c++/python/webassembly
+## SDKLibraries examples in C++/Python/WebAssembly
 
-The best way to make the examples works is to define the envirnoment variable SDKLIBRARIES_ROOT pointing to the location where SDKLibraries is installed
+Examples can be downloaded from https://nakasendoproject.org/ (Downloads section) in the form or a tarball or Windows .exe installers.
+
+The best way to make the examples work is to define the environment variable SDKLIBRARIES_ROOT pointing to the location where SDKLibraries is installed.
 
 ## C++ examples :
-On windows, you'll need Visual Studio C++ 2017 and cmake 3.12 or newer. On linux, you'll need gcc7, cmake 3.12 or newer.
-On windows, run the command :
-  cmake -G"Visual Studio 15 2017" -A x64 C:\path\to\example\cpp
-It will create the visual studio solution file .sln. Open this file and you can start to compile/run the c++ examples
+On Windows, you'll need Visual Studio Community Edition 2017 and CMake 3.14.7. On Linux, you'll need gcc7, cmake 3.12 or newer.
+On Windows, run the following command e.g:
+  cmake -G"Visual Studio 15 2017" -A x64 "%SDKLIBRARIES_ROOT%\example\cpp"
+This will create the Visual Studio solution (.sln) file. 
+Add %SDKLIBRARIES_ROOT%\lib to your %PATH%
+Open the .sln file in Visual Studio and you can start to Build and Run the C++ examples.
+[You may also have to install Twisted, Python 3, pip3, ecdsa, nodejs and npm]
 
 On Linux (Ubuntu 18.04), run the command :
   cmake -DCMAKE_BUILD_TYPE=Debug /path/to/example/cpp ; make -j4
@@ -17,7 +22,7 @@ If you have defined the variable SDKLIBRARIES_ROOT correctly, just open python f
 Otherway is to define the PYTHONPATH variable pointing to the installation of SDKLibraries
 
 ## Python examples :
-Python examples need to know where to find all the pypthon modules.
+Python examples need to know where to find all the python modules.
 If you have defined the variable SDKLIBRARIES_ROOT correctly, just open python files and run it normally.
 Otherway is to define the PYTHONPATH variable pointing to the installation of SDKLibraries (where it have all module files) and run it
 Note that on windows, if you have a debug version of SDK installation, you should use the python_d interpreter instead of python
