@@ -49,6 +49,32 @@ def test_InitFromListCoefficient():
     actualValue = polynomial_evaluate(lst, int(x), int(mod))
     assert polynomialFX == str(actualValue), "Test failed"
 
+def test_InitFromListCoefficientWithZeroDegree():
+
+    # The random polynomial generator refuses to generate a polynomial of degree 0. However,
+    # pushing coefficients via the coefficient constructor can construct a degree 0 polynomial,
+    # which the API should generate error.
+    coefficients = ["18"]
+    degree = 0
+    mod = "17"
+    x = "2"
+    dec = 1
+
+    # create a Polynomial from a list of coefficients
+    listCoefficients = PyPolynomial.initFromList(coefficients, dec)
+    assert len(listCoefficients) == degree + 1, "Test failed"
+
+    # Calling evaluate polynomial function
+    polynomialFX = polynomialEvaluation(listCoefficients, x, mod, dec)
+
+    # convert list of coefficients from string to decimal
+    lst = []
+    for i in range(len(coefficients)):
+        lst.append(int(coefficients[i]))
+
+    actualValue = polynomial_evaluate(lst, int(x), int(mod))
+    assert polynomialFX == str(actualValue), "Test failed"
+
 def test_InitFromListDec():
 
     for x in range(10, 15):
@@ -366,7 +392,7 @@ def test_LGECInterpolatorFull():
     modulo = PyBigNumbers.GenerateRandPrimeHex(1000)
     xValue = PyBigNumbers.GenerateRandHex(1000)
     listTupleObj = []
-    dec = 0
+    dec = False
 
     # Generating Random EC
     for x in range(10, 50):
@@ -378,7 +404,7 @@ def test_LGECInterpolatorFull():
 
         x_Axis, y_axis = hexValue.GetAffineCoOrdinates()
         # EC Point GetAffineCoOrdinates_GFp with default NID => NID_secp256k1
-        listTupleObj.append((x, x_Axis, y_axis))
+        listTupleObj.append((str(x), x_Axis, y_axis))
 
     lgInterpolatorX = PyPolynomial.LGECInterpolatorFull(listTupleObj, modulo, xValue,dec)
     assert type(lgInterpolatorX) == str, "Test failed"

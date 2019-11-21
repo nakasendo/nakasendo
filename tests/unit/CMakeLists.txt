@@ -50,13 +50,12 @@ set_target_properties(test_SecretSplit PROPERTIES  FOLDER "tests/unit" DEBUG_POS
 sdk_add_unit_test(test_SecretSplit)
 
 add_executable(test_ECPoint test_ECPoints.cpp)
-target_link_libraries(test_ECPoint ECPoint)
-target_link_libraries(test_ECPoint BigNumbers)
+target_link_libraries(test_ECPoint ECPoint BigNumbers)
 set_target_properties(test_ECPoint PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 sdk_add_unit_test(test_ECPoint)
 
 add_executable(test_AsymKey test_AsymKey.cpp)
-target_link_libraries(test_AsymKey AsymKey)
+target_link_libraries(test_AsymKey AsymKey BigNumbers ECPoint)
 set_target_properties(test_AsymKey PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 sdk_add_unit_test(test_AsymKey)
 
@@ -75,7 +74,7 @@ sdk_add_unit_test(test_SymEncDec)
 #target_link_libraries(test_GroupBuilder ThresholdSignatures )
 #sdk_add_unit_test(test_GroupBuilder)
 
-add_executable(test_BCHAddress test_BCHAddress.cpp)
-set_target_properties(test_BCHAddress PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-target_link_libraries(test_BCHAddress AsymKey BCHAddress)
-sdk_add_unit_test(test_BCHAddress)
+add_executable(test_BSVAddress test_BSVAddress.cpp)
+set_target_properties(test_BSVAddress PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+target_link_libraries(test_BSVAddress AsymKey BSVAddress)
+sdk_add_unit_test(test_BSVAddress)

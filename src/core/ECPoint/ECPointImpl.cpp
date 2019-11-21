@@ -69,7 +69,7 @@ ECPointImpl::ECPointImpl(const BigNumber& bn_obj_x, const BigNumber& bn_obj_y, c
 }
 
 // bn_obj_n + ec_obj_q * bn_obj_m, where bn_obj_n can be nullptr
-std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithHexBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n)
+std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithHexBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n) const
 {
     // check if the given ECPoint, and Big number are not null
     if (bn_obj_m.empty())
@@ -96,7 +96,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithHexBigNum (const std::stri
 }
 
 // bn_obj_n + ec_obj_q * bn_obj_m, where bn_obj_n can be nullptr
-std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithDecBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n)
+std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithDecBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n) const
 {
     // check if the given ECPoint, and Big number are not null
     if (bn_obj_m.empty()) 
@@ -123,7 +123,7 @@ std::unique_ptr<ECPointImpl> ECPointImpl::MultiplyWithDecBigNum (const std::stri
     return Multiply(bn_obj_m_uptr.get(), bn_obj_n_uptr.get());
 }
 
-std::unique_ptr<ECPointImpl> ECPointImpl::Multiply(BIGNUM *mPtr, BIGNUM *nPtr)
+std::unique_ptr<ECPointImpl> ECPointImpl::Multiply(BIGNUM *mPtr, BIGNUM *nPtr) const
 {
 
     // Allocate for CTX 
@@ -189,7 +189,7 @@ bool Compare(const ECPointImpl *obj1, const ECPointImpl *obj2)
     return true;
 }
 
-std::unique_ptr<ECPointImpl> ECPointImpl::Double()
+std::unique_ptr<ECPointImpl> ECPointImpl::Double() const
 {
 
     // Allocate for CTX 

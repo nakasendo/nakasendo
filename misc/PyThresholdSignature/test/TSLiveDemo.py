@@ -170,10 +170,11 @@ if __name__ == "__main__":
     
     start_time = time.time()
  
-    tt = random.randint(2, 64)
+    #tt = random.randint(2, 3)
     #tt = 2
-    msg = 'The argparse module makes it easy to write user-friendly command-line interfaces. The program defines what arguments it requires, and argparse will figure out how to parse those out of sys.argv. The argparse module also automatically generates help and usage messages and issues errors when users give the program invalid arguments'
-    
+    tt = 1
+    #msg = 'The argparse module makes it easy to write user-friendly command-line interfaces. The program defines what arguments it requires, and argparse will figure out how to parse those out of sys.argv. The argparse module also automatically generates help and usage messages and issues errors when users give the program invalid arguments'
+    msg = 'I love deadlines. I love the whooshing noise they make as they go by.'
     '''
     try:
         opts, args = getopt.getopt(sys.argv[1], "t:m:",["threshold=","message="])
@@ -202,19 +203,20 @@ if __name__ == "__main__":
     Hm = HashMsg(msg, modulo_n)
     margin = random.randint(0,15)
     #tt = 2
-    nn = 2 * tt + 1 + margin
+    #nn = 2 * tt + 1 + margin
+    nn = 2 * tt +1
     print ('the degree t %s, the Signing Threshold is %s and group size %s' % (tt,(2*tt +1), nn))
     
     #calculate Key shares & the private key
     Players=[]
     
     start_time = time.time()
-    definedPolys = DefinedPolys._get_defined_polynomials_deg_2(2,modulo_n.value)
+    definedPolys = DefinedPolys._get_defined_polynomials_deg_2_3_privKey(modulo_n.value)
     for i in range(nn):
         label = "p" + str(i+1)
         new_player = PyPlayer.Player(label, i+1, False, False)
-        new_player.CreatePolynomial (tt, modulo_n.value,decimal=False) 
-        #new_player.polynomial = definedPolys[i]
+        #new_player.CreatePolynomial (tt, modulo_n.value,decimal=False) 
+        new_player.polynomial = definedPolys[i]
         Players.append(new_player)
     
     #for i in range(nn):
@@ -238,7 +240,7 @@ if __name__ == "__main__":
     #print('Players SubGroup')
     
     vect_d = CalculateSecret(Players, modulo_n.value,isDec=False)
-    #print(vect_d)
+    print(vect_d)
     secret = DerivePubKey(Players,modulo_n.value,isDec=False)
     
     
@@ -294,11 +296,14 @@ if __name__ == "__main__":
     #Pick a new polynomial of degree t k
     #pick a new polynomial of degree t for alpha
     
+    definedPolys = DefinedPolys._get_defined_polynomials_deg_2_3_k(modulo_n.value)
     for i in range (len(Players)):
-        Players[i].CreatePolynomial(tt,modulo_n.value,decimal=False)
+        #Players[i].CreatePolynomial(tt,modulo_n.value,decimal=False)
+        Players[i].polynomial = definedPolys[i]
     
     vect_k = CalculateSecret(Players, modulo_n.value, isDec=False)
  
+    print(vect_k)
     #calculate s signature before hiding k
      
     k = DerivePubKey(Players,modulo_n.value,isDec=False)
@@ -308,10 +313,13 @@ if __name__ == "__main__":
     CalcSig = GENPOINT.multipleScalar(k)
     CalcSigPoints = CalcSig.GetAffineCoOrdinates()
     sig_r = CalcSigPoints[0]
-    #print ('calculated signature from k (r,s) = (%s ,%s)' % (CalcSigPoints[0],CalcSigPoints[1]))
+    print ('calculated signature from k (r,s) = (%s ,%s)' % (CalcSigPoints[0],CalcSigPoints[1]))
     #Take a subset of players with a 
+    definedPolys = DefinedPolys._get_defined_polynomials_deg_2_3_alpha(modulo_n.value)
     for i in range(len(Players)):
-        Players[i].CreatePolynomial(tt,modulo_n.value, decimal=False)
+        #Players[i].CreatePolynomial(tt,modulo_n.value, decimal=False)
+        Players[i].polynomial = definedPolys[i]
+        
         
     vect_alpha = CalculateSecret(Players, modulo_n.value, isDec=False)
     
@@ -335,7 +343,7 @@ if __name__ == "__main__":
         w_j = vect_w[i]
         w_j_points = w_j.GetAffineCoOrdinates()
         xfx_v.append((int(label_j),k_j.value))
-        xfx_w.append((int(label_j),w_j_points[0],w_j_points[1]))
+        xfx_w.append((str(label_j),w_j_points[0],w_j_points[1]))
         
     v_interpolator = Nakasendo.LGInterpolator(xfx_v, modulo_n.value, decimal=False)
     vZeroVal = v_interpolator('0')
@@ -407,7 +415,9 @@ if __name__ == "__main__":
     for j in range(len(vect_k)):
         vect_inv_k_j=vect_k[j]
         d_j = vect_d[j]
+        #s = littleK * (Hm + (pks * r_bn))
         val_j = vect_inv_k_j * (Hm + (d_j * interpR))
+        print ('%s * (%s + (%s * %s)) = %s' % (vect_inv_k_j, Hm, d_j, interpR,val_j ))
         vect_s.append(val_j)
     
     #print(vect_s)
@@ -419,6 +429,7 @@ if __name__ == "__main__":
         s_j    = vect_s[index_j]
         s_points.append((int(label_j) , s_j.value))
         
+    print(s_points)
     s_interpolator = Nakasendo.LGInterpolator(s_points, modulo_n.value,decimal=False)
     interpolated_s = s_interpolator ('0')
     
@@ -443,7 +454,7 @@ if __name__ == "__main__":
         HexSigBytes = binascii.hexlify(SigBytes)
         signature_length = len(SigBytes) + 1 # 1 byte will be added later for sighash flag
         signature_length = signature_length.to_bytes((signature_length.bit_length()+7)//8,'big')
-        scriptSig_final = binascii.hexlify(signature_length) + HexSigBytes + b'4121' +                     binascii.hexlify(binascii.unhexlify(HiddenPoint.value))
+        scriptSig_final = binascii.hexlify(signature_length) + HexSigBytes + b'4121' + binascii.hexlify(binascii.unhexlify(HiddenPoint.value))
         
         
         signedTX = TransactionHandling.SerialiseFinalTx(prevtxid,scriptSig_final,value,scriptKeyHash)

@@ -2,12 +2,14 @@
 #include <tuple>
 #include <string>
 #include <iostream>
+#include <fstream>
+
 #include "ECPoint/ECPoint.h"
 #include "BigNumbers/BigNumbers.h"
 #include "MessageHash/conversions.h"
 #include "MessageHash/MessageHash.h"
 #include "AsymKey/AsymKey.h"
-#include "BCHAddress/BCHAddress.h"
+#include "BSVAddress/BSVAddress.h"
 
 
 int main(int argc,char * argv[]){
@@ -199,8 +201,6 @@ int main(int argc,char * argv[]){
 
     
     
-    
-    
     const bool verify_ok = verify(random_str, pubkey, rs);
     const bool verify_ok_der = verifyDER(random_str, pubkey, sigDERTest, len);
     
@@ -209,7 +209,147 @@ int main(int argc,char * argv[]){
         
     if(verify_ok_der)
         std::cout << "Message verified via DER format " << std::endl;
+
+    BigNumber TestNumber;
+    TestNumber.generateRandHex();
+    std::cout << TestNumber.ToHex() << std::endl;
+    ECPoint genTest; 
+    ECPoint GENPOINT = genTest.getGenerator();
     
+    ECPoint hiddenPoint = GENPOINT.MulHex(TestNumber.ToHex(), std::string());
+    std::cout << "Point in hex * G " << hiddenPoint.ToHex(false) << std::endl;
+    std::pair<std::string, std::string> points = hiddenPoint.GetAffineCoords_GFp();
+
+    std::cout << "Affine coords\n" << points.first << "\t" << points.second << std::endl;
+    std::cout << "Point in PEM format\n" << pubkey_coordinates2pem(points.first, points.second) << std::endl;
+
+    std::string PEM1 = pubkey_coordinates2pem(points.first, points.second) ;
+
+    std::cout << "Private key/Public key PEM check" << std::endl;
+    // Add the python interface to call x,y to PEM
+    // verify the PEM format by converting back to x,y & comparing to the original
+    // to try verify the signature
+    // add tests for the new function in AsymKey
+
+
+    AsymKey newKey; 
+    newKey.importPrivateHEX(TestNumber.ToHex());
+    std::cout << newKey.exportPublicHEXStr() << std::endl;
+    std::cout << newKey.exportPublicPEM() << std::endl; 
+    std::cout << newKey.exportPrivateHEX() << std::endl;
+    std::string PEM2 = newKey.exportPublicPEM();
+    if (PEM1 != PEM2){
+        std::cout << "PANIC PEM KEYS NOT EQUAL" << std::endl;
+        return -1; 
+    }
+
+
+
+    ECPoint pubKey; 
+    BigNumber rValueTest;
+    BigNumber sValueTest; 
+
+    pubKey.FromHex("036351C7062588B27EB0ABC83093D9345E4C7692920A855FA397388C09BF8BA6C8");
+    std::string pubKeyAsPEM = pubkey_coordinates2pem(pubKey.GetAffineCoords_GFp().first, pubKey.GetAffineCoords_GFp().second);
+    rValueTest.FromHex("7872B5465A46C3858C75FB1FC7684621C3E17C096CF9A31A6CC480645BE20990");
+    sValueTest.FromHex("B1164242138D07C2828CF4E71FECFFB414EA78DA828C352E3381773788065F6B"); 
+
+
+    std::cout << pubKey.GetAffineCoords_GFp().first << " " <<  pubKey.GetAffineCoords_GFp().second << std::endl;
+    std::cout << "Point in PEM format\n" << pubkey_coordinates2pem(pubKey.GetAffineCoords_GFp().first, pubKey.GetAffineCoords_GFp().second) << std::endl;
+
+
+
+    //verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::pair<std::string, std::string>& rs);
+
+    const std::string message("I love deadlines. I love the whooshing noise they make as they go by.");
+    std::pair<std::string, std::string> rsInfo = std::make_pair(rValueTest.ToHex(),sValueTest.ToHex());
+    bool res = verify(message,pubKeyAsPEM, rsInfo );
+    if(res)
+        std::cout << "HURRAH" << std::endl;
+
     
+    // hard coded test
+#if 0 
+    AsymKey priKeyHC; 
+    priKeyHC.importPrivateHEX("B0BD078D3A70DA8407398E764712680B762EDC0AE417B71AC29DB1DB19E6135F");
+    std::cout << "Public Key PEM format " << priKeyHC.exportPublicPEM() << std::endl;
+    std::cout << "Public Key Hex format " << priKeyHC.exportPublicHEXStr() << std::endl;
+    std::string PEM3 = priKeyHC.exportPublicPEM() ;
+
+    if (pubKeyAsPEM != PEM3){
+        std::cout <<"PANIC KEYS NOT EQUAL" << std::endl;
+        return -1;
+    }
+    if(verify(message, PEM3, rsInfo)){
+        std::cout << "HURRAH HERE" << std::endl;
+        return -1;
+    }
+
+
+
+    const std::pair<std::string, std::string> rsSigTest = priKeyHC.sign(message);
+    std::cout << rsSigTest.first << " " << rsSigTest.second << std::endl;
+    if(verify(message,PEM3,rsSigTest )){
+        std::cout << "Thats expected" << std::endl;
+    }
+
+    std::cout << "verify again with a different version of the same public key" << std::endl;
+    if(verify(message,pubKeyAsPEM,rsSigTest )){
+        std::cout << "Thats blown my mind" << std::endl;
+        return -1;
+    }
+#endif
+    AsymKey priKeyHCB; 
+    const std::pair<std::string, std::string> rsSigTestB = priKeyHCB.sign(message);
+    std::cout << rsSigTestB.first << " " << rsSigTestB.second << std::endl;
+    std::cout << "Private Key Hex " << priKeyHCB.exportPrivateHEX() << std::endl;
+    std::cout << "Public Key Hex " << priKeyHCB.exportPublicHEXStr() << std::endl;
+    if(verify(message,priKeyHCB.exportPublicPEM(),rsSigTestB )){
+        std::cout << "Message verified with raw r & s" << std::endl;
+    }
+
+    size_t derlen = 0;
+    // create two bignumbers for r & s
+    BigNumber rBN, sBN;
+    rBN.FromHex(rsSigTestB.first);
+    sBN.FromHex(rsSigTestB.second);
+    std::unique_ptr<unsigned char[]> derSig = DEREncodedSignature(rBN, sBN, derlen);
+
+
+    std::cout << "creating output files" << std::endl;
+    if(derlen >0){
+        std::ofstream outfile;
+        outfile.open("sig.der",std::fstream::out | std::fstream::binary);
+        if(outfile.is_open()){
+            for(int index=0; index<derlen;++index){
+                outfile << derSig[index] ;
+            }
+            outfile.close();
+        }
+        std::cout << "writing PEM public key" << std::endl;
+        std::ofstream pemFile;
+        pemFile.open("pubkey.pem",std::fstream::out | std::fstream::binary);
+        if(pemFile.is_open()){
+            pemFile << priKeyHCB.exportPublicPEM() ;
+        }
+        pemFile.close();
+    }
+
+    std::cout << "Verifiy the message with DER format" << std::endl;
+
+    if(verifyDER(message,priKeyHCB.exportPublicPEM(),derSig,derlen)){
+        std::cout << "DER format verified" << std::endl;
+    }
+
+    std::cout << "Export Pubkey in PEM format" << std::endl;
+    std::ofstream prikeyOut;
+    prikeyOut.open("prikey.pem",std::fstream::out | std::fstream::binary);
+    if(prikeyOut.is_open()){
+        prikeyOut << priKeyHCB.exportPrivatePEM() ;
+    }
+    prikeyOut.close();
+
+
     return 0; 
 }
