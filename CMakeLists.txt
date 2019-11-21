@@ -29,8 +29,8 @@
 cmake_minimum_required(VERSION 3.12)
 project(SDKLibraries)
 
-set(SDK_VERSION_MAJOR "2" CACHE INTERNAL "framework major version")
-set(SDK_VERSION_MINOR "0" CACHE INTERNAL "framework minor version")
+set(SDK_VERSION_MAJOR "0" CACHE INTERNAL "framework major version")
+set(SDK_VERSION_MINOR "2" CACHE INTERNAL "framework minor version")
 set(SDK_VERSION_PATCH "0" CACHE INTERNAL "framework patch version")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)## Always include the current directory
