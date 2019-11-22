@@ -1,6 +1,6 @@
 We at nChain are constantly working to improve your BitCoin SV user experience
 
-#### Date: 07/11/2019 version 2.0.0 (ANDES)
+#### Date: 21/11/2019 version 0.2.0 (ANDES)(Beta)
 - Conversion public key to bitcoin address
 - Stablize webassembly build
 - Integrate mocha test framework for javascript modules
