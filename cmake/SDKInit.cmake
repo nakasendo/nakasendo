@@ -146,5 +146,9 @@ macro(sdkInitCMake)
   HelpFindBoost()
   #sdkPrintProperties(Boost::random)
 
+  include(FindProtobufHelper)
+  sdkHelpFindProtobuf()
+  #sdkPrintProtobufInfo()
+
   enable_testing()
 endmacro()
