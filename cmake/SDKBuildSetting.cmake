@@ -19,6 +19,12 @@ macro(sdkSetCompilationOptions)## This has to be macro instead of a function bec
 
     if (MSVC)
       sdkAddCompilerFlags(/Gm- /MP /wd4251 /wd4244 /wd4307)## TODO test if DNOMINMAX can move here
+      ## Using MSVC STATIC RUNTIME)
+      ##foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+      ##  if(${flag_var} MATCHES "/MD")
+      ##    string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+      ##  endif(${flag_var} MATCHES "/MD")
+      ##endforeach()
     endif()
 
     if(UNIX)

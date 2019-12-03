@@ -58,7 +58,7 @@ endmacro()
 
 #### Create directory in binary tree to put all generated hpp files
 macro(sdkCreateGeneratedHppDir)
-  set(SDK_GENERATED_HPP_DIR "${CMAKE_BINARY_DIR}/generated_hpp" CACHE STRING "Directory containing all generated hpp files")
+  set(SDK_GENERATED_HPP_DIR "${CMAKE_BINARY_DIR}/generated/hpp" CACHE STRING "Directory containing all generated hpp files")
   file(MAKE_DIRECTORY "${SDK_GENERATED_HPP_DIR}")
   include_directories("${SDK_GENERATED_HPP_DIR}")
 endmacro()
