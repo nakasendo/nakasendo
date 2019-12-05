@@ -1,0 +1,185 @@
+
+
+syntax = "proto3";
+
+package ts_messaging;
+
+import "ts_enums.proto";
+
+service TSService {
+  rpc CallRegister        (RegisterRequest)       returns (GenericReply) {}
+  rpc CallCreateGroup     (CreateGroupRequest)    returns (IdentityMessage) {}
+  rpc CallInvite          (IdentityMessage)       returns (InviteReply) {}
+  rpc CallGroupIsSet      (GroupIsSetRequest)     returns (GenericReply) {}
+  rpc CallSharePublicKey  (SharePublicKeyRequest) returns (GenericReply) {}
+  rpc CallRequestData     (DataRequest)           returns (DataReply) {}
+  rpc CallCreateSecret    (CreateSecretRequest)   returns (IdentityMessage) {}
+  rpc CallGroupIsVerified (GroupIsVerifiedRequest)returns (GenericReply) {}
+  rpc CallInitiatePresign (InitPresignReqRep)     returns (InitPresignReqRep) {}
+  rpc CallPresigning      (SharePublicKeyRequest) returns (GenericReply) {}
+  rpc CallCollateVWData   (CollateVWDataRequest)  returns (GenericReply) {}
+  rpc CallSharedVWData    (SharedVWDataRequest)   returns (GenericReply) {}
+  rpc CallEphemKeyComplete(IdentityMessage)       returns (GenericReply) {}
+  rpc CallPubKeyComplete  (IdentityMessage)       returns (GenericReply) {}
+  rpc CallPresignComplete (IdentityMessage)       returns (GenericReply) {}
+  rpc CallCompleted       (IdentityMessage)       returns (GenericReply) {}
+  rpc CallReadyToSign     (ReadyToSignRequest)    returns (IdentityMessage) {}
+  rpc CallSign            (SignRequest)           returns (GenericReply) {}
+  rpc CallRequestSignature(SignatureRequest)      returns (SignatureReply) {}
+}
+
+
+// Register 
+message RegisterRequest {
+  string  user        = 1;  // username or userId
+  string  reference   = 2;  // url / port / reference
+}
+
+// Group is set response
+message GenericReply {
+  bool    success  = 1;  // not used
+}
+
+// Create Group message
+message CreateGroupRequest {
+  string  user   = 1;  // username or userId
+  int32   m      = 2;  // recombination number
+  int32   n      = 3;  // total number in group
+}
+
+// Identification Message - generic
+message IdentityMessage {
+  string   user     = 1 ;   // username or user Id
+  string   groupId  = 2 ;   // ID of group
+}
+
+
+// Invitation response to joining group
+message InviteReply {
+  string  user        = 1;  // username or userId
+  string  groupId     = 2;  // ID of group
+  bool    acceptance  = 3;  // True to be part of group, False otherwise
+}
+
+// Group is set message
+message GroupIsSetRequest {
+  string          groupId       = 1;  // ID of group
+  int32           ordinal       = 2;  // own ordinal
+  repeated int32  ordinalList   = 3;  // list of ordinals in group
+  int32           degree        = 4;  // degree of the polynomial
+}
+
+
+// Group is set message
+message SharePublicKeyRequest {
+  string  user          = 1;  // username or userId
+  string  groupId       = 2;  // ID of group
+  CalcType calculation  = 3;  // type of calculation
+
+}
+
+// Data request 
+message DataRequest {
+  string  groupId       = 1;  // ID of group
+  CalcType calculation  = 2;  // type of calculation   
+}
+
+
+message evaluatedPoly {
+  int32   ordinal = 1 ;   // ordinal
+  string  f_x     = 2 ;   // polynomial evaluated wrt ordinal
+}
+
+
+// Data reply
+message DataReply {
+  string                  groupId     = 1 ;   // ID of group
+  int32                   ordinal     = 2 ;   // own ordinal
+  repeated evaluatedPoly  evals       = 3 ;   // evaluated polynomial coefficients (wrt oridnal)
+  repeated string         hiddenPoly  = 4 ;   // polynomial coefficients multiplied by Generator Point  
+  repeated evaluatedPoly  hiddenEvals = 5 ;   // evals (above) multiplied by Generator Point
+}
+
+
+message listOfPolynomials {
+  int32                   ordinal   = 1 ;   // ordinal
+  repeated evaluatedPoly  ep        = 2 ;   // 
+}
+
+
+message hiddenPolynomial {
+  int32             ordinal         = 1 ;   // ordinal
+  repeated string   coefficients    = 2 ;   // list of coefficiencts (hidden by Generator point)
+}
+
+// Create Secret request 
+message CreateSecretRequest {
+  string                          groupId       = 1;  // ID of group
+  CalcType                        calculation   = 2;  // type of calculation   
+  repeated listOfPolynomials      evals         = 3 ; // collated evaluated polynomials
+  repeated hiddenPolynomial       hiddenPolys   = 4 ; // collated polynomial coefficients hidden by Generator Point  
+  repeated listOfPolynomials      hiddenEvals   = 5 ; // collated hidden evaluated polynomials
+}
+
+
+// Group Is Verified request 
+message GroupIsVerifiedRequest {
+  string  groupId       = 1;  // ID of group
+  CalcType calculation  = 2;  // type of calculation   
+}
+
+
+// Initiate presigning process request and reply
+message InitPresignReqRep {
+  string  user      = 1 ;   // username or user Id
+  string  groupId   = 2 ;   // ID of group
+  int32   number    = 3 ;   // number of presignatures
+}
+
+// VW Data
+message VWData {
+  int32   ordinal   = 1 ;   // ordinal
+  string  v         = 2 ;   // v
+  string  w         = 3 ;   // w
+}
+// Collate VW Data
+message CollateVWDataRequest {
+  string  groupId   = 1 ;   // ID of group
+  VWData  data      = 2 ;   // contains the VW data
+}
+
+// collated VW Data Shared VW Data Request
+message SharedVWDataRequest {
+            string    groupId   = 1 ;   // ID of group
+  repeated  VWData    data      = 2 ;   // contains the VW data
+}
+
+
+message SigData {
+  int32   ordinal    = 1 ; // ordinal
+  string  signature  = 2 ; // signature
+}
+
+message ReadyToSignRequest {
+            string    groupId         = 1 ;   // ID of group  
+            string    message         = 2 ;   // message to sign
+  repeated  SigData   signatureData   = 3 ;   // signature
+}
+
+message SignRequest {
+  string  user      = 1 ;   // username or user Id  
+  string  groupId   = 2 ;   // ID of group  
+  string  message   = 3 ;   // message to sign  
+}
+  
+message SignatureReply {
+  string    groupId     = 1 ;   // ID of group
+  int32     ordinal     = 2 ;   // own ordinal
+  string    signature   = 3 ;   // signature data
+  string    message     = 4 ;   // message to be signed
+}
+
+message SignatureRequest {
+  string  groupId   = 1 ;   // ID of group  
+  string  message   = 2 ;   // message to sign
+}
