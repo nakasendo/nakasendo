@@ -198,20 +198,15 @@ int ECPoint_API getNidForString(const std::string& NIDstr)
     return -1;
 }
 
-
-BigNumber ECPoint_API MultiplyByGenerator( const BigNumber& value, int curveID ) 
-{
-    // create new EC point defaulted to NID_secp256k1
+ECPoint ECPoint_API MultiplyByGeneratorPt(const BigNumber& value, int curveID){
+   // create new EC point defaulted to NID_secp256k1
     ECPoint point( curveID ) ;
 
     // get the generator point
     ECPoint GEN = point.getGenerator( ) ; 
 
-    // multiply the value (as Hex string) by the generator
+    // multiply the value (as Hex string) by the generator 
+    // please fix this.  We could possibily multiply by a BigNumber! 
     ECPoint result = GEN.MulHex( value.ToHex( ), std::string( ) ) ;
-    
-    BigNumber bnResult ;
-    bnResult.FromHex( result.ToHex( ) ) ;
-
-    return bnResult ;
+    return result;
 }
