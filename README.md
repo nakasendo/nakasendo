@@ -16,7 +16,8 @@ To be able to build the SDK, users need to install some tools and libraries. In 
 - CMake 3.14.7 (https://cmake.org/download/)
 - C++ Compiler: Visual Studio Community Edition 2017 on windows, g++7 on Linux
 - Boost 1.69.0 to build CPP unit tests (https://www.boost.org/ and for the binary: https://sourceforge.net/projects/boost/files/boost-binaries/1.69.0/)
-- OpenSSL 1.1.b. It needs two versions: one for native C++, the other for emcripten. The prebuilt openssl for Emscripten can be downloaded from https://bitbucket.org/nch-atlassian/sdklibraries/downloads/
+- OpenSSL 1.1.b : It needs two versions: one for native C++, the other for emcripten. The prebuilt openssl for Emscripten can be downloaded from https://bitbucket.org/nch-atlassian/sdklibraries/downloads/
+- Protobuf 3.11.0 : either on Windows or Linux, compile it from source and install it. Then name the system variable Protobuf_ROOT pointing to its installation location. See detail in $SDK_SOURCE/cmake/modules/FindProtobufHelper.cmake
 - EMSDK: 1.38.0 : https://emscripten.org/docs/getting_started/downloads.html.
     Use install and activate to install components
 	1. Clone the EMSDK Git repository
