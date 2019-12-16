@@ -12,7 +12,6 @@ import uuid
 #       - authentication, 
 #       - security, 
 #       - timer events 
-#     These are all available under Twisted libraries. 
 #       - maintaining active connections (Player disconnects not monitored)
 #       - assumes nobody is being dishonest ('spoofing' other players, etc)
 #==========================================================================
