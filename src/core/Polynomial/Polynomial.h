@@ -7,12 +7,15 @@
 #include <string>
 #include <iostream>
 #include <BigNumbers/BigNumbers.h>
+class ECPoint; 
 
 /// 
 class Polynomial_API Polynomial
 {
   public:
 
+    //construct an empty polynomial
+    Polynomial()=default;
     // construct from BigNumber vector
     Polynomial( std::vector< BigNumber >& coefficients, const BigNumber& modulo );
 
@@ -37,6 +40,10 @@ class Polynomial_API Polynomial
     // Default destructor
     ~Polynomial() = default ;
 
+    // copy constructor
+    Polynomial(const Polynomial&);
+    //  assignment operator
+    Polynomial& operator=(const Polynomial&);
     /*
     * Get the degree of the polynomial.
     * @return The degree (order) of the polynomial
@@ -66,6 +73,7 @@ class Polynomial_API Polynomial
      * Hide the coefficients using generator point
      */
     std::vector< BigNumber > hide( int curveID = 714 ) const;
+    std::vector<ECPoint> hideAsPoint( int curveID = 714 ) const;
 
 
     /*

@@ -1,0 +1,28 @@
+site_name: mkdoc demo
+
+nav:
+    - Home: index.md
+    - Demo capacities: capacities.md
+
+markdown_extensions:
+  - toc:
+  - pymdownx.arithmatex
+  - plantuml_markdown:
+      server: http://www.plantuml.com/plantuml  # PlantUML server, for remote rendering
+      # other global options
+      #cachedir: site                            # set a non-empty value to enable caching
+      format: png                               # default diagram image format
+      classes: class1,class2                    # default diagram classes
+      title: UML diagram                        # default title (tooltip) for diagram images
+      alt: UML diagram image                    # default `alt` attribute for diagram images
+      priority: 30                              # plugin priority; the higher, the sooner will be applied (default 30)
+
+extra_javascript:
+#    - 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js' # mathjax 3
+    - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML' # mathjax
+#    - 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js'
+
+extra_css:
+#    - 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css'
+
+theme: readthedocs

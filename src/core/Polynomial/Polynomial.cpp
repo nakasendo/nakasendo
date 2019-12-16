@@ -141,6 +141,19 @@ Polynomial::Polynomial
     checkValid( ) ;
 }
 
+
+Polynomial::Polynomial(const Polynomial& obj)
+    : m_coefficients(obj.m_coefficients),m_modulo(obj.m_modulo)
+{ return ; }
+
+Polynomial& Polynomial::operator= (const Polynomial& obj){
+    if(this != &obj){
+        m_coefficients = obj.m_coefficients;
+        m_modulo = obj.m_modulo;
+    }
+    return *this;
+}
+
 int Polynomial::getDegree() const
 {
     return (int)m_coefficients.size() - 1;
@@ -280,6 +293,7 @@ BigNumber Polynomial::operator( ) ( const BigNumber& x ) const
  * @param curveID   The ID of the cureve (defaulted to NID secp256k1)
  * @return          Hidden Coefficients, as a vector of BigNumbers
  */
+
 std::vector< BigNumber >  Polynomial::hide( int curveID ) const
 {
     std::vector< BigNumber > hiddenCoefficients ;
@@ -287,13 +301,24 @@ std::vector< BigNumber >  Polynomial::hide( int curveID ) const
     for ( auto itr = m_coefficients.begin(); itr != m_coefficients.end(); ++itr )
     {
         // call function in ECPoint
-        hiddenCoefficients.push_back ( MultiplyByGenerator( *itr, curveID ) ) ;
+        ECPoint pt = MultiplyByGeneratorPt( *itr, curveID );
+        BigNumber bn;
+        bn.FromHex(pt.ToHex());
+        hiddenCoefficients.push_back (bn) ;
     }
 
     return hiddenCoefficients ;
 }
 
-
+std::vector<ECPoint> Polynomial::hideAsPoint( int curveID ) const{
+    std::vector<ECPoint> hiddenCoefficients;
+    for( auto itr = m_coefficients.begin(); itr != m_coefficients.end(); ++itr )
+    {
+        // call function in ECPoint
+        hiddenCoefficients.push_back ( MultiplyByGeneratorPt( *itr, curveID ) ) ;
+    }
+    return hiddenCoefficients ;
+}
 
 /* Friend function operator<<
  * for writing out polynomial in human-friendly form

@@ -11,5 +11,6 @@ if(NOT BUILD_MISC_ONLY)## Define -DBUILD_MISC_ONLY=ON to build o only prototypes
 else()
     add_subdirectory(PyThresholdSignature)
     add_subdirectory(WASMModule)
+    add_subdirectory(documentation/nakasendo)
 endif()
 

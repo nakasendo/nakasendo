@@ -1,0 +1,12 @@
+[book]
+authors = ["Chi Thanh NGUYEN"]
+language = "en"
+multilingual = false
+src = "src"
+title = "mkbook demo"
+
+[preprocessor.plantuml]
+plantuml-cmd="java -jar plantuml.jar"
+
+[output.html]
+mathjax-support = true

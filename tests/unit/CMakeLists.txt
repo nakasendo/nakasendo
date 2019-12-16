@@ -78,3 +78,8 @@ add_executable(test_BSVAddress test_BSVAddress.cpp)
 set_target_properties(test_BSVAddress PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 target_link_libraries(test_BSVAddress AsymKey BSVAddress)
 sdk_add_unit_test(test_BSVAddress)
+
+#########################################################################
+## Test case for Protobuf
+add_subdirectory(proto)
+#########################################################################
