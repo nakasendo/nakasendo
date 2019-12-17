@@ -202,6 +202,13 @@ BOOST_AUTO_TEST_CASE(testECPointSetAffineCoordinatesConstructor)
 
     BOOST_CHECK(ec1 == ec2);
 }
+BOOST_AUTO_TEST_CASE(testECPointMultiplyByGenerator)
+{
+    BigNumber b; 
+    b.generateRandHex();
 
+    ECPoint pt = MultiplyByGeneratorPt (b);
+    BOOST_CHECK(pt.CheckOnCurve());
 
+}
 BOOST_AUTO_TEST_SUITE_END();

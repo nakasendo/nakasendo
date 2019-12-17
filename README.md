@@ -18,14 +18,15 @@ To be able to build the SDK, users need to install some tools and libraries. In 
 - Boost 1.69.0 to build CPP unit tests (https://www.boost.org/ and for the binary: https://sourceforge.net/projects/boost/files/boost-binaries/1.69.0/)
 - OpenSSL 1.1.b : It needs two versions: one for native C++, the other for emcripten. The prebuilt openssl for Emscripten can be downloaded from https://bitbucket.org/nch-atlassian/sdklibraries/downloads/
 - Protobuf 3.11.0 : either on Windows or Linux, compile it from source and install it. Then name the system variable Protobuf_ROOT pointing to its installation location. See detail in $SDK_SOURCE/cmake/modules/FindProtobufHelper.cmake
+- Protobuf 3.11.0 : either on Windows or Linux, compile it from source and install it. Then name the system variable Protobuf_ROOT pointing to its installation location. See detail in $SDK_SOURCE/cmake/modules/FindProtobufHelper.cmake
 - EMSDK: 1.38.0 : https://emscripten.org/docs/getting_started/downloads.html.
     Use install and activate to install components
-	1. Clone the EMSDK Git repository
-	2. Pull latest changes
-	3. From the newly created EMSDK repository's root directory, perform "emsdk list" to see the installable versions
-	4. Choose the latest minor version of 1.38 e.g. "emsdk install 1.38.48"
-	5. On Windows, run "emsdk" instead of "./emsdk", and "emsdk_env.bat" instead of "source ./emsdk_env.sh".
-	6. Install the following tools, using "emsdk list"
+    1. Clone the EMSDK Git repository
+    2. Pull latest changes
+    3. From the newly created EMSDK repository's root directory, perform "emsdk list" to see the installable versions
+    4. Choose the latest minor version of 1.38 e.g. "emsdk install 1.38.48"
+    5. On Windows, run "emsdk" instead of "./emsdk", and "emsdk_env.bat" instead of "source ./emsdk_env.sh".
+    6. Install the following tools, using "emsdk list"
     - **clang**  e.g. emsdk install clang-e1.38.30-64bit
     - **emscripten**  e.g. emsdk install emscripten-1.38.30
     - **node** (need to install modules **mocha**, **mocha-junit-reporter** using NPM command: "npm install --global mocha mocha-junit-reporter")
@@ -37,6 +38,7 @@ To be able to build the SDK, users need to install some tools and libraries. In 
     - **junitparser**   to combine overall junit test results i.e. python -m pip install junitparser
     - **ecdsa**         to study elliptic curves i.e. python -m pip install ecdsa
     - **requests**      to send http(s) request to different server APIs (Jenkins/ Bitbucket) i.e. python -m pip install requests
+    - **mkdocs**, **pymdown-extensions** **plantuml_markdown**  to build documentations with mkdocs
 - NSIS (Nullsoft Scriptable Install System) 3.04 : https://sourceforge.net/projects/nsis/
 
 Once the build tools and libraries are prepared, some post installation steps are required to let the SDKLibraries build system know how to find everything:
