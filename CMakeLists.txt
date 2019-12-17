@@ -46,6 +46,7 @@ sdkInitCMake()
 ## Everything in core should be includable from everywhere
 include_directories(${CMAKE_SOURCE_DIR}/src/core)
 include_directories(${CMAKE_SOURCE_DIR}/depends/json)
+include_directories(${CMAKE_SOURCE_DIR}/src/applications/TS_protobuf/cpp)
 
 if(NOT BUILD_MISC_ONLY)## Define -DBUILD_MISC_ONLY=ON to build o only prototypes in misc 
     add_subdirectory(depends/secp256k1)
