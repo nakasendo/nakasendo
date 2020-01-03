@@ -38,6 +38,8 @@ bool SendGroupInvites(const std::string&, const std::string&);
 bool SendGroupDetails(const std::string&); 
 bool SendGroupDelete(const std::string&, const std::string&);
 
+bool ShareEvalsPlayers(const std::string&, const std::string&, const std::string&);
+bool SharePrivateEvalsRequest(const std::string&, const std::string&, const std::string&);
 bool SecretSharingPlayerDataRequest(const std::string&, const std::string&,const std::string&);
 bool SecretSharingCollatedDataRequest(const std::string&, const std::string&, const std::string&);
 
@@ -47,6 +49,9 @@ bool EphemeralKeyCollatedPlayerDataRequest(const std::string&, const std::string
 bool SignaturePlayerDataRequest(const std::string&, const std::string&, const std::string&, const int&);
 bool deleteGrpSignatureSharingContainsers(const std::string&);
 bool deleteGrpPreSignatureContainers(const std::string&);
+
+bool InitPrivateKeyShareExchange(const std::string&,const std::string&,const std::vector<std::string>&);
+bool SharePrivateKeyShare(const std::string&,const std::string&);
 
 #endif //#ifndef __TSMESSAGE_HANDLER_H__
 

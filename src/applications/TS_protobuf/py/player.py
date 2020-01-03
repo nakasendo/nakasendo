@@ -17,14 +17,16 @@ except ImportError as e:
 
 # JVRSS class for transient data
 class JVRSS :
-    def __init__ ( self ) :
+    def __init__ ( self, modulo ) :
+        self.modulo = modulo
         self.reset( )
+        
 
     def __str__(self):
         string =  ("JVRSS :" \
             + "\n\tf_x              =  " + str(self.f_x)  \
             + "\n\tevals            =  " + str(self.evals)  \
-            + "\n\tpublicEvals      =  " + str(self.publicEvals)  \
+            + "\n\tsumOfEvals       =  " + str(self.sumOfEvals)  \
             + "\n\thiddenEvals      =  " + str(self.hiddenEvals)  \
             + "\n\thiddenPolynomial =  " + str(self.hiddenPolynomial) \
             + "\n\tallHiddenPolynomials =  " + str(self.allHiddenPolynomials) \
@@ -39,7 +41,9 @@ class JVRSS :
 
         self.f_x   = None           # f(x): Polynomial evaluated for own ordinal
         self.evals = {}             # dict ordinal:evaluated for each o in ordinallist
-        self.publicEvals = {}       # dict of dict: all Players in group evaluations
+        self.sumOfEvals = \
+            Nakasendo.BigNum('0', self.modulo) # running total of evals
+        self.evalCounter = 0        # counter of eval messages received from other Players
         self.hiddenEvals = {}       # Polynomial evaluations multiplied by generator point
         self.hiddenPolynomial = []  # coeffs multiplied by generator point
         self.allHiddenPolynomials = {}
@@ -51,7 +55,7 @@ class JVRSS :
 class PlayerGroupMetadata :
     
 
-    def __init__ (self, ptw, id, ordinal, ordinalList, degree) :
+    def __init__ (self, ptw, id, ordinal, ordinalList, degree, modulo) :
         
         self.ptw = ptw 
         self.ptw("starting Player")
@@ -72,7 +76,7 @@ class PlayerGroupMetadata :
         self.numberPresigns         = 1             # number presigns left to do (default is 1)
         self.signer_r               = None
 
-        self.transientData          = JVRSS()       # transient data - reusable data structure
+        self.transientData          = JVRSS(modulo) # transient data - reusable data structure
 
 
 
@@ -128,18 +132,6 @@ class PlayerGroupMetadata :
             res     = GENPOINT.multipleScalar(bignum)
             self.transientData.hiddenPolynomial.append(res.value)
     
-    #-------------------------------------------------
-    # reusable code to create a secret - used for privateKeyShare, little-k, alpha
-    def createSecret( self, ordinal,mod ) :
-        
-        res = Nakasendo.BigNum(str( self.transientData.f_x),mod)
-        # loop outer dictionary (keyed  on ordinal)
-        for outerOrd, dict2 in self.transientData.publicEvals.items() :
-            for innerOrd, fx in dict2.items() :
-                if innerOrd == ordinal :
-                    res += Nakasendo.BigNum(str(fx),mod)
-        return res
-
     #-------------------------------------------------
     def calculateShareOfVW( self, mod ) : 
  
@@ -239,6 +231,12 @@ class Player :
     def getPublicKeyShare( self, groupId ) :
         return str( self.groups[groupId].publicKeyShare )
 
+
+    #-------------------------------------------------
+    def getOrdinal( self, groupId ) :
+        return self.groups[groupId].ordinal 
+
+
     #-------------------------------------------------
     # Add Group - create the PlayerGroupMetadata
     #           - create the Polynomial, and call pre-calculation
@@ -251,7 +249,8 @@ class Player :
             self.ptw(errMsg)
             return 0 
 
-        self.groups[groupId] = PlayerGroupMetadata(self.ptw, groupId, ordinal, ordinalList, degree)
+        self.groups[groupId] = PlayerGroupMetadata \
+            (self.ptw, groupId, ordinal, ordinalList, degree, Player.modulo)
         
         group = self.groups[groupId] 
         
@@ -281,24 +280,55 @@ class Player :
             group.polynomialPreCalculation(poly, Player.modulo, group.ordinal)
 
         ordinal     = group.ordinal 
-        evals       = group.transientData.evals
         hiddenPoly  = group.transientData.hiddenPolynomial
         hiddenEvals = group.transientData.hiddenEvals
 
-        return [groupId, ordinal, evals, hiddenPoly, hiddenEvals]
+        return [groupId, ordinal, hiddenPoly, hiddenEvals]
 
+    #-------------------------------------------------
+    # Return the evals for the requested ordinal
+    def getEvals(self, groupId, toOrdinal) :
+        group = self.groups[groupId]
+        evals = group.transientData.evals
+
+        return evals[toOrdinal]
+
+    #-------------------------------------------------
+    # add evals to sumOfEvals - this is the shared secret
+    #   - used for privateKeyShare, little-k, alpha
+    def allEvalsReceived(self, groupId, toOrdinal, fromOrdinal, f_x) :
+        group = self.groups[groupId]
+
+        #check toOrdinal matches own ordinal
+        if toOrdinal != group.ordinal :
+            msg = "allEvalsReceived toOrdinal is not correct. Received {0}, expected {1}".format \
+                (group.ordinal, toOrdinal)
+            self.ptw(msg)
+            raise PlayerError(msg)        
+
+        # add onto running total
+        group.transientData.sumOfEvals += Nakasendo.BigNum( f_x, Player.modulo )
+        # increment counter
+        group.transientData.evalCounter += 1 
+
+        if group.transientData.evalCounter != len(group.ordinalList) :
+            return False
+        else :  
+            # last one, add on the evaluation for own ordinal          
+            group.transientData.sumOfEvals += Nakasendo.BigNum(str \
+                ( group.transientData.f_x), Player.modulo )
+            return True
 
     #-------------------------------------------------
     # create a secret - used to create a privateKeyShare, little-k, alpha
-    def createSecret(self, groupId, calcType, evals, hiddenPolys, hiddenEvals) :
+    def createSecret(self, groupId, calcType, hiddenPolys, hiddenEvals) :
 
         self.ptw("creating a secret....")
         group = self.groups[groupId]
         
-        group.transientData.publicEvals             = evals 
         group.transientData.allHiddenPolynomials    = hiddenPolys
 
-        result = group.createSecret(group.ordinal,Player.modulo)
+        result = group.transientData.sumOfEvals
         if calcType == 'PRIVATEKEYSHARE' :
             group.privateKeyShare = result 
             group.publicKeyShare = group.createPublicKey()
@@ -314,6 +344,9 @@ class Player :
         self.verificationOfHonesty(groupId, hiddenEvals, hiddenPolys)
         self.verifyCorrectness(groupId, hiddenEvals, hiddenPolys)
 
+        # reset evals
+        group.transientData.evalCounter = 0 
+        group.transientData.sumOfEvals = Nakasendo.BigNum('0', Player.modulo)
         return groupId, result
 
     #-------------------------------------------------

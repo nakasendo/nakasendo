@@ -126,10 +126,13 @@ void createInviteToGroupMessage(const std::string& proposer, const std::string& 
     return ; 
 }
  
-void createInviteToGroupResponse(const std::string& grpid, const std::string& playerid, const bool& accepted, std::ostream& os){
+void createInviteToGroupResponse(const std::string& grpid, const std::string& playerid, const std::string& uri, const std::string& addr, const std::string& port, const bool& accepted, std::ostream& os){
     thresholdsignature::InviteToGroupResponse inviteResp;
     inviteResp.set_userid(playerid);
     inviteResp.set_groupid(grpid);
+    inviteResp.set_useruri(uri);
+    inviteResp.set_userip(addr);
+    inviteResp.set_userport(port);
     inviteResp.set_acceptinvite(accepted); 
     os << TSMessageDefs::TS_INVITE_TO_GROUP_RESPONSE;
     if (!inviteResp.SerializeToOstream(&os)){
@@ -148,9 +151,12 @@ void createBroadCastGroupDetails(const GroupMetadata& grp, std::ostream& os){
     
     
     int ordinalChoice(1);
-    for(std::vector<std::string>::const_iterator iter = grp.participantList().begin(); iter != grp.participantList().end(); ++iter){
+    for(std::vector<playerCommsInfo>::const_iterator iter = grp.participantList().begin(); iter != grp.participantList().end(); ++iter){
         thresholdsignature::ThresholdGroup::GroupMember* tsgrpmem = tsgrp.add_member();
-        tsgrpmem->set_userid(*iter);
+        tsgrpmem->set_userid(iter->m_userid);
+        tsgrpmem->set_useruri(iter->m_uri);
+        tsgrpmem->set_userip(iter->m_ip);
+        tsgrpmem->set_userport(iter->m_port);
         tsgrpmem->set_ordinal(ordinalChoice++);
     }
     os << TSMessageDefs::TS_BROADCAST_GROUP_DETAILS_REQUEST ; 
@@ -230,21 +236,76 @@ void createSecretSharingRequest(const player& p, const std::string& grpid, const
     return ; 
 }
 
-void createSecretSharingResponse(const player& p, const std::string& grpid, const std::string& calctype, const bool& sharesecrt, std::ostream& os){
+void createSecretSharingResponse(const player& p, const std::string& grpid, const std::string& calctype, const bool& sharedsecret, std::ostream& os){
 
     thresholdsignature::SecretSharingResponse resp;
     resp.set_userid(p.userID());
     resp.set_groupid(grpid);
     resp.set_calctype(calctype);
     // figure out a way to pass success around
-    resp.set_sharedsecret(true);
+    resp.set_sharedsecret(sharedsecret);
     os << TSMessageDefs::TS_CREATE_GROUP_SECRET_RESPONSE;
     if(!resp.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialise ScretSharingResponse message for group id" + grpid ); 
+        throw std::runtime_error("could not serialise SecretSharingResponse message for group id" + grpid ); 
     }
     return;
 }
 
+void createSecretSharingInitEvalRequest(const std::string& proposer, const std::string& grpid, const std::string& calctype, std::ostream& os){
+    thresholdsignature::InitEvalSharingRequest req;
+    req.set_userid(proposer);
+    req.set_groupid(grpid);
+    req.set_calctype(calctype);
+    os << TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_REQUEST;
+    if(!req.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize SecretSharingInitEvalRequest for group id" + grpid);
+    }
+    return;
+}
+
+void createSecretSharingInitEvalResponse(const std::string& userid, const std::string& grpid, const std::string& calctype, const bool& evalShareComplete, std::ostream& os){
+    thresholdsignature::InitEvalSharingResponse resp;
+    resp.set_userid(userid);
+    resp.set_groupid(grpid);
+    resp.set_calctype(calctype);
+    resp.set_evalsshared(evalShareComplete);
+    os << TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_RESPONSE;
+    if(!resp.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize SecretSharingInitEvalRequest for group id" + grpid);
+    }
+    return;
+}
+
+void createPrivateDataEvalRequest(const std::string& userid, const std::string& grpid, const int& ord, const int& playerord, const jvrss& secrets, std::ostream& os){
+    // look up the player ordinal in the vector of evals
+
+    std::map<std::string, BigNumber>::const_iterator evalIter =  secrets.m_evals.find(std::to_string(playerord));
+    if(evalIter == secrets.m_evals.end()){
+        throw std::runtime_error("No evalution for player ordinal " + std::to_string(playerord) + " in the list of evaluated players");
+    } 
+    thresholdsignature::EvalSharingRequest req;
+    req.set_userid(userid);
+    req.set_groupid(grpid);
+    req.set_fromord(std::to_string(ord));
+    req.set_eval(evalIter->second.ToHex());
+    os << TSMessageDefs::TS_CREATE_PRIVATE_EVAL_REQUEST;
+    if(!req.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize PrivateDataEvalRequest for player " + std::to_string(ord) );
+    }
+    return;
+}
+
+void createPrivateDataEvalResponse(const std::string& userid, const std::string& grpid, const bool& evaladded, std::ostream& os){
+    thresholdsignature::EvalSharingResponse resp;
+    resp.set_userid(userid);
+    resp.set_groupid(grpid);
+    resp.set_evalreceived(evaladded);
+    os << TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_RESPONSE;
+    if(!resp.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize PrivateDataEvalResponse for player " + userid );
+    }
+    return;
+}
 void createSecretSharingPlayerDataRequest(const std::string& p, const std::string& grpid, const std::string& calctype, std::ostream& os){
     thresholdsignature::SecretSharingPlayerDataRequest req;
     req.set_userid(p);
@@ -267,11 +328,11 @@ void createSecretSharingPlayerDataResponse(const std::string& p, const std::stri
     
     // if the calculation type != PRIVATEKEYSHARE, regenerate the polynomial,evals, etc.
     
-    for(std::map<std::string, BigNumber>::const_iterator evalIter = secrets.m_evals.begin(); evalIter != secrets.m_evals.end(); ++evalIter){
-        thresholdsignature::stringPair* evals = resp.add_evals();
-        evals->set_ordinal(evalIter->first);
-        evals->set_eval(evalIter->second.ToHex());
-    }
+    //for(std::map<std::string, BigNumber>::const_iterator evalIter = secrets.m_evals.begin(); evalIter != secrets.m_evals.end(); ++evalIter){
+    //    thresholdsignature::stringPair* evals = resp.add_evals();
+    //    evals->set_ordinal(evalIter->first);
+    //    evals->set_eval(evalIter->second.ToHex());
+    //}
     
          
     for(std::map<std::string, std::vector<std::pair<std::string,ECPoint> > >::const_iterator hiddenEvalIter = secrets.m_hiddenEvals.begin();
@@ -309,15 +370,15 @@ void createSecretSharingCollatedDataRequest(const std::string& p, const std::str
     ssCollatedDataRequest.set_calctype(calctype);
     
     //thresholdsignature::KeyStringAndValueListStringPair* evalsPtr = ssCollatedDataRequest.add_collatedevals();
-    for(std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::const_iterator iter = grp.collatedEvals().begin(); iter != grp.collatedEvals().end(); ++iter){
-        thresholdsignature::KeyStringAndValueListStringPair* evalsPtr = ssCollatedDataRequest.add_collatedevals();
-        evalsPtr->set_key(iter->first);
-        for(std::vector<std::pair<std::string,BigNumber> >::const_iterator innerIter = iter->second.begin(); innerIter != iter->second.end(); ++ innerIter){
-            thresholdsignature::stringPair* ptrValue = evalsPtr->add_value();
-            ptrValue->set_ordinal(innerIter->first);
-            ptrValue->set_eval(innerIter->second.ToHex());
-        }
-    }
+    //for(std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::const_iterator iter = grp.collatedEvals().begin(); iter != grp.collatedEvals().end(); ++iter){
+    //    thresholdsignature::KeyStringAndValueListStringPair* evalsPtr = ssCollatedDataRequest.add_collatedevals();
+    //    evalsPtr->set_key(iter->first);
+    //    for(std::vector<std::pair<std::string,BigNumber> >::const_iterator innerIter = iter->second.begin(); innerIter != iter->second.end(); ++ innerIter){
+    //        thresholdsignature::stringPair* ptrValue = evalsPtr->add_value();
+    //        ptrValue->set_ordinal(innerIter->first);
+    //        ptrValue->set_eval(innerIter->second.ToHex());
+    //    }
+    //}
     
     //thresholdsignature::KeyStringAndValueListRepeatedString* hiddenPolyPtr = ssCollatedDataRequest.add_collatedhiddenpolys();
     for(std::map<std::string, std::vector<ECPoint> >::const_iterator iter = grp.CollatedHiddenPolys().begin(); iter != grp.CollatedHiddenPolys().end(); ++ iter){
@@ -499,5 +560,82 @@ void createSignaturePlayerDataResponse(const std::string& p, const std::string& 
         throw std::runtime_error("could not serialize SignaturePlayerDataResponse for player " + p + " and group " + grpid);
     }
     return ;
+}
+
+void createPrivateKeyRequest(const std::string& p,  const std::string& grpid, const std::vector<std::string>& users, std::ostream& os){
+    thresholdsignature::GenerateGroupPrivateKeyRequest priKeyReq; 
+    priKeyReq.set_userid(p);
+    priKeyReq.set_groupid(grpid);
+    for(std::vector<std::string>::const_iterator iter = users.begin(); iter != users.end(); ++ iter){
+        thresholdsignature::singleString* pinfo = priKeyReq.add_players();
+        pinfo->set_val(*iter);
+    }
+    os << TSMessageDefs::TS_CREATE_PRIKEY_REQUEST;
+    if(!priKeyReq.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize GenerateGroupPrivateKeyRequest for player " + p + " and group " + grpid);
+    }
+    return;
+}
+
+void createPrivateKeyResponse(const std::string& p, const std::string& grpid, const bool& keyshared, std::ostream& os){
+    thresholdsignature::GenerateGroupPrivateKeyResponse prikeyresp;
+    prikeyresp.set_userid(p);
+    prikeyresp.set_groupid(grpid);
+    prikeyresp.set_privatedatashared(keyshared);
+    os << TSMessageDefs::TS_CREATE_PRIKEY_RESPONSE;
+    if(!prikeyresp.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize GenerateGroupPrivateKeyResponse for player " + p + " and group " + grpid);
+    }
+    return;
+}
+ 
+ void createPlayerPrivateShareExchangeRequest(const std::string& p, const std::string& grpid, std::ostream& os){
+     thresholdsignature::PlayerPrivateShareExchangeRequest req;
+     req.set_userid(p);
+     req.set_groupid(grpid);
+     os << TSMessageDefs::TS_CREATE_PRIKEYSHARE_EXCHANGE_REQUEST;
+     if(!req.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize PlayerPrivateShareExchangeRequest for player " + p + " and group " + grpid);
+    }
+    return;
+ }
+
+ void createPlayerPrivateShareExchangeResponse(const std::string& p, const std::string& grpid, const bool& keyshared, std::ostream& os){
+     thresholdsignature::PlayerPrivateShareExchangeResponse resp;
+     resp.set_userid(p);
+     resp.set_groupid(grpid);
+     resp.set_privatedatashared(keyshared);
+     os << TSMessageDefs::TS_CREATE_PRIKEYSHARE_EXCHANGE_RESPONSE ;
+     if(!resp.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize PlayerPrivateShareExchangeResponse for player " + p + " and group " + grpid);
+    }
+    return;
+
+ }
+
+ void createPlayerPrivateKeyShareRequest(const playerGroupMetaData& grpinfo,std::ostream& os){
+    thresholdsignature::PlayerPrivateKeyShareRequest req;
+
+    req.set_userid(getPublicPlayerInfo().userID());
+    req.set_groupid(grpinfo.m_id);
+    req.set_ordinal(std::to_string(grpinfo.m_ordinal));
+    req.set_privatekeyshare(grpinfo.privateKeyShare().ToHex());
+    os << TSMessageDefs::TS_CREATE_PLAYER_PRIKEY_REQUEST;
+    if(!req.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize PlayerPrivateKeyShareRequest for player " + getPublicPlayerInfo().userID() + " and group " + grpinfo.m_id);
+    }
+    return;
+ }
+
+void createPlayerPrivateKeyShareResponse(const std::string& userid, const std::string& grpid, const bool& sharerec, std::ostream& os){
+    thresholdsignature::PlayerPrivateKeyShareResponse resp;
+    resp.set_userid(userid);
+    resp.set_groupid(grpid);
+    resp.set_sharedprivatekeyshare(sharerec);
+    os << TSMessageDefs::TS_CREATE_PLAYER_PRIKEY_RESPONSE;
+    if(!resp.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize PlayerPrivateKeyShareResponse for player " + userid + " and group " + grpid);
+    }
+    return;
 }
 

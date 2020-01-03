@@ -78,17 +78,11 @@ class ClientProtocol:
             ret = self.cp.Player.requestData( request.groupId, calculation ) 
             gid  = ret[0]
             ordi = ret[1]
-            hpol = ret[3]
+            hpol = ret[2]
 
-            # create list of evaluated polynomials   
-            emap = ret[2]         
-            epList = []
-            for key, value in emap.items() :
-                ep = stub.evaluatedPoly(ordinal=key, f_x=value)
-                epList.append(ep)
                 
             # create list of hidden evaluated polynomials
-            heval = ret[4]
+            heval = ret[3]
             hepList = []
             for key, value in heval.items() :
                 hep = stub.evaluatedPoly(ordinal=key, f_x=value)
@@ -96,7 +90,8 @@ class ClientProtocol:
                        
             return stub.DataReply( \
                 groupId=gid, ordinal=ordi,  \
-                    evals=epList, hiddenPoly=hpol, hiddenEvals=hepList )
+                    user=self.user, \
+                        hiddenPoly=hpol, hiddenEvals=hepList )
         
         #----------------------------------------------------------------------
         def CallCreateSecret(self, req, context) :
@@ -112,12 +107,6 @@ class ClientProtocol:
             elif calcType == enums.ALPHA :
                 calculation = 'ALPHA'
 
-            evals = {}   
-            for ev in req.evals :
-                innerEP = {}
-                for e in ev.ep :
-                    innerEP[e.ordinal] = e.f_x
-                evals[ev.ordinal] = innerEP
 
             hiddenPolys = {}
             for hp in req.hiddenPolys :
@@ -134,7 +123,7 @@ class ClientProtocol:
             try:
                 self.cp.Player.createSecret( \
                     req.groupId, calculation, \
-                        evals,  hiddenPolys, hiddenEvals )
+                        hiddenPolys, hiddenEvals )
             except Exception as inst:
                 self.cp.myPrint('exception raised')
                 self.cp.myPrint( str(inst) )
@@ -236,11 +225,48 @@ class ClientProtocol:
             
             return stub.IdentityMessage(  groupId=request.groupId )  
 
+        #----------------------------------------------------------------------   
+        def CallDistributeEvals ( self, request, context ) :
+            gid         = request.groupId
+            toOrdinal   = request.toOrdinal
+            fromOrdinal = request.fromOrdinal
+            f_x         = request.f_x
+
+            self.cp.myPrint('Received evals from Player{0}'.format(fromOrdinal))
+
+            if self.cp.Player.allEvalsReceived( gid, toOrdinal, fromOrdinal, f_x) :
+                response = self.cp.conn.CallReceivedAllEvals( stub.DataReply \
+                        ( groupId=gid, ordinal=toOrdinal ) )
+
+            return stub.IdentityMessage(  groupId=request.groupId )  
+
+        #----------------------------------------------------------------------    
+        def CallShareEvals( self, request, context  ) :
+            gid = request.groupId
+            
+            self.cp.myPrint('ServerProtocol... CallShareEvals')
+
+            for p in request.reference :
+                self.cp.myPrint('Sending evals to Player{0}'.format(p.ordinal))
+
+                # create a gRPC channel + stub
+                channel = grpc.insecure_channel('localhost' + ':' + str(p.url))
+                connection = rpc.TSServiceStub( channel )
+                
+                ret = self.cp.Player.getEvals(gid, p.ordinal)
+
+                connection.CallDistributeEvals( stub.EvalData \
+                    ( groupId=request.groupId, toOrdinal=p.ordinal, \
+                        fromOrdinal=self.cp.Player.getOrdinal(gid), f_x=ret ) )
+
+            return stub.GenericReply( success=True )
+
+
     #----------------------------------------------------------------------
     # Client Protocol
     def __init__(self, user, port, myPrint ):
 
-        self.user       = user
+        self.user       = user 
         self.myPrint    = myPrint
         self.port       = port
         self.Player     = Player( myPrint )

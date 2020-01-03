@@ -30,6 +30,9 @@ message ThresholdGroup{
     message GroupMember{
         string userid=1;
         int32 ordinal=2;
+        string useruri=3;
+        string userip=4;
+        string userport=5;
     }
     
     repeated GroupMember member=6; 
@@ -76,7 +79,10 @@ message InviteToGroupRequest{
 message InviteToGroupResponse{
     string userid = 1;
     string groupid =2;
-    bool acceptInvite=3;
+    string useruri=3;
+    string userip=4;
+    string userport=5;
+    bool acceptInvite=6;
 }
 
 message BroadCastGroupDetails{
@@ -90,40 +96,34 @@ message BroadCastGroupDetailsResponse{
     bool userset= 3;
 }
 
-// message id = 13
 message DeleteGroupRequest{
     string userid=1;
     string groupid=2;
 }
 
-// message id = 14
 message DeleteGroupResonse{
     string userid=1;
     string groupid=2;
     bool groupdeleted=3;
 }
 
-// message id = 15
 message DeleteGroupPlayerRequest{
     string userid=1;
     string groupid=2;
 }
 
-// message id = 16
 message DeleteGroupPlayerResponse{
     string userid=1;
     string groupid=2;
     bool deleted=3;
 }
 
-
-// message id = 17
 message SecretSharingRequest{
     string userid=1;
     string groupid=2;
     string calctype=3;
 }
-//message id = 18
+
 message SecretSharingResponse{
     string userid=1;
     string groupid=2;
@@ -131,13 +131,37 @@ message SecretSharingResponse{
     bool sharedsecret=4;
 }
 
-//message id=19
-message SecretSharingPlayerDataRequest{
+message InitEvalSharingRequest{
     string userid=1;
     string groupid=2;
     string calctype=3;
 }
 
+message InitEvalSharingResponse{
+    string userid=1;
+    string groupid=2;
+    string calctype=3;
+    bool evalsshared=4;
+}
+
+message EvalSharingRequest{
+    string userid=1;
+    string groupid=2;
+    string fromord=3;
+    string eval=4;
+}
+
+message EvalSharingResponse{
+    string userid=1;
+    string groupid=2;
+    bool evalreceived=3;
+}
+
+message SecretSharingPlayerDataRequest{
+    string userid=1;
+    string groupid=2;
+    string calctype=3;
+}
 
 message singleString{
     string val=1;
@@ -148,10 +172,14 @@ message stringPair{
     string eval=2;
 }
 
-//std::map<std::string, std::map<std::string, BigNumber> > m_publicEvals;
 message PublicEvals{
     string ordinal=1; 
     repeated stringPair evals=2;
+}
+
+message SinglePublicEval{
+    string ordinal=1;
+    string eval=2;
 }
 
 message OrdinalVW{
@@ -178,7 +206,7 @@ message KeyStringAndValueListRepeatedString{
     string key=1;
     repeated singleString value=2;
 }
-//message id=20
+
 message SecretSharingPlayerDataResponse{
     string userid=1;
     string groupid=2;
@@ -186,26 +214,21 @@ message SecretSharingPlayerDataResponse{
     
   
     int32 ordinal=4;
-    repeated stringPair evals=5; // this has to change to a 
     repeated KeyStringAndValueListStringPair hiddenevals = 7;
     repeated HiddenPoly hiddenpoly=8;
     
 }
 
-// message id=21
 message SecretSharingCollatedPlayerRequest{
     // This will have all the data from message ID-20 from all clients
     string userid=1;
     string groupid=2;
     string calctype=3;
-    
-    repeated KeyStringAndValueListStringPair collatedevals=4;
     repeated KeyStringAndValueListRepeatedString collatedhiddenpolys=5;
     repeated KeyStringAndValueListStringPair collatedhiddenevals=6;
     
 }
 
-//message id=22
 message SecretSharingCollatedPlayerResponse{
     // This message is data validated by all players in the group
     // the final message of
@@ -216,25 +239,25 @@ message SecretSharingCollatedPlayerResponse{
     
 }
 
-//message id=23
+
 message EphemeralKeyDataRequest{
     string userid=1;
     string groupid=2;
 }
 
-//message id=24
+
 message EphemeralKeyDataResponse{
     string userid=1;
     string groupid=2;
     bool emphemeralkeydataset=3;
 }
-//message id=25
+
 message EphemeralKeyPlayerDataRequest{
     string userid=1;
     string groupid=2;
 }
 
-//message id=26
+
 message EphemeralKeyPlayerDataResponse{
     string userid=1;
     string groupid=2;
@@ -243,13 +266,13 @@ message EphemeralKeyPlayerDataResponse{
     string alphag=5;
 }
 
-//message id=27
+
 message AllEphemeralKeyPlayerRequest{
     string groupid=1;
     repeated OrdinalVW collatedvws=2;
 }
 
-// message id=28
+
 message AllEphemeralKeyPlayerResponse{
     string userid=1;
     string groupid=2;
@@ -257,7 +280,7 @@ message AllEphemeralKeyPlayerResponse{
     bool ephemeralkeyplayerset=4;
 }
 
-// message id = 29
+
 message GenerateSignatureRequest{
     string userid=1;
     string groupid=2;
@@ -265,7 +288,7 @@ message GenerateSignatureRequest{
     int32 emphemeralkeyindex=4;
 }
 
-// message id = 30
+
 message GenerateSignatureResponse{
     string userid=1;
     string groupid=2;
@@ -275,7 +298,7 @@ message GenerateSignatureResponse{
 
 }
 
-// messsage id = 31
+ 
 message SignaturePlayerDataRequest{
     string userid=1;
     string groupid=2;
@@ -283,7 +306,6 @@ message SignaturePlayerDataRequest{
     int32 emphemeralkeyindex=4;
 }
 
-//message id = 32
 message SignaturePlayerDataResponse{
     string userid=1;
     string groupid=2;
@@ -293,6 +315,38 @@ message SignaturePlayerDataResponse{
 }
 
 
+message GenerateGroupPrivateKeyRequest{
+    string userid=1;
+    string groupid=2;
+    repeated singleString players=3; 
+}
 
+message GenerateGroupPrivateKeyResponse{
+    string userid=1;
+    string groupid=2; 
+    bool privatedatashared=3;
+}
 
+message PlayerPrivateShareExchangeRequest{
+    string userid=1;
+    string groupid=2;
+}
 
+message PlayerPrivateShareExchangeResponse{
+    string userid=1;
+    string groupid=2;
+    bool privatedatashared=3;
+}
+
+message PlayerPrivateKeyShareRequest{
+    string userid=1;
+    string groupid=2;
+    string ordinal=3;
+    string privatekeyshare=4;
+}
+
+message PlayerPrivateKeyShareResponse{
+    string userid=1;
+    string groupid=2;
+    bool sharedprivatekeyshare=3;
+}

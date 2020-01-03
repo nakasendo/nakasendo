@@ -73,8 +73,17 @@ deactivate PlayerClient2
 ... wait for number of responses (n) ...
 
 Orchestrator -> Orchestrator : combine public information
-Orchestrator -> PlayerClient : << listCoefficients >>
-& Orchestrator -> PlayerClient2 : << listCoefficients >>
+
+Orchestrator -> PlayerClient : CallShareEvals
+PlayerClient -> PlayerClient2 : share f(1)_2
+PlayerClient2 ->PlayerClient : share f(2)_1
+... wait for number (n) of Eval data ...
+PlayerClient -> Orchestrator : receivedAllEvals
+PlayerClient2 -> Orchestrator : receivedAllEvals
+
+... wait for number of responses (n) ...
+Orchestrator -> PlayerClient : << CallShareSecret >>
+& Orchestrator -> PlayerClient2 : << CallShareSecret >>
 activate PlayerClient
 activate PlayerClient2
 

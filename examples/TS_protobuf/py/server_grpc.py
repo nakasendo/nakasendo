@@ -31,8 +31,8 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             params = self.orchestrator.getGroupIsSetParameters( user, gid )
 
             print ('sending groupIsSet message to {0}'.format(user))
-            
-            response = self.orchestrator.getUserRef(user).CallGroupIsSet( stub.GroupIsSetRequest \
+            ref = self.orchestrator.getUserRef(user)
+            response = ref[0].CallGroupIsSet( stub.GroupIsSetRequest \
                 ( groupId=gid, ordinal=params[0], ordinalList=params[1], degree=params[2] ) )
 
         return
@@ -52,7 +52,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
         client_channel = grpc.insecure_channel('localhost' + ':' + str(client_port))
         client_conn = rpc.TSServiceStub( client_channel )
 
-        self.orchestrator.register( request.user, client_conn )
+        self.orchestrator.register( request.user, (client_conn, client_port) )
     
         return stub.GenericReply( success = True ) 
 
@@ -72,9 +72,10 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
 
         gid = results[0]
         inviteList = results[1]
+        print('inviteList = {0}'.format(inviteList))
 
         for invitee in inviteList :
-            call_future = invitee.CallInvite.future( stub.IdentityMessage( groupId=gid))
+            call_future = invitee[0].CallInvite.future( stub.IdentityMessage( groupId=gid))
             call_future.add_done_callback( self.acceptInviteCallback )
 
         return stub.IdentityMessage( groupId=gid )
@@ -114,7 +115,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
         calcType = self.orchestrator.calcType( gid )
         for ref in userRefs :
             print('calling request data...')
-            call_future = ref.CallRequestData.future( stub.DataRequest( groupId=gid))
+            call_future = ref[0].CallRequestData.future( stub.DataRequest( groupId=gid))
             call_future.add_done_callback( self.collateDataCallback )      
 
         
@@ -158,9 +159,10 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             print('ERROR: ' + errMsg )
 
         userRefs = self.orchestrator.getUserReferences(gid)
-        for ref in userRefs :            
+        for ref in userRefs : 
+            #ref = tup[0]           
             print('calling request data...')
-            call_future = ref.CallRequestData.future( stub.DataRequest( groupId=gid))
+            call_future = ref[0].CallRequestData.future( stub.DataRequest( groupId=gid))
             call_future.add_done_callback( self.collateDataCallback )      
             
         return stub.GenericReply( success=True )      
@@ -187,7 +189,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             userRefs = self.orchestrator.getUserReferences( gid )
             for ref in userRefs :
                 
-                ref.CallSharedVWData( stub.SharedVWDataRequest \
+                ref[0].CallSharedVWData( stub.SharedVWDataRequest \
                     ( groupId=gid, data=vwList )   )  
 
         return stub.GenericReply( success=True )   
@@ -208,7 +210,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             # send the public data out to all group participants
             userRefs = self.orchestrator.getUserReferences( request.groupId )
             for ref in userRefs :
-                ref.CallCompleted( stub.IdentityMessage \
+                ref[0].CallCompleted( stub.IdentityMessage \
                     ( groupId=request.groupId ) )
 
         return stub.GenericReply( success=True )  
@@ -260,7 +262,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
 
         userRefs = self.orchestrator.getUserReferences(gid)
         for ref in userRefs :
-            call_future = ref.CallRequestSignature.future( stub.SignatureRequest \
+            call_future = ref[0].CallRequestSignature.future( stub.SignatureRequest \
                 ( groupId=gid, message=msg ) )
             call_future.add_done_callback( self.signingCallback )      
 
@@ -289,34 +291,54 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
         print('collateDataCallback')
 
         # if True then ready to distribute data
-        if self.orchestrator.collateData( res.groupId, res.ordinal, res.evals, res.hiddenPoly, res.hiddenEvals) :
-            collatedData = self.orchestrator.getCollatedData(res.groupId) 
+        if self.orchestrator.collateData( res.groupId, res.ordinal, res.hiddenPoly, res.hiddenEvals) :
+
+            # Call the shareEvals, pass in a different set of ordinal:refs for each
+            userRefs = self.orchestrator.getUserReferences( res.groupId )
+            participants = self.orchestrator.getParticipants( res.groupId )
+            
+            for p, ref in zip(participants, userRefs) :
+
+                newUserRefs = self.orchestrator.getPtpReferences( p, res.groupId )
+                ptpRefs = []
+                for key, value in newUserRefs.items() :
+                    tmp = stub.ptpRef( ordinal=key, url=value[1] )
+                    ptpRefs.append(tmp)
+
+
+                ref[0].CallShareEvals( stub.ShareEvalsRequest \
+                    ( groupId=res.groupId, reference=ptpRefs ) )
+
+            
+
+    #---------------------------------------------------
+    def CallReceivedAllEvals ( self, request, context ) :
+
+        gid     = request.groupId
+        ord     = request.ordinal
+        #user     = request.ordinal
+
+        print('receivedAllEvals')
+
+        # if all Players have received their Eval data then continue
+        if self.orchestrator.allEvalsReceived( gid, ord ) :
+
+
+            collatedData = self.orchestrator.getCollatedData( gid) 
             
             # send the public data out to all group participants
-            userRefs = self.orchestrator.getUserReferences( res.groupId )
-            
-            # get evals into a suitable format
-            evalsList = []
-            for ordinalA, evals in collatedData[0].items() :
-                l_of_ep         = stub.listOfPolynomials()
-                l_of_ep.ordinal = ordinalA
-
-                for e in evals :
-                    l_of_ep.ep.add(ordinal=e.ordinal, f_x=e.f_x)
-
-                evalsList.append(l_of_ep)
+            userRefs = self.orchestrator.getUserReferences( gid )
 
             # get hiddenPoly into suitable format
             hpList  = []
-            for ordinalB, coeffs in collatedData[1].items() :
+            for ordinalB, coeffs in collatedData[0].items() :
                 hp = stub.hiddenPolynomial(ordinal=ordinalB,coefficients=coeffs)
                 hpList.append(hp)
 
 
-            hidEvalList = []
             # get hidden evals into a suitable format
             hidEvalList = []
-            for ordinalC, evals in collatedData[2].items() :
+            for ordinalC, evals in collatedData[1].items() :
                 l_of_hep            = stub.listOfPolynomials()
                 l_of_hep.ordinal    = ordinalC
 
@@ -328,11 +350,13 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             for ref in userRefs :
                 print('calling createsecret...')
 
-                call_future = ref.CallCreateSecret.future( stub.CreateSecretRequest( \
-                    groupId=res.groupId, calculation=self.orchestrator.calcType(res.groupId), \
-                        evals=evalsList, hiddenPolys=hpList, hiddenEvals=hidEvalList ))
+                call_future = ref[0].CallCreateSecret.future( stub.CreateSecretRequest( \
+                    groupId=gid, calculation=self.orchestrator.calcType(gid), \
+                        hiddenPolys=hpList, hiddenEvals=hidEvalList ))
                 call_future.add_done_callback( self.secretVerificationCallback )      
-
+        
+        print('returning True from CallReceivedAllEvals')
+        return stub.GenericReply( success=True )
     
     #--------------------------------------------------
     def secretVerificationCallback (self, call_future ) :
@@ -347,7 +371,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             # contact all the group participants with verification success
             userRefs = self.orchestrator.getUserReferences(res.groupId)
             for ref in userRefs :
-                ref.CallGroupIsVerified( stub.GroupIsVerifiedRequest \
+                ref[0].CallGroupIsVerified( stub.GroupIsVerifiedRequest \
                     ( groupId=res.groupId, calculation=calcType ) )
 
     #--------------------------------------------------                 
@@ -371,7 +395,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             # send the signature data out to the signer
             userRef = self.orchestrator.getSignerReference( gid )
 
-            call_future = userRef.CallReadyToSign.future( stub.ReadyToSignRequest \
+            call_future = userRef[0].CallReadyToSign.future( stub.ReadyToSignRequest \
                 ( groupId=gid, message=msg, signatureData=sigList ) )
             call_future.add_done_callback( self.signingCompletedCallback )      
 

@@ -138,13 +138,9 @@ std::ostream& operator<< (std::ostream& out, const jvrss& obj){
 
     out << "\n\tpublicEvals = ";
     {
-        std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::const_iterator iter =  obj.m_publicEvals.begin();
+        std::vector<std::pair<std::string, BigNumber> >::const_iterator iter =  obj.m_publicEvals.begin();
         for(; iter != obj.m_publicEvals.end(); ++ iter){
-            out << iter->first << "," ; 
-             std::vector<std::pair<std::string, BigNumber> >::const_iterator innerIter = iter->second.begin(); 
-             for (;innerIter != iter->second.end(); ++innerIter){
-                out << "[" << innerIter->first << "," << innerIter->second.ToHex() << "],";
-             }
+            out << "[" << iter->first << "," << iter->second.ToHex() << "]" << "," ; 
         }
     }
     out << "\n\tthiddenEvals = "; 
@@ -202,6 +198,11 @@ std::ostream& operator<< (std::ostream& out, const playerGroupMetaData& obj){
     for(std::vector<int>::const_iterator iter = obj.m_ordinalList.begin(); iter != obj.m_ordinalList.end(); ++ iter){
         out << *iter << " ";
     }
+
+    out << "\n\tList of player ordinals and comms info: ";
+    for(std::vector<std::pair<int, player> >::const_iterator iter = obj.m_ordinalAndPlayerList.begin(); iter != obj.m_ordinalAndPlayerList.end(); ++iter){
+        out << iter->first << " " << iter->second << "\n" ;
+    }
     
     out << "\n\tDegree of polynomial: " << obj.m_degree 
         << "\n\tprivate polynomail: " << obj.m_privateKeyPolynomial
@@ -245,7 +246,7 @@ Polynomial playerGroupMetaData::createPolynomial(const int& degree, const BigNum
 void playerGroupMetaData::polynomialPreCalculation(const Polynomial& poly){
     // create a big number for the ordinal 
     // ordinal is an integer .. convert ascii to convert to a bignumber? seems pointless
-    m_transientData.reset();
+    //m_transientData.reset();
     BigNumber bnOrdinal;
     bnOrdinal.FromHex(std::to_string(m_ordinal));
     m_transientData.m_fx = poly(bnOrdinal);
@@ -264,6 +265,24 @@ void playerGroupMetaData::polynomialPreCalculation(const Polynomial& poly){
     return; 
 }
 
+void playerGroupMetaData::addPublicEvalsToJVRSS(const std::string& ord, const std::string& evalAsStr){
+    BigNumber eval; 
+    eval.FromHex(evalAsStr);
+
+    std::vector<std::pair<std::string, BigNumber> >::const_iterator pubEvalIter
+                = std::find_if(m_transientData.m_publicEvals.begin(), m_transientData.m_publicEvals.end(), 
+                                [&ord](std::pair<std::string, BigNumber> const& elem) {return elem.first == ord;});
+                
+        if(pubEvalIter != m_transientData.m_publicEvals.end()){
+            if( !(pubEvalIter->second == eval)){
+                throw std::runtime_error("Public eval received two different values for the same player within a group");
+            }
+        }else{
+            m_transientData.m_publicEvals.push_back(std::make_pair(ord, eval));
+        }
+
+}
+#if 0
 void playerGroupMetaData::addPublicEvalsToJVRSS(const std::string& ord, const std::vector<std::pair<std::string, std::string> >& publicevals ){
     std::vector<std::pair<std::string, BigNumber> > publicevalsBN; 
     for(std::vector<std::pair<std::string, std::string> >::const_iterator iter = publicevals.begin(); iter != publicevals.end(); ++ iter){
@@ -279,6 +298,7 @@ void playerGroupMetaData::addPublicEvalsToJVRSS(const std::string& ord, const st
     }
     return ;
 }
+#endif
 void playerGroupMetaData::addHiddenEvalsToJVRSS(const std::string& ordinal, const std::vector<std::pair<std::string, std::string> >& hiddenevals){
     std::vector<std::pair<std::string, ECPoint> > hiddenEvalPts;
     std::map<std::string, std::vector<std::pair<std::string, ECPoint> > >::iterator hiddenEvalIter = m_transientData.m_hiddenEvals.find(ordinal);
@@ -331,17 +351,12 @@ void playerGroupMetaData::addHiddenPolynomialToJVRSS(const std::string& ordinal,
     return;
  }
 
+
 BigNumber playerGroupMetaData::createSecret(){
 
     BigNumber res = m_transientData.m_fx;
-    for(std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::const_iterator iter = m_transientData.m_publicEvals.begin(); iter != m_transientData.m_publicEvals.end(); ++ iter){
-        const std::vector<std::pair<std::string, BigNumber> >& evals = iter->second;
-        std::string value = std::to_string(m_ordinal);
-        std::vector<std::pair<std::string, BigNumber> >::const_iterator evalsIter
-            = std::find_if(evals.begin(), evals.end(), [&value](std::pair<std::string, BigNumber> const& elem) {return elem.first == value;});
-        if(evalsIter != evals.end()){
-            res = Add_mod(res,evalsIter->second, m_modulo);
-        }
+    for(std::vector<std::pair<std::string, BigNumber> >::const_iterator iter = m_transientData.m_publicEvals.begin(); iter != m_transientData.m_publicEvals.end(); ++ iter){
+        res = Add_mod(res, iter->second, m_modulo);
     }
     return res ; 
 }
@@ -413,8 +428,8 @@ std::pair<std::string, BigNumber> playerGroupMetaData::CalcPartialSignature (con
     
     return std::make_pair(std::to_string(m_ordinal), partialSig);
     
- }
- 
+}
+
 std::pair<BigNumber, BigNumber> playerGroupMetaData::CalculateGroupSignature(const std::string& msg, const int& ekeyindex, const std::vector<std::pair<std::string, std::string> >& sig){
     std::vector<std::pair<BigNumber, BigNumber> > sigCurve;
     for(std::vector<std::pair<std::string, std::string> >::const_iterator iter = sig.begin(); iter != sig.end(); ++iter){
@@ -437,12 +452,7 @@ std::pair<BigNumber, BigNumber> playerGroupMetaData::CalculateGroupSignature(con
     BigNumber playerOrd; 
     playerOrd.FromHex(std::to_string(m_ordinal));
     sigCurve.push_back(std::make_pair(playerOrd,playerSigData));
-    
-#if 0
-    for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator iter = sigCurve.begin(); iter != sigCurve.end(); ++ iter){
-        std::cout << iter->first.ToHex() << "," << iter->second.ToHex() << std::endl;
-    }
-#endif  
+     
     BigNumber zeroPoint = GenerateZero();
     LGInterpolator interp (sigCurve, m_modulo);
     BigNumber sigzero = interp(zeroPoint);
@@ -451,8 +461,45 @@ std::pair<BigNumber, BigNumber> playerGroupMetaData::CalculateGroupSignature(con
     m_EmpheralKeyList.erase( m_EmpheralKeyList.begin() + ekeyindex);
     
     return groupSig;
+}
+
+void playerGroupMetaData::addPrivateKeyInfo(const std::string& ord, const std::string& priKeyShare){
+    BigNumber ordBN;
+    ordBN.FromHex(ord);
+    BigNumber ks;
+    ks.FromHex(priKeyShare);
+    m_PrivateKeyShares.push_back(std::make_pair(ordBN,ks));
+}
+
+BigNumber playerGroupMetaData::CalculateGroupPrivateKey (){
+    if(m_PrivateKeyShares.empty())
+        std::runtime_error("No private key shares gathered. Not possible to calculate the group private key");
+    // add the players own keyshare
     
- }
+    // we need to check that enough keyshares have been received but we don;t have the group dimensions..think about this.
+    BigNumber ordBN;
+    ordBN.FromHex(std::to_string(m_ordinal));
+    m_PrivateKeyShares.push_back(std::make_pair(ordBN,m_privateKeyShare));
+
+    BigNumber zeroPoint = GenerateZero();
+    LGInterpolator interp (m_PrivateKeyShares, m_modulo);
+    int index(0);
+    BigNumber KeyValSum = GenerateZero();
+    for(std::vector<std::pair<BigNumber, BigNumber> >::const_iterator iter =m_PrivateKeyShares.begin(); iter != m_PrivateKeyShares.end(); ++ iter ){
+        BigNumber interpVal = interp(index++,zeroPoint);
+        BigNumber KVAL = Mul_mod(interpVal,iter->second,m_modulo);
+        KeyValSum = Add_mod(KVAL,KeyValSum,m_modulo);
+    }
+    // delete the private keyshares once the calculation is complete
+    m_PrivateKeyShares.clear();
+    return KeyValSum;
+}
+
+bool playerGroupMetaData::ValidateGroupPrivateKey(const BigNumber& testKeyVal){
+    ECPoint TestVal = MultiplyByGeneratorPt(testKeyVal);
+    std::cout << "GROUP PUBLIC KEY IS " << m_GroupPublicKey.ToHex() << std::endl;
+    return (TestVal == m_GroupPublicKey);
+}
 
 std::unique_ptr<SinglePlayer> SinglePlayer::m_Instance;
 std::once_flag SinglePlayer::m_onceFlag;

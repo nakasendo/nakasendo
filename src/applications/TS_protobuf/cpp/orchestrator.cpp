@@ -48,6 +48,15 @@ std::vector<player> GlobalUsers::getPlayerList(){
     return players;
 }
 
+const player& GlobalUsers::getPlayer(const std::string& p){
+    std::lock_guard<std::mutex> guard(m_users_mutex);
+    std::map<std::string, player>::const_iterator iter =  m_users.find(p);
+    if(iter == m_users.end()){
+        throw std::runtime_error("No users registered with name " + p);
+    }
+    return iter->second; 
+}
+
 void addPlayer (const player& obj){
 
     GlobalUsers::Instance()->addPlayer(obj);
@@ -63,6 +72,9 @@ std::vector<player> getPlayerList(){
     return GlobalUsers::Instance()->getPlayerList();
 }
 
+const player& getPlayer(const std::string& p){
+    return GlobalUsers::Instance()->getPlayer(p);
+}
 
 std::unique_ptr<GlobalGroups>& GlobalGroups::Instance(){
     std::call_once(m_onceFlag, []{m_Instance.reset(new GlobalGroups);}); 
@@ -74,11 +86,11 @@ void GlobalGroups::addGroup(const GroupMetadata& grp){
     m_groups[grp.groupid()] = grp; 
 }
 
-void GlobalGroups::addUserToGroup(const std::string& grpid, const std::string& userid){
+void GlobalGroups::addUserToGroup(const std::string& grpid, const std::string& userid, const std::string& useruri, const std::string& userip, const std::string& userport){
     std::lock_guard<std::mutex> guard(m_groups_mutex);
     groupsMap::iterator grpIter = m_groups.find(grpid);
     if(grpIter != m_groups.end()){
-        grpIter->second.addUserToGroup(userid); 
+        grpIter->second.addUserToGroup(userid, useruri, userip, userport); 
     }
 }
 
@@ -118,8 +130,8 @@ void addGroup(const GroupMetadata& grp){
 }
 
 
-void addUserToGroup(const std::string& grpid, const std::string& userid){
-    GlobalGroups::Instance()->addUserToGroup(grpid,userid);
+void addUserToGroup(const std::string& grpid, const std::string& userid, const std::string& useruri, const std::string& ip, const std::string& port){
+    GlobalGroups::Instance()->addUserToGroup(grpid,userid,useruri,ip,port);
     return;
 }
 
@@ -158,7 +170,14 @@ const std::string CreateGroup(const std::string& proposer, const int& m, const i
     
     
     std::string grpID = generateUUID(); 
-    GroupMetadata grp(grpID,proposer,m,n,t);
+    playerCommsInfo pinfo;
+    pinfo.m_userid = proposer;
+    const player& p = getPlayer(proposer);
+    pinfo.m_uri = p.uri();
+    pinfo.m_ip = p.addr();
+    pinfo.m_port = p.port();
+
+    GroupMetadata grp(grpID,pinfo,m,n,t);
 
     GlobalGroups::Instance()->addGroup(grp);
     

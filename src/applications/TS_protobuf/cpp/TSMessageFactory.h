@@ -35,6 +35,10 @@ enum class TSMessageDefs
     TS_CREATE_PLAYER_SECRET_RESPONSE,
     TS_CREATE_COLLATED_SECRET_PLAYER_REQUEST,
     TS_CREATE_COLLATED_SECRET_PLAYER_RESPONSE,
+    TS_INITIATE_PRIVATE_EVAL_REQUEST,
+    TS_INITIATE_PRIVATE_EVAL_RESPONSE,
+    TS_CREATE_PRIVATE_EVAL_REQUEST,
+    TS_CREATE_PRIVATE_EVAL_RESPONSE,
     TS_CREATE_PRE_SIG_REQUEST,
     TS_CREATE_PRE_SIG_RESPONSE,
     TS_CREATE_PRE_SIG_PLAYER_REQUEST,
@@ -45,6 +49,12 @@ enum class TSMessageDefs
     TS_CREATE_GROUP_SIG_RESPONSE,
     TS_CREATE_SIG_PLAYER_REQUEST,
     TS_CREATE_SIG_PLAYER_RESPONSE,
+    TS_CREATE_PRIKEY_REQUEST,
+    TS_CREATE_PRIKEY_RESPONSE,
+    TS_CREATE_PRIKEYSHARE_EXCHANGE_REQUEST,
+    TS_CREATE_PRIKEYSHARE_EXCHANGE_RESPONSE,
+    TS_CREATE_PLAYER_PRIKEY_REQUEST,
+    TS_CREATE_PLAYER_PRIKEY_RESPONSE
 };
 
 template<typename T>
@@ -69,7 +79,7 @@ void createThresholdGroupRequest(const player&, const int&, const int&, std::ost
 void createThresholdGroupResponse(const player&, const std::string&, const bool&, std::ostream&);
 
 void createInviteToGroupMessage(const std::string&, const std::string&, std::ostream&); 
-void createInviteToGroupResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+void createInviteToGroupResponse(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&, const bool&, std::ostream&);
 
 void createBroadCastGroupDetails(const GroupMetadata&, std::ostream&);
 void createBroadCastGroupDetailsResponse(const std::string&, const std::string&, const bool&, std::ostream&);
@@ -82,6 +92,11 @@ void createDeleteTSPlayerGroupResponse(const std::string&, const std::string&, c
 
 void createSecretSharingRequest(const player&, const std::string&, const std::string&, std::ostream&);
 void createSecretSharingResponse(const player&, const std::string&, const std::string&, const bool&, std::ostream&);
+
+void createSecretSharingInitEvalRequest(const std::string&, const std::string&, const std::string&, std::ostream& );
+void createSecretSharingInitEvalResponse(const std::string&, const std::string&, const std::string&, const bool&, std::ostream&);
+void createPrivateDataEvalRequest(const std::string& , const std::string&, const int&, const int&, const jvrss&, std::ostream& );
+void createPrivateDataEvalResponse(const std::string&, const std::string&, const bool&, std::ostream&);
 
 void createSecretSharingPlayerDataRequest(const std::string&, const std::string&, const std::string&, std::ostream&);
 void createSecretSharingPlayerDataResponse(const std::string&, const std::string&, const std::string& , const int&, const jvrss&, std::ostream&);
@@ -104,5 +119,16 @@ void createSignatureResponse(const std::string&, const std::string&, const Group
 void createSignaturePlayerDataRequest(const std::string&, const std::string&, const std::string&, const int&, std::ostream&);
 void createSignaturePlayerDataResponse(const std::string&, const std::string&, const std::pair<std::string, BigNumber>&, const int&, std::ostream&);
 
+void createPrivateKeyRequest(const std::string&, const std::string&, const std::vector<std::string>&, std::ostream& );
+void createPrivateKeyResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+
+void createPlayerPrivateKeyShareRequest(const std::string&, const std::string&, std::ostream&);
+void createPlayerPrivateKeyShareResponse(const std::string&, const std::string&, const std::string&, const std::string&, const bool&, std::ostream&);
+
+void createPlayerPrivateShareExchangeRequest(const std::string&, const std::string&, std::ostream&);
+void createPlayerPrivateShareExchangeResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+
+void createPlayerPrivateKeyShareRequest(const playerGroupMetaData&,std::ostream&);
+void createPlayerPrivateKeyShareResponse(const std::string&, const std::string&, const bool&, std::ostream&);
 #endif //#ifndef __TS_MESSAGE_FACTORY_H__
 

@@ -30,8 +30,7 @@ class GroupMetadata :
         self.groupIsSet             = False
         self.signatureIsSet         = False
         self.proposer               = proposer
-        self.collatedEvals          = {}
-        self.collatedPublicEvals    = {}
+        self.evalsCounter           = 0
         self.collatedHiddenPolys    = {}
         self.collatedHiddenEvals    = {}
         self.collatedVWs            = {}
@@ -181,9 +180,11 @@ class Orchestrator( ) :
     #-------------------------------------------------
     def getUserReferences(self, groupId ) :
         participants = self.getParticipants(groupId) 
+        print('participants = {0}'.format(participants))
         references = []
         for participant in participants :
             references.append(self.users[participant])
+
         return references 
 
     #-------------------------------------------------
@@ -207,13 +208,34 @@ class Orchestrator( ) :
                 
         return ordinal, listExcludingUser, group.t
 
+
+    #-------------------------------------------------
+    # get list of users ordinal : reference
+    def getPtpReferences(self, user, groupId ) :
+        print('gePtpReferences')
+        group           = self.groups[groupId]
+        participants    = list(group.participantList )
+        participants.remove(user)
+
+        print('user= {0}'.format(user))
+        print('participants= {0}'.format(participants))
+
+        ret = {}
+
+        for p in participants :
+            ordinal = group.participantList.index( p ) + 1
+            reference = self.users[p]
+            ret[ordinal] = reference
+        print('ret from getPtpReferences = {0}'.format(ret))
+        return ret
+
+
     #-------------------------------------------------
     # collate data
-    def collateData(self,  groupId, ordinal, evals, hiddenPoly, hiddenEvals) :
+    def collateData(self,  groupId, ordinal, hiddenPoly, hiddenEvals) :
 
         group = self.groups[groupId]
 
-        group.collatedEvals[ordinal] = evals
         group.collatedHiddenPolys[ordinal] = hiddenPoly
         group.collatedHiddenEvals[ordinal] = hiddenEvals
         group.numReplies += 1
@@ -224,11 +246,24 @@ class Orchestrator( ) :
             self.receivedAllReplies( groupId )
             return True 
         return False
+
+
+    #-------------------------------------------------    
+    def allEvalsReceived( self, groupId, ordinal ) :
+        group = self.groups[groupId]
+
+        group.evalsCounter += 1
+        print("evalsCounter = {0}".format(group.evalsCounter ))
+        if group.evalsCounter == group.n :
+            print("All Players have received their evals, continue!")
+            return True
+        return False
+
     
     #-------------------------------------------------
     def getCollatedData(self, groupId) :
         group = self.groups[groupId ]
-        return group.collatedEvals, group.collatedHiddenPolys, group.collatedHiddenEvals
+        return group.collatedHiddenPolys, group.collatedHiddenEvals
 
     #-------------------------------------------------
     # collate V and W data
@@ -321,6 +356,7 @@ class Orchestrator( ) :
     def receivedAllReplies( self, groupId) :
         print("resetting replies counter")
         self.groups[groupId].numReplies = 0     
+        self.groups[groupId].evalsCounter = 0     
         
     
         

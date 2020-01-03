@@ -9,6 +9,21 @@
 #include <BigNumbers/BigNumbers.h>
 #include <ECPoint/ECPoint.h>
 
+
+struct playerCommsInfo{
+    friend std::ostream& operator<< (std::ostream&, const playerCommsInfo&);
+    playerCommsInfo()=default;
+    ~playerCommsInfo()=default;
+    playerCommsInfo(const playerCommsInfo& obj)=default;
+    playerCommsInfo& operator=(const playerCommsInfo& obj)= default;
+
+    std::string m_userid;
+    std::string m_uri;
+    std::string m_ip;
+    std::string m_port;
+
+};
+
 class GroupMetadata
 {
     friend std::ostream& operator<< (std::ostream&, const GroupMetadata&);
@@ -18,7 +33,7 @@ class GroupMetadata
             , m_participantList(), m_GroupSet(false),m_calculationType(std::string())
             , m_GroupInviteReplies(0), m_GroupSignatureReplies(0)
          { return ; }
-        GroupMetadata(const std::string&, const std::string&, const int&, const int&, const int&);
+        GroupMetadata(const std::string&, const playerCommsInfo&, const int&, const int&, const int&);
         ~GroupMetadata(){return;}
         
         GroupMetadata(const GroupMetadata&);
@@ -38,19 +53,16 @@ class GroupMetadata
         
         const int& GroupSignatureReplies() const { return m_GroupSignatureReplies;}
         int& GroupSignatureReplies() { return m_GroupSignatureReplies;}
-        
-        const std::vector<std::string>& participantList () const { return m_participantList; }
-        std::vector<std::string>& participantList() { return m_participantList; }
-        
-        void addUserToGroup(const std::string&); 
+
+        const std::vector<playerCommsInfo>& participantList() const { return m_participantList ;}
+        std::vector<playerCommsInfo>& participantList() { return m_participantList; }
+
+        void addUserToGroup(const std::string&, const std::string&, const std::string&, const std::string&); 
         
         bool removeUserFromparticipantList(const std::string&); 
         
         const std::string& calculationType () const { return m_calculationType;}
         std::string& calculationType () { return m_calculationType;}
-        
-        const std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >& collatedEvals() const { return m_CollatedEvals;}
-        void addCollatedEvals(const std::string&, const std::string&, const std::string&); 
         
         
         const std::map<std::string, std::vector<ECPoint> >& CollatedHiddenPolys () const { return m_CollatedHiddenPolys;}
@@ -81,14 +93,13 @@ class GroupMetadata
         int m_n; 
         int m_t; 
         
-        std::vector<std::string> m_participantList;
+        //std::vector<std::string> m_participantList;
+        std::vector<playerCommsInfo> m_participantList;
         std::string m_calculationType;
         bool m_GroupSet;
         int m_GroupInviteReplies; 
-
         int m_GroupSignatureReplies;
         
-        std::map<std::string, std::vector<std::pair<std::string, BigNumber> > > m_CollatedEvals;
         std::map<std::string, std::vector<ECPoint> > m_CollatedHiddenPolys;
         std::map<std::string, std::vector<std::pair<std::string, ECPoint> > > m_CollatedHiddenEvals;
         std::map<std::string, std::pair<BigNumber, ECPoint> > m_CollatedVW ;

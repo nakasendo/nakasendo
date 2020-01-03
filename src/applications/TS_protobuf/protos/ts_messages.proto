@@ -26,8 +26,22 @@ service TSService {
   rpc CallReadyToSign     (ReadyToSignRequest)    returns (IdentityMessage) {}
   rpc CallSign            (SignRequest)           returns (GenericReply) {}
   rpc CallRequestSignature(SignatureRequest)      returns (SignatureReply) {}
+  rpc CallShareEvals      (ShareEvalsRequest)     returns (GenericReply) {}
+  rpc CallReceivedAllEvals(DataReply)             returns (GenericReply) {}
+  rpc CallDistributeEvals (EvalData)              returns (GenericReply) {}
 }
 
+
+message ptpRef {
+  int32   ordinal   = 1 ;   // ordinal label of the Player
+  string  url       = 2 ;   // url / port / reference 
+}
+
+// ShareEvalsRequest
+message ShareEvalsRequest {
+            string  groupId     = 1 ;   // ID of group
+  repeated  ptpRef  reference   = 2 ;   // point to point reference
+}
 
 // Register 
 message RegisterRequest {
@@ -95,11 +109,18 @@ message evaluatedPoly {
 message DataReply {
   string                  groupId     = 1 ;   // ID of group
   int32                   ordinal     = 2 ;   // own ordinal
-  repeated evaluatedPoly  evals       = 3 ;   // evaluated polynomial coefficients (wrt oridnal)
+  string                  user        = 3 ;   // username or userId
   repeated string         hiddenPoly  = 4 ;   // polynomial coefficients multiplied by Generator Point  
   repeated evaluatedPoly  hiddenEvals = 5 ;   // evals (above) multiplied by Generator Point
 }
 
+// Evaluated data
+message EvalData {
+  string                  groupId     = 1 ;   // ID of group
+  int32                   toOrdinal   = 2 ;   // ordinal of data point
+  int32                   fromOrdinal = 3 ;   // ordinal of data point
+  string                  f_x         = 4 ;   // polynomial evaluated wrt ordinal
+}
 
 message listOfPolynomials {
   int32                   ordinal   = 1 ;   // ordinal
@@ -112,13 +133,13 @@ message hiddenPolynomial {
   repeated string   coefficients    = 2 ;   // list of coefficiencts (hidden by Generator point)
 }
 
+
 // Create Secret request 
 message CreateSecretRequest {
-  string                          groupId       = 1;  // ID of group
-  CalcType                        calculation   = 2;  // type of calculation   
-  repeated listOfPolynomials      evals         = 3 ; // collated evaluated polynomials
-  repeated hiddenPolynomial       hiddenPolys   = 4 ; // collated polynomial coefficients hidden by Generator Point  
-  repeated listOfPolynomials      hiddenEvals   = 5 ; // collated hidden evaluated polynomials
+  string                          groupId       = 1 ; // ID of group
+  CalcType                        calculation   = 2 ;  // type of calculation   
+  repeated hiddenPolynomial       hiddenPolys   = 3 ; // collated polynomial coefficients hidden by Generator Point  
+  repeated listOfPolynomials      hiddenEvals   = 4 ; // collated hidden evaluated polynomials
 }
 
 

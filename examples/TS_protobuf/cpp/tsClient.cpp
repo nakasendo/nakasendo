@@ -29,6 +29,7 @@ std::string Options (){
         << "\n\ts.....share a secret (private key) within a given group"
         << "\n\ta.....create presignature data (this could be done multiple times)"
         << "\n\tt.....create a signature within a group"
+        << "\n\tk.....recover a group private key"
         << "\n\tq.....quit the player"
         ;
     return os.str(); 
@@ -87,6 +88,9 @@ int main(int argc, char* argv[])
         std::string themessage;
         int ekeyindex(0);
         int keycount(1);
+        int userCount(0);
+        std::vector<std::string> privateShareRequestIDs; 
+
         while (userChoice != 'q'){
             std::cin >> userChoice;
             switch(userChoice)
@@ -151,8 +155,10 @@ int main(int argc, char* argv[])
                     std::cout << "please enter the number of keys to generate per player" <<std::endl;
                     std::cin >> keycount;
                     for(int i=0;i<keycount;++i){
+                        std::cout << "LITTLE K CALCULATION" << std::endl;
                         createSecretSharingRequest(p,grpid, std::string("LITTLEK"),os);
                         genericRequestResponse(os,b,address,port);
+                        std::cout << "ALPHA CALCULATION" << std::endl;
                         createSecretSharingRequest(p,grpid, std::string("ALPHA"),os);
                         genericRequestResponse(os,b,address,port);
                         createEphemeralKeyDataRequest(p.userID(), grpid,os);
@@ -165,12 +171,24 @@ int main(int argc, char* argv[])
                     themessage = "this is a message to sign"; 
                     std::cout << "Please enter the index of the emphemeral key" << std::endl;
                     std::cin >> ekeyindex;
-                    //std::getline(std::cin, themessage);
-                    //std::cin.getline(message, 4096);
-                    //themessage = message;
                     createSignatureRequest(p.userID(), grpid, themessage,ekeyindex ,os);    
                     genericRequestResponse(os,b,address,port);
                     break;         
+                case 'k':
+                    std::cout << "Recover the private key for a group\nPlease supply a group id" << std::endl;
+                    std::cin >> grpid;
+                    std::cout << "How many users are you going to request private data from?" << std::endl;
+                    std::cin >> userCount;
+                    std::cout << "Please enter each user id" << std::endl;
+                    for (int i=0; i<userCount; ++i){
+                        std::string userid;
+                        std::cin >> userid;
+                        privateShareRequestIDs.push_back(userid);
+                    }
+                    createPrivateKeyRequest(p.userID(), grpid, privateShareRequestIDs, os);
+                    genericRequestResponse(os,b,address,port);
+                    privateShareRequestIDs.clear();
+                    break;
                 case 'h':
                     std::cout << Options () << std::endl;
                     break; 

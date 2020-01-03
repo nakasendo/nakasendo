@@ -115,7 +115,7 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
         }
         std::cout << "Received invite to grp response from: " << resp.userid() << " for group " << resp.groupid() << std::endl;
         if(resp.acceptinvite())
-            addUserToGroup(resp.groupid(),resp.userid());
+            addUserToGroup(resp.groupid(),resp.userid(), resp.useruri(), resp.userip(), resp.userport());
         
         msgdesc.m_grpID = resp.groupid();
         
@@ -134,10 +134,13 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
                     
         for (int j = 0; j < reqTSGroup.member_size(); j++) {
             const thresholdsignature::ThresholdGroup::GroupMember& tsplayer = reqTSGroup.member(j);
-            if(tsplayer.userid() ==  SinglePlayer::Instance()->UserID())
+            if(tsplayer.userid() ==  SinglePlayer::Instance()->UserID()){
                 playerGrp.m_ordinal = tsplayer.ordinal();
-            else
+            }else{
+                player p (tsplayer.userid(),tsplayer.useruri(),tsplayer.userip(),tsplayer.userport()); 
                 playerGrp.m_ordinalList.push_back(tsplayer.ordinal());
+                playerGrp.m_ordinalAndPlayerList.push_back(std::make_pair(tsplayer.ordinal(),p));
+            }
         }
         
         std::cout << "TSMessageFactory..Handling broadcast group details message\n"
@@ -150,7 +153,7 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
         }
         
         
-        std::cout << std::endl;
+        std::cout << std::endl; 
         playerGrp.polynomialPreCalculation(playerGrp.m_privateKeyPolynomial);
         
         SinglePlayer::Instance()->addPlayerGroup(playerGrp);
@@ -230,6 +233,13 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
         // send a SecretSharingPlayerDataRequest
         // lock the group
         lockGrp(secretSharingReq.groupid());
+
+        // ask each player to share the evals with the relevant players
+        if(!ShareEvalsPlayers(secretSharingReq.userid(),secretSharingReq.groupid(),secretSharingReq.calctype())){
+            std::cout << "Player sharing of evals failed" << std::endl;
+            return false;
+        }
+
         if(!SecretSharingPlayerDataRequest(secretSharingReq.userid(),secretSharingReq.groupid(),secretSharingReq.calctype())){
             std::cout << "Unable to send Player Data request all group members" << std::endl;
             return false;
@@ -257,7 +267,7 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
         // acknowledge that the secret has been shared
         thresholdsignature::SecretSharingResponse secretSharingResp;
         if(!secretSharingResp.ParseFromIstream(&is)){
-            std::cout << "Unable to send parse a secret sharing response from the input stream" << std::endl;
+            std::cout << "Unable to parse a secret sharing response from the input stream" << std::endl;
             return false;
         }
         
@@ -268,7 +278,54 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
         if(secretSharingResp.sharedsecret()){
             std::cout << "Secret of type " << secretSharingResp.calctype() << " has been shared by the group " << msgdesc.m_grpID << std::endl;
         }
-    } else if (msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PLAYER_SECRET_REQUEST){
+    } else if ( msgdesc.m_EnumMSGID == TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_REQUEST){
+        // 
+        thresholdsignature::InitEvalSharingRequest initPrivateEvalReq; 
+        if(!initPrivateEvalReq.ParseFromIstream(&is)){
+            std::cout << "Unable to parse a secret sharing init private eval exchange from the input stream" << std::endl;
+            return false;
+        }
+        std::cout << "Initial private eval sharing request" << std::endl;
+        if(!SharePrivateEvalsRequest(initPrivateEvalReq.userid(),initPrivateEvalReq.groupid(),initPrivateEvalReq.calctype())){
+            std::cout << "Unable to send Player Data request all group members" << std::endl;
+            return false;
+        }
+        msgdesc.m_userID = initPrivateEvalReq.userid();
+        msgdesc.m_grpID = initPrivateEvalReq.groupid();
+        msgdesc.m_SSType = initPrivateEvalReq.calctype();
+        // 
+    } else if(msgdesc.m_EnumMSGID == TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_RESPONSE){
+        thresholdsignature::InitEvalSharingResponse initPrivateEvalResp; 
+        if(!initPrivateEvalResp.ParseFromIstream(&is)){
+            std::cout << "Unable to parse a secret sharing init private eval exchange from the input stream" << std::endl;
+            return false;
+        }
+        if(initPrivateEvalResp.evalsshared()){
+            std::cout << "All evals successfully shared " << std::endl;
+        }
+    }else if(msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIVATE_EVAL_REQUEST){
+        thresholdsignature::EvalSharingRequest evalsharingReq; 
+        if(!evalsharingReq.ParseFromIstream(&is)){
+            std::cout << "Unable to parse a secret sharing share private eval message from the input stream" << std::endl;
+            return false;
+        }
+        msgdesc.m_userID = getPublicPlayerInfo().userID();
+        msgdesc.m_grpID = evalsharingReq.groupid();
+        playerGroupMetaData& grp = PlayerGrpData (evalsharingReq.groupid());
+        grp.addPublicEvalsToJVRSS(evalsharingReq.fromord(), evalsharingReq.eval()); 
+
+    }else if(msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIVATE_EVAL_RESPONSE){
+        thresholdsignature::EvalSharingResponse evalsharingResp; 
+        if(!evalsharingResp.ParseFromIstream(&is)){
+            std::cout << "Unable to parse a secret sharing share private eval response from the input stream" << std::endl;
+            return false;
+        }
+        if(evalsharingResp.evalreceived()){
+            std::cout << "Eval successfully received by " << evalsharingResp.userid() << " from the group " << evalsharingResp.groupid() << std::endl;
+        }
+        msgdesc.m_userID = evalsharingResp.userid();
+        msgdesc.m_grpID = evalsharingResp.groupid();
+    }else if (msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PLAYER_SECRET_REQUEST){
         thresholdsignature::SecretSharingPlayerDataRequest req;
         if(!req.ParseFromIstream(&is)){
             std::cout << "Unable to read secret sharing player data request from input stream" << std::endl;
@@ -287,10 +344,6 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
         GroupMetadata& grp = GetGroup(ssPlayerDataResponse.groupid());
         grp.calculationType () = ssPlayerDataResponse.calctype();
         std::string ord = std::to_string(ssPlayerDataResponse.ordinal());
-        
-        for(int j = 0; j<ssPlayerDataResponse.evals_size(); ++j){
-            grp.addCollatedEvals(ord, ssPlayerDataResponse.evals(j).ordinal(), ssPlayerDataResponse.evals(j).eval());
-        }
         
         std::vector<std::string> poly;
         for(int j = 0; j<ssPlayerDataResponse.hiddenpoly_size(); ++j){
@@ -318,17 +371,6 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
             return false;
         }
         playerGroupMetaData& playergrp = PlayerGrpData(ssCollatedPlayerDataRequest.groupid());
-        // evals
-        std::cout << "Size of collated evals .. " << ssCollatedPlayerDataRequest.collatedevals_size() << std::endl;
-        for(int j=0;j<ssCollatedPlayerDataRequest.collatedevals_size(); ++j){
-            std::string ordinal = ssCollatedPlayerDataRequest.collatedevals(j).key();
-            std::vector<std::pair<std::string,std::string> > evals;
-            for(int k=0;k<ssCollatedPlayerDataRequest.collatedevals(j).value_size();++k){
-                evals.push_back(std::make_pair(ssCollatedPlayerDataRequest.collatedevals(j).value(k).ordinal(), ssCollatedPlayerDataRequest.collatedevals(j).value(k).eval()));
-            }
-            playergrp.addPublicEvalsToJVRSS(ordinal,evals);
-        }
-        // hidden polys
         for (int j=0;j<ssCollatedPlayerDataRequest.collatedhiddenpolys_size(); ++j){
             std::string ordinal = ssCollatedPlayerDataRequest.collatedhiddenpolys(j).key();
             std::vector<std::string> polynomial;
@@ -372,6 +414,10 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
         }else if(ssCollatedPlayerDataRequest.calctype() == "ALPHA"){
             playergrp.m_alpha = secret;
         }
+
+        // delete the jvrss data at this point
+        std::cout << "Deleting the JVRSS data set" << std::endl;
+        playergrp.m_transientData.reset();
         msgdesc.m_userID = getPublicPlayerInfo().userID();
         msgdesc.m_grpID = ssCollatedPlayerDataRequest.groupid();
         msgdesc.m_SSType = ssCollatedPlayerDataRequest.calctype();
@@ -546,6 +592,100 @@ bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
         grp.addCollatedPartialSignautre(sigplayerresp.ordinal(),sigplayerresp.signatureshare());
         msgdesc.m_userID = getPublicPlayerInfo().userID();
         msgdesc.m_grpID = sigplayerresp.groupid();
+    } else if(msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIKEY_REQUEST){
+        thresholdsignature::GenerateGroupPrivateKeyRequest groupPriKeyReq; 
+        if(!groupPriKeyReq.ParseFromIstream(&is)){
+            std::cout << "unable to read GroupPrivateKeyRequest from the stream" << std::endl;
+            return false;
+        }
+        /////////////////
+        // for a list of players in the request
+        // send a PlayerPrivateShareExchangeRequest
+        // lock the group
+        lockGrp(groupPriKeyReq.groupid());
+
+        std::vector<std::string> users;
+        for(int i=0;i<groupPriKeyReq.players_size();++i){
+            users.push_back(groupPriKeyReq.players(i).val());
+        }
+        // ask each player to share the evals with the relevant player
+        if(!InitPrivateKeyShareExchange(groupPriKeyReq.userid(),groupPriKeyReq.groupid(),users)){
+            std::cout << "Player sharing of evals failed" << std::endl;
+            return false;
+        }
+        msgdesc.m_userID = groupPriKeyReq.userid();
+        msgdesc.m_grpID = groupPriKeyReq.groupid();
+        //clear the data sharing containers in GroupMetaData
+ 
+        // unlock the group
+        unlockGrp(groupPriKeyReq.groupid());
+
+
+        //////////////////
+    } else if (msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIKEY_RESPONSE){
+        thresholdsignature::GenerateGroupPrivateKeyResponse groupPriKeyResp;
+        if(!groupPriKeyResp.ParseFromIstream(&is)){
+            std::cout << "unable to read GroupPrivateKeyResponse from the stream" << std::endl;
+            return false;
+        }
+        playerGroupMetaData& grp = PlayerGrpData (groupPriKeyResp.groupid() );
+        BigNumber priKey = grp.CalculateGroupPrivateKey();
+        if(grp.ValidateGroupPrivateKey(priKey)){
+            std::cout << "Group private Key validated and the key is:" << priKey.ToHex() << std::endl;
+        }
+        msgdesc.m_userID = getPublicPlayerInfo().userID();
+        msgdesc.m_grpID = groupPriKeyResp.groupid();
+
+    } else if (msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIKEYSHARE_EXCHANGE_REQUEST){
+        thresholdsignature::PlayerPrivateShareExchangeRequest prikeyExchangereq; 
+        if(!prikeyExchangereq.ParseFromIstream(&is)){
+            std::cout << "unable to read PlayerPrivateShareExchangeRequest from the stream" << std::endl;
+            return false;
+        }
+        //  player to send his private key share to the player in prikeyExchangereq.m_userid
+        if(!SharePrivateKeyShare(prikeyExchangereq.userid(),prikeyExchangereq.groupid())){
+            std::cout << "Unable to share private key share with player: " << msgdesc.m_userID << " for the group " << msgdesc.m_grpID << std::endl;
+        }
+        msgdesc.m_userID = prikeyExchangereq.userid();
+        msgdesc.m_grpID = prikeyExchangereq.groupid();
+    } else if(msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIKEYSHARE_EXCHANGE_RESPONSE){
+        // the player has send his private share to the request user
+        // move onto th next player
+        thresholdsignature::PlayerPrivateShareExchangeResponse prikeyExchangeresp;
+        if(!prikeyExchangeresp.ParseFromIstream(&is)){
+            std::cout << "unable to read PlayerPrivateShareExchangeResponse from the stream" << std::endl;
+            return false;
+        }
+        if(prikeyExchangeresp.privatedatashared())
+            std::cout << "Player " << prikeyExchangeresp.userid() << " shared private share " << std::endl;
+        msgdesc.m_userID = prikeyExchangeresp.userid();
+        msgdesc.m_grpID = prikeyExchangeresp.groupid();
+
+    } else if(msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PLAYER_PRIKEY_REQUEST){
+        // received a private key share from a player ... add to the list
+        //
+        thresholdsignature::PlayerPrivateKeyShareRequest playerprivatekeysharereq; 
+        if(!playerprivatekeysharereq.ParseFromIstream(&is)){
+            std::cout << "unable to read PlayerPrivateKeyShareRequest from the stream" << std::endl;
+            return false;
+        }
+        // 
+        std::cout << "Received a private key share from " << playerprivatekeysharereq.userid() << " for group id " << playerprivatekeysharereq.groupid() << std::endl;
+        playerGroupMetaData& grpinfo = PlayerGrpData (playerprivatekeysharereq.groupid());
+        grpinfo.addPrivateKeyInfo(playerprivatekeysharereq.ordinal(),playerprivatekeysharereq.privatekeyshare());
+        msgdesc.m_userID = playerprivatekeysharereq.userid();
+        msgdesc.m_grpID = playerprivatekeysharereq.groupid();
+    }else if(msgdesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PLAYER_PRIKEY_RESPONSE){
+        thresholdsignature::PlayerPrivateKeyShareResponse resp;
+        if(!resp.ParseFromIstream(&is)){
+            std::cout << "unable to read PlayerPrivateKeyShareResponse from the stream" << std::endl;
+            return false;
+        }
+        if(resp.sharedprivatekeyshare())
+            std::cout << "Received acknowledge of private key share from " << resp.userid() << " and group " << resp.groupid();
+
+        msgdesc.m_userID = resp.userid();
+        msgdesc.m_grpID = resp.groupid();
     }
     
     return true; 
@@ -572,7 +712,8 @@ bool CreateResponseMessage(MessageDescriptor& respMesDesc,std::ostream& os){
             return false;
         }
         std::pair<std::string, bool> inviteInfo = acceptInvitationToGroup(respMesDesc.m_grpID); 
-        createInviteToGroupResponse(respMesDesc.m_grpID,inviteInfo.first,inviteInfo.second,os);
+        player p = getPublicPlayerInfo();
+        createInviteToGroupResponse(respMesDesc.m_grpID,inviteInfo.first,p.uri(), p.addr(), p.port(), inviteInfo.second,os);
     } else if(respMesDesc.m_EnumMSGID == TSMessageDefs::TS_BROADCAST_GROUP_DETAILS_REQUEST){
         std::cout << "Create a broadcast group response" << std::endl;
         createBroadCastGroupDetailsResponse(respMesDesc.m_grpID,respMesDesc.m_userID,true,os);
@@ -591,10 +732,14 @@ bool CreateResponseMessage(MessageDescriptor& respMesDesc,std::ostream& os){
     } else if(respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_GROUP_SECRET_REQUEST){
         std::cout << "Creating Secret sharing response ... the group/key/secret should now be set" << std::endl;
         createSecretSharingResponse(getPublicPlayerInfo(),respMesDesc.m_grpID,respMesDesc.m_SSType, true, os);
-        
-    } else if(respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PLAYER_SECRET_REQUEST){        
+    } else if (respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIVATE_EVAL_REQUEST){
+        createPrivateDataEvalResponse(respMesDesc.m_userID,respMesDesc.m_grpID, true ,os);
+    } else if(respMesDesc.m_EnumMSGID == TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_REQUEST){
+        std::cout << "All players have shared their evals...response back to proposer" << std::endl;
+        createSecretSharingInitEvalResponse(respMesDesc.m_userID,respMesDesc.m_grpID, respMesDesc.m_SSType,true,os );
+    }else if(respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PLAYER_SECRET_REQUEST){        
         const int& myOrdinal = ordinalForGroup(respMesDesc.m_grpID);
-        const jvrss& jvrssobj = PlayerSecretDataForGrp(respMesDesc.m_grpID, respMesDesc.m_SSType);
+        const jvrss& jvrssobj = PlayerGrpData(respMesDesc.m_grpID).m_transientData;
         createSecretSharingPlayerDataResponse(getPublicPlayerInfo().userID(),respMesDesc.m_grpID,respMesDesc.m_SSType,myOrdinal, jvrssobj, os);
     } else if (respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_COLLATED_SECRET_PLAYER_REQUEST){
         createSecretSharingCollatedPlayerResponse(respMesDesc.m_userID,respMesDesc.m_grpID, respMesDesc.m_SSType,os);
@@ -628,10 +773,55 @@ bool CreateResponseMessage(MessageDescriptor& respMesDesc,std::ostream& os){
         }
         // create a response message
         createSignaturePlayerDataResponse(respMesDesc.m_userID,respMesDesc.m_grpID,sigInfo,respMesDesc.m_eKeyIndex,os);
+    } else if (respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIKEY_REQUEST){
+        // all players have shared private key with the requesting player ... return a success
+        // specific applications will have to handle this as they see fit.
+        createPrivateKeyResponse(respMesDesc.m_userID,respMesDesc.m_grpID,true, os);
+    }else if (respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRIKEYSHARE_EXCHANGE_REQUEST){
+        // key share send by player (ack received)...response back to orchestrator
+        createPlayerPrivateShareExchangeResponse(getPublicPlayerInfo().userID(),respMesDesc.m_grpID, true, os);
+    } else if(respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PLAYER_PRIKEY_REQUEST){
+        // hard-coded to true ... applications must decide on how to validate a share
+        createPlayerPrivateKeyShareResponse(respMesDesc.m_userID, respMesDesc.m_grpID,true,os);
     }
     return true; 
 }
 
+bool ShareEvalsPlayers(const std::string& proposer, const std::string& grpid, const std::string& calctype){
+    groupsMap::const_iterator iter = GlobalGroups::Instance()->groups().find(grpid);
+    if(iter == GlobalGroups::Instance()->groups().end()){
+        std::cout << "no grp listed for id: " << grpid; 
+        return false;
+    }
+    const GroupMetadata& grp = iter->second;
+    for(std::vector<playerCommsInfo>::const_iterator grpMemIter = grp.participantList().begin(); grpMemIter != grp.participantList().end(); ++ grpMemIter){
+        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(grpMemIter->m_userid);
+        if(playersIter == GlobalUsers::Instance()->users().end()){
+            std::cout << "No contact details for player " << *grpMemIter << " registered in group " << grp << std::endl;
+            return false;
+        }
+        boost::asio::streambuf b;
+        std::ostream os(&b);
+        std::cout << "Sending an initiate private eval sharing to player " << playersIter->second.addr() << " " << playersIter->second.port() << std::endl;
+        createSecretSharingInitEvalRequest(proposer,grpid,calctype,os); 
+        genericRequestResponse(os,b,playersIter->second.addr(), playersIter->second.port());
+        
+    } 
+    return true;   
+}
+
+bool SharePrivateEvalsRequest(const std::string& userid, const std::string& grpid, const std::string& calctype){
+    playerGroupMetaData& grpInfo = PlayerGrpData (grpid); 
+    // calculates all the data required for secret sharing at this point.
+    const jvrss& jvrssobj = PlayerSecretDataForGrp(grpid, calctype);
+    for (std::vector<std::pair<int,player> >::const_iterator iter = grpInfo.m_ordinalAndPlayerList.begin(); iter != grpInfo.m_ordinalAndPlayerList.end(); ++iter){
+        boost::asio::streambuf b;
+        std::ostream os(&b);
+        createPrivateDataEvalRequest(userid,grpid, grpInfo.m_ordinal, iter->first,jvrssobj, os);
+        genericRequestResponse(os,b, iter->second.addr(), iter->second.port());
+    }
+    return true;   
+}
 bool SecretSharingPlayerDataRequest(const std::string& proposer, const std::string& grpid, const std::string& calctype){
     groupsMap::const_iterator iter = GlobalGroups::Instance()->groups().find(grpid);
     if(iter == GlobalGroups::Instance()->groups().end()){
@@ -639,8 +829,8 @@ bool SecretSharingPlayerDataRequest(const std::string& proposer, const std::stri
         return false;
     }
     const GroupMetadata& grp = iter->second;
-    for(std::vector<std::string>::const_iterator grpMemIter = grp.participantList().begin(); grpMemIter != grp.participantList().end(); ++ grpMemIter){
-        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(*grpMemIter);
+    for(std::vector<playerCommsInfo>::const_iterator grpMemIter = grp.participantList().begin(); grpMemIter != grp.participantList().end(); ++ grpMemIter){
+        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(grpMemIter->m_userid);
         if(playersIter == GlobalUsers::Instance()->users().end()){
             std::cout << "No contact details for player " << *grpMemIter << " registered in group " << grp << std::endl;
             return false;
@@ -683,8 +873,8 @@ bool SendGroupDetails(const std::string& grp){
     
     const GroupMetadata& grpinfo = iter->second;
     //std::cout << "Group Details in SendGroupDetails\n" << grpinfo << std::endl;
-    for (std::vector<std::string>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
-        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(*grpMemIter);
+    for (std::vector<playerCommsInfo>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
+        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(grpMemIter->m_userid);
         if(playersIter == GlobalUsers::Instance()->users().end()){
             std::cout << "No contact details for player " << *grpMemIter << " registered in group " << grp << std::endl;
             return false;
@@ -707,9 +897,8 @@ bool SendGroupDelete(const std::string& userID, const std::string& grp){
     }
     
     const GroupMetadata& grpinfo = iter->second;
-    //std::cout << "Group Details in SendGroupDetails\n" << grpinfo << std::endl;
-    for (std::vector<std::string>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
-        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(*grpMemIter);
+    for (std::vector<playerCommsInfo>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
+        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(grpMemIter->m_userid);
         if(playersIter == GlobalUsers::Instance()->users().end()){
             std::cout << "No contact details for player " << *grpMemIter << " registered in group " << grp << std::endl;
             return false;
@@ -717,9 +906,7 @@ bool SendGroupDelete(const std::string& userID, const std::string& grp){
         if(userID != playersIter->second.userID()){
             boost::asio::streambuf b;
             std::ostream os(&b);
-            std::cout << "SendGroupDelete" << std::endl;
             createDeleteTSPlayerGroupRequest(userID,grp,os); 
-            std::cout << "Sending SendGroupDelete details to " << playersIter->second.addr() << "," << playersIter->second.port() << std::endl;
             genericRequestResponse(os,b,playersIter->second.addr(), playersIter->second.port());
        }
     }
@@ -733,8 +920,8 @@ bool SecretSharingCollatedDataRequest(const std::string& userid, const std::stri
         return false;
     }
     const GroupMetadata& grpinfo = iter->second;
-    for (std::vector<std::string>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
-        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(*grpMemIter);
+    for (std::vector<playerCommsInfo>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
+        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(grpMemIter->m_userid);
         if(playersIter == GlobalUsers::Instance()->users().end()){
             std::cout << "No contact details for player " << *grpMemIter << " registered in group " << grp << std::endl;
             return false;
@@ -756,8 +943,8 @@ bool EphemeralKeyPlayerDataRequest(const std::string& userid, const std::string&
         return false;
     }
     const GroupMetadata& grpinfo = iter->second;
-    for (std::vector<std::string>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
-        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(*grpMemIter);
+    for (std::vector<playerCommsInfo>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
+        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(grpMemIter->m_userid);
         if(playersIter == GlobalUsers::Instance()->users().end()){
             std::cout << "No contact details for player " << *grpMemIter << " registered in group " << grp << std::endl;
             return false;
@@ -778,8 +965,8 @@ bool EphemeralKeyCollatedPlayerDataRequest(const std::string& userid, const std:
         return false;
     }
     const GroupMetadata& grpinfo = iter->second;
-    for (std::vector<std::string>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
-        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(*grpMemIter);
+    for (std::vector<playerCommsInfo>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
+        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(grpMemIter->m_userid);
         if(playersIter == GlobalUsers::Instance()->users().end()){
             std::cout << "No contact details for player " << *grpMemIter << " registered in group " << grp << std::endl;
             return false;
@@ -800,8 +987,8 @@ bool SignaturePlayerDataRequest(const std::string& userid, const std::string& gr
         return false;
     }
     const GroupMetadata& grpinfo = iter->second;
-    for (std::vector<std::string>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
-        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(*grpMemIter);
+    for (std::vector<playerCommsInfo>::const_iterator grpMemIter = iter->second.participantList().begin(); grpMemIter != iter->second.participantList().end(); ++ grpMemIter){
+        players::const_iterator playersIter = GlobalUsers::Instance()->users().find(grpMemIter->m_userid);
         if(playersIter == GlobalUsers::Instance()->users().end()){
             std::cout << "No contact details for player " << *grpMemIter << " registered in group " << grp << std::endl;
             return false;
@@ -817,3 +1004,51 @@ bool SignaturePlayerDataRequest(const std::string& userid, const std::string& gr
     return true;
 }
 
+bool InitPrivateKeyShareExchange(const std::string& userid,const std::string& grpid,const std::vector<std::string>& players){
+    groupsMap::const_iterator iter = GlobalGroups::Instance()->groups().find(grpid);
+    if(iter == GlobalGroups::Instance()->groups().end()){
+        std::cout << "no grp listed for id: " << grpid; 
+        return false;
+    }
+
+    const GroupMetadata& grp = iter->second;
+    // verify that enough users have been supplied to allow for the key to reconstructed correctly.
+    if(players.size() != (grp.m() - 1)){
+        std::cout << "Not enough players supplied to meet the key reconstruction criteria for this group\nGroup threshold is " 
+                        << grp.m() <<"\nSize of players list supplied " << players.size() << std::endl;
+        return false;
+    }
+    for(std::vector<std::string>::const_iterator iter = players.begin(); iter != players.end(); ++ iter){
+        const std::string& p = *iter;
+        std::vector<playerCommsInfo>::const_iterator grpPlayersIter
+                = std::find_if(grp.participantList().begin(), grp.participantList().end(), [&p](playerCommsInfo const& elem) {return elem.m_userid == p;});
+        if(grpPlayersIter == grp.participantList().end()){
+            std::cout << "No contact details for player " << p << " in group " << grpid << " in InitPrivateKeyExchange" << std::endl;
+            return false;
+        }
+        boost::asio::streambuf b;
+        std::ostream os(&b);
+        std::cout << "sending an init private key share exchange to player (needs to know who to send it back to)" << std::endl;
+        createPlayerPrivateShareExchangeRequest(userid, grpid,os);
+        genericRequestResponse(os,b,grpPlayersIter->m_ip,grpPlayersIter->m_port);
+
+    }
+    return true; 
+}
+
+bool SharePrivateKeyShare(const std::string& userid,const std::string& grpid){
+    playerGroupMetaData& grpInfo = PlayerGrpData (grpid); 
+    // calculates all the data required for secret sharing at this point.
+    std::vector<std::pair<int, player> >::const_iterator iter 
+        = std::find_if(grpInfo.m_ordinalAndPlayerList.begin(), grpInfo.m_ordinalAndPlayerList.end(),[&userid](std::pair<int, player> const& elem) { return elem.second.userID() == userid;});
+    
+    if(iter == grpInfo.m_ordinalAndPlayerList.end()){
+        std::cout << "No connection details for player with user id " << userid << " in the group " << grpid << std::endl;
+        return false;
+    }
+    boost::asio::streambuf b;
+    std::ostream os(&b);
+    createPlayerPrivateKeyShareRequest(grpInfo,os);
+    genericRequestResponse(os,b, iter->second.addr(), iter->second.port());
+    return true;   
+}

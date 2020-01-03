@@ -103,6 +103,7 @@ class OrchestratorProtocol( pb.Root ) :
         self.orchestrator.unLock( groupId )
 
 
+    #-------------------------------------------------
     def remote_initiatePresigning( self, user, groupId, number ) :
         groupId = groupId.decode()
                 
@@ -210,6 +211,37 @@ class OrchestratorProtocol( pb.Root ) :
                 (self.signingCallback)        
         return
 
+
+    #-------------------------------------------------
+    # routes eval (f_x) through from the fromOridnal, to toOrdinal
+    def remote_routeEvals(self, gid, user, toOrdinal, fromOrdinal, f_x) :
+        groupId = gid.decode()
+        log.msg("routeEvals. toOrdinal={0}, fromOrdinal={1}, f_x={2}".format(toOrdinal, fromOrdinal, f_x))
+
+        # go from ordinal to user
+        refDict = self.orchestrator.getPtpReferences( user, groupId )
+        refDict[toOrdinal].callRemote("distributeEvals", \
+            groupId, toOrdinal, fromOrdinal, f_x)
+        return 
+        
+    #-------------------------------------------------
+    # called when a Player has received all their Evals
+    def remote_receivedAllEvals(self, gid, ordinal ) :
+        log.msg("receivedAllEvals")
+        groupId = gid.decode()
+
+        # if all Players have received their Eval data then continue
+        if self.orchestrator.allEvalsReceived( groupId, ordinal ) :
+
+            collatedData = self.orchestrator.getCollatedData( groupId) 
+            
+            # send the public data out to all group participants
+            userRefs = self.orchestrator.getUserReferences( groupId )
+            for ref in userRefs :
+                ref.callRemote( "createSecret", groupId, self.orchestrator.calcType(groupId), collatedData[0], collatedData[1])\
+                    .addCallbacks(self.secretVerificationCallback, self.verificationErrorCallback)
+
+
     #--------------------------------------------------
     # Callback operations available in this section
     #-------------------------------------------------- 
@@ -227,21 +259,45 @@ class OrchestratorProtocol( pb.Root ) :
     #-------------------------------------------------
     # collate data
     def collateDataCallback(self,  data ) :
+        #JAS
+        # TODO : can remove user from this as not used here!
+        log.msg('collateDataCallback')
         groupId     = data[0]
         ordinal     = data[1]
-        evals       = data[2] 
+        user        = data[2] 
         hiddenPoly  = data[3]
         hiddenEvals = data[4]
 
         # if True then ready to distribute data
-        if self.orchestrator.collateData( groupId, ordinal, evals, hiddenPoly, hiddenEvals) :
-            collatedData = self.orchestrator.getCollatedData(groupId) 
+
+        if self.orchestrator.collateData( groupId, ordinal, hiddenPoly, hiddenEvals) :
+
+            # Call the shareEvals, pass in a different set of ordinal:refs for each
+            userRefs        = self.orchestrator.getUserReferences( groupId )
+
+            participants = self.orchestrator.getParticipants( groupId )
+            
+            for p, ref in zip(participants, userRefs) :
+                newUserRefs = self.orchestrator.getPtpReferences( p, groupId )
+                toOrdinals = []
+                for key, value in newUserRefs.items() :
+                    
+                    toOrdinals.append(key)
+
+                log.msg(toOrdinals)
+                ref.callRemote("shareEvals", groupId, toOrdinals )
+                
+
+            log.msg('finished in collateDataCallback')
+
+            # // following part is the orig                    
+            #collatedData = self.orchestrator.getCollatedData(groupId) 
             
             # send the public data out to all group participants
-            userRefs = self.orchestrator.getUserReferences( groupId )
-            for ref in userRefs :
-                ref.callRemote( "createSecret", groupId, self.orchestrator.calcType(groupId), collatedData[0], collatedData[1], collatedData[2])\
-                    .addCallbacks(self.secretVerificationCallback, self.verificationErrorCallback)
+            #userRefs = self.orchestrator.getUserReferences( groupId )
+            #for ref in userRefs :
+            #    ref.callRemote( "createSecret", groupId, self.orchestrator.calcType(groupId), collatedData[0], collatedData[1], collatedData[2])\
+            #        .addCallbacks(self.secretVerificationCallback, self.verificationErrorCallback)
 
 
     #-------------------------------------------------

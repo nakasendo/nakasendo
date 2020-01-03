@@ -43,7 +43,7 @@ struct jvrss
     ~jvrss() = default;
     
     jvrss(const jvrss& obj)
-        : m_fx(obj.m_fx), m_evals(obj.m_evals), m_publicEvals(obj.m_publicEvals),m_hiddenEvals(obj.m_hiddenEvals)
+        : m_fx(obj.m_fx), m_evals(obj.m_evals), m_publicEvals(obj.m_publicEvals),m_hiddenEvals(obj.m_hiddenEvals) 
         , m_hiddenPolynomial(obj.m_hiddenPolynomial), m_allHiddenPolynomials(obj.m_allHiddenPolynomials), m_allVWShares(obj.m_allVWShares)
     { return ; }
     
@@ -66,7 +66,8 @@ struct jvrss
     
     BigNumber m_fx;
     std::map<std::string, BigNumber> m_evals; // evaluated for each entry in the ordinallist (local player)
-    std::map<std::string, std::vector<std::pair<std::string, BigNumber> > > m_publicEvals; //all Players in group evaluations
+    std::vector<std::pair<std::string, BigNumber> > m_publicEvals; // local player's label evaluated by the other players polynomial and shared. 
+
     std::map<std::string, std::vector<std::pair<std::string, ECPoint> > > m_hiddenEvals; //Polynomial evaluations multiplied by generator point
     std::vector<ECPoint> m_hiddenPolynomial; // private polynonial encrypted
     std::map<std::string,std::vector<ECPoint> > m_allHiddenPolynomials; // all other users polynomials encrypted
@@ -84,6 +85,7 @@ struct playerGroupMetaData
     
     playerGroupMetaData(const int degree, const BigNumber& mod)
         : m_privateKeyPolynomial(degree, mod)
+        , m_ordinalAndPlayerList ()
         , m_degree(degree)
         , m_modulo(mod)
         , m_EmpheralKeyList(), m_littleK(), m_alpha()
@@ -91,7 +93,7 @@ struct playerGroupMetaData
     {return;}
     
     playerGroupMetaData(const playerGroupMetaData& obj) 
-        : m_id(obj.m_id), m_ordinal(obj.m_ordinal), m_ordinalList(obj.m_ordinalList)
+        : m_id(obj.m_id), m_ordinal(obj.m_ordinal), m_ordinalList(obj.m_ordinalList), m_ordinalAndPlayerList(obj.m_ordinalAndPlayerList)
         , m_degree(obj.m_degree), m_privateKeyPolynomial(obj.m_privateKeyPolynomial)
         , m_privateKeyShare(obj.m_privateKeyShare), m_GroupPublicKey(obj.m_GroupPublicKey)
         , m_modulo(obj.m_modulo)
@@ -104,6 +106,7 @@ struct playerGroupMetaData
             m_id = obj.m_id;
             m_ordinal = obj.m_ordinal;
             m_ordinalList = obj.m_ordinalList;
+            m_ordinalAndPlayerList = obj.m_ordinalAndPlayerList;
             m_degree = obj.m_degree;
             m_privateKeyPolynomial = obj.m_privateKeyPolynomial;
             m_privateKeyShare = obj.m_privateKeyShare;
@@ -121,7 +124,7 @@ struct playerGroupMetaData
     Polynomial createPolynomial(const int&, const BigNumber&); 
     
     void polynomialPreCalculation(const Polynomial&);
-    void addPublicEvalsToJVRSS(const std::string&, const std::vector<std::pair<std::string, std::string> >&);
+    void addPublicEvalsToJVRSS(const std::string&, const std::string&);
     void addHiddenEvalsToJVRSS(const std::string&, const std::vector<std::pair<std::string, std::string> >&);
     void addHiddenPolynomialToJVRSS(const std::string&, const std::vector<std::string>& ) ; 
     void addPreSignDataToJVRSS(const std::string&, const std::string&, const std::string&);
@@ -138,10 +141,16 @@ struct playerGroupMetaData
     BigNumber Signature(const std::string&, const std::pair<BigNumber,BigNumber>&);
     std::pair<std::string, BigNumber> CalcPartialSignature (const std::string&, const int& ); 
     std::pair<BigNumber, BigNumber> CalculateGroupSignature(const std::string& , const int&, const std::vector<std::pair<std::string, std::string> >& ) ; 
-    
+    void addPrivateKeyInfo(const std::string&, const std::string&);
+
+    const BigNumber& privateKeyShare () const { return m_privateKeyShare; }
+    BigNumber CalculateGroupPrivateKey ();
+    bool ValidateGroupPrivateKey(const BigNumber&);
+
     std::string m_id; // Group ID
     int m_ordinal; // label assigned by the orchestrator
-    std::vector<int> m_ordinalList; // labels of other participants in the group
+    std::vector<int> m_ordinalList; // labels of other participants in the group .. to be deleted
+    std::vector<std::pair<int, player> > m_ordinalAndPlayerList; // lables and player info for the rest of the group
     int m_degree; // degree of the polynomial
     Polynomial m_privateKeyPolynomial; //key polynomial for this group
     BigNumber m_privateKeyShare; // calculated share of private key
@@ -151,7 +160,8 @@ struct playerGroupMetaData
     BigNumber m_littleK;
     BigNumber m_alpha; 
     
-    
+    // a vector to hold ordinals & private key shares when a reconstruction of a private key is required
+    std::vector<std::pair<BigNumber, BigNumber> > m_PrivateKeyShares; 
 
     BigNumber m_modulo; 
     

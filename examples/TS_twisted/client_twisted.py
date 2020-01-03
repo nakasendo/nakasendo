@@ -134,21 +134,21 @@ class ClientProtocol( pb.Referenceable ):
         
         return
 
+#-------------------------------------------------
     def remote_requestData(self, gid, calcType) :
-        return self.Player.requestData( gid, calcType ) 
+        res = self.Player.requestData( gid, calcType ) 
+        return  [res[0], res[1], self.user, res[2], res[3] ]
 
 
-    def remote_createSecret(self, gid, calcType, evals,  hiddenPolys, hiddenEvals) :
+    def remote_createSecret(self, gid, calcType, hiddenPolys, hiddenEvals) :
         try:
-            self.Player.createSecret( gid, calcType, evals,  hiddenPolys, hiddenEvals )
+            self.Player.createSecret( gid, calcType, hiddenPolys, hiddenEvals )
         except Exception as inst:
             raise ClientError( [self.user, gid, inst.args ] )
         return [self.user, gid]
 
     def remote_groupIsVerified( self, gid, calcType ) :
-        self.myPrint("groupisVerified: gid = {0}, calcType = {1}".format(gid, calcType ))
-        #self.myPrint("groupisVerified: gid = {0}, calcType = {1}".format(gid, calcType ))
-        
+        self.myPrint("groupisVerified: gid = {0}, calcType = {1}".format(gid, calcType ))        
         
         if calcType == 'LITTLEK' :
             self.myPrint("presign initiator = {0}".format(self.Player.isPresignInitiator(gid)))
@@ -197,6 +197,25 @@ class ClientProtocol( pb.Referenceable ):
     def remote_readyToSign( self, gid, message, signatureData ) :
         self.Player.sign( gid, message, signatureData )
         return gid
+
+    def remote_distributeEvals( self, gid, toOrdinal, fromOrdinal, f_x ) :
+        log.msg('Received evals from Player{0}'.format(fromOrdinal))
+
+        if self.Player.allEvalsReceived( gid, toOrdinal, fromOrdinal, f_x) :
+            d = self.orchestratorRef.callRemote \
+                ( "receivedAllEvals", gid.encode(), toOrdinal )
+
+    def remote_shareEvals( self, gid, toOrdinals ) :
+        log.msg('shareEvals: toOrdinals = {0}'.format(toOrdinals))
+
+        for toOrd in toOrdinals :
+            log.msg('Sending evals to Player{0}'.format(toOrd))
+            
+            f_x = self.Player.getEvals(gid, toOrd)
+
+            d = self.orchestratorRef.callRemote \
+                    ( "routeEvals", gid.encode(), self.user, toOrd, \
+                        self.Player.getOrdinal(gid),  f_x ) 
 
     def remote_deleteGroup( self, gid ) :        
         self.Player.deleteGroup( gid )

@@ -4,10 +4,15 @@
 #include <algorithm>
 
 
-GroupMetadata::GroupMetadata(const std::string& id, const std::string& proposer, const int& m, const int& n, const int& t)
-    : m_groupid (id), m_proposer(proposer), m_m(m), m_n(n), m_t(t),m_participantList(), m_GroupSet(false),m_calculationType()
+std::ostream& operator<< (std::ostream& os, const playerCommsInfo& obj){
+    os << obj.m_userid << " " << obj.m_uri << " " << obj.m_ip << " " << obj.m_port;
+    return os; 
+}
+
+GroupMetadata::GroupMetadata(const std::string& id, const playerCommsInfo& proposer, const int& m, const int& n, const int& t)
+    : m_groupid (id), m_proposer(proposer.m_userid), m_m(m), m_n(n), m_t(t),m_participantList(), m_GroupSet(false),m_calculationType()
 { 
-    m_participantList.push_back(m_proposer);
+    m_participantList.push_back(proposer);
     return;
 }
 
@@ -16,7 +21,7 @@ GroupMetadata::GroupMetadata(const GroupMetadata& obj)
    : m_groupid (obj.m_groupid), m_proposer(obj.m_proposer), m_m(obj.m_m), m_n(obj.m_n), m_t(obj.m_t)
    , m_participantList(), m_GroupSet(obj.m_GroupSet),m_calculationType(obj.m_calculationType)
 {  
-    for(std::vector<std::string>::const_iterator iter = obj.m_participantList.begin(); 
+    for(std::vector<playerCommsInfo>::const_iterator iter = obj.m_participantList.begin(); 
             iter != obj.m_participantList.end(); ++iter){
                 m_participantList.push_back(*iter);
     }   
@@ -30,7 +35,7 @@ GroupMetadata& GroupMetadata::operator= (const GroupMetadata& obj){
         m_m = obj.m_m;
         m_n = obj.m_n;
         m_t = obj.m_t;
-        for(std::vector<std::string>::const_iterator iter = obj.m_participantList.begin(); 
+        for(std::vector<playerCommsInfo>::const_iterator iter = obj.m_participantList.begin(); 
             iter != obj.m_participantList.end(); ++iter){
                 m_participantList.push_back(*iter);
         }
@@ -40,39 +45,34 @@ GroupMetadata& GroupMetadata::operator= (const GroupMetadata& obj){
     return *this;
 }
 
-void GroupMetadata::addUserToGroup(const std::string& userid){
+void GroupMetadata::addUserToGroup(const std::string& userid, const std::string& uri, const std::string& addr, const std::string& port){
     // the assumption is made that a group proposer is always a member
     if (m_GroupInviteReplies < (m_n-1)){
         ++ m_GroupInviteReplies; 
-        m_participantList.push_back(userid);
+        playerCommsInfo playerinfo;
+        playerinfo.m_userid = userid;
+        playerinfo.m_uri = uri;
+        playerinfo.m_ip = addr;
+        playerinfo.m_port = port;
+        m_participantList.push_back(playerinfo);
     }
     return ; 
 }
 
 bool GroupMetadata::removeUserFromparticipantList(const std::string& userToDelete){
+    m_participantList.erase(
+            std::remove_if(m_participantList.begin(), m_participantList.end(),
+                            [&userToDelete](const playerCommsInfo& info){return info.m_userid == userToDelete;}),
+            m_participantList.end()
+    );
 
-    m_participantList.erase(std::remove(m_participantList.begin(), m_participantList.end(), userToDelete), m_participantList.end());
-    
-    if(std::find(m_participantList.begin(), m_participantList.end(), userToDelete) == m_participantList.end())
+
+    if(std::find_if(m_participantList.begin(), m_participantList.end(),
+                    [&userToDelete](const playerCommsInfo& info){return info.m_userid == userToDelete;}) == m_participantList.end())
         return true;
     else
         return false;
 } 
-
-void GroupMetadata::addCollatedEvals(const std::string& ord, const std::string& evalOrd, const std::string& eval){
-
-    BigNumber bn;
-    bn.FromHex(eval);
-    
-    std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::iterator iter = m_CollatedEvals.find(ord);
-    if(iter != m_CollatedEvals.end()){
-        iter->second.push_back(std::make_pair(evalOrd,bn));
-    }else{
-        std::vector<std::pair<std::string, BigNumber> > evalsBN;
-        evalsBN.push_back(std::make_pair(evalOrd,bn));
-        m_CollatedEvals[ord] = evalsBN;
-    }
-}
 
 void GroupMetadata::addCollatedHiddenPolys(const std::string& ord, const std::vector<std::string>& polyBN){
     
@@ -146,7 +146,7 @@ void GroupMetadata::addCollatedPartialSignautre(const std::string& ord, const st
 }
 
 void GroupMetadata::clearSharedDataContainers(){
-    m_CollatedEvals.clear();
+    //m_CollatedEvals.clear();
     m_CollatedHiddenPolys.clear();
     m_CollatedHiddenEvals.clear();
 }
@@ -173,11 +173,11 @@ std::ostream& operator<< (std::ostream& os,const GroupMetadata& grp){
         << "\n\tGroup set = "
         ;
     (grp.m_GroupSet) ? os << "True\n" : os << "False\n" ;
-    std::vector<std::string>::const_iterator iter = grp.m_participantList.begin();
+    std::vector<playerCommsInfo>::const_iterator iter = grp.m_participantList.begin();
     for (; iter != grp.m_participantList.end(); ++ iter){
         os << *iter << " " << std::endl;
     }
-    
+#if 0    
     os << "\n\tCollated Public Evals = \n" ;
     for(std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::const_iterator iter = grp.m_CollatedEvals.begin();
             iter != grp.m_CollatedEvals.end(); ++ iter){
@@ -187,7 +187,7 @@ std::ostream& operator<< (std::ostream& os,const GroupMetadata& grp){
             }
             os << "\n";
     }
-    
+#endif    
     os << "\n\tCollated Hidden Polynomials = \n";
     for(std::map<std::string, std::vector<ECPoint> >::const_iterator iter =  grp.m_CollatedHiddenPolys.begin(); iter != grp.m_CollatedHiddenPolys.end(); ++ iter ){
         os << iter->first << "\t[";
