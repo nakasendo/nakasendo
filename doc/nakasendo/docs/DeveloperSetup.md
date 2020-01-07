@@ -1,25 +1,20 @@
----
-title: Welcome
-wikifile: README.md
----
+In order to develop/contribute to Nakasendo, it is required to install and prepare some dev environments. It consist of installing tools/libraries for C++/Python/Javascript. It is recommended to
 
-## Welcome to the SDKLibraries
+- Build from source when it is Linux environment
+- Download prebuilt binaries when it is Windows environment
+- Install everything in the same location and define environment variables poiting to the installed location. The build system will find them appropriately
 
-The SDKLibraries brings cryptographic functionality to developers via several different APIs - C++, Python and Webassembley (and JavaScript soon). 
+## C++ libraries and tools
 
-The build system for the SDK is CMake.
-
-### Dependencies
-
-To be able to build the SDK, users need to install some tools and libraries. In general, to install the libraries and tools listed below, it is recommended to manually build on Linux, and download the prebuilt installers for windows platforms.
-
-- CMake 3.14.7 (https://cmake.org/download/)
+- [CMake 3.14.7](https://cmake.org/download/)
 - C++ Compiler: Visual Studio Community Edition 2017 on windows, g++7 on Linux
-- Boost 1.69.0 to build CPP unit tests (https://www.boost.org/ and for the binary: https://sourceforge.net/projects/boost/files/boost-binaries/1.69.0/)
+- [Boost 1.69.0](https://www.boost.org/) to build CPP unit tests ([download prebuild binaries for windows](https://sourceforge.net/projects/boost/files/boost-binaries/1.69.0/))
 - OpenSSL 1.1.b : It needs two versions: one for native C++, the other for emcripten. The prebuilt openssl for Emscripten can be downloaded from https://bitbucket.org/nch-atlassian/sdklibraries/downloads/
 - Protobuf 3.11.0 : either on Windows or Linux, compile it from source and install it. Then name the system variable Protobuf_ROOT pointing to its installation location. See detail in $SDK_SOURCE/cmake/modules/FindProtobufHelper.cmake
-- Protobuf 3.11.0 : either on Windows or Linux, compile it from source and install it. Then name the system variable Protobuf_ROOT pointing to its installation location. See detail in $SDK_SOURCE/cmake/modules/FindProtobufHelper.cmake
-- EMSDK: 1.38.0 : https://emscripten.org/docs/getting_started/downloads.html.
+
+## Tools for javascript
+
+- [EMSDK: 1.38.0](https://emscripten.org/docs/getting_started/downloads.html)
     Use install and activate to install components
     1. Clone the EMSDK Git repository
     2. Pull latest changes
@@ -31,15 +26,29 @@ To be able to build the SDK, users need to install some tools and libraries. In 
     - **emscripten**  e.g. emsdk install emscripten-1.38.30
     - **node** (need to install modules **mocha**, **mocha-junit-reporter** using NPM command: "npm install --global mocha mocha-junit-reporter")
     - **binaryen** (not required  but useful tools)  e.g. emsdk install binaryen-tag-1.38.30-64bit
-- Python 3.7.3 (64-bit) (Release and Debug versions) (https://www.python.org/downloads/release/python-374/)
-    As part of the Python Windows installer, ensure to check the installation options for the "Download debugging symbols" and the "Download debug binaries (requires VS 2015 or later)" checkboxes.
-    - **pathlib**       useful i.e. python -m pip install pathlib
-    - **pytest**        to run Python tests i.e. python -m pip install pytest
-    - **junitparser**   to combine overall junit test results i.e. python -m pip install junitparser
-    - **ecdsa**         to study elliptic curves i.e. python -m pip install ecdsa
-    - **requests**      to send http(s) request to different server APIs (Jenkins/ Bitbucket) i.e. python -m pip install requests
-    - **mkdocs**, **pymdown-extensions** **plantuml_markdown**  to build documentations with mkdocs
-- NSIS (Nullsoft Scriptable Install System) 3.04 : https://sourceforge.net/projects/nsis/
+- napi : TODO
+
+## [Python 3.7.3 (64-bit)](https://www.python.org/downloads/release/python-374/)
+
+As part of the Python Windows installer, ensure to check the installation options for the "Download debugging symbols" and the "Download debug binaries (requires VS 2015 or later)" checkboxes.
+
+  - **pathlib**       useful
+  - **pytest**        to run Python tests
+  - **junitparser**   to combine overall junit test results
+  - **ecdsa**         to study elliptic curves
+  - **requests**      to send http(s) request to different server APIs (Jenkins/ Bitbucket)
+  - **mkdocs**, **pymdown-extensions** **plantuml_markdown**  to build documentations with mkdocs
+
+You can do it all at once after installing python
+```console
+nchain@sdk:~$ python -m pip install pathlib pytest junitparser ecdsa requests mkdocs pymdown-extensions plantuml_markdown
+```
+
+
+## [NSIS 3.04](https://sourceforge.net/projects/nsis/)
+This is required for windows only, to build windows installer.
+
+## Environment setup
 
 Once the build tools and libraries are prepared, some post installation steps are required to let the SDKLibraries build system know how to find everything:
 
@@ -52,20 +61,22 @@ Once the build tools and libraries are prepared, some post installation steps ar
 - Set environment variable OPENSSL_ROOT_DIR pointing to the root of the OpenSSL for C++ installation
 - Set environment variable OPENSSL_WASM_ROOT_DIR pointing to the root of the OpenSSL for Emscripten installation
 
-The SDKLibraries can be built on any system, as long as all libraries and required tools are manually compiled to ensure absolute compatibility. Users can choose the appropriate CMake generator to make the build (https://cmake.org/cmake/help/v3.14/manual/cmake-generators.7.html)
+The SDKLibraries can be built on any system, as long as all libraries and required tools are manually compiled to ensure absolute compatibility. Users can choose the appropriate [CMake generator](https://cmake.org/cmake/help/v3.14/manual/cmake-generators.7.html) to make the build.
 The CMake build allows everything to be built separately from the source to keep the source repository clean. After cloning the source code to "SDKLibraries" directory, create a "build" directory alongside this, then run the cmake/make command to build
 
-###### Compile/test/pack on Windows
+## Compile/test/pack
+
+**On Windows**
 ```console
-C:\nchain\sdk> cmake -G"Visual Studio 15 2017" -A x64 ..\SDKLibraries && cmake --build . --target ALL_BUILD --config Debug && cmake --build . --target ALL_BUILD --config Release && ctest -C Debug && ctest -C Release && cpack -G NSIS -C Release
+C:\development\build> cmake -G"Visual Studio 15 2017" -A x64 ..\SDKLibraries && cmake --build . --target ALL_BUILD --config Debug && cmake --build . --target ALL_BUILD --config Release && ctest -C Debug && ctest -C Release && cpack -G NSIS -C Release
 ```
 
-###### Compile/test/pack on Linux
+**On Linux**
 ```console
 nchain@sdk:~$ cmake ../SDKLibraries -DCMAKE_BUILD_TYPE=Debug -DCUSTOM_SYSTEM_OS_NAME=Ubuntu; time -p make -j8 ; ctest ; cpack -G TGZ
 ```
 
-###### To run all tests:
+**To run all tests**
 ```console
 nchain@sdk:~$ ctest             # or "make test" on linux
 
