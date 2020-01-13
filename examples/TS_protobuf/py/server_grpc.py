@@ -25,15 +25,37 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
     # Send group is set message to all users in the group
     def groupIsSet(self, gid):        
 
+        userRefs = self.orchestrator.getUserReferences( gid )
         participants = self.orchestrator.getParticipants(gid)
         print('gid = {0}, participants = {1}'.format(gid, participants))
+        
+        t = self.orchestrator.getDegree( gid )   
+        counter = 1
+        
+        participantList = []
+
+
         for user in participants :
-            params = self.orchestrator.getGroupIsSetParameters( user, gid )
+                
+            ref = self.orchestrator.getUserRef(user)
+            print('user {0} : ref {1} '.format(user, ref) ) 
+            
+            player = stub.Player( name=user, port=ref[1] )
+            
+            aParticipant = stub.GroupIsSetRequest.Participant( ordinal=counter, playerId=player)            
+            participantList.append( aParticipant )
+            
+            counter = counter + 1
+
+        gReq = stub.GroupIsSetRequest( groupId=gid, degree=t, participants=participantList )
+
+        for user in participants :
 
             print ('sending groupIsSet message to {0}'.format(user))
             ref = self.orchestrator.getUserRef(user)
-            response = ref[0].CallGroupIsSet( stub.GroupIsSetRequest \
-                ( groupId=gid, ordinal=params[0], ordinalList=params[1], degree=params[2] ) )
+
+            
+            response = ref[0].CallGroupIsSet( gReq )
 
         return
 
@@ -45,85 +67,91 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
     # Register user with Orchestrator        
     def CallRegister(self, request, context):
 
-        client_port = str(request.reference)
+        player = request.playerId
+        client_port = str(player.port)
         print('client_port = {0}'.format(client_port))
 
         # create a gRPC channel + stub
         client_channel = grpc.insecure_channel('localhost' + ':' + str(client_port))
         client_conn = rpc.TSServiceStub( client_channel )
 
-        self.orchestrator.register( request.user, (client_conn, client_port) )
+        self.orchestrator.register( player.name, (client_conn, client_port) )
     
-        return stub.GenericReply( success = True ) 
+        return stub.RegisterReply( success = True ) 
 
 
     #-------------------------------------------------
     def CallCreateGroup(self, request, context) :
         
         print('user = {0}, m = {1}, n = {2} '.format \
-            ( request.user, request.m, request.n ) )
+            ( request.userId, request.m, request.n ) )
 
         results = None
         try :
-            results =  self.orchestrator.createGroup(request.user, request.m, request.n)
+            results =  self.orchestrator.createGroup(request.userId, request.m, request.n)
         except Exception as inst:
             #raise OrchestratorError( inst.args )
             print('ERROR in OrchestratorProtocol:CallCreateGroup')
 
         gid = results[0]
         inviteList = results[1]
-        print('inviteList = {0}'.format(inviteList))
 
         for invitee in inviteList :
-            call_future = invitee[0].CallInvite.future( stub.IdentityMessage( groupId=gid))
+            idMsg = stub.IdentityMessage( groupId=gid )
+            call_future = invitee[0].CallInvite.future( stub.InviteRequest ( id=idMsg ) )
             call_future.add_done_callback( self.acceptInviteCallback )
 
-        return stub.IdentityMessage( groupId=gid )
+        idMsg = stub.IdentityMessage( userId=request.userId, groupId=gid )
+        print('returning a creategroupreply')
+        return stub.CreateGroupReply( id=idMsg )
 
 
     #-------------------------------------------------
     # This sends a request for data to all participants of group
-    def CallSharePublicKey( self, request, context ) :
+    def CallShareSecret( self, request, context ) :
 
-        print('in CallSharePublicKey')
-        gid = request.groupId
+        print('in CallShareSecret')
+        gid = request.id.groupId
         self.orchestrator.setCalcType (gid, request.calculation )       
 
         if not self.orchestrator.validGroup(gid) :
             errMsg = 'Group Id is not valid: {0}'.format(gid)
             #raise OrchestratorError( errMsg )
-            print('ERROR in OrchestratorProtocol:CallSharePublicKey')
+            print('ERROR in OrchestratorProtocol:CallShareSecret')
             print(errMsg)
 
         if self.orchestrator.isLocked(gid) :
             errMsg = 'Group Id is locked, try again later: {0}'.format(gid)
             #raise OrchestratorError( errMsg )
-            print('ERROR in OrchestratorProtocol:CallSharePublicKey')
+            print('ERROR in OrchestratorProtocol:CallShareSecret')
             print(errMsg)
         
         self.orchestrator.lock(gid)
 
         participants = self.orchestrator.getParticipants(gid)
 
-        if request.user not in participants :
-            errMsg = 'user is not in the group: {0}'.format(request.user)
+        if request.id.userId not in participants :
+            errMsg = 'user is not in the group: {0}'.format(request.id.userId)
             #raise OrchestratorError( errMsg ) 
-            print('ERROR in OrchestratorProtocol:CallSharePublicKey')
+            print('ERROR in OrchestratorProtocol:CallShareSecret')
             print(errMsg)
         
         userRefs = self.orchestrator.getUserReferences(gid)
         calcType = self.orchestrator.calcType( gid )
+        idMsg = stub.IdentityMessage( userId=request.id.userId, groupId=gid )
+        
         for ref in userRefs :
             print('calling request data...')
-            call_future = ref[0].CallRequestData.future( stub.DataRequest( groupId=gid))
+
+            call_future = ref[0].CallShareSecretData.future( stub.ShareSecretDataRequest( id=idMsg ))
             call_future.add_done_callback( self.collateDataCallback )      
 
         
-        return stub.GenericReply( success=True )
+        return stub.ShareSecretReply( id=idMsg, success=True )
 
     #-------------------------------------------------
     def CallInitiatePresign(self, request, context) :
-        gid = request.groupId 
+        gid = request.id.groupId 
 
         if self.orchestrator.isLocked(gid) :
             errMsg = 'Group Id is locked, try again later: {0}'.format(gid)
@@ -131,19 +159,21 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             print('ERROR: ' + errMsg )
 
         self.orchestrator.lock( gid ) 
-        return stub.InitPresignReqRep \
-            ( user=request.user, groupId=gid, number=request.number )
+        idMsg = stub.IdentityMessage( userId=request.id.userId, groupId=gid )
+        return stub.InitPresignReply \
+            ( id=idMsg, number=request.number )
 
 
     #-------------------------------------------------
     def CallPresigning (self, request, context) :
-        user        = request.user 
-        gid         = request.groupId 
+        user        = request.id.userId 
+        gid         = request.id.groupId 
         calcType    = request.calculation 
 
         self.orchestrator.setCalcType( gid, calcType )
        
-        print("presigning: user={0}, groupId={1}, calcType={2}".format(user, gid, calcType) )
+        print("presigning: user={0}, groupId={1}, calcType={2}".format \
+            (user, gid, calcType) )
 
         if not self.orchestrator.validGroup(gid) :
             errMsg = 'Group Id is not valid: {0}'.format(gid)
@@ -160,22 +190,26 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
 
         userRefs = self.orchestrator.getUserReferences(gid)
         for ref in userRefs : 
-            #ref = tup[0]           
+    
             print('calling request data...')
-            call_future = ref[0].CallRequestData.future( stub.DataRequest( groupId=gid))
+            idMsg = stub.IdentityMessage( userId=user, groupId=gid )            
+            call_future = ref[0].CallShareSecretData.future \
+                ( stub.ShareSecretDataRequest( id=idMsg ))
             call_future.add_done_callback( self.collateDataCallback )      
             
-        return stub.GenericReply( success=True )      
+        return stub.PresigningReply( success=True )      
 
     #-------------------------------------------------
-    def CallCollateVWData(self, request, context) :
-        gid = request.groupId 
+    def CallShareVW(self, request, context) :
+        gid     = request.id.groupId 
+        user    = request.id.userId 
 
         print("Collating VW Data")
 
         # orchestrator expects a tuple ()
         data = ( request.data.v, request.data.w )
-      
+        idMsg = stub.IdentityMessage( userId=user, groupId=gid )       
+
         if self.orchestrator.collateVWData( gid, request.data.ordinal, data ) :
             collatedData = self.orchestrator.getCollatedVWData( gid )
 
@@ -187,12 +221,13 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
 
             # send the public data out to all group participants
             userRefs = self.orchestrator.getUserReferences( gid )
+                       
             for ref in userRefs :
                 
-                ref[0].CallSharedVWData( stub.SharedVWDataRequest \
-                    ( groupId=gid, data=vwList )   )  
+                ref[0].CallCollatedVWShare( stub.CollatedVWShareRequest \
+                    ( id=idMsg, data=vwList )   )  
 
-        return stub.GenericReply( success=True )   
+        return stub.ShareVWDataMessageReply( id=idMsg, success=True )   
 
     #-------------------------------------------------
     def CallPubKeyComplete(self, request, context) :
@@ -204,9 +239,9 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
     #-------------------------------------------------
     def CallEphemKeyComplete(self, request, context) :
         print("EphemeralKey has been completed, groupId = {0}, user = {1}".format \
-            (request.groupId, request.user))
+            (request.groupId, request.userId))
 
-        if self.orchestrator.allEphemeralKeysCompleted( request.user, request.groupId ) :
+        if self.orchestrator.allEphemeralKeysCompleted( request.userId, request.groupId ) :
             # send the public data out to all group participants
             userRefs = self.orchestrator.getUserReferences( request.groupId )
             for ref in userRefs :
@@ -231,13 +266,13 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
 
     #-------------------------------------------------
     # This sends a request for data to all participants of group
-    def CallSign(self, request, context) :
+    def CallInitSignature(self, request, context) :
 
-        gid         = request.groupId
+        gid         = request.id.groupId
         msg         = request.message
-        user        = request.user
+        userId      = request.id.userId
        
-        print("sign: user={0}, groupId={1}, msg={2}".format(user, gid, msg))
+        print("sign: user={0}, groupId={1}, msg={2}".format(userId, gid, msg))
 
         if not self.orchestrator.validGroup(gid) :
             errMsg = 'Group Id is not valid: {0}'.format(gid)
@@ -254,22 +289,23 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
         participants = self.orchestrator.getParticipants(gid)
 
         # check the user is in the group, then set the signer
-        if user not in participants :
-            errMsg = 'user is not in the group: {0}'.format(user)
+        if userId not in participants :
+            errMsg = 'user is not in the group: {0}'.format(useId)
             #raise OrchestratorError( errMsg ) 
             print( 'ERROR: ' + msg )
-        self.orchestrator.setSigner(gid, user)
+        self.orchestrator.setSigner(gid, userId)
 
         userRefs = self.orchestrator.getUserReferences(gid)
         for ref in userRefs :
-            call_future = ref[0].CallRequestSignature.future( stub.SignatureRequest \
+            call_future = ref[0].CallShareOfSignature.future( stub.ShareOfSigRequest \
                 ( groupId=gid, message=msg ) )
+           
             call_future.add_done_callback( self.signingCallback )      
 
             #ref.callRemote("requestSignatureData", groupId, msg).addCallback \
             #    (self.signingCallback)       
             #  
-        return stub.GenericReply( success=True ) 
+        return stub.InitSignatureReply( success=True ) 
 
 
     #--------------------------------------------------
@@ -277,46 +313,37 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
     #-------------------------------------------------- 
     
     def acceptInviteCallback (self, call_future ) :
-        res = call_future.result() 
         
-        if self.orchestrator.acceptInvite(res.user, res.groupId, res.acceptance) :
-            self.groupIsSet(res.groupId)  
+        res = call_future.result() 
+        if self.orchestrator.acceptInvite(res.id.userId, res.id.groupId, res.acceptance) :
+            self.groupIsSet(res.id.groupId)  
             print('acceptInviteCallback: group is set!')  
 
 
     #--------------------------------------------------                 
     def collateDataCallback (self, call_future ) :
         res = call_future.result()
-
+        
         print('collateDataCallback')
 
         # if True then ready to distribute data
-        if self.orchestrator.collateData( res.groupId, res.ordinal, res.hiddenPoly, res.hiddenEvals) :
+        if self.orchestrator.collateData( res.id.groupId, res.ordinal, res.hiddenPoly, res.hiddenEvals) :
 
             # Call the shareEvals, pass in a different set of ordinal:refs for each
-            userRefs = self.orchestrator.getUserReferences( res.groupId )
-            participants = self.orchestrator.getParticipants( res.groupId )
+            userRefs = self.orchestrator.getUserReferences( res.id.groupId )
+            participants = self.orchestrator.getParticipants( res.id.groupId )
+
+            idMsg = stub.IdentityMessage( groupId=res.id.groupId )
             
-            for p, ref in zip(participants, userRefs) :
-
-                newUserRefs = self.orchestrator.getPtpReferences( p, res.groupId )
-                ptpRefs = []
-                for key, value in newUserRefs.items() :
-                    tmp = stub.ptpRef( ordinal=key, url=value[1] )
-                    ptpRefs.append(tmp)
-
-
-                ref[0].CallShareEvals( stub.ShareEvalsRequest \
-                    ( groupId=res.groupId, reference=ptpRefs ) )
-
+            for ref in userRefs :
+                ref[0].CallInitShareEvals( stub.InitShareEvalsRequest ( id=idMsg ) )
             
 
     #---------------------------------------------------
     def CallReceivedAllEvals ( self, request, context ) :
 
-        gid     = request.groupId
+        gid     = request.id.groupId
         ord     = request.ordinal
-        #user     = request.ordinal
 
         print('receivedAllEvals')
 
@@ -347,38 +374,42 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
 
                 hidEvalList.append(l_of_hep)
     
+            idMsg = stub.IdentityMessage( groupId=gid )
             for ref in userRefs :
                 print('calling createsecret...')
 
-                call_future = ref[0].CallCreateSecret.future( stub.CreateSecretRequest( \
-                    groupId=gid, calculation=self.orchestrator.calcType(gid), \
+                call_future = ref[0].CallCollatedSecretShare.future( stub.CollatedSecretRequest( \
+                    id=idMsg, calculation=self.orchestrator.calcType(gid), \
                         hiddenPolys=hpList, hiddenEvals=hidEvalList ))
                 call_future.add_done_callback( self.secretVerificationCallback )      
         
         print('returning True from CallReceivedAllEvals')
-        return stub.GenericReply( success=True )
+        return stub.RxAllEvalsReply( success=True )
     
     #--------------------------------------------------
     def secretVerificationCallback (self, call_future ) :
-        res = call_future.result() 
+        res     = call_future.result() 
+        gid     = res.id.groupId
+        user    = res.id.userId
         
         print('secretVerificationCallback: ')  
 
-        if self.orchestrator.secretVerification(res.user, res.groupId) :
-            calcType = self.orchestrator.calcType(res.groupId)
+        idMsg = stub.IdentityMessage( userId=user, groupId=gid )
+        if self.orchestrator.secretVerification(user, gid) :
+            calcType = self.orchestrator.calcType(gid)
             print("secretVerification complete for: {0}".format(calcType))
 
             # contact all the group participants with verification success
-            userRefs = self.orchestrator.getUserReferences(res.groupId)
+            userRefs = self.orchestrator.getUserReferences(gid)
             for ref in userRefs :
                 ref[0].CallGroupIsVerified( stub.GroupIsVerifiedRequest \
-                    ( groupId=res.groupId, calculation=calcType ) )
+                    ( id=idMsg, calculation=calcType ) )
 
     #--------------------------------------------------                 
     def signingCallback (self, call_future ) :
         res = call_future.result()
 
-        gid         = res.groupId
+        gid         = res.id.groupId
         ordinal     = res.ordinal
         sig         = res.signature
         msg         = res.message
@@ -394,16 +425,18 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             
             # send the signature data out to the signer
             userRef = self.orchestrator.getSignerReference( gid )
+            idMsg = stub.IdentityMessage( userId=res.id.userId, groupId=gid )
 
-            call_future = userRef[0].CallReadyToSign.future( stub.ReadyToSignRequest \
-                ( groupId=gid, message=msg, signatureData=sigList ) )
-            call_future.add_done_callback( self.signingCompletedCallback )      
+            call_future = userRef[0].CallSignMessage.future( stub.SignDataMessage \
+                ( id=idMsg, message=msg, signatures=sigList ) )
+            call_future.add_done_callback( self.signingCompletedCallback )    
 
 
     #--------------------------------------------------                 
     def signingCompletedCallback (self, call_future ) :
         res = call_future.result()    
-        self.orchestrator.unLock(res.groupId)
+        print(res)
+        self.orchestrator.unLock(res.id.groupId)
 
 
 #--------------------------------------------------

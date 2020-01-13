@@ -8,7 +8,7 @@
 #include <memory>
 #include <utility>
 #include <boost/asio.hpp>
-#include <ts.pb.h>
+#include <ts_messages.pb.h>
 #include <serverConnection.h>
 
 

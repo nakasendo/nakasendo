@@ -4,7 +4,7 @@
 #include <orchestrator.h>
 #include <GroupMetaData.h>
 #include <player.h>
-#include <ts.pb.h>
+#include <ts_messages.pb.h>
 
 
 
@@ -15,38 +15,39 @@ std::string make_daytime_string()
   return ctime(&now);
 }
 
-void createTimeRequest(const player& p, std::ostream& os)//, const std::string& addr, const std::string& port){
+thresholdsignature::CalcType string2enum( const std::string& calcString ) 
 {
-    thresholdsignature::TimeRequest timeReq;
-    timeReq.set_name (p.userID());
-    timeReq.set_uuid (p.uri());  
+    if( calcString == "PRIVATEKEYSHARE" )
+    {
+        return thresholdsignature::PRIVATEKEYSHARE ;
+    }
+    else if( calcString ==  "LITTLEK" )
+    {
+        return thresholdsignature::LITTLEK ;
+        
+    }
+    else if( calcString ==  "ALPHA" )
+    {
+        return thresholdsignature::ALPHA ;
+    }
+    else
+    {
+        std::cout << "ERROR: unknown calculation: " << calcString << std::endl ;
+        throw ;
+    }
+}
+
+void createRegisterRequest(const player& p, std::ostream& os){
     
-    os << TSMessageDefs::TS_TIME_REQUEST; 
-    if (!timeReq.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialize time request" );
-    }
-
-}
-
-void createTimeResponse(const player& p, std::ostream& os)//, const std::string& addr, const std::string& port){
-{
-    thresholdsignature::TimeResponse timeResp;
-    timeResp.set_timestring(make_daytime_string());
-    std::cout << "Sending TimeResponse: " << timeResp.timestring() << " with id " << TSMessageDefs::TS_TIME_RESPONSE << std::endl;
-    os << TSMessageDefs::TS_TIME_RESPONSE;
-    if(!timeResp.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialize time response"); 
-    }
-    return;
-}
-
-void createRegisterPlayerRequest(const player& p, std::ostream& os){
-    thresholdsignature::RegisterPlayerRequest registerreq;
-    thresholdsignature::player* tsplayer = registerreq.add_playerid();
+    thresholdsignature::Player* tsplayer = new thresholdsignature::Player();
     tsplayer->set_name(p.userID());
     tsplayer->set_uri(p.uri()); 
     tsplayer->set_addr(p.addr()); 
     tsplayer->set_port(p.port()); 
+
+    thresholdsignature::RegisterRequest registerreq;
+    registerreq.set_allocated_playerid(tsplayer);
+
     
     os << TSMessageDefs::TS_REGISTER_PLAYER_REQUEST;
     if (!registerreq.SerializeToOstream(&os)){
@@ -56,8 +57,8 @@ void createRegisterPlayerRequest(const player& p, std::ostream& os){
     return ; 
 }
 
-void createRegisterPlayerResponse(const player& p, std::ostream& os){  
-    thresholdsignature::RegisterPlayerResponse resp;
+void createRegisterReply(const player& p, std::ostream& os){  
+    thresholdsignature::RegisterReply resp;
     resp.set_success(true);
     os << TSMessageDefs::TS_REGISTER_PLAYER_RESPONSE; 
     if (!resp.SerializeToOstream(&os)){
@@ -80,7 +81,7 @@ void createListPlayersResponse(const player& p, std::ostream& os){
     thresholdsignature::GetPlayerListResponse resp ;
     std::vector<player> players = getPlayerList(); 
     for(std::vector<player>::const_iterator iter = players.begin(); iter != players.end(); ++ iter){
-        thresholdsignature::player * tsp = resp.add_playerid();
+        thresholdsignature::Player * tsp = resp.add_playerid();
         tsp->set_name(iter->userID());
         tsp->set_uri(iter->uri());
         tsp->set_addr(iter->addr());
@@ -93,11 +94,11 @@ void createListPlayersResponse(const player& p, std::ostream& os){
     return;
 }
 
-void createThresholdGroupRequest(const player& p, const int& m, const int& n, std::ostream& os){
-    thresholdsignature::CreateThresholdGroup grpreq;
-    grpreq.set_proposerid(p.userID());
-    grpreq.set_recombinationthreshold(m);
-    grpreq.set_maxnumberofplayers(n);
+void createGroupRequest(const player& p, const int& m, const int& n, std::ostream& os){
+    thresholdsignature::CreateGroupRequest grpreq;
+    grpreq.set_userid(p.userID());
+    grpreq.set_m(m);
+    grpreq.set_n(n);
     os << TSMessageDefs::TS_CREATE_GROUP_REQUEST;
     if(!grpreq.SerializeToOstream(&os)){
         throw std::runtime_error ("Could not serialize create threshold group message" );
@@ -105,20 +106,25 @@ void createThresholdGroupRequest(const player& p, const int& m, const int& n, st
     return ;
 }
 
-void createThresholdGroupResponse(const player&, const std::string& grpid, const bool& grpset, std::ostream& os){
-    thresholdsignature::CreateThresholdGroupResponse grpRsp; 
-    grpRsp.set_groupset(grpset);
-    grpRsp.set_grpid(grpid);
+void createGroupReply(const player& p, const std::string& grpid, const bool& grpset, std::ostream& os){
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::CreateGroupReply grpRsp;     
+    id->set_userid( p.userID() );
+    id->set_groupid( grpid );
+    grpRsp.set_allocated_id( id ) ;
     os << TSMessageDefs::TS_CREATE_GROUP_RESPONSE;
     if(!grpRsp.SerializeToOstream(&os)){
         throw std::runtime_error( "Unabe to serialize a create threshold group response" );
     }
     return;
 }
-void createInviteToGroupMessage(const std::string& proposer, const std::string& grpid, std::ostream& os){
-    thresholdsignature::InviteToGroupRequest inviteReq;
-    inviteReq.set_proposeruserid(proposer);
-    inviteReq.set_groupid(grpid);
+//void createInviteToGroupMessage(const std::string& proposer, const std::string& grpid, std::ostream& os){
+void createInviteRequest( const std::string& grpid, std::ostream& os){
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::InviteRequest inviteReq;
+    id->set_groupid( grpid );
+    inviteReq.set_allocated_id( id ) ;
+
     os << TSMessageDefs::TS_INVITE_TO_GROUP_REQUEST;
     if (!inviteReq.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize invite to threshold group message");
@@ -126,14 +132,15 @@ void createInviteToGroupMessage(const std::string& proposer, const std::string& 
     return ; 
 }
  
-void createInviteToGroupResponse(const std::string& grpid, const std::string& playerid, const std::string& uri, const std::string& addr, const std::string& port, const bool& accepted, std::ostream& os){
-    thresholdsignature::InviteToGroupResponse inviteResp;
-    inviteResp.set_userid(playerid);
-    inviteResp.set_groupid(grpid);
-    inviteResp.set_useruri(uri);
-    inviteResp.set_userip(addr);
-    inviteResp.set_userport(port);
-    inviteResp.set_acceptinvite(accepted); 
+void createInviteReply(const std::string& grpid, const std::string& playerid, const bool& accepted, std::ostream& os){
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::InviteReply inviteResp;
+
+    id->set_userid  ( playerid );
+    id->set_groupid ( grpid );
+    inviteResp.set_allocated_id( id ) ;    
+    inviteResp.set_acceptance( accepted ); 
+
     os << TSMessageDefs::TS_INVITE_TO_GROUP_RESPONSE;
     if (!inviteResp.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize invite to threshold group message");
@@ -141,36 +148,49 @@ void createInviteToGroupResponse(const std::string& grpid, const std::string& pl
     return ; 
 }
 
-void createBroadCastGroupDetails(const GroupMetadata& grp, std::ostream& os){
-    thresholdsignature::ThresholdGroup tsgrp;
-    tsgrp.set_grpid(grp.groupid());
-    tsgrp.set_proposer(grp.proposer());
-    tsgrp.set_m(grp.m());
-    tsgrp.set_n(grp.n());
-    tsgrp.set_t(grp.t());
-    
-    
-    int ordinalChoice(1);
-    for(std::vector<playerCommsInfo>::const_iterator iter = grp.participantList().begin(); iter != grp.participantList().end(); ++iter){
-        thresholdsignature::ThresholdGroup::GroupMember* tsgrpmem = tsgrp.add_member();
-        tsgrpmem->set_userid(iter->m_userid);
-        tsgrpmem->set_useruri(iter->m_uri);
-        tsgrpmem->set_userip(iter->m_ip);
-        tsgrpmem->set_userport(iter->m_port);
-        tsgrpmem->set_ordinal(ordinalChoice++);
+void createGroupIsSetRequest
+    (const std::string& userId, const GroupMetadata& grp, std::ostream& os){
+
+    std::cout << "In createGroupIsSetRequest" << std::endl ;
+
+    thresholdsignature::GroupIsSetRequest tsreq;
+    tsreq.set_groupid( grp.groupid() ) ;
+    tsreq.set_degree( grp.t() ) ;
+
+    int ordinal( 1 ) ;
+    for ( auto iter : grp.participantList() ) 
+    {        
+        thresholdsignature::Player* id = new thresholdsignature::Player( ) ; 
+        id->set_name( iter.m_userid ) ;
+        id->set_uri ( iter.m_uri ) ;
+        id->set_addr( iter.m_ip) ;
+        id->set_port( iter.m_port ) ;
+ 
+        thresholdsignature::GroupIsSetRequest::Participant* ptcpnt = tsreq.add_participants() ; 
+        
+        ptcpnt->set_ordinal  ( ordinal++ ) ;
+        ptcpnt->set_allocated_playerid( id ) ;
     }
+
+
     os << TSMessageDefs::TS_BROADCAST_GROUP_DETAILS_REQUEST ; 
-    if(!tsgrp.SerializeToOstream(&os)){
+    if(!tsreq.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize broadcast group details");
     }
     return;
 }
 
-void createBroadCastGroupDetailsResponse(const std::string& grpid, const std::string& playerid, const bool& userset, std::ostream& os){
-    thresholdsignature::ThresholdGroupResponse resp;
-    resp.set_groupid (grpid); 
-    resp.set_userid (playerid);
-    resp.set_userset(userset);
+void createGroupIsSetReply(const std::string& grpid, const std::string& playerid, const bool& userset, std::ostream& os){
+//void createBroadCastGroupDetailsResponse(const std::string& grpid, const std::string& playerid, const bool& userset, std::ostream& os){
+    
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::GroupIsSetReply resp;
+    id->set_userid( playerid );
+    id->set_groupid( grpid );
+    resp.set_allocated_id( id ) ;
+
+
+    resp.set_success(userset);
     os << TSMessageDefs::TS_BROADCAST_GROUP_DETAILS_RESPONSE;
     if(!resp.SerializeToOstream(&os)){
         throw std::runtime_error("Unable to serialize broadcast group response");
@@ -225,10 +245,14 @@ void createDeleteTSPlayerGroupResponse(const std::string& userid, const std::str
 }
 
 void createSecretSharingRequest(const player& p, const std::string& grpid, const std::string& calctype, std::ostream& os){
-    thresholdsignature::SecretSharingRequest req;
-    req.set_userid(p.userID());
-    req.set_groupid(grpid);
-    req.set_calctype(calctype);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::ShareSecretRequest req;
+
+    id->set_userid          ( p.userID() );
+    id->set_groupid         ( grpid );
+    req.set_allocated_id    ( id ) ;
+    req.set_calculation     ( string2enum( calctype ) ) ;
+
     os << TSMessageDefs::TS_CREATE_GROUP_SECRET_REQUEST;
     if(!req.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialise SecretSharingRequest message for grp id grpid" + grpid); 
@@ -237,13 +261,15 @@ void createSecretSharingRequest(const player& p, const std::string& grpid, const
 }
 
 void createSecretSharingResponse(const player& p, const std::string& grpid, const std::string& calctype, const bool& sharedsecret, std::ostream& os){
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::ShareSecretReply resp;
 
-    thresholdsignature::SecretSharingResponse resp;
-    resp.set_userid(p.userID());
-    resp.set_groupid(grpid);
-    resp.set_calctype(calctype);
-    // figure out a way to pass success around
-    resp.set_sharedsecret(sharedsecret);
+    id->set_userid          ( p.userID() );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id   ( id ) ;
+    resp.set_calculation    ( string2enum( calctype ) ) ;
+    resp.set_success        ( sharedsecret ) ;
+
     os << TSMessageDefs::TS_CREATE_GROUP_SECRET_RESPONSE;
     if(!resp.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialise SecretSharingResponse message for group id" + grpid ); 
@@ -252,10 +278,15 @@ void createSecretSharingResponse(const player& p, const std::string& grpid, cons
 }
 
 void createSecretSharingInitEvalRequest(const std::string& proposer, const std::string& grpid, const std::string& calctype, std::ostream& os){
-    thresholdsignature::InitEvalSharingRequest req;
-    req.set_userid(proposer);
-    req.set_groupid(grpid);
-    req.set_calctype(calctype);
+    
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::InitShareEvalsRequest req;
+
+    id->set_userid          ( proposer );
+    id->set_groupid         ( grpid );
+    req.set_allocated_id    ( id ) ;
+
+    req.set_calculation     ( string2enum( calctype) );
     os << TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_REQUEST;
     if(!req.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize SecretSharingInitEvalRequest for group id" + grpid);
@@ -264,11 +295,15 @@ void createSecretSharingInitEvalRequest(const std::string& proposer, const std::
 }
 
 void createSecretSharingInitEvalResponse(const std::string& userid, const std::string& grpid, const std::string& calctype, const bool& evalShareComplete, std::ostream& os){
-    thresholdsignature::InitEvalSharingResponse resp;
-    resp.set_userid(userid);
-    resp.set_groupid(grpid);
-    resp.set_calctype(calctype);
-    resp.set_evalsshared(evalShareComplete);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::InitShareEvalsReply resp;
+
+    id->set_userid          ( userid );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id   ( id ) ;
+
+    resp.set_calculation    ( string2enum(calctype) ) ;
+    resp.set_success        ( evalShareComplete );
     os << TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_RESPONSE;
     if(!resp.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize SecretSharingInitEvalRequest for group id" + grpid);
@@ -283,11 +318,16 @@ void createPrivateDataEvalRequest(const std::string& userid, const std::string& 
     if(evalIter == secrets.m_evals.end()){
         throw std::runtime_error("No evalution for player ordinal " + std::to_string(playerord) + " in the list of evaluated players");
     } 
-    thresholdsignature::EvalSharingRequest req;
-    req.set_userid(userid);
-    req.set_groupid(grpid);
-    req.set_fromord(std::to_string(ord));
-    req.set_eval(evalIter->second.ToHex());
+
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::DistributeEvalsRequest req;
+
+    id->set_userid          ( userid );
+    id->set_groupid         ( grpid );
+    req.set_allocated_id    ( id ) ;
+
+    req.set_fromordinal     (ord);
+    req.set_f_x(evalIter->second.ToHex());
     os << TSMessageDefs::TS_CREATE_PRIVATE_EVAL_REQUEST;
     if(!req.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize PrivateDataEvalRequest for player " + std::to_string(ord) );
@@ -296,10 +336,14 @@ void createPrivateDataEvalRequest(const std::string& userid, const std::string& 
 }
 
 void createPrivateDataEvalResponse(const std::string& userid, const std::string& grpid, const bool& evaladded, std::ostream& os){
-    thresholdsignature::EvalSharingResponse resp;
-    resp.set_userid(userid);
-    resp.set_groupid(grpid);
-    resp.set_evalreceived(evaladded);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::DistributeEvalsReply resp;
+
+    id->set_userid          ( userid );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id    ( id ) ;
+
+    resp.set_success        ( evaladded );
     os << TSMessageDefs::TS_INITIATE_PRIVATE_EVAL_RESPONSE;
     if(!resp.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize PrivateDataEvalResponse for player " + userid );
@@ -307,10 +351,16 @@ void createPrivateDataEvalResponse(const std::string& userid, const std::string&
     return;
 }
 void createSecretSharingPlayerDataRequest(const std::string& p, const std::string& grpid, const std::string& calctype, std::ostream& os){
-    thresholdsignature::SecretSharingPlayerDataRequest req;
-    req.set_userid(p);
-    req.set_groupid(grpid);
-    req.set_calctype(calctype);
+
+    thresholdsignature::ShareSecretDataRequest req;
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    req.set_allocated_id    ( id ) ;
+    req.set_calculation     ( string2enum( calctype ) );
+
+
     os << TSMessageDefs::TS_CREATE_PLAYER_SECRET_REQUEST;
     if(!req.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialise SecretSharingPlayerDataRequest for player p " + p + "and group id: " + grpid);
@@ -320,38 +370,40 @@ void createSecretSharingPlayerDataRequest(const std::string& p, const std::strin
 void createSecretSharingPlayerDataResponse(const std::string& p, const std::string& grpid, const std::string& calctype , const int& ord, const jvrss& secrets, std::ostream& os){
 
     
-    thresholdsignature::SecretSharingPlayerDataResponse resp;
-    resp.set_userid(p);
-    resp.set_groupid(grpid);
-    resp.set_calctype(calctype);
-    resp.set_ordinal(ord);
-    
-    // if the calculation type != PRIVATEKEYSHARE, regenerate the polynomial,evals, etc.
-    
-    //for(std::map<std::string, BigNumber>::const_iterator evalIter = secrets.m_evals.begin(); evalIter != secrets.m_evals.end(); ++evalIter){
-    //    thresholdsignature::stringPair* evals = resp.add_evals();
-    //    evals->set_ordinal(evalIter->first);
-    //    evals->set_eval(evalIter->second.ToHex());
-    //}
-    
-         
-    for(std::map<std::string, std::vector<std::pair<std::string,ECPoint> > >::const_iterator hiddenEvalIter = secrets.m_hiddenEvals.begin();
-            hiddenEvalIter != secrets.m_hiddenEvals.end(); ++ hiddenEvalIter){
-        thresholdsignature::KeyStringAndValueListStringPair* ptrHiddenEvals = resp.add_hiddenevals();
-        ptrHiddenEvals->set_key(hiddenEvalIter->first);
-        for(std::vector<std::pair<std::string, ECPoint> >::const_iterator ecptIter = hiddenEvalIter->second.begin(); ecptIter != hiddenEvalIter->second.end(); ++ ecptIter){
-            thresholdsignature::stringPair* ecpt = ptrHiddenEvals->add_value();
-            ecpt->set_ordinal(ecptIter->first);
-            ecpt->set_eval(ecptIter->second.ToHex());
-        }
+    thresholdsignature::ShareSecretDataReply resp;
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id   ( id ) ;
+
+    resp.set_ordinal        ( ord ) ;
+    resp.set_calculation    ( string2enum( calctype ) );
+
+    for(
+            std::vector<ECPoint>::const_iterator hiddenPolyIter =  secrets.m_hiddenPolynomial.begin();
+            hiddenPolyIter != secrets.m_hiddenPolynomial.end(); 
+            ++hiddenPolyIter
+        )
+    {
+        resp.add_hiddenpoly( hiddenPolyIter->ToHex() ) ; 
     }
-    
-    
-    thresholdsignature::HiddenPoly* ptrPoly = resp.add_hiddenpoly();
-    for(std::vector<ECPoint>::const_iterator hiddenPolyIter =  secrets.m_hiddenPolynomial.begin();
-            hiddenPolyIter != secrets.m_hiddenPolynomial.end(); ++hiddenPolyIter){
-        thresholdsignature::singleString* ptrToElement = ptrPoly->add_val();
-        ptrToElement->set_val(hiddenPolyIter->ToHex());
+
+    std::map<std::string, std::vector<std::pair<std::string,ECPoint> > >::const_iterator 
+        hiddenEvalIter = secrets.m_hiddenEvals.find(std::to_string(ord) ) ;
+    if ( hiddenEvalIter != secrets.m_hiddenEvals.end() ) 
+    {
+
+        // Create Hidden Evals
+        for(
+                std::vector<std::pair<std::string, ECPoint> >::const_iterator ecptIter = hiddenEvalIter->second.begin(); 
+                ecptIter != hiddenEvalIter->second.end(); 
+                ++ ecptIter
+            )
+        {
+            thresholdsignature::evaluatedPoly* ep = resp.add_hiddenevals() ;
+            ep->set_ordinal ( std::stoi( ecptIter->first ) ) ;
+            ep->set_f_x     ( ecptIter->second.ToHex() ) ;
+        }
     }
     
     os << TSMessageDefs::TS_CREATE_PLAYER_SECRET_RESPONSE ; 
@@ -364,94 +416,112 @@ void createSecretSharingPlayerDataResponse(const std::string& p, const std::stri
 }
 
 void createSecretSharingCollatedDataRequest(const std::string& p, const std::string& grpid, const std::string& calctype, const GroupMetadata& grp, std::ostream& os){
-    thresholdsignature::SecretSharingCollatedPlayerRequest ssCollatedDataRequest;
-    ssCollatedDataRequest.set_userid(p);
-    ssCollatedDataRequest.set_groupid(grpid);
-    ssCollatedDataRequest.set_calctype(calctype);
+
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::CollatedSecretRequest req;    
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    req.set_allocated_id    ( id ) ;
+
+    req.set_calculation( string2enum(calctype) ) ;
     
-    //thresholdsignature::KeyStringAndValueListStringPair* evalsPtr = ssCollatedDataRequest.add_collatedevals();
-    //for(std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::const_iterator iter = grp.collatedEvals().begin(); iter != grp.collatedEvals().end(); ++iter){
-    //    thresholdsignature::KeyStringAndValueListStringPair* evalsPtr = ssCollatedDataRequest.add_collatedevals();
-    //    evalsPtr->set_key(iter->first);
-    //    for(std::vector<std::pair<std::string,BigNumber> >::const_iterator innerIter = iter->second.begin(); innerIter != iter->second.end(); ++ innerIter){
-    //        thresholdsignature::stringPair* ptrValue = evalsPtr->add_value();
-    //        ptrValue->set_ordinal(innerIter->first);
-    //        ptrValue->set_eval(innerIter->second.ToHex());
-    //    }
-    //}
-    
-    //thresholdsignature::KeyStringAndValueListRepeatedString* hiddenPolyPtr = ssCollatedDataRequest.add_collatedhiddenpolys();
-    for(std::map<std::string, std::vector<ECPoint> >::const_iterator iter = grp.CollatedHiddenPolys().begin(); iter != grp.CollatedHiddenPolys().end(); ++ iter){
-        thresholdsignature::KeyStringAndValueListRepeatedString* hiddenPolyPtr = ssCollatedDataRequest.add_collatedhiddenpolys();
-        hiddenPolyPtr->set_key(iter->first);
-        for(std::vector<ECPoint>::const_iterator innerIter = iter->second.begin(); innerIter != iter->second.end(); ++innerIter){
-            thresholdsignature::singleString* ptrValue = hiddenPolyPtr->add_value();
-            ptrValue->set_val(innerIter->ToHex());
+
+    // hiddenPolys
+    for ( auto const& iter : grp.CollatedHiddenPolys() ) 
+    {
+        thresholdsignature::hiddenPolynomial* hp = req.add_hiddenpolys( ) ;
+        hp->set_ordinal( std::stoi( iter.first ) ) ;
+
+        for ( auto const& innerIter : iter.second ) 
+        {
+            hp->add_coefficients( innerIter.ToHex() ) ;
         }
     }
-    //thresholdsignature::KeyStringAndValueListStringPair* collatedHiddenEvalsPtr = ssCollatedDataRequest.add_collatedhiddenevals();
-    for(std::map<std::string, std::vector<std::pair<std::string, ECPoint> > >::const_iterator iter = grp.CollatedHiddenEvals().begin(); iter != grp.CollatedHiddenEvals().end(); ++ iter){
-        thresholdsignature::KeyStringAndValueListStringPair* collatedHiddenEvalsPtr = ssCollatedDataRequest.add_collatedhiddenevals();
-        collatedHiddenEvalsPtr->set_key(iter->first); 
-        for(std::vector<std::pair<std::string,ECPoint> >::const_iterator innerIter = iter->second.begin(); innerIter != iter->second.end(); ++ innerIter){
-            thresholdsignature::stringPair* ptrValue = collatedHiddenEvalsPtr->add_value();
-            ptrValue->set_ordinal(innerIter->first);
-            ptrValue->set_eval(innerIter->second.ToHex());
+
+    // hiddenEvals
+    for ( auto const& iter : grp.CollatedHiddenEvals() )
+    {
+        thresholdsignature::listOfPolynomials* lp = req.add_hiddenevals( ) ;        
+        lp->set_ordinal( std::stoi( iter.first ) ) ;
+
+
+        for ( auto const& innerIter : iter.second ) 
+        {
+            thresholdsignature::evaluatedPoly* ep = lp->add_ep( ) ;
+            ep->set_ordinal( std::stoi( innerIter.first) ) ;
+            ep->set_f_x( innerIter.second.ToHex() ) ;
         }
     }
     
     os << TSMessageDefs::TS_CREATE_COLLATED_SECRET_PLAYER_REQUEST;
-    if(!ssCollatedDataRequest.SerializeToOstream(&os)){
+    if(!req.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize SecretSharingCollatedDataRequest for player " + p + " and group " + grpid);
     }
     return ; 
 }
 
 void createSecretSharingCollatedPlayerResponse(const std::string& p, const std::string& grpid, const std::string& calctype,std::ostream& os){
-    thresholdsignature::SecretSharingCollatedPlayerResponse ssCollatedDataResp; 
-    ssCollatedDataResp.set_userid(p);
-    ssCollatedDataResp.set_groupid(grpid);
-    ssCollatedDataResp.set_calctype(calctype);
-    ssCollatedDataResp.set_collatedplayerdatavalidated(true);
+
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::CollatedSecretReply resp; 
+ 
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id   ( id ) ;
+
+    resp.set_calculation( string2enum( calctype ) ) ;
+    resp.set_success( true ) ;
     os << TSMessageDefs::TS_CREATE_COLLATED_SECRET_PLAYER_RESPONSE;
-    if(!ssCollatedDataResp.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialize SecretSharingCollatedPlayerResponse for player " + p + " and group " + grpid);
+    if(!resp.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize Collated Secret Reply for player " + p + " and group " + grpid);
     }
     
     return ; 
 }
 
 void createEphemeralKeyDataRequest(const std::string& p, const std::string& grpid, std::ostream& os){
-    thresholdsignature::EphemeralKeyDataRequest emphemeraldatareq;
-    emphemeraldatareq.set_userid(p);
-    emphemeraldatareq.set_groupid(grpid);
+
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::InitPresignRequest req;
+ 
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    req.set_allocated_id   ( id ) ;
+
     os << TSMessageDefs::TS_CREATE_PRE_SIG_REQUEST;
-    if(!emphemeraldatareq.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialize EphemeralKeyDataRequest for player " + p + " and group " + grpid);
+    if(!req.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize InitPresignRequest for player " + p + " and group " + grpid);
     }
     return;
 }
 
 void createEphemeralKeyDataResponse(const std::string& p, const std::string& grpid, std::ostream& os){
-    thresholdsignature::EphemeralKeyDataResponse ekeyplayerdataresp;
-    ekeyplayerdataresp.set_userid(p);
-    ekeyplayerdataresp.set_groupid(grpid);
-    ekeyplayerdataresp.set_emphemeralkeydataset(true);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::InitPresignReply resp;
+ 
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id   ( id ) ;
+
+    resp.set_success(true);
     
     os << TSMessageDefs::TS_CREATE_PRE_SIG_RESPONSE;
-    if(!ekeyplayerdataresp.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialize EphemeralKeyDataResponse for player " + p + " and group " + grpid);
+    if(!resp.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize InitPresignReply for player " + p + " and group " + grpid);
     }
     return ;
 }
 
 void createEphermalKeyPlayerDataRequest(const std::string& p, const std::string& grpid, std::ostream& os){
-    thresholdsignature::EphemeralKeyPlayerDataRequest ekeyplayerdatareq;
-    ekeyplayerdatareq.set_userid(p);
-    ekeyplayerdatareq.set_groupid(grpid);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::ShareVWDataMessageRequest resp;
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id   ( id ) ;
+
     os << TSMessageDefs::TS_CREATE_PRE_SIG_PLAYER_REQUEST;
-    if(!ekeyplayerdatareq.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialize EphemeralKeyPlayerDataRequest for player " + p + " and group " + grpid);
+    if(!resp.SerializeToOstream(&os)){
+        throw std::runtime_error("could not serialize ShareVWDataMessageRequest for player " + p + " and group " + grpid);
     }
     return ; 
 }
@@ -459,74 +529,100 @@ void createEphermalKeyPlayerDataRequest(const std::string& p, const std::string&
 
 
 void createEphemeralKeyPlayerDataResponse(const std::string& p, const std::string & grpid, const int& ordinal, const std::pair<BigNumber, ECPoint>& ekey, std::ostream& os){
-    thresholdsignature::EphemeralKeyPlayerDataResponse ekyplayerdataresp;
-    ekyplayerdataresp.set_userid(p);
-    ekyplayerdataresp.set_groupid(grpid);
-    ekyplayerdataresp.set_ordinal(ordinal);
-    ekyplayerdataresp.set_kalpha(ekey.first.ToHex());
-    ekyplayerdataresp.set_alphag(ekey.second.ToHex());
+    
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::ShareVWDataMessage resp;
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id   ( id ) ;  
+
+    thresholdsignature::VWData* vw = new thresholdsignature::VWData( ) ;
+    vw->set_ordinal( ordinal ) ;
+    vw->set_v( ekey.first.ToHex() ) ;
+    vw->set_w( ekey.second.ToHex() ) ;
+    resp.set_allocated_data ( vw ) ;
+
     os << TSMessageDefs::TS_CREATE_PRE_SIG_PLAYER_RESPONSE;
-    if(!ekyplayerdataresp.SerializeToOstream(&os)){
+    if(!resp.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize EphemeralKeyPlayerDataResponse for player " + p + " and group " + grpid);
     }
     return ; 
 }
 
 void createEphemeralKeyCollatedDataRequest(const std::string& p, const std::string& grpid, const GroupMetadata& grp, std::ostream& os){
-    thresholdsignature::AllEphemeralKeyPlayerRequest ekeyCollatedReq;
-    ekeyCollatedReq.set_groupid(grpid);
-    for(std::map<std::string, std::pair<BigNumber, ECPoint> >::const_iterator iter = grp.CollatedVW().begin(); iter != grp.CollatedVW().end(); ++ iter){
-        thresholdsignature::OrdinalVW* ptrOrdVW = ekeyCollatedReq.add_collatedvws();
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::CollatedVWShareRequest req;
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    req.set_allocated_id    ( id ) ;
 
-        ptrOrdVW->set_ordinal(iter->first);
+    for(
+            std::map<std::string, std::pair<BigNumber, ECPoint> >::const_iterator iter = grp.CollatedVW().begin(); 
+            iter != grp.CollatedVW().end(); 
+            ++ iter
+        )
+    {
+        thresholdsignature::VWData* ptrOrdVW = req.add_data();
+        ptrOrdVW->set_ordinal(std::stoi( iter->first));
         ptrOrdVW->set_v(iter->second.first.ToHex());
         ptrOrdVW->set_w(iter->second.second.ToHex());
     }
     os << TSMessageDefs::TS_CREATE_COLLATED_PRE_SIG_REQUEST;
-    if(!ekeyCollatedReq.SerializeToOstream(&os)){
+    if(!req.SerializeToOstream(&os)){
        throw std::runtime_error("could not serialize AllEphemeralKeyPlayerRequest for player " + p + " and group " + grpid);
     }
-    
     return ; 
 }
 
 void createAEphemeralKeyCollatedDataResponse(const std::string& p, const std::string& grpid, const std::string& ordinal, std::ostream& os){
-    thresholdsignature::AllEphemeralKeyPlayerResponse ekeyCollatedResp;
-    ekeyCollatedResp.set_userid(p);
-    ekeyCollatedResp.set_groupid(grpid);
-    ekeyCollatedResp.set_ordinal(ordinal);
+   
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::CollatedVWShareReply resp;
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id   ( id ) ;    
+
+
+    resp.set_ordinal( std::stoi( ordinal ) ) ;
+
     // need a way to track & report failures
-    ekeyCollatedResp.set_ephemeralkeyplayerset(true);
+    resp.set_success(true);
     os << TSMessageDefs::TS_CREATE_COLLATED_PRE_SIG_RESPONSE;
-    if(!ekeyCollatedResp.SerializeToOstream(&os)){
+    if(!resp.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize AllEphemeralKeyPlayerResponse for player " + p + " and group " + grpid); 
     }
     return ;
 }
 
 void createSignatureRequest(const std::string& p, const std::string& grpid, const std::string& msg, const int& eKeyIndex, std::ostream& os){
-    thresholdsignature::GenerateSignatureRequest sigreq;
-    sigreq.set_userid(p);
-    sigreq.set_groupid(grpid);
-    sigreq.set_msg(msg);
-    sigreq.set_emphemeralkeyindex(eKeyIndex);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::InitSignatureRequest sigreq;
+    id->set_userid          ( p );
+    id->set_groupid         ( grpid );
+    sigreq.set_allocated_id ( id ) ;  
+
+    sigreq.set_message(msg);
+    sigreq.set_keyindex(eKeyIndex);
     os << TSMessageDefs::TS_CREATE_GROUP_SIG_REQUEST;
     if(!sigreq.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialize GenerateSignatureRequest for player " + p + " and group " + grpid);
+        throw std::runtime_error("could not serialize InitSignatureRequest for player " + p + " and group " + grpid);
     }
     return ;
 }
 
 void createSignatureResponse(const std::string& p, const std::string& grpid, const GroupMetadata& grp , const std::string& msg, const int& ekeyindex,std::ostream& os){
-    thresholdsignature::GenerateSignatureResponse sigresp;  
-    sigresp.set_userid(p);
-    sigresp.set_groupid(grpid);
-    sigresp.set_msg(msg);
-    sigresp.set_emphemeralkeyindex(ekeyindex);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::SignDataMessage sigresp;
+    id->set_userid              ( p );
+    id->set_groupid             ( grpid );
+    sigresp.set_allocated_id    ( id ) ;  
+
+    sigresp.set_message(msg);
+    sigresp.set_keyindex(ekeyindex);
     for(std::vector<std::pair<std::string, BigNumber> >::const_iterator iter = grp.CollatedPartialSignatures().begin(); iter != grp.CollatedPartialSignatures().end(); ++iter){
-        thresholdsignature::stringPair* siginfo = sigresp.add_partialsignatures();
-        siginfo->set_ordinal(iter->first);
-        siginfo->set_eval(iter->second.ToHex());
+        thresholdsignature::SigData* siginfo = sigresp.add_signatures();
+        siginfo->set_ordinal(std::stoi( iter->first) );
+        siginfo->set_signature(iter->second.ToHex());
     }
     os << TSMessageDefs::TS_CREATE_GROUP_SIG_RESPONSE;
     if(!sigresp.SerializeToOstream(&os)){
@@ -536,11 +632,11 @@ void createSignatureResponse(const std::string& p, const std::string& grpid, con
 }
 
 void createSignaturePlayerDataRequest(const std::string& p, const std::string& grpid, const std::string& themessage, const int& ekeyIndex, std::ostream& os){
-    thresholdsignature::SignaturePlayerDataRequest playersigreq;
-    playersigreq.set_userid(p);
-    playersigreq.set_groupid(grpid);
-    playersigreq.set_msg(themessage);
-    playersigreq.set_emphemeralkeyindex(ekeyIndex);
+    thresholdsignature::ShareOfSigRequest playersigreq;
+    playersigreq.set_groupid ( grpid ) ;  
+
+    playersigreq.set_message(themessage);
+    playersigreq.set_keyindex(ekeyIndex);
     os << TSMessageDefs::TS_CREATE_SIG_PLAYER_REQUEST;
     if(!playersigreq.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize SignaturePlayerDataRequest for player " + p + " and group " + grpid);
@@ -549,12 +645,15 @@ void createSignaturePlayerDataRequest(const std::string& p, const std::string& g
 }
 
 void createSignaturePlayerDataResponse(const std::string& p, const std::string& grpid, const std::pair<std::string, BigNumber>& siginfo, const int& ekeyindex,std::ostream& os){
-    thresholdsignature::SignaturePlayerDataResponse playersigresp;
-    playersigresp.set_userid(p);
-    playersigresp.set_groupid(grpid);
-    playersigresp.set_ordinal(siginfo.first);
-    playersigresp.set_emphemeralkeyindex(ekeyindex);
-    playersigresp.set_signatureshare(siginfo.second.ToHex());
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::ShareOfSigReply playersigresp;
+    id->set_userid          ( p ) ;
+    id->set_groupid         ( grpid ) ;
+    playersigresp.set_allocated_id ( id ) ;  
+
+    playersigresp.set_ordinal(std::stoi( siginfo.first ) );
+    playersigresp.set_keyindex(ekeyindex);
+    playersigresp.set_signature(siginfo.second.ToHex());
     os << TSMessageDefs::TS_CREATE_SIG_PLAYER_RESPONSE;
     if(!playersigresp.SerializeToOstream(&os)){
         throw std::runtime_error("could not serialize SignaturePlayerDataResponse for player " + p + " and group " + grpid);
@@ -563,12 +662,14 @@ void createSignaturePlayerDataResponse(const std::string& p, const std::string& 
 }
 
 void createPrivateKeyRequest(const std::string& p,  const std::string& grpid, const std::vector<std::string>& users, std::ostream& os){
-    thresholdsignature::GenerateGroupPrivateKeyRequest priKeyReq; 
-    priKeyReq.set_userid(p);
-    priKeyReq.set_groupid(grpid);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::GenerateGroupPrivateKeyRequest priKeyReq;
+    id->set_userid          ( p ) ;
+    id->set_groupid         ( grpid ) ;
+    priKeyReq.set_allocated_id ( id ) ;  
+    
     for(std::vector<std::string>::const_iterator iter = users.begin(); iter != users.end(); ++ iter){
-        thresholdsignature::singleString* pinfo = priKeyReq.add_players();
-        pinfo->set_val(*iter);
+        priKeyReq.add_players( *iter ) ;
     }
     os << TSMessageDefs::TS_CREATE_PRIKEY_REQUEST;
     if(!priKeyReq.SerializeToOstream(&os)){
@@ -578,9 +679,12 @@ void createPrivateKeyRequest(const std::string& p,  const std::string& grpid, co
 }
 
 void createPrivateKeyResponse(const std::string& p, const std::string& grpid, const bool& keyshared, std::ostream& os){
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
     thresholdsignature::GenerateGroupPrivateKeyResponse prikeyresp;
-    prikeyresp.set_userid(p);
-    prikeyresp.set_groupid(grpid);
+    id->set_userid          ( p ) ;
+    id->set_groupid         ( grpid ) ;
+    prikeyresp.set_allocated_id ( id ) ;  
+    
     prikeyresp.set_privatedatashared(keyshared);
     os << TSMessageDefs::TS_CREATE_PRIKEY_RESPONSE;
     if(!prikeyresp.SerializeToOstream(&os)){
@@ -590,20 +694,26 @@ void createPrivateKeyResponse(const std::string& p, const std::string& grpid, co
 }
  
  void createPlayerPrivateShareExchangeRequest(const std::string& p, const std::string& grpid, std::ostream& os){
-     thresholdsignature::PlayerPrivateShareExchangeRequest req;
-     req.set_userid(p);
-     req.set_groupid(grpid);
-     os << TSMessageDefs::TS_CREATE_PRIKEYSHARE_EXCHANGE_REQUEST;
-     if(!req.SerializeToOstream(&os)){
-        throw std::runtime_error("could not serialize PlayerPrivateShareExchangeRequest for player " + p + " and group " + grpid);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::PlayerPrivateShareExchangeRequest req;
+    id->set_userid          ( p ) ;
+    id->set_groupid         ( grpid ) ;
+    req.set_allocated_id ( id ) ;  
+    
+    os << TSMessageDefs::TS_CREATE_PRIKEYSHARE_EXCHANGE_REQUEST;
+    if(!req.SerializeToOstream(&os)){
+       throw std::runtime_error("could not serialize PlayerPrivateShareExchangeRequest for player " + p + " and group " + grpid);
     }
     return;
  }
 
  void createPlayerPrivateShareExchangeResponse(const std::string& p, const std::string& grpid, const bool& keyshared, std::ostream& os){
-     thresholdsignature::PlayerPrivateShareExchangeResponse resp;
-     resp.set_userid(p);
-     resp.set_groupid(grpid);
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::PlayerPrivateShareExchangeResponse resp;
+    id->set_userid          ( p ) ;
+    id->set_groupid         ( grpid ) ;
+    resp.set_allocated_id ( id ) ;  
+
      resp.set_privatedatashared(keyshared);
      os << TSMessageDefs::TS_CREATE_PRIKEYSHARE_EXCHANGE_RESPONSE ;
      if(!resp.SerializeToOstream(&os)){
@@ -614,11 +724,15 @@ void createPrivateKeyResponse(const std::string& p, const std::string& grpid, co
  }
 
  void createPlayerPrivateKeyShareRequest(const playerGroupMetaData& grpinfo,std::ostream& os){
-    thresholdsignature::PlayerPrivateKeyShareRequest req;
 
-    req.set_userid(getPublicPlayerInfo().userID());
-    req.set_groupid(grpinfo.m_id);
-    req.set_ordinal(std::to_string(grpinfo.m_ordinal));
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
+    thresholdsignature::PlayerPrivateKeyShareRequest req;
+    id->set_userid          ( getPublicPlayerInfo().userID());
+    id->set_groupid         ( grpinfo.m_id );
+    req.set_allocated_id ( id ) ;  
+
+
+    req.set_ordinal(grpinfo.m_ordinal);
     req.set_privatekeyshare(grpinfo.privateKeyShare().ToHex());
     os << TSMessageDefs::TS_CREATE_PLAYER_PRIKEY_REQUEST;
     if(!req.SerializeToOstream(&os)){
@@ -628,9 +742,12 @@ void createPrivateKeyResponse(const std::string& p, const std::string& grpid, co
  }
 
 void createPlayerPrivateKeyShareResponse(const std::string& userid, const std::string& grpid, const bool& sharerec, std::ostream& os){
+    thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
     thresholdsignature::PlayerPrivateKeyShareResponse resp;
-    resp.set_userid(userid);
-    resp.set_groupid(grpid);
+    id->set_userid          ( userid );
+    id->set_groupid         ( grpid );
+    resp.set_allocated_id ( id ) ;  
+
     resp.set_sharedprivatekeyshare(sharerec);
     os << TSMessageDefs::TS_CREATE_PLAYER_PRIKEY_RESPONSE;
     if(!resp.SerializeToOstream(&os)){

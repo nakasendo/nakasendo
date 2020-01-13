@@ -47,6 +47,14 @@ class GroupMetadata
         
         const bool& GroupSet() const { return m_GroupSet; }
         bool& GroupSet() { return m_GroupSet;}
+
+        int getGroupIsSetParameters
+            ( 
+        const std::string& user, 
+        //const GroupMetadata& grp,
+        std::vector<int>& resList
+    ) const ;
+    //( const std::string&, const std::string&, std::vector<int>& );
         
         const int& GroupInviteReplies() const { return m_GroupInviteReplies; }
         int& GroupInviteReplies() { return m_GroupInviteReplies; }

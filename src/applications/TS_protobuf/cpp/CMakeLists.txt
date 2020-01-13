@@ -10,7 +10,7 @@ if(NOT Protobuf_FOUND)
   return()
 endif()
 
-set(ThresholdSignature_PROTOFILE "${CMAKE_CURRENT_SOURCE_DIR}/../protos/ts.proto")
+set(ThresholdSignature_PROTOFILE "${CMAKE_CURRENT_SOURCE_DIR}/../protos/ts_messages.proto" "${CMAKE_CURRENT_SOURCE_DIR}/../protos/ts_enums.proto")
 protobuf_generate_cpp(ThresholdSignature_SRCS ThresholdSignature_HDRS ${ThresholdSignature_PROTOFILE})
 
 set(TSCore_HPP_FILES

@@ -208,6 +208,11 @@ class Orchestrator( ) :
                 
         return ordinal, listExcludingUser, group.t
 
+    def getDegree(self, groupId):
+        group = self.groups[groupId]
+
+        return group.t
+
 
     #-------------------------------------------------
     # get list of users ordinal : reference

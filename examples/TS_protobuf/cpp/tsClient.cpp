@@ -18,7 +18,6 @@
 std::string Options (){
     std::stringstream os;
     os << "List of available options"
-        << "\n\t1.....Print the time"
         << "\n\tr.....Register player"
         << "\n\tl.....List Registered players"
         << "\n\tc.....create a group"
@@ -95,12 +94,8 @@ int main(int argc, char* argv[])
             std::cin >> userChoice;
             switch(userChoice)
             {
-                case '1':
-                    createTimeRequest(SinglePlayer::Instance()->publicInfo() ,os); 
-                    genericRequestResponse(os,b,address, port);
-                    break;
                 case 'r':
-                    createRegisterPlayerRequest(SinglePlayer::Instance()->publicInfo() ,os);
+                    createRegisterRequest(SinglePlayer::Instance()->publicInfo() ,os);
                     genericRequestResponse(os,b,address, port);
                     break;
                 case 'l':
@@ -112,7 +107,7 @@ int main(int argc, char* argv[])
                     std::cin >> n;
                     std::cout << "please input group size" << std::endl;
                     std::cin >> m;
-                    createThresholdGroupRequest(SinglePlayer::Instance()->publicInfo() ,n,m,os);
+                    createGroupRequest(SinglePlayer::Instance()->publicInfo() ,n,m,os);
                     genericRequestResponse(os,b,address,port);
                     break;
                 case 'p':

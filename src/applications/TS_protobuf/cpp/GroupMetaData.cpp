@@ -2,6 +2,7 @@
 #include <GroupMetaData.h>
 
 #include <algorithm>
+#include <list>
 
 
 std::ostream& operator<< (std::ostream& os, const playerCommsInfo& obj){
@@ -43,6 +44,46 @@ GroupMetadata& GroupMetadata::operator= (const GroupMetadata& obj){
         m_calculationType = obj.m_calculationType;
     }
     return *this;
+}
+
+int GroupMetadata::getGroupIsSetParameters
+    ( 
+        const std::string& user, 
+        //const GroupMetadata& grp,
+        std::vector<int>& resList
+    ) const
+{
+
+    std::cout << "JAS: getGroupIsSetParameters" << std::endl ;
+    int count = 1 ;
+    int ordinal = 0 ;
+
+    // construct list from participant list
+    std::list< std::string > playerIds ;
+    for ( auto iter : this->participantList() ) 
+    {
+        playerIds.push_back( iter.m_userid ) ;
+        if ( iter.m_userid == user ) 
+            ordinal = count++ ;
+        else
+            resList.push_back( count++ );
+
+        std::cout << iter.m_userid << " " ;
+    }
+
+    std::cout << "\nuser = " << user << "\tordinal = " << ordinal << "\nordinalList = " ;
+    for ( auto iter : resList ) 
+    {
+        std::cout << iter << " " ;
+    }
+    std::cout << std::endl ;
+
+
+    return ordinal ;
+    //playerIds 
+    // return ordinal 
+    // return listExcludingUser as:
+    // resList.append()
 }
 
 void GroupMetadata::addUserToGroup(const std::string& userid, const std::string& uri, const std::string& addr, const std::string& port){

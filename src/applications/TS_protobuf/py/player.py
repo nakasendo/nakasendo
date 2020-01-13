@@ -63,6 +63,7 @@ class PlayerGroupMetadata :
         self.id                     = id            # Group ID
         self.ordinal                = ordinal       # Label assigned by orchestrator
         self.ordinalList            = ordinalList   # labels of other participants in the group
+                                                    # stored in a Tuple with communication info
         self.degree                 = degree        # degree of the polynomial
         self.privateKeyPolynomial   = None          # Polynomial for this group
         self.privateKeyShare        = None          # calculated share of secret
@@ -98,6 +99,16 @@ class PlayerGroupMetadata :
             
         return string
 
+    # Helper function to return a list of all ordinals
+    def allOrdinals( self ) :
+
+        allOrdinals = []
+        for i in self.ordinalList :
+            allOrdinals.append( i[0] )
+        allOrdinals.append(self.ordinal)
+
+        return allOrdinals
+
     # Method to do pre-calculation setup
     # i.e. Using the Polynomial parameter, store calculated data in transient data
     #       - Evaluate the polynomial for own ordinal
@@ -118,9 +129,9 @@ class PlayerGroupMetadata :
 
         # evaluate polynomials for the group ordinals
         for ord in self.ordinalList :
-            self.transientData.evals[ord] = poly(str(ord))
-            bignum = Nakasendo.BigNum( self.transientData.evals[ord], mod )
-            self.transientData.hiddenEvals[ord] = \
+            self.transientData.evals[ord[0]] = poly(str(ord[0]))
+            bignum = Nakasendo.BigNum( self.transientData.evals[ord[0]], mod )
+            self.transientData.hiddenEvals[ord[0]] = \
                 str(Nakasendo.ECPoint().GetGeneratorPoint().multipleScalar(bignum))
 
         # hide own polynomial using generator point
@@ -236,6 +247,9 @@ class Player :
     def getOrdinal( self, groupId ) :
         return self.groups[groupId].ordinal 
 
+    #-------------------------------------------------
+    def getOrdinalList( self, groupId ) :
+        return self.groups[groupId].ordinalList
 
     #-------------------------------------------------
     # Add Group - create the PlayerGroupMetadata
@@ -353,8 +367,11 @@ class Player :
     def verifyCorrectness(self, groupId, hiddenEvals, hiddenPolys):
 
         group = self.groups[groupId]
-        ordinalList = list(group.ordinalList)
-        ordinalList.append(group.ordinal)
+        ordinalList = group.allOrdinals( )
+        #ordinalList = []
+        #for i in group.ordinalList :
+        #    ordinalList.append( i[0] )
+        #ordinalList.append(group.ordinal)
         for Ordinal in ordinalList :
             curvepoint = []
             for ofOrdinal, pubPoly in hiddenEvals[Ordinal].items():
@@ -372,8 +389,12 @@ class Player :
     def verificationOfHonesty(self, groupId, hiddenEvals, hiddenPolys) :
         group = self.groups[groupId]
 
-        ordinalList = list(group.ordinalList)
-        ordinalList.append(group.ordinal)
+
+        ordinalList = group.allOrdinals( )
+        #ordinalList = []
+        #for i in group.ordinalList :
+        #    ordinalList.append( i[0] )
+        #ordinalList.append(group.ordinal)
         for fromPlayerOrdinal in ordinalList :
             for toPlayerOrdinal in ordinalList :
                 if (fromPlayerOrdinal != toPlayerOrdinal):
@@ -439,8 +460,11 @@ class Player :
         xfx_v = []
         xfx_w = []
 
-        allOrdinals = list(group.ordinalList)
-        allOrdinals.append(group.ordinal)
+        allOrdinals = group.allOrdinals(  )
+        #allOrdinals = []
+        #for i in group.ordinalList :
+        #    allOrdinals.append( i[0] )
+        #allOrdinals.append(group.ordinal)
 
         for ord in allOrdinals :
             vw = group.transientData.allVWshares[ord]

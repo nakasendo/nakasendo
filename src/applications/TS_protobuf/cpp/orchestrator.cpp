@@ -86,11 +86,12 @@ void GlobalGroups::addGroup(const GroupMetadata& grp){
     m_groups[grp.groupid()] = grp; 
 }
 
-void GlobalGroups::addUserToGroup(const std::string& grpid, const std::string& userid, const std::string& useruri, const std::string& userip, const std::string& userport){
+void GlobalGroups::addUserToGroup(const std::string& grpid, const std::string& userid){
     std::lock_guard<std::mutex> guard(m_groups_mutex);
     groupsMap::iterator grpIter = m_groups.find(grpid);
+    player p = getPlayer( userid ) ;
     if(grpIter != m_groups.end()){
-        grpIter->second.addUserToGroup(userid, useruri, userip, userport); 
+        grpIter->second.addUserToGroup(userid, p.uri(), p.addr(), p.port()); 
     }
 }
 
@@ -130,8 +131,8 @@ void addGroup(const GroupMetadata& grp){
 }
 
 
-void addUserToGroup(const std::string& grpid, const std::string& userid, const std::string& useruri, const std::string& ip, const std::string& port){
-    GlobalGroups::Instance()->addUserToGroup(grpid,userid,useruri,ip,port);
+void addUserToGroup(const std::string& grpid, const std::string& userid ){
+    GlobalGroups::Instance()->addUserToGroup(grpid,userid);
     return;
 }
 

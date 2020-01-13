@@ -50,7 +50,7 @@ class GlobalGroups
         const groupsMap& groups () const { return m_groups ;}
         groupsMap& groups () { return m_groups ;}
         void addGroup(const GroupMetadata&);
-        void addUserToGroup(const std::string&, const std::string&, const std::string&, const std::string&, const std::string& );
+        void addUserToGroup(const std::string&, const std::string&);
         bool removeUserFromGroup(const std::string&, const std::string&);
         bool deleteGroup(const std::string&);
         GroupMetadata& GetGroup(const std::string&);
@@ -69,7 +69,7 @@ class GlobalGroups
 
 
 const std::string CreateGroup(const std::string&, const int&, const int&); 
-void addUserToGroup(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
+void addUserToGroup(const std::string&, const std::string& );
 GroupMetadata& GetGroup(const std::string&);
 bool removeUserFromGroup(const std::string&, const std::string&);
 bool deleteGroup(const std::string&);

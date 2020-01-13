@@ -5,7 +5,7 @@
 #include <iostream>
 #include <player.h>
 #include <GroupMetaData.h>
-#include <ts.pb.h>
+#include <ts_messages.pb.h>
 
 class BigNumber;
 class ECPoint;
@@ -13,8 +13,6 @@ class ECPoint;
 enum class TSMessageDefs
 {
     TS_UNKNOWN_TYPE,
-    TS_TIME_REQUEST,
-    TS_TIME_RESPONSE,
     TS_REGISTER_PLAYER_REQUEST,
     TS_REGISTER_PLAYER_RESPONSE,
     TS_LIST_PLAYER_REQUEST,
@@ -69,20 +67,20 @@ std::istream& operator>>(typename std::enable_if<std::is_enum<T>::value, std::is
     return stream >> static_cast<typename std::underlying_type<T>::type>(e);
 }
 
-void createTimeRequest(const player&, std::ostream&);
-void createTimeResponse(const player&, std::ostream&);
-void createRegisterPlayerRequest (const player&, std::ostream&);
-void createRegisterPlayerResponse(const player&, std::ostream& );
+void createRegisterRequest (const player&, std::ostream&);
+void createRegisterReply (const player&, std::ostream& );
 void createListPlayersRequest(const player&, std::ostream&);
 void createListPlayersResponse(const player&, std::ostream&);
-void createThresholdGroupRequest(const player&, const int&, const int&, std::ostream&);
-void createThresholdGroupResponse(const player&, const std::string&, const bool&, std::ostream&);
+void createGroupRequest(const player&, const int&, const int&, std::ostream&);
+void createGroupReply(const player&, const std::string&, const bool&, std::ostream&);
 
-void createInviteToGroupMessage(const std::string&, const std::string&, std::ostream&); 
-void createInviteToGroupResponse(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&, const bool&, std::ostream&);
+void createInviteRequest(const std::string&, std::ostream&); 
+void createInviteReply(const std::string&, const std::string&, const bool&, std::ostream&);
 
-void createBroadCastGroupDetails(const GroupMetadata&, std::ostream&);
-void createBroadCastGroupDetailsResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+void createGroupIsSetRequest(const std::string&, const GroupMetadata&, std::ostream&);
+//void createBroadCastGroupDetails(const GroupMetadata&, std::ostream&);
+void createGroupIsSetReply(const std::string&, const std::string&, const bool&, std::ostream&);
+//void createBroadCastGroupDetailsResponse(const std::string&, const std::string&, const bool&, std::ostream&);
 
 void createDeleteTSGroupRequest(const player&, const std::string&, std::ostream&);
 void createDeleteTSGroupResponse(const player&, const std::string&, const bool&, std::ostream&);
