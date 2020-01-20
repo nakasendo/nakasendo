@@ -11,15 +11,22 @@
 	        "cppsrc/Nakasendo_Bindings/messageHashBindings.cpp",
 	        "cppsrc/Nakasendo_Bindings/SymEncDecBindings.cpp",
 	        "cppsrc/Nakasendo_Bindings/AsymKeyBindings.cpp",
-	        "cppsrc/Nakasendo_Bindings/BSVAddressBindings.cpp"
-	        
+	        "cppsrc/Nakasendo_Bindings/BSVAddressBindings.cpp",
+		"cppsrc/Nakasendo_TS_Bindings/playerWrapper.cpp",
+		"cppsrc/Nakasendo_TS_Bindings/GroupMetaDataWrapper.cpp",
+		"cppsrc/Nakasendo_TS_Bindings/OrchestratorWrapper.cpp"
         ],
         'include_dirs': [
             "<!@(node -p \"require('node-addon-api').include\")",
             "/usr/local/include",
-            "PATH-TO-NAKASENDO-INCLUDE/include"
+	    "/Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/NapiBinding/cppsrc/Nakasendo_Bindings",
+	    "/Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/NapiBinding/cppsrc/Nakasendo_TS_Bindings",
+            "/Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/src/core",
+	    "/Users/j.murphy/nChain/SDK-CLEAN/build/generated/hpp",
+	    "/Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/src/applications/TS_protobuf/cpp",
+	    "/Users/j.murphy/nChain/SDK-CLEAN/build/generated/protobuf"
         ],  
-        'libraries': ['-Wl,/usr/local/lib/libcrypto.a -L "PATH-TO-NAKASENDO-RELEASE/lib" -lBigNumbers -lPolynomial -lECPoint -lMessageHash -lSymEncDec -lAsymKey -lBSVAddress'],
+        'libraries': ['-Wl,/usr/local/lib/libcrypto.a -L /Users/j.murphy/nChain/SDK-CLEAN/build/x64/release -lBigNumbers -lPolynomial -lECPoint -lMessageHash -lSymEncDec -lAsymKey -lBSVAddress -lTSCore'],
         'dependencies': [
             "<!(node -p \"require('node-addon-api').gyp\")"
         ],

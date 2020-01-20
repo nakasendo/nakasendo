@@ -11,7 +11,9 @@ std::ostream& operator<< (std::ostream& os, const playerCommsInfo& obj){
 }
 
 GroupMetadata::GroupMetadata(const std::string& id, const playerCommsInfo& proposer, const int& m, const int& n, const int& t)
-    : m_groupid (id), m_proposer(proposer.m_userid), m_m(m), m_n(n), m_t(t),m_participantList(), m_GroupSet(false),m_calculationType()
+    : m_groupid (id), m_proposer(proposer.m_userid), m_m(m), m_n(n), m_t(t),m_participantList(), m_calculationType(),m_GroupSet(false)
+    , m_GroupSignatureReplies(0), m_GroupInviteReplies(0),m_CollatedHiddenPolys(), m_CollatedHiddenEvals(), m_CollatedVW()
+    , m_CollatedPartialSignatures(), m_GroupLocked(false)
 { 
     m_participantList.push_back(proposer);
     return;
@@ -20,7 +22,11 @@ GroupMetadata::GroupMetadata(const std::string& id, const playerCommsInfo& propo
 
 GroupMetadata::GroupMetadata(const GroupMetadata& obj)
    : m_groupid (obj.m_groupid), m_proposer(obj.m_proposer), m_m(obj.m_m), m_n(obj.m_n), m_t(obj.m_t)
-   , m_participantList(), m_GroupSet(obj.m_GroupSet),m_calculationType(obj.m_calculationType)
+   , m_participantList(),m_calculationType(obj.m_calculationType), m_GroupSet(obj.m_GroupSet)
+   , m_GroupSignatureReplies(obj.m_GroupSignatureReplies), m_GroupInviteReplies(obj.m_GroupInviteReplies)
+   , m_CollatedHiddenPolys(obj.m_CollatedHiddenPolys), m_CollatedHiddenEvals(obj.m_CollatedHiddenEvals)
+   , m_CollatedVW(obj.m_CollatedVW), m_CollatedPartialSignatures(obj.m_CollatedPartialSignatures)
+   , m_GroupLocked(obj.m_GroupLocked)
 {  
     for(std::vector<playerCommsInfo>::const_iterator iter = obj.m_participantList.begin(); 
             iter != obj.m_participantList.end(); ++iter){
@@ -42,6 +48,13 @@ GroupMetadata& GroupMetadata::operator= (const GroupMetadata& obj){
         }
         m_GroupSet = obj.m_GroupSet; 
         m_calculationType = obj.m_calculationType;
+        m_GroupInviteReplies = obj.m_GroupInviteReplies;
+        m_GroupSignatureReplies = obj.m_GroupSignatureReplies;
+        m_CollatedHiddenPolys = obj.m_CollatedHiddenPolys;
+        m_CollatedHiddenEvals = obj.m_CollatedHiddenEvals;
+        m_CollatedVW = obj.m_CollatedVW;
+        m_CollatedPartialSignatures = obj.m_CollatedPartialSignatures;
+        m_GroupLocked = obj.m_GroupLocked;
     }
     return *this;
 }
@@ -182,7 +195,6 @@ void GroupMetadata::addCollatedPartialSignautre(const std::string& ord, const st
 }
 
 void GroupMetadata::clearSharedDataContainers(){
-    //m_CollatedEvals.clear();
     m_CollatedHiddenPolys.clear();
     m_CollatedHiddenEvals.clear();
 }
@@ -204,7 +216,8 @@ std::ostream& operator<< (std::ostream& os,const GroupMetadata& grp){
         << "\n\tn = " << grp.m_n
         << "\n\tt = " << grp.m_t
         << "\n\tproposer = " << grp.m_proposer
-        << "\n\tnumReplies = " << grp.m_GroupInviteReplies
+        << "\n\tnumInviteReplies = " << grp.m_GroupInviteReplies
+        << "\n\tnumSignatureReplies = " << grp.m_GroupSignatureReplies
         << "\n\tGroup size = " << grp.m_participantList.size()
         << "\n\tGroup set = "
         ;
@@ -213,17 +226,7 @@ std::ostream& operator<< (std::ostream& os,const GroupMetadata& grp){
     for (; iter != grp.m_participantList.end(); ++ iter){
         os << *iter << " " << std::endl;
     }
-#if 0    
-    os << "\n\tCollated Public Evals = \n" ;
-    for(std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::const_iterator iter = grp.m_CollatedEvals.begin();
-            iter != grp.m_CollatedEvals.end(); ++ iter){
-            os << iter->first << "\t";
-            for(std::vector<std::pair<std::string, BigNumber> >::const_iterator innerIter = iter->second.begin(); innerIter != iter->second.end(); ++ innerIter){
-                os << "[" << innerIter->first << "," << innerIter->second.ToHex() << "],";
-            }
-            os << "\n";
-    }
-#endif    
+  
     os << "\n\tCollated Hidden Polynomials = \n";
     for(std::map<std::string, std::vector<ECPoint> >::const_iterator iter =  grp.m_CollatedHiddenPolys.begin(); iter != grp.m_CollatedHiddenPolys.end(); ++ iter ){
         os << iter->first << "\t[";

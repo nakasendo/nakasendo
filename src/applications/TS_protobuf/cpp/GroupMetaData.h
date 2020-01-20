@@ -30,8 +30,9 @@ class TSCore_API GroupMetadata
     public:
         GroupMetadata() 
             : m_groupid(), m_proposer(), m_m(), m_n(), m_t()
-            , m_participantList(), m_GroupSet(false),m_calculationType(std::string())
-            , m_GroupInviteReplies(0), m_GroupSignatureReplies(0)
+            , m_participantList(), m_calculationType(std::string()),m_GroupSet(false)
+            , m_GroupInviteReplies(0), m_GroupSignatureReplies(0), m_CollatedHiddenPolys()
+            , m_CollatedHiddenEvals(), m_CollatedVW(), m_CollatedPartialSignatures(), m_GroupLocked(false)
          { return ; }
         GroupMetadata(const std::string&, const playerCommsInfo&, const int&, const int&, const int&);
         ~GroupMetadata(){return;}
@@ -40,10 +41,19 @@ class TSCore_API GroupMetadata
         GroupMetadata& operator= (const GroupMetadata&);
         
         const std::string& groupid() const { return m_groupid;}
+        std::string& groupid() { return m_groupid;}
+
         const std::string& proposer() const { return m_proposer;}
+        std::string& proposer() { return m_proposer;}
+        
         const int& m() const { return m_m; }
+        int& m() { return m_m;}
+
         const int& n() const { return m_n;}
+        int& n() { return m_n;}
+
         const int& t() const { return m_t;}
+        int& t() { return m_t;}
         
         const bool& GroupSet() const { return m_GroupSet; }
         bool& GroupSet() { return m_GroupSet;}

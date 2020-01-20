@@ -3,22 +3,9 @@
 #include <GroupMetaData.h>
 #include <orchestrator.h>
 #include <random>
+#include <TSProtoBufHelper.h>
 #include <MessageRequestResponse.h>
 
-std::string enum2string( thresholdsignature::CalcType calculation ) 
-{
-    if( calculation == thresholdsignature::PRIVATEKEYSHARE )
-        return "PRIVATEKEYSHARE" ;
-    else if( calculation == thresholdsignature::LITTLEK )
-        return  "LITTLEK" ;
-    else if( calculation == thresholdsignature::ALPHA )
-        return "ALPHA" ;
-    else
-    {
-        std::cout << "ERROR: unknown calculation: " << calculation << std::endl ;
-        throw ;
-    }
-}
 
 bool HandleMessage(MessageDescriptor& msgdesc, std::istream& is){
     

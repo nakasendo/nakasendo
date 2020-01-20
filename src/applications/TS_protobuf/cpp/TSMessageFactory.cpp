@@ -4,6 +4,7 @@
 #include <orchestrator.h>
 #include <GroupMetaData.h>
 #include <player.h>
+#include <TSProtoBufHelper.h>
 #include <ts_messages.pb.h>
 
 
@@ -13,28 +14,6 @@ std::string make_daytime_string()
   using namespace std; // For time_t, time and ctime;
   time_t now = time(0);
   return ctime(&now);
-}
-
-thresholdsignature::CalcType string2enum( const std::string& calcString ) 
-{
-    if( calcString == "PRIVATEKEYSHARE" )
-    {
-        return thresholdsignature::PRIVATEKEYSHARE ;
-    }
-    else if( calcString ==  "LITTLEK" )
-    {
-        return thresholdsignature::LITTLEK ;
-        
-    }
-    else if( calcString ==  "ALPHA" )
-    {
-        return thresholdsignature::ALPHA ;
-    }
-    else
-    {
-        std::cout << "ERROR: unknown calculation: " << calcString << std::endl ;
-        throw ;
-    }
 }
 
 void createRegisterRequest(const player& p, std::ostream& os){

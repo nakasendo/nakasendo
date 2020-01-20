@@ -389,4 +389,63 @@ message DeleteGroupPlayerResponse{
     bool deleted=3;
 }
 
+message GroupMetaDataState{
+    string groupid=1;
+    string proposer=2;
+    int32 groupsize=3;
+    int32 groupthreshold=4;
+    int32 grouppolydegree=5;
+    repeated Player players=6;
+    CalcType calculation =7;
+    bool groupset=8;
+    int32 groupinvitereplies=9;
+    int32 groupsignaturereplies=10;
+    repeated hiddenPolynomial collatedhiddenpolys=11;
+    repeated listOfPolynomials collatedhiddenevals=12;
+    repeated VWData collatedvw=13;
+    repeated SigData collatedpartialsignatures=14;
+    bool grouplocked=15;
+}
+
+
+message JVRSSState{
+    string fx=1;
+    repeated evaluatedPoly evals=2;
+    repeated evaluatedPoly publicevals=3;
+    repeated listOfPolynomials hiddenevals=4;
+    repeated string hiddenpoly=5;
+    repeated hiddenPolynomial allhiddenpolys=6;
+    repeated VWData allvwshares=7;
+}
+
+
+message ordinalAndPlayer{
+    int32 ordinal=1;
+    Player p=2;
+}
+message ephemeralkeylist{
+    string k=1;
+    string r=2;
+}
+
+message privatekeyshares{
+    int32 ordinal=1;
+    string keyshare=2;
+}
+message PlayerGroupState{
+    string groupid=1;
+    int32 ordinal=2;
+    repeated int32 ordinallist=3;
+    repeated ordinalAndPlayer ordinalandplayerlist=4;
+    int32 degree=5;
+    repeated string privatekeypoly=6;
+    string privatekeyshare=7;
+    string grouppublickey=8;
+    repeated ephemeralkeylist ephemeralkeys=9;
+    string k=10;
+    string alpha=11;
+    repeated privatekeyshares keyshares=12;
+    string mod=13;
+    JVRSSState jvrss=14;
+}
 

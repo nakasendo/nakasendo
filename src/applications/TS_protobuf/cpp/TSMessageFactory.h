@@ -127,5 +127,6 @@ TSCore_API void createPlayerPrivateShareExchangeResponse(const std::string&, con
 
 TSCore_API void createPlayerPrivateKeyShareRequest(const playerGroupMetaData&,std::ostream&);
 TSCore_API void createPlayerPrivateKeyShareResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+
 #endif //#ifndef __TS_MESSAGE_FACTORY_H__
 

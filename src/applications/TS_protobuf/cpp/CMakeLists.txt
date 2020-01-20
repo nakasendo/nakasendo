@@ -14,7 +14,6 @@ set(ThresholdSignature_PROTOFILE "${CMAKE_CURRENT_SOURCE_DIR}/../protos/ts_messa
 protobuf_generate_cpp(ThresholdSignature_SRCS ThresholdSignature_HDRS ${ThresholdSignature_PROTOFILE})
 protobuf_generate_python(PY_ThresholdSignature_SRCS ${ThresholdSignature_PROTOFILE})
 
-
 set(TSCore_HPP_FILES
     ${ThresholdSignature_HDRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/exportTSCore.h
@@ -22,6 +21,8 @@ set(TSCore_HPP_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/orchestrator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/player.h
     ${CMAKE_CURRENT_SOURCE_DIR}/TSMessageFactory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/TSProtoBufHelper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/TSState.h
 )
 
 set(TSCore_CPP_FILES
@@ -31,6 +32,8 @@ set(TSCore_CPP_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/orchestrator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/player.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TSMessageFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/TSProtoBufHelper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/TSState.cpp
 )
 
 set(TSCore_SOURCE_FILES ${TSCore_HPP_FILES} ${TSCore_CPP_FILES} ${ThresholdSignature_HDRS} ${ThresholdSignature_SRCS})

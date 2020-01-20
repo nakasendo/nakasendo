@@ -1,5 +1,8 @@
 #include <napi.h>
 
+#include <playerWrapper.h>
+#include <GroupMetaDataWrapper.h>
+#include <OrchestratorWrapper.h>
 
 namespace bindings_BigNumber{
     Napi::String generate_random_wrapped(const Napi::CallbackInfo& info);
@@ -166,8 +169,27 @@ Napi::Object init(Napi::Env env, Napi::Object exports){
     exports.Set("createBSVAddress",Napi::Function::New(env,bindings_BSVAddress::createBSVAddress));
     exports.Set("importBSVAddress",Napi::Function::New(env,bindings_BSVAddress::importBSVAddress));
     exports.Set("printBSVAddress", Napi::Function::New(env, bindings_BSVAddress::printBSVAddress));
-    
-    
+
+    exports.Set("AddPlayerToGlobalList",Napi::Function::New(env,bindings_TS_Orchestrator::AddPlayerToGlobalList));
+    exports.Set("GetGlobalPlayerList",Napi::Function::New(env,bindings_TS_Orchestrator::GetGlobalPlayerList));
+    exports.Set("PrintGlobalPlayerList",Napi::Function::New(env,bindings_TS_Orchestrator::PrintGlobalPlayerList));
+    exports.Set("CreateTSGroup", Napi::Function::New(env,bindings_TS_Orchestrator::CreateTSGroup));
+    exports.Set("AddUserToTSGroup", Napi::Function::New(env,bindings_TS_Orchestrator::AddUserToTSGroup));
+    exports.Set("RemoveUserFromTSGroup", Napi::Function::New(env,bindings_TS_Orchestrator::RemoveUserFromTSGroup));
+    exports.Set("DeleteGroup", Napi::Function::New(env,bindings_TS_Orchestrator::DeleteGroup));
+    exports.Set("DeleteGrpSecretSharingContainers", Napi::Function::New(env,bindings_TS_Orchestrator::DeleteGrpSecretSharingContainers));
+    exports.Set("DeleteGrpSignatureContainers", Napi::Function::New(env,bindings_TS_Orchestrator::DeleteGrpSignatureContainers));
+    exports.Set("DeleteGrpPreSignatureContainers", Napi::Function::New(env,bindings_TS_Orchestrator::DeleteGrpPreSignatureContainers));
+    exports.Set("lockGroup", Napi::Function::New(env,bindings_TS_Orchestrator::lockGroup));
+    exports.Set("AddUserToTSGroup", Napi::Function::New(env,bindings_TS_Orchestrator::AddUserToTSGroup));
+    exports.Set("unLockGroup", Napi::Function::New(env,bindings_TS_Orchestrator::unLockGroup));
+
+    exports.Set("GenerateUUID", Napi::Function::New(env,bindings_TS_Orchestrator::GenerateUUID));
+    jvrssWrap::Init(env, exports);
+    playerGroupMetaDataWrap::Init(env,exports);
+    GroupMetaDataWrap::Init(env,exports);
+    playerWrap::Init(env,exports);
+    SinglePlayerWrap::Init(env,exports);
     return exports;
 }
 

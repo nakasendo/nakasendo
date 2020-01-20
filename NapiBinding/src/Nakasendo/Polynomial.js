@@ -17,16 +17,19 @@ class polynomial{
         this.#m_coeffs = bindings.randomPolynomial(this.#m_degree, this.#m_modulo, this.#m_IsDecimal);        
     }
     
-    set setpoly(inputpoly){
-        this.#m_coeffs = inputpoly;
-    }
     
-    set isdec(val){
-        this.#m_IsDecimal = val;
-    }
+    set poly(inputpoly){this.#m_coeffs = inputpoly;}
+    get poly(){return this.#m_coeffs;}
+    
+    set isdec(val){this.#m_IsDecimal = val;}
+    get isdec(){return this.#m_IsDecimal;}
     
     set degree (val){
         this.#m_degree = val;
+    }
+    
+    get degree(){
+        return this.#m_degree;
     }
     
     set modulo (val){
@@ -34,26 +37,9 @@ class polynomial{
     }
     
     
-    // Getter
-    get poly(){
-        return this.#m_coeffs;
-    }
-    
-    
-    get isdec(){
-        return this.#m_IsDecimal;
-    }
-    
-    
-    get degree(){
-        return this.#m_degree;
-    }
-    
     get modulo(){
        return this.#m_modulo;
     }
-    
-    
     
     
     toString(){

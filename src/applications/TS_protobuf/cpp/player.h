@@ -85,11 +85,12 @@ struct TSCore_API playerGroupMetaData
     playerGroupMetaData()=default;
     
     playerGroupMetaData(const int degree, const BigNumber& mod)
-        : m_privateKeyPolynomial(degree, mod)
-        , m_ordinalAndPlayerList ()
+        : m_id(), m_ordinal(), m_ordinalAndPlayerList ()
         , m_degree(degree)
-        , m_modulo(mod)
+        , m_privateKeyPolynomial(degree, mod), m_privateKeyShare(), m_GroupPublicKey()
         , m_EmpheralKeyList(), m_littleK(), m_alpha()
+        , m_PrivateKeyShares()
+        , m_modulo(mod)
         , m_transientData()
     {return;}
     
@@ -97,8 +98,8 @@ struct TSCore_API playerGroupMetaData
         : m_id(obj.m_id), m_ordinal(obj.m_ordinal), m_ordinalList(obj.m_ordinalList), m_ordinalAndPlayerList(obj.m_ordinalAndPlayerList)
         , m_degree(obj.m_degree), m_privateKeyPolynomial(obj.m_privateKeyPolynomial)
         , m_privateKeyShare(obj.m_privateKeyShare), m_GroupPublicKey(obj.m_GroupPublicKey)
-        , m_modulo(obj.m_modulo)
         , m_EmpheralKeyList(obj.m_EmpheralKeyList), m_littleK(obj.m_littleK), m_alpha(obj.m_alpha)
+        , m_PrivateKeyShares() , m_modulo(obj.m_modulo)
         , m_transientData(obj.m_transientData)
     { return ; }
     
@@ -112,10 +113,11 @@ struct TSCore_API playerGroupMetaData
             m_privateKeyPolynomial = obj.m_privateKeyPolynomial;
             m_privateKeyShare = obj.m_privateKeyShare;
             m_GroupPublicKey = obj.m_GroupPublicKey;
-            m_modulo = obj.m_modulo;
             m_EmpheralKeyList = obj.m_EmpheralKeyList;
             m_littleK = obj.m_littleK; 
             m_alpha = obj.m_alpha; 
+            m_PrivateKeyShares = obj.m_PrivateKeyShares;
+            m_modulo = obj.m_modulo;
             m_transientData = obj.m_transientData;
         }
         return *this;

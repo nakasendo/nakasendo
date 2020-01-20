@@ -244,9 +244,6 @@ Polynomial playerGroupMetaData::createPolynomial(const int& degree, const BigNum
 }
 
 void playerGroupMetaData::polynomialPreCalculation(const Polynomial& poly){
-    // create a big number for the ordinal 
-    // ordinal is an integer .. convert ascii to convert to a bignumber? seems pointless
-    //m_transientData.reset();
     BigNumber bnOrdinal;
     bnOrdinal.FromHex(std::to_string(m_ordinal));
     m_transientData.m_fx = poly(bnOrdinal);
@@ -282,23 +279,7 @@ void playerGroupMetaData::addPublicEvalsToJVRSS(const std::string& ord, const st
         }
 
 }
-#if 0
-void playerGroupMetaData::addPublicEvalsToJVRSS(const std::string& ord, const std::vector<std::pair<std::string, std::string> >& publicevals ){
-    std::vector<std::pair<std::string, BigNumber> > publicevalsBN; 
-    for(std::vector<std::pair<std::string, std::string> >::const_iterator iter = publicevals.begin(); iter != publicevals.end(); ++ iter){
-        BigNumber bn;
-        bn.FromHex(iter->second);
-        publicevalsBN.push_back(std::make_pair(iter->first, bn));
-    }
-    std::map<std::string, std::vector<std::pair<std::string, BigNumber> > >::iterator evalIter = m_transientData.m_publicEvals.find(ord);
-    if(evalIter == m_transientData.m_publicEvals.end()){
-        m_transientData.m_publicEvals[ord] = publicevalsBN;
-    }else{
-        evalIter->second.insert(evalIter->second.end(), publicevalsBN.begin(), publicevalsBN.end());
-    }
-    return ;
-}
-#endif
+
 void playerGroupMetaData::addHiddenEvalsToJVRSS(const std::string& ordinal, const std::vector<std::pair<std::string, std::string> >& hiddenevals){
     std::vector<std::pair<std::string, ECPoint> > hiddenEvalPts;
     std::map<std::string, std::vector<std::pair<std::string, ECPoint> > >::iterator hiddenEvalIter = m_transientData.m_hiddenEvals.find(ordinal);
@@ -475,8 +456,6 @@ BigNumber playerGroupMetaData::CalculateGroupPrivateKey (){
     if(m_PrivateKeyShares.empty())
         std::runtime_error("No private key shares gathered. Not possible to calculate the group private key");
     // add the players own keyshare
-    
-    // we need to check that enough keyshares have been received but we don;t have the group dimensions..think about this.
     BigNumber ordBN;
     ordBN.FromHex(std::to_string(m_ordinal));
     m_PrivateKeyShares.push_back(std::make_pair(ordBN,m_privateKeyShare));
@@ -497,7 +476,6 @@ BigNumber playerGroupMetaData::CalculateGroupPrivateKey (){
 
 bool playerGroupMetaData::ValidateGroupPrivateKey(const BigNumber& testKeyVal){
     ECPoint TestVal = MultiplyByGeneratorPt(testKeyVal);
-    std::cout << "GROUP PUBLIC KEY IS " << m_GroupPublicKey.ToHex() << std::endl;
     return (TestVal == m_GroupPublicKey);
 }
 

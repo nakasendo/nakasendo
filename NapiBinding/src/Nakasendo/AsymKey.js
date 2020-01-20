@@ -1,4 +1,13 @@
 const bindings = require('../../build/Release/nakasendo.node');
+var{
+    ECPoint,
+    AddECPoint,
+    EC_Compare,
+    EC_Double,
+    EC_Invert,
+    EC_ScalerMultiply,
+    EC_MultiplyScalerByGenerator
+} = require('./ECPoint.js')
 
 
 class AsymKey{
@@ -70,8 +79,23 @@ function verify(msg, pubkey, rval, sval){
     return bindings.Verify(msg, pubkey, rval,sval);
 }
 
+function verifyPubKeyHex(msg, pubkey, rval, sval){
+    pubKeyPt = new ECPoint();
+    pubKeyPt.SetValue =  pubkey;
+    var coords = pubKeyPt.GetAffineCoordinates();
+    pubkeypem = pubKeyHexPtstoPEM(coords['x'],coords['y']);
+    return bindings.Verify(msg, pubkeypem, rval,sval);
+}
+
 function verifyDER(msg, pubkey, sigDER){
     return bindings.VerifyDER(msg,pubkey,sigDER);
+}
+function verifyDERPubKeyHex(msg, pubkey, sigDER){
+    pubKeyPt = new ECPoint();
+    pubKeyPt.SetValue =  pubkey;
+    var coords = pubKeyPt.GetAffineCoordinates();
+    pubkeypem = pubKeyHexPtstoPEM(coords['x'],coords['y']);
+    return bindings.VerifyDER(msg,pubkeypem,sigDER);
 }
     
 function createDERFormat(rValue, sValue,isdecimal){
@@ -93,6 +117,7 @@ function pubKeyHexPtstoPEM(xVal, yVal,nid=714){
 module.exports = {
     AsymKey,
     verify,
+    verifyPubKeyHex,
     createDERFormat,
     verifyDER,
     pubKeyAsHexPt,
