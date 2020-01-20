@@ -1,0 +1,33 @@
+## To build this documentation using mkdocs :
+##    python -m pip install mkdocs pymdown-extensions plantuml_markdown
+## On linux, go to this directory, then
+##    chmod +x plantuml
+##    export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH
+## On windows, go to this directory, then
+##    set PATH=%PATH%;%CD%
+## Then build & run the doc using mkdocs 
+##    mkdocs build ; mkdocs serve
+##    # Open the browsers http://localhost:8000
+##
+##
+site_name: Nakasendo SDK
+
+nav:
+    - Nakasendo SDK : index.md
+    - QuickStart : QuickStart.md
+    - Guides : Guides.md
+    - Examples : Examples.md
+    - Developer setup : DeveloperSetup.md
+
+markdown_extensions:
+  - toc:
+  - pymdownx.arithmatex
+  - plantuml_markdown:
+
+extra_javascript:
+    - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML' # mathjax
+
+extra_css:
+#    - 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css'
+
+theme: readthedocs

@@ -1,0 +1,90 @@
+@startuml
+@startuml
+!pragma teoz true
+
+header TS Messaging Framework
+title Round 2 Communications
+hide footbox
+actor Player_1
+participant PlayerClient
+control Orchestrator
+participant PlayerClient2
+actor Player_2
+
+activate Orchestrator
+
+
+Player_1 -> PlayerClient : presign
+activate PlayerClient
+PlayerClient -> Orchestrator : presign 
+deactivate PlayerClient
+
+group JVRSS
+loop "k", "alpha"
+Orchestrator -> PlayerClient : << requestData >>
+& Orchestrator -> PlayerClient2 : << requestData >>
+activate PlayerClient
+activate PlayerClient2
+
+PlayerClient -> PlayerClient : create new polynomial \n evaluate labels
+PlayerClient2 -> PlayerClient2 : create new polynomial \n evaluate labels
+
+
+PlayerClient --> Orchestrator : response
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : response
+deactivate PlayerClient2
+
+... wait for number of responses (n) ...
+
+Orchestrator -> Orchestrator : combine public information
+Orchestrator -> PlayerClient : << listCoefficients >>
+& Orchestrator -> PlayerClient2 : << listCoefficients >>
+activate PlayerClient
+activate PlayerClient2
+
+
+PlayerClient -> PlayerClient :  createSecret \n verification of honesty
+PlayerClient2 -> PlayerClient2 : createSecret \n verification of honesty
+
+PlayerClient --> Orchestrator : verified secret complete
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : verified secret complete
+deactivate PlayerClient2
+
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : << groupIsVerified >>
+& Orchestrator -> PlayerClient2 : << groupIsVerified >>
+
+end 
+end
+
+PlayerClient -> Orchestrator : collateVW
+PlayerClient2 -> Orchestrator : collateVW
+
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : << sharedVWData >>
+& Orchestrator -> PlayerClient2 : << sharedVWData >>
+activate PlayerClient
+activate PlayerClient2
+
+PlayerClient -> PlayerClient : create ephemeral key
+PlayerClient2 -> PlayerClient2 : create ephemeral key
+PlayerClient -> Orchestrator : ephemeral key complete
+PlayerClient2 -> Orchestrator : ephemeral key complete
+
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : << All completed >>
+& Orchestrator -> PlayerClient2 : << All completed >>
+
+deactivate PlayerClient2
+
+PlayerClient -> Orchestrator : presign (repeat x number times )
+deactivate PlayerClient
+
+
+
+@enduml

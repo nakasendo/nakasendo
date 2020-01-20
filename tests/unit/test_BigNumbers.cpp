@@ -784,6 +784,21 @@ BOOST_AUTO_TEST_CASE(test_primeness_cpp)
     }
 }
 
+BOOST_AUTO_TEST_CASE(test_BN_IO)
+{
+    {
+        const std::string G_x_hex{ "79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798"};
+        BigNumber Gx; Gx.FromHex(G_x_hex);
+        BOOST_CHECK(Gx.ToHex() == G_x_hex);
+        const std::string G_y_hex{ "483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8"};
+        BigNumber Gy; Gy.FromHex(G_y_hex);
+        BOOST_CHECK(Gy.ToHex() == G_y_hex);
+        const std::string G_n_hex{ "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"};
+        BigNumber Gn; Gn.FromHex(G_n_hex);
+        BOOST_CHECK(Gn.ToHex() == G_n_hex);
+    }
+}
+
 
 BOOST_AUTO_TEST_CASE(test_BN_Mod_5)
 {
@@ -797,12 +812,26 @@ BOOST_AUTO_TEST_CASE(test_BN_Mod_5)
 
 BOOST_AUTO_TEST_CASE(test_BN_Inv_mod_5)
 {
-    BigNumber mod, arg, ret, test_ret;
-    mod.FromDec("5");
-    arg.FromDec("2");
-    test_ret.FromDec("3");
-    ret = Inv_mod(arg, mod);
-    BOOST_CHECK(ret == test_ret);// 2 == 1/3 mod 5
+    {
+        BigNumber mod, arg, ret, test_ret;
+        mod.FromDec("5");
+        arg.FromDec("2");
+        test_ret.FromDec("3");
+        ret = Inv_mod(arg, mod);
+        BOOST_CHECK(ret == test_ret);// 2 == 1/3 mod 5
+    }
+    {   //// Add an special test case (tested on python)
+        const std::string k_hex    { "C5BDF8673298782F3587BDF2BAC0A5FA5E37C1B48A74426007C02A8A140A26F7"};
+        const std::string invk_hex { "9934C02FF40A9FF9C5D219E136FC7F0B6ECB5226564C7DA5FAE5084470C940D4"};
+        const std::string G_n_hex  { "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"};
+
+        BigNumber mod, arg, ret, test_ret;
+        mod.FromHex(G_n_hex);
+        arg.FromHex(k_hex);
+        test_ret.FromHex(invk_hex);
+        ret = Inv_mod(arg, mod);
+        BOOST_CHECK(ret == test_ret);// invk = k^{-1} mod Gn
+    }
 }
 
 BOOST_AUTO_TEST_CASE(test_BN_Add_mod_5)

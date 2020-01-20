@@ -22,7 +22,7 @@ add_subdirectory(PyMessageHash)
 add_subdirectory(PySymEncDec)
 add_subdirectory(PyECPoint)
 add_subdirectory(PyPolynomial)
-add_subdirectory(PyBCHAddress)
+add_subdirectory(PyBSVAddress)
 add_subdirectory(PyNakasendo)
 
 

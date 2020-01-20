@@ -101,13 +101,13 @@ class ECPointImpl
         bool CheckOnCurve();
 
         // Multiply ECPoint with Hex number
-        std::unique_ptr<ECPointImpl> MultiplyWithHexBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n); 
+        std::unique_ptr<ECPointImpl> MultiplyWithHexBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n) const;
 
         // Multiply ECPoint with dec number
-        std::unique_ptr<ECPointImpl> MultiplyWithDecBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n); 
+        std::unique_ptr<ECPointImpl> MultiplyWithDecBigNum (const std::string& bn_obj_m, const std::string& bn_obj_n) const;
 
         // Double the ECPointImpl
-        std::unique_ptr<ECPointImpl> Double();
+        std::unique_ptr<ECPointImpl> Double() const;
 
         std::string ToHex(const bool& compressed = true) const ;
         bool FromHex(const std::string& hexStr, int nid) ;
@@ -129,7 +129,7 @@ class ECPointImpl
             m_nid = nid;
         }
 
-        std::unique_ptr<ECPointImpl> Multiply(BIGNUM *m_ptr, BIGNUM *n_ptr = nullptr);
+        std::unique_ptr<ECPointImpl> Multiply(BIGNUM *m_ptr, BIGNUM *n_ptr = nullptr) const;
 
         ECPOINT_ptr m_ec = nullptr; 
         ECGROUP_ptr m_gp = nullptr; 

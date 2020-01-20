@@ -9,7 +9,7 @@ import PySymEncDec
 import PyMessageHash
 import PyAsymKey
 import PyPolynomial
-import PyBCHAddress
+import PyBSVAddress
 
 class MessageHash:
     def __init__(self, msg):
@@ -43,18 +43,16 @@ class MessageHash:
     def __str__(self):
         return '{}'.format (self.message);
         
-def hash256(message):
+def hash256(message,modulo=None, isdecimal=False):
     MH = MessageHash(message)
     hashedVal = MH.HashSha256()
-    retVal = BigNum()
-    retVal.value = hashedVal
+    retVal = BigNum(value=hashedVal,mod=modulo,isDec=isdecimal)
     return retVal
     
-def hash(message,hashfunc=None):
+def hash(message,hashfunc=None,modulo=None,isdecimal=False):
     MH = MessageHash(message)
     hashedVal = MH.Hash(hashfunc)
-    retVal = BigNum()
-    retVal.value = hashedVal
+    retVal = BigNum(value=hashedVal,mod=modulo,isDec=isdecimal)
     return retVal
     
 def ListHashFuncs():
@@ -246,7 +244,7 @@ class ECPoint:
     def __add__(self, obj):
         if (self.nid != obj.nid):
             print ("Points not on the same curve %i and %i" % (self.nid, obj.nid))
-            return none
+            return None
 
         sumVal = PyECPoint.Add( self.value, obj.value, self.nid, self.isDec, self.isCompressed )
         ecpRetVal = ECPoint(self.nid,self.isDec)
@@ -315,17 +313,20 @@ class ECPoint:
         points = self.GetAffineCoOrdinates()
         return '({},{})'.format (points[0],points[1])
 
-def MultiplyByGenerator( m, nid=ECPoint.defaultNID ) :
-    pt = ECPoint(nid)
-    pt.value = PyECPoint.MultiplyByGenerator( m.value, nid, pt.isDec, pt.isCompressed )
+def MultiplyByGenerator( m,isDec=False, nid=ECPoint.defaultNID, compressed=False ) :
+    pt = ECPoint(nid=nid,isDec=isDec)
+    pt.value = PyECPoint.MultiplyByGenerator( m.value, nid, isDec, compressed)
     return pt
 
 
     
         
 class ECKey256K1:
-    def __init__ (self):
-        self.pubKey, self.priKey = PyAsymKey.GenerateKeyPairPEM(); 
+    def __init__ (self,asHex=False):
+        if(asHex):
+            self.pubKey, self.priKey = PyAsymKey.GenerateKeyPairHEX(); 
+        else:
+            self.pubKey, self.priKey = PyAsymKey.GenerateKeyPairPEM(); 
     
     def FromPEMStr (self, keyPemForm):
         self.pubKey, self.priKey = PyAsymKey.ImportFromPem(keyPemForm);
@@ -368,13 +369,25 @@ class ECKey256K1:
       
 def verify(msg, pubkey, rval, sval):
     return PyAsymKey.Verify(msg, pubkey, rval,sval)
+
+def verifyDER(msg, pubkey, DERSig,isDec=False):
+    return PyAsymKey.VerifyDER(msg, pubkey,DERSig,isDec )
     
 def createDERFormat(rValue, sValue):
     assert(rValue.isDec == sValue.isDec)
     hexSig = PyAsymKey.DERSignature(rValue.value, sValue.value, rValue.isDec)
     hexSigBN = BigNum(hexSig, rValue.mod, rValue.isDec)
     return hexSigBN
+
+def pubKeyPEMasHex(pubkey, compressed=False):
+    return PyAsymKey.PubKeyPEMToHexPt(pubkey, compressed)
     
+def pubKeyPEMasHex(pubkey, compressed=False):
+    return PyAsymKey.PubKeyPEMToHexPt(pubkey, compressed)
+
+def pubKeyHexPtasPem(xPt,yPt, nid=714):
+    return PyAsymKey.PubKeyHexPtToPEM(xPt,yPt,nid)
+
 
 class Polynomial:
 
@@ -588,13 +601,13 @@ class LGECInterpolator:
         return "points: {0}, modulo: {1}".format (self.points, self.modulo)
 
 
-class BCHAddress:
+class BSVAddress:
     def __init__(self, key, version, l=None ):
         self.key = key
         self.version = version
 
         if l : list = l
-        else : list = PyBCHAddress.createAddress(key, version)
+        else : list = PyBSVAddress.createAddress(key, version)
 
         self.address            = list[0] 
         self.valid              = list[1] 
@@ -604,17 +617,17 @@ class BCHAddress:
 
 
     @classmethod
-    def initFromAddress( cls, bchAddress ) :
-        list = PyBCHAddress.importAddress( bchAddress )
+    def initFromAddress( cls, BSVAddress ) :
+        list = PyBSVAddress.importAddress( BSVAddress )
 
         if list :
             obj = cls( "", "", list )
             return obj
   
         else :
-            raise Exception( 'Address: ' + bchAddress + ' is not valid'  )  
+            raise Exception( 'Address: ' + BSVAddress + ' is not valid'  )  
 
 
     def __str__(self):
-        prettyStr = PyBCHAddress.print( self.address )
+        prettyStr = PyBSVAddress.print( self.address )
         return prettyStr

@@ -8,5 +8,3 @@
 add_subdirectory(cpp)
 add_subdirectory(python)
 add_subdirectory(javascript)
-
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README" DESTINATION "example" COMPONENT "Examples")

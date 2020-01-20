@@ -122,7 +122,12 @@ AsymKey AsymKey::derive(const std::string& crAdditiveMsg) const
 
 std::pair<std::string, std::string> AsymKey::sign(const std::string& crMsg)const
 {
-    return m_pImpl->sign(crMsg);
+    return m_pImpl->impl_sign(crMsg);
+}
+
+std::pair<std::string, std::string> AsymKey::sign_ex(const std::string& crMsg, const std::string& inv_k_hex, const std::string& r_hex) const
+{
+    return m_pImpl->impl_sign_ex(crMsg, inv_k_hex, r_hex);
 }
 
 // split the key into multiple parts
@@ -157,3 +162,10 @@ std::unique_ptr<unsigned char[]> DEREncodedSignature(const BigNumber& r ,const B
     return impl_DEREncodedSignature(r,s,len);
 }
 
+std::string AsymKey_API pubkey_coordinates2pem(const std::string& xval, const std::string& yval, const int nid){
+    return impl_pubkey_coordinates2pem(xval, yval,  nid);
+}
+
+std::string AsymKey_API pubkey_pem2Hex_point(const std::string& crPubPEMkey, const bool& compressed){
+    return impl_pubkey_pem2Hex_point(crPubPEMkey,compressed);
+}

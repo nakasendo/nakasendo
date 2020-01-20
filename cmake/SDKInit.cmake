@@ -56,11 +56,23 @@ macro(sdkGetOSInfo)
   endif()
 endmacro()
 
+#### Create directory in binary tree to put all generated files
+macro(sdkCreateGeneratedDir)
+  set(SDK_GENERATED_DIR "${CMAKE_BINARY_DIR}/generated" CACHE STRING "Directory containing all generated files")
+  file(MAKE_DIRECTORY "${SDK_GENERATED_DIR}")
+endmacro()
+
 #### Create directory in binary tree to put all generated hpp files
 macro(sdkCreateGeneratedHppDir)
-  set(SDK_GENERATED_HPP_DIR "${CMAKE_BINARY_DIR}/generated_hpp" CACHE STRING "Directory containing all generated hpp files")
+  set(SDK_GENERATED_HPP_DIR "${CMAKE_BINARY_DIR}/generated/hpp" CACHE STRING "Directory containing all generated hpp files")
   file(MAKE_DIRECTORY "${SDK_GENERATED_HPP_DIR}")
   include_directories("${SDK_GENERATED_HPP_DIR}")
+endmacro()
+
+#### Create directory in binary tree to put all generated tools files
+macro(sdkCreateGeneratedToolsDir)
+  set(SDK_GENERATED_TOOLS_DIR "${CMAKE_BINARY_DIR}/generated/tools" CACHE STRING "Directory containing all generated tools")
+  file(MAKE_DIRECTORY "${SDK_GENERATED_TOOLS_DIR}")
 endmacro()
 
 #### Check consistency of CMAKE_BUILD_TYPE vs CMAKE_CONFIGURATION_TYPES
@@ -116,7 +128,9 @@ macro(sdkInitCMake)
   sdkInitModulePaths()
   #sdkPrintList("CMAKE_MODULE_PATH" "${CMAKE_MODULE_PATH}") ## Debug Log
   sdkGetOSInfo()
+  sdkCreateGeneratedDir()
   sdkCreateGeneratedHppDir()
+  sdkCreateGeneratedToolsDir()
   #sdkPrintOSInfo()#Debug Log
 
   include(SDKBuildSetting)
@@ -145,6 +159,10 @@ macro(sdkInitCMake)
   include(FindBoostHelper)
   HelpFindBoost()
   #sdkPrintProperties(Boost::random)
+
+  include(FindProtobufHelper)
+  sdkHelpFindProtobuf()
+  #sdkPrintProtobufInfo()
 
   enable_testing()
 endmacro()
