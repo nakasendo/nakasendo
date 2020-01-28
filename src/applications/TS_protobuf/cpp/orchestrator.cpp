@@ -72,7 +72,7 @@ std::vector<player> getPlayerList(){
     return GlobalUsers::Instance()->getPlayerList();
 }
 
-const player& getPlayer(const std::string& p){
+const player&  getPlayer(const std::string& p){
     return GlobalUsers::Instance()->getPlayer(p);
 }
 
@@ -144,11 +144,11 @@ bool deleteGroup(const std::string& grpid){
     return GlobalGroups::Instance()->deleteGroup(grpid);
 }
 
-GroupMetadata& GetGroup(const std::string& grpid){
+GroupMetadata&  GetGroup(const std::string& grpid){
     return GlobalGroups::Instance()->GetGroup(grpid);
 }
 
-const std::string CreateGroup(const std::string& proposer, const int& m, const int& n){ 
+const std::string CreateGroup(const std::string& proposer, const int& m, const int& n){
     
     int t = m-1;
     if (t<1){
@@ -197,7 +197,7 @@ bool DeleteGrpSharingContainers(const std::string& grp){
     return true; 
 }
 
-bool deleteGrpSignatureSharingContainsers(const std::string& grp){
+bool deleteGrpSigSharingContainers(const std::string& grp){
     groupsMap::iterator iter = GlobalGroups::Instance()->groups().find(grp);
     if(iter == GlobalGroups::Instance()->groups().end()){
         std::cout << "no grp listed for id: " << grp; 
@@ -209,7 +209,7 @@ bool deleteGrpSignatureSharingContainsers(const std::string& grp){
     return true; 
 }
 
-bool deleteGrpPreSignatureContainers(const std::string& grp){
+bool deleteGrpPreSigContainers(const std::string& grp){
     groupsMap::iterator iter = GlobalGroups::Instance()->groups().find(grp);
     if(iter == GlobalGroups::Instance()->groups().end()){
         std::cout << "no grp listed for id: " << grp; 

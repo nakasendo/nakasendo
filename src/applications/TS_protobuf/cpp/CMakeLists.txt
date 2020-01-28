@@ -12,8 +12,12 @@ endif()
 
 set(ThresholdSignature_PROTOFILE "${CMAKE_CURRENT_SOURCE_DIR}/../protos/ts_messages.proto" "${CMAKE_CURRENT_SOURCE_DIR}/../protos/ts_enums.proto")
 protobuf_generate_cpp(ThresholdSignature_SRCS ThresholdSignature_HDRS ${ThresholdSignature_PROTOFILE})
+protobuf_generate_python(PY_ThresholdSignature_SRCS ${ThresholdSignature_PROTOFILE})
+
 
 set(TSCore_HPP_FILES
+    ${ThresholdSignature_HDRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/exportTSCore.h
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupMetaData.h
     ${CMAKE_CURRENT_SOURCE_DIR}/orchestrator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/player.h
@@ -21,6 +25,8 @@ set(TSCore_HPP_FILES
 )
 
 set(TSCore_CPP_FILES
+    ${ThresholdSignature_SRCS}
+    ${PY_ThresholdSignature_SRCS}
     ${CMAKE_CURRENT_SOURCE_DIR}/GroupMetaData.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/orchestrator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/player.cpp
@@ -37,4 +43,9 @@ set_property(TARGET TSCore PROPERTY FOLDER "core")
 
 install(FILES ${TSCore_HPP_FILES} DESTINATION "include/TSCore" COMPONENT core)
 install(TARGETS TSCore DESTINATION "lib" COMPONENT core)
+
+add_custom_command(
+    TARGET TSCore POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${PY_ThresholdSignature_SRCS} ${CMAKE_SOURCE_DIR}/src/applications/TS_protobuf/py
+)
 

@@ -54,7 +54,6 @@ int GroupMetadata::getGroupIsSetParameters
     ) const
 {
 
-    std::cout << "JAS: getGroupIsSetParameters" << std::endl ;
     int count = 1 ;
     int ordinal = 0 ;
 
@@ -80,10 +79,6 @@ int GroupMetadata::getGroupIsSetParameters
 
 
     return ordinal ;
-    //playerIds 
-    // return ordinal 
-    // return listExcludingUser as:
-    // resList.append()
 }
 
 void GroupMetadata::addUserToGroup(const std::string& userid, const std::string& uri, const std::string& addr, const std::string& port){

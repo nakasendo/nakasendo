@@ -9,11 +9,12 @@
 #include <Polynomial/Polynomial.h>
 #include <BigNumbers/BigNumbers.h>
 #include <ECPoint/ECPoint.h>
+#include <exportTSCore.h>
 
-class player
+class TSCore_API player
 {
 
-    friend std::ostream& operator<< (std::ostream&, const player&); 
+	TSCore_API friend std::ostream& operator<< (std::ostream&, const player&);
     public:
         player() : m_userID(), m_uri(), m_address (), m_port() { return ; }
         player(const std::string&, const std::string&, const std::string&, const std::string&);
@@ -36,9 +37,9 @@ class player
 };
 
 
-struct jvrss
+struct TSCore_API jvrss
 {
-    friend std::ostream& operator<< (std::ostream&, const jvrss&);
+	TSCore_API friend std::ostream& operator<< (std::ostream&, const jvrss&);
     jvrss() { return ; }
     ~jvrss() = default;
     
@@ -75,9 +76,9 @@ struct jvrss
         
 };
 
-struct playerGroupMetaData 
+struct TSCore_API playerGroupMetaData
 {
-    friend std::ostream& operator<< (std::ostream&, const playerGroupMetaData&);
+	TSCore_API friend std::ostream& operator<< (std::ostream&, const playerGroupMetaData&);
     
     
     
@@ -171,7 +172,7 @@ struct playerGroupMetaData
 
 // static version of player. which the client keeps private
 using playerGroups = std::map<std::string, playerGroupMetaData>; 
-class SinglePlayer
+class TSCore_API SinglePlayer
 {
     public:
         
@@ -208,15 +209,15 @@ class SinglePlayer
 
 
 // free functions
-std::pair<std::string, bool> acceptInvitationToGroup(const std::string&);
-void deletePlayerGroup(const std::string&, const std::string&);
-const player& getPublicPlayerInfo(); 
-const jvrss& PlayerSecretDataForGrp (const std::string&,const std::string& calctype);
-playerGroupMetaData& PlayerGrpData (const std::string& ); 
+TSCore_API std::pair<std::string, bool>  acceptInvitationToGroup(const std::string&);
+TSCore_API void  deletePlayerGroup(const std::string&, const std::string&);
+TSCore_API const player& getPublicPlayerInfo();
+TSCore_API const jvrss& PlayerSecretDataForGrp (const std::string&,const std::string& calctype);
+TSCore_API playerGroupMetaData& PlayerGrpData (const std::string& );
 
-const int& ordinalForGroup(const std::string&);
+TSCore_API const int& ordinalForGroup(const std::string&);
 
-std::pair<BigNumber,ECPoint> EphemeralKeyPlayerData(const std::string&); 
+TSCore_API std::pair<BigNumber,ECPoint>  EphemeralKeyPlayerData(const std::string&);
 
 
 

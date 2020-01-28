@@ -8,10 +8,15 @@
 #include <vector>
 #include <mutex>
 #include <player.h>
+#include <exportTSCore.h>
+
+
+
+
 class GroupMetadata;
 
 using players = std::map<std::string, player>; 
-class GlobalUsers
+class TSCore_API GlobalUsers
 {
     public:
         
@@ -35,14 +40,14 @@ class GlobalUsers
     
 };
 
-void addPlayer (const player& obj);
-void removePlayer(const player& obj);
-std::vector<player> getPlayerList();
-const player& getPlayer(const std::string&) ; 
+TSCore_API void addPlayer (const player& obj);
+TSCore_API void removePlayer(const player& obj);
+TSCore_API std::vector<player> getPlayerList();
+TSCore_API const player& getPlayer(const std::string&) ;
 
 
 using groupsMap = std::map<std::string, GroupMetadata>;
-class GlobalGroups
+class TSCore_API GlobalGroups
 {
    public:
         
@@ -68,20 +73,20 @@ class GlobalGroups
 }; 
 
 
-const std::string CreateGroup(const std::string&, const int&, const int&); 
-void addUserToGroup(const std::string&, const std::string& );
-GroupMetadata& GetGroup(const std::string&);
-bool removeUserFromGroup(const std::string&, const std::string&);
-bool deleteGroup(const std::string&);
+TSCore_API const std::string CreateGroup(const std::string&, const int&, const int&);
+TSCore_API void addUserToGroup(const std::string&, const std::string& );
+TSCore_API GroupMetadata&  GetGroup(const std::string&);
+TSCore_API bool removeUserFromGroup(const std::string&, const std::string&);
+TSCore_API bool deleteGroup(const std::string&);
 
-bool DeleteGrpSharingContainers(const std::string&);
-bool deleteGrpSignatureSharingContainsers(const std::string&);
-bool deleteGrpPreSignatureContainers(const std::string&);
+TSCore_API bool DeleteGrpSharingContainers(const std::string&);
+TSCore_API bool deleteGrpSigSharingContainers(const std::string&);
+TSCore_API bool deleteGrpPreSigContainers(const std::string&);
 
-bool lockGrp(const std::string&);
-bool unlockGrp(const std::string&);
+TSCore_API bool lockGrp(const std::string&);
+TSCore_API bool unlockGrp(const std::string&);
 
-std::string generateUUID(const int& length=32); 
+TSCore_API std::string generateUUID(const int& length=32);
 
 #endif //iifndef __ORCESTRATOR_H__
 

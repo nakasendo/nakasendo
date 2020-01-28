@@ -57,7 +57,7 @@ void createRegisterRequest(const player& p, std::ostream& os){
     return ; 
 }
 
-void createRegisterReply(const player& p, std::ostream& os){  
+void createRegisterReply(const player& p, std::ostream& os){
     thresholdsignature::RegisterReply resp;
     resp.set_success(true);
     os << TSMessageDefs::TS_REGISTER_PLAYER_RESPONSE; 
@@ -118,7 +118,7 @@ void createGroupReply(const player& p, const std::string& grpid, const bool& grp
     }
     return;
 }
-//void createInviteToGroupMessage(const std::string& proposer, const std::string& grpid, std::ostream& os){
+
 void createInviteRequest( const std::string& grpid, std::ostream& os){
     thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
     thresholdsignature::InviteRequest inviteReq;
@@ -181,7 +181,7 @@ void createGroupIsSetRequest
 }
 
 void createGroupIsSetReply(const std::string& grpid, const std::string& playerid, const bool& userset, std::ostream& os){
-//void createBroadCastGroupDetailsResponse(const std::string& grpid, const std::string& playerid, const bool& userset, std::ostream& os){
+
     
     thresholdsignature::IdentityMessage* id = new thresholdsignature::IdentityMessage( ) ; 
     thresholdsignature::GroupIsSetReply resp;

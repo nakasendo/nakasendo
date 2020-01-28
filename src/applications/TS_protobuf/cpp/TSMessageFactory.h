@@ -6,11 +6,12 @@
 #include <player.h>
 #include <GroupMetaData.h>
 #include <ts_messages.pb.h>
+#include <exportTSCore.h>
 
 class BigNumber;
 class ECPoint;
 
-enum class TSMessageDefs
+enum class TSCore_API TSMessageDefs
 {
     TS_UNKNOWN_TYPE,
     TS_REGISTER_PLAYER_REQUEST,
@@ -55,78 +56,76 @@ enum class TSMessageDefs
     TS_CREATE_PLAYER_PRIKEY_RESPONSE
 };
 
-template<typename T>
-std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
+ template<typename T>
+ std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
 {
     return stream << static_cast<typename std::underlying_type<T>::type>(e);
 }
 
-template<typename T>
-std::istream& operator>>(typename std::enable_if<std::is_enum<T>::value, std::istream>::type& stream, const T& e)
+ template<typename T>
+ std::istream& operator>>(typename std::enable_if<std::is_enum<T>::value, std::istream>::type& stream, const T& e)
 {
     return stream >> static_cast<typename std::underlying_type<T>::type>(e);
 }
 
-void createRegisterRequest (const player&, std::ostream&);
-void createRegisterReply (const player&, std::ostream& );
-void createListPlayersRequest(const player&, std::ostream&);
-void createListPlayersResponse(const player&, std::ostream&);
-void createGroupRequest(const player&, const int&, const int&, std::ostream&);
-void createGroupReply(const player&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createRegisterRequest (const player&, std::ostream&);
+TSCore_API void createRegisterReply (const player&, std::ostream& );
+TSCore_API void createListPlayersRequest(const player&, std::ostream&);
+TSCore_API void createListPlayersResponse(const player&, std::ostream&);
+TSCore_API void createGroupRequest(const player&, const int&, const int&, std::ostream&);
+TSCore_API void createGroupReply(const player&, const std::string&, const bool&, std::ostream&);
 
-void createInviteRequest(const std::string&, std::ostream&); 
-void createInviteReply(const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createInviteRequest(const std::string&, std::ostream&);
+TSCore_API void createInviteReply(const std::string&, const std::string&, const bool&, std::ostream&);
 
-void createGroupIsSetRequest(const std::string&, const GroupMetadata&, std::ostream&);
-//void createBroadCastGroupDetails(const GroupMetadata&, std::ostream&);
-void createGroupIsSetReply(const std::string&, const std::string&, const bool&, std::ostream&);
-//void createBroadCastGroupDetailsResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createGroupIsSetRequest(const std::string&, const GroupMetadata&, std::ostream&);
+TSCore_API void createGroupIsSetReply(const std::string&, const std::string&, const bool&, std::ostream&);
 
-void createDeleteTSGroupRequest(const player&, const std::string&, std::ostream&);
-void createDeleteTSGroupResponse(const player&, const std::string&, const bool&, std::ostream&);
-void createDeleteTSPlayerGroupRequest(const std::string&, const std::string&, std::ostream&);
-void createDeleteTSPlayerGroupResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createDeleteTSGroupRequest(const player&, const std::string&, std::ostream&);
+TSCore_API void createDeleteTSGroupResponse(const player&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createDeleteTSPlayerGroupRequest(const std::string&, const std::string&, std::ostream&);
+TSCore_API void createDeleteTSPlayerGroupResponse(const std::string&, const std::string&, const bool&, std::ostream&);
 
 
-void createSecretSharingRequest(const player&, const std::string&, const std::string&, std::ostream&);
-void createSecretSharingResponse(const player&, const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createSecretSharingRequest(const player&, const std::string&, const std::string&, std::ostream&);
+TSCore_API void createSecretSharingResponse(const player&, const std::string&, const std::string&, const bool&, std::ostream&);
 
-void createSecretSharingInitEvalRequest(const std::string&, const std::string&, const std::string&, std::ostream& );
-void createSecretSharingInitEvalResponse(const std::string&, const std::string&, const std::string&, const bool&, std::ostream&);
-void createPrivateDataEvalRequest(const std::string& , const std::string&, const int&, const int&, const jvrss&, std::ostream& );
-void createPrivateDataEvalResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createSecretSharingInitEvalRequest(const std::string&, const std::string&, const std::string&, std::ostream& );
+TSCore_API void createSecretSharingInitEvalResponse(const std::string&, const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createPrivateDataEvalRequest(const std::string& , const std::string&, const int&, const int&, const jvrss&, std::ostream& );
+TSCore_API void createPrivateDataEvalResponse(const std::string&, const std::string&, const bool&, std::ostream&);
 
-void createSecretSharingPlayerDataRequest(const std::string&, const std::string&, const std::string&, std::ostream&);
-void createSecretSharingPlayerDataResponse(const std::string&, const std::string&, const std::string& , const int&, const jvrss&, std::ostream&);
+TSCore_API void createSecretSharingPlayerDataRequest(const std::string&, const std::string&, const std::string&, std::ostream&);
+TSCore_API void createSecretSharingPlayerDataResponse(const std::string&, const std::string&, const std::string& , const int&, const jvrss&, std::ostream&);
 
-void createSecretSharingCollatedDataRequest(const std::string&, const std::string&, const std::string&, const GroupMetadata&, std::ostream&);
+TSCore_API void createSecretSharingCollatedDataRequest(const std::string&, const std::string&, const std::string&, const GroupMetadata&, std::ostream&);
 
-void createSecretSharingCollatedPlayerResponse(const std::string&, const std::string&, const std::string&, std::ostream&);
+TSCore_API void createSecretSharingCollatedPlayerResponse(const std::string&, const std::string&, const std::string&, std::ostream&);
 
-void createEphemeralKeyDataRequest(const std::string&, const std::string&, std::ostream&);
-void createEphemeralKeyDataResponse(const std::string&, const std::string&, std::ostream&);
+TSCore_API void createEphemeralKeyDataRequest(const std::string&, const std::string&, std::ostream&);
+TSCore_API void createEphemeralKeyDataResponse(const std::string&, const std::string&, std::ostream&);
 
-void createEphermalKeyPlayerDataRequest(const std::string&, const std::string&, std::ostream&);
-void createEphemeralKeyPlayerDataResponse(const std::string&, const std::string&, const int&, const std::pair<BigNumber, ECPoint>&, std::ostream&) ;
+TSCore_API void createEphermalKeyPlayerDataRequest(const std::string&, const std::string&, std::ostream&);
+TSCore_API void createEphemeralKeyPlayerDataResponse(const std::string&, const std::string&, const int&, const std::pair<BigNumber, ECPoint>&, std::ostream&) ;
 
-void createEphemeralKeyCollatedDataRequest(const std::string&, const std::string&, const GroupMetadata&, std::ostream&);
-void createAEphemeralKeyCollatedDataResponse(const std::string&, const std::string&, const std::string&, std::ostream&);
+TSCore_API void createEphemeralKeyCollatedDataRequest(const std::string&, const std::string&, const GroupMetadata&, std::ostream&);
+TSCore_API void createAEphemeralKeyCollatedDataResponse(const std::string&, const std::string&, const std::string&, std::ostream&);
 
-void createSignatureRequest(const std::string& , const std::string&, const std::string&, const int&, std::ostream& );  
-void createSignatureResponse(const std::string&, const std::string&, const GroupMetadata&, const std::string& , const int&, std::ostream&);
-void createSignaturePlayerDataRequest(const std::string&, const std::string&, const std::string&, const int&, std::ostream&);
-void createSignaturePlayerDataResponse(const std::string&, const std::string&, const std::pair<std::string, BigNumber>&, const int&, std::ostream&);
+TSCore_API void createSignatureRequest(const std::string& , const std::string&, const std::string&, const int&, std::ostream& );
+TSCore_API void createSignatureResponse(const std::string&, const std::string&, const GroupMetadata&, const std::string& , const int&, std::ostream&);
+TSCore_API void createSignaturePlayerDataRequest(const std::string&, const std::string&, const std::string&, const int&, std::ostream&);
+TSCore_API void createSignaturePlayerDataResponse(const std::string&, const std::string&, const std::pair<std::string, BigNumber>&, const int&, std::ostream&);
 
-void createPrivateKeyRequest(const std::string&, const std::string&, const std::vector<std::string>&, std::ostream& );
-void createPrivateKeyResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createPrivateKeyRequest(const std::string&, const std::string&, const std::vector<std::string>&, std::ostream& );
+TSCore_API void createPrivateKeyResponse(const std::string&, const std::string&, const bool&, std::ostream&);
 
-void createPlayerPrivateKeyShareRequest(const std::string&, const std::string&, std::ostream&);
-void createPlayerPrivateKeyShareResponse(const std::string&, const std::string&, const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createPlayerPrivateKeyShareRequest(const std::string&, const std::string&, std::ostream&);
+TSCore_API void createPlayerPrivateKeyShareResponse(const std::string&, const std::string&, const std::string&, const std::string&, const bool&, std::ostream&);
 
-void createPlayerPrivateShareExchangeRequest(const std::string&, const std::string&, std::ostream&);
-void createPlayerPrivateShareExchangeResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createPlayerPrivateShareExchangeRequest(const std::string&, const std::string&, std::ostream&);
+TSCore_API void createPlayerPrivateShareExchangeResponse(const std::string&, const std::string&, const bool&, std::ostream&);
 
-void createPlayerPrivateKeyShareRequest(const playerGroupMetaData&,std::ostream&);
-void createPlayerPrivateKeyShareResponse(const std::string&, const std::string&, const bool&, std::ostream&);
+TSCore_API void createPlayerPrivateKeyShareRequest(const playerGroupMetaData&,std::ostream&);
+TSCore_API void createPlayerPrivateKeyShareResponse(const std::string&, const std::string&, const bool&, std::ostream&);
 #endif //#ifndef __TS_MESSAGE_FACTORY_H__
 

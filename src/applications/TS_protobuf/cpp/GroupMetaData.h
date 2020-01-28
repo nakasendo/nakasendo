@@ -8,10 +8,10 @@
 #include <mutex>
 #include <BigNumbers/BigNumbers.h>
 #include <ECPoint/ECPoint.h>
+#include <exportTSCore.h>
 
-
-struct playerCommsInfo{
-    friend std::ostream& operator<< (std::ostream&, const playerCommsInfo&);
+struct TSCore_API playerCommsInfo{
+	TSCore_API friend std::ostream& operator<< (std::ostream&, const playerCommsInfo&);
     playerCommsInfo()=default;
     ~playerCommsInfo()=default;
     playerCommsInfo(const playerCommsInfo& obj)=default;
@@ -24,9 +24,9 @@ struct playerCommsInfo{
 
 };
 
-class GroupMetadata
+class TSCore_API GroupMetadata
 {
-    friend std::ostream& operator<< (std::ostream&, const GroupMetadata&);
+	TSCore_API friend std::ostream& operator<< (std::ostream&, const GroupMetadata&);
     public:
         GroupMetadata() 
             : m_groupid(), m_proposer(), m_m(), m_n(), m_t()
