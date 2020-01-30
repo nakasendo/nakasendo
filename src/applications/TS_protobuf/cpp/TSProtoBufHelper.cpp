@@ -10,8 +10,9 @@ std::string enum2string( const thresholdsignature::CalcType& ct){
         return  "LITTLEK" ;
     else if( ct == thresholdsignature::ALPHA )
         return "ALPHA" ;
-    else
-    {
+    else if( ct == thresholdsignature::UNSET)
+        return "UNSET";
+    else{
         std::stringstream err;
         err << "ERROR: unknown calculation: " << ct << std::endl ;
         throw std::runtime_error (err.str());
@@ -32,8 +33,10 @@ thresholdsignature::CalcType string2enum (const std::string& ctStr){
     {
         return thresholdsignature::ALPHA ;
     }
-    else
-    {
+    else if (ctStr == "UNSET"){
+        return thresholdsignature::UNSET;
+    }
+    else{
         std::stringstream err;
         err <<"ERROR: unknown calculation: " << ctStr << std::endl ;
         throw std::runtime_error(err.str());

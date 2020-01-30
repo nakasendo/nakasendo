@@ -6,4 +6,5 @@ enum  CalcType {
     PRIVATEKEYSHARE = 0 ;
     LITTLEK         = 1 ;
     ALPHA           = 2 ;
+    UNSET           = 3 ;
   } 

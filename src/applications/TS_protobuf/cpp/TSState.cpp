@@ -1,5 +1,24 @@
+#include <fstream>
 #include <TSState.h>
 #include <TSProtoBufHelper.h>
+
+
+void WriteGroupMetaDataStateToFile(const GroupMetadata& grp, const std::string& filename){
+    std::ofstream ostrm(filename, std::ios::binary);
+    if (!ostrm.is_open()) {
+        throw std::runtime_error("Unable to open the file for writing" + filename);
+    }else{
+        WriteGroupMetaDataState(grp,ostrm);
+    }
+}
+void ReadGroupMetaDataStateFromFile(GroupMetadata& grp, const std::string& filename){
+    std::ifstream istrm(filename,std::ios::binary);
+    if(!istrm.is_open()){
+        throw std::runtime_error("unable to open file for reading " + filename);
+    }else{
+        ReadGroupMetaDataState(grp,istrm);
+    }
+}
 
 void WriteGroupMetaDataState(const GroupMetadata& grp, std::ostream& os){
     thresholdsignature::GroupMetaDataState grpstate;
@@ -48,8 +67,12 @@ void WriteGroupMetaDataState(const GroupMetadata& grp, std::ostream& os){
         sigPtr->set_ordinal(std::stoi(iter->first));
         sigPtr->set_signature(iter->second.ToHex());
     }
+    if(!grp.calculationType().empty()){
+        grpstate.set_calculation(string2enum(grp.calculationType()));
+    }else{
+        grpstate.set_calculation(thresholdsignature::UNSET);
+    }
 
-    grpstate.set_calculation(string2enum(grp.calculationType()));
     grpstate.set_groupset(grp.GroupSet());
     grpstate.set_groupinvitereplies(grp.GroupInviteReplies());
     grpstate.set_groupsignaturereplies(grp.GroupSignatureReplies());
@@ -115,7 +138,9 @@ void ReadGroupMetaDataState(GroupMetadata& grp, std::istream& is){
         grp.addCollatedPartialSignautre(ord, sig);
     }
 
-    grp.calculationType() = enum2string(grpstate.calculation());
+    std::string ct = enum2string(grpstate.calculation());
+    if (ct != "UNSET")
+        grp.calculationType() = enum2string(grpstate.calculation());
     grp.GroupSet() = grpstate.groupset();
     grp.GroupInviteReplies() = grpstate.groupinvitereplies();
     grp.GroupSignatureReplies() = grpstate.groupsignaturereplies();
@@ -240,6 +265,22 @@ void ReadJVRSSState(jvrss& jvrssobj, std::istream& is){
     ReadJVRSS(jvrssobj,jvrssstate);
     return;
 }
+void WriteJVRSSStateToFile(const jvrss& obj, const std::string& filename){
+    std::ofstream ostrm(filename, std::ios::binary);
+    if (!ostrm.is_open()) {
+        throw std::runtime_error("Unable to open the file for writing" + filename);
+    }else{
+         WriteJVRSSState(obj,ostrm);
+    }
+}
+void ReadJVRSSStateFromFile(jvrss& obj, const std::string& filename){
+    std::ifstream istrm(filename, std::ios::binary);
+    if (!istrm.is_open()) {
+        throw std::runtime_error("Unable to open the file for writing" + filename);
+    }else{
+         ReadJVRSSState(obj,istrm);
+    }
+}
 
 void WritePlayerGroupState(const playerGroupMetaData& pgrp, std::ostream& os){
     thresholdsignature::PlayerGroupState playergroupstate;
@@ -297,19 +338,21 @@ void ReadPlayerGroupState(playerGroupMetaData& pgrp, std::istream& is){
     if(!playergroupstate.ParseFromIstream(&is)){
         throw std::runtime_error("Could not deserialize GroupMetaDataState");
     }
+
     pgrp.m_id = playergroupstate.groupid();
     pgrp.m_ordinal = playergroupstate.ordinal();
     for(int i=0;i<playergroupstate.ordinallist_size();++i){
         pgrp.m_ordinalList.push_back(playergroupstate.ordinallist(i));
     }
 
+    
     for(int i=0;i<playergroupstate.ordinalandplayerlist_size();++i){
         int ord = playergroupstate.ordinalandplayerlist(i).ordinal();
         player grpplayer(playergroupstate.ordinalandplayerlist(i).p().name(),playergroupstate.ordinalandplayerlist(i).p().uri(),
                     playergroupstate.ordinalandplayerlist(i).p().addr(),playergroupstate.ordinalandplayerlist(i).p().port());
         pgrp.m_ordinalAndPlayerList.push_back(std::make_pair(ord,grpplayer));
     }
-
+    
     pgrp.m_degree = playergroupstate.degree();
 
     BigNumber bnMod;
@@ -324,13 +367,16 @@ void ReadPlayerGroupState(playerGroupMetaData& pgrp, std::istream& is){
     }
 
     pgrp.m_privateKeyPolynomial = Polynomial(polycoeffs,pgrp.m_modulo);
+    
     BigNumber bnPK;
     bnPK.FromHex(playergroupstate.privatekeyshare());
     pgrp.m_privateKeyShare = bnPK;
 
     ECPoint ptgk;
-    ptgk.FromHex(playergroupstate.grouppublickey());
-    pgrp.m_GroupPublicKey = ptgk;
+    if(playergroupstate.grouppublickey() != "00"){
+        ptgk.FromHex(playergroupstate.grouppublickey());
+        pgrp.m_GroupPublicKey = ptgk;
+    }
 
     for(int i=0;i<playergroupstate.ephemeralkeys_size();++i){
         BigNumber kVal;
@@ -339,7 +385,7 @@ void ReadPlayerGroupState(playerGroupMetaData& pgrp, std::istream& is){
         rVal.FromHex(playergroupstate.ephemeralkeys(i).r());
         pgrp.m_EmpheralKeyList.push_back(std::make_pair(kVal,rVal));
     }
-
+    
     BigNumber bnLK;
     bnLK.FromHex(playergroupstate.k());
     pgrp.m_littleK = bnLK;
@@ -347,7 +393,7 @@ void ReadPlayerGroupState(playerGroupMetaData& pgrp, std::istream& is){
     BigNumber bnA;
     bnA.FromHex(playergroupstate.alpha());
     pgrp.m_alpha = bnA;
-
+    
     for(int i=0;i<playergroupstate.keyshares_size();++i){
         BigNumber ord;
         ord.FromHex(std::to_string(playergroupstate.keyshares(i).ordinal()));
@@ -355,9 +401,25 @@ void ReadPlayerGroupState(playerGroupMetaData& pgrp, std::istream& is){
         keyShare.FromHex(playergroupstate.keyshares(i).keyshare());
         pgrp.m_PrivateKeyShares.push_back(std::make_pair(ord,keyShare));
     }
-
+    
     ReadJVRSS(pgrp.m_transientData, playergroupstate.jvrss());
 
     return;
 }
 
+void WritePlayerGroupStateToFile(const playerGroupMetaData& pgrp, const std::string& filename){
+    std::ofstream ostrm(filename, std::ios::binary);
+    if (!ostrm.is_open()) {
+        throw std::runtime_error("Unable to open the file for writing" + filename);
+    }else{
+         WritePlayerGroupState(pgrp,ostrm);
+    }
+}
+void ReadPlayerGroupStateFromFile(playerGroupMetaData& pgrp, const std::string& filename ){
+   std::ifstream istrm(filename, std::ios::binary);
+    if (!istrm.is_open()) {
+        throw std::runtime_error("Unable to open the file for writing" + filename);
+    }else{
+         ReadPlayerGroupState(pgrp,istrm);
+    }
+}

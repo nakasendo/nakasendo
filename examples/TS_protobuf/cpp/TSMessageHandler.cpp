@@ -841,7 +841,7 @@ bool CreateResponseMessage(MessageDescriptor& respMesDesc,std::ostream& os){
         createSecretSharingCollatedPlayerResponse(respMesDesc.m_userID,respMesDesc.m_grpID, respMesDesc.m_SSType,os);
     } else if (respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_PRE_SIG_REQUEST){
         createEphemeralKeyDataResponse(respMesDesc.m_userID,respMesDesc.m_grpID,os);
-        if(!deleteGrpPreSignatureContainers(respMesDesc.m_grpID)){
+        if(!deleteGrpPreSigContainers(respMesDesc.m_grpID)){
             std::cout << "Unable to clear the containers for a pre-signature request" << std::endl;
         }
         
@@ -856,7 +856,7 @@ bool CreateResponseMessage(MessageDescriptor& respMesDesc,std::ostream& os){
     } else if(respMesDesc.m_EnumMSGID == TSMessageDefs::TS_CREATE_GROUP_SIG_REQUEST){
         const GroupMetadata& grp = GetGroup(respMesDesc.m_grpID);
         createSignatureResponse(respMesDesc.m_userID, respMesDesc.m_grpID, grp, respMesDesc.m_Message,respMesDesc.m_eKeyIndex, os); 
-        if(!deleteGrpSignatureSharingContainsers(respMesDesc.m_grpID)){
+        if(!deleteGrpSigSharingContainers(respMesDesc.m_grpID)){
             std::cout << "Unable to clear the containers for a signature request" << std::endl;
         }
         
