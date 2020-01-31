@@ -1,7 +1,6 @@
 #ifndef POLYNOMIAL_H
 #define POLYNOMIAL_H
 
-#include <DYNAMIC_LIBRARY_API.hpp>
 #include <Polynomial/PolynomialConfig.h>
 #include <vector>
 #include <string>
@@ -107,7 +106,7 @@ class Polynomial_API Polynomial
     BigNumber m_zero = GenerateZero( ) ;
 
 public:
-    friend Polynomial_API std::ostream& operator<<( std::ostream &os, const Polynomial& p ) ;
+    Polynomial_API friend std::ostream& operator<<( std::ostream &os, const Polynomial& p ) ;
 };
 
 #endif /* POLYNOMIAL_H */

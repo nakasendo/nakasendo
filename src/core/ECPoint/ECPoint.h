@@ -1,13 +1,7 @@
 #ifndef _EC_POINT__H__
 #define _EC_POINT__H__
 
-#include <DYNAMIC_LIBRARY_API.hpp>
-
-#ifdef EXPORT_ECPoint
-#    define ECPoint_API EXPORT_DYNAMIC_LIBRARY
-#else
-#    define ECPoint_API IMPORT_DYNAMIC_LIBRARY
-#endif
+#include <ECPoint/ECPointConfig.h>
 
 #include <memory>
 #include <vector>
@@ -22,9 +16,9 @@ class ECPointImpl;
 
 class ECPoint_API ECPoint
 {
-    friend ECPoint ECPoint_API operator+ (const ECPoint&, const ECPoint&);
-    friend bool ECPoint_API operator == (const ECPoint&, const ECPoint&);
-    friend bool ECPoint_API operator != (const ECPoint&, const ECPoint&);
+    ECPoint_API friend ECPoint operator+ (const ECPoint&, const ECPoint&);
+    ECPoint_API friend bool operator == (const ECPoint&, const ECPoint&);
+    ECPoint_API friend bool operator != (const ECPoint&, const ECPoint&);
 
     public:
         explicit ECPoint();
@@ -73,9 +67,9 @@ class ECPoint_API ECPoint
 };
 
 
-std::vector<std::tuple<int, std::string, std::string>> ECPoint_API getCurveList();
-int ECPoint_API getNidForString(const std::string& NIDstr);
-//BigNumber ECPoint_API MultiplyByGenerator( const BigNumber& bigNum, int curveID ) ; 
-ECPoint ECPoint_API MultiplyByGeneratorPt(const BigNumber&, int curveID=714);
+ECPoint_API std::vector<std::tuple<int, std::string, std::string>> getCurveList();
+ECPoint_API int getNidForString(const std::string& NIDstr);
+//ECPoint_API BigNumber MultiplyByGenerator( const BigNumber& bigNum, int curveID ) ; 
+ECPoint_API ECPoint MultiplyByGeneratorPt(const BigNumber&, int curveID=714);
 
 #endif //ifndef _EC_POINT__H__

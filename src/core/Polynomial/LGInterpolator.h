@@ -20,7 +20,7 @@ where x & y are big integers (or in our case BigNumbers)
 */
 class Polynomial_API LGInterpolator
 {
-    friend Polynomial_API std::ostream& operator<<(std::ostream&, const LGInterpolator&);
+    Polynomial_API friend std::ostream& operator<<(std::ostream&, const LGInterpolator&);
     public:
         LGInterpolator (const PointsList&, const BigNumber& ) ; 
         ~LGInterpolator () = default;
@@ -43,7 +43,7 @@ where x is a BigNumber & y is a curve point (in our case an ECPoint type)
 
 class Polynomial_API LGECInterpolator
 {
-    friend Polynomial_API std::ostream& operator<<(std::ostream&, const LGECInterpolator&);
+    Polynomial_API friend std::ostream& operator<<(std::ostream&, const LGECInterpolator&);
     public:
         LGECInterpolator (const ECPointsList&, const BigNumber& ) ; 
         ~LGECInterpolator () = default;

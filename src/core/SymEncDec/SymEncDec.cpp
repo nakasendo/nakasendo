@@ -101,7 +101,7 @@ std::string Decode(const std::string& crMsg, const std::string& crKey, const std
     return retval;
 }
 
-std::string SymEncDec_API GenerateKey256(const std::string& crKey, const std::string& crIV, uint64_t keylen, uint64_t blocksize)
+std::string GenerateKey256(const std::string& crKey, const std::string& crIV, uint64_t keylen, uint64_t blocksize)
 {
     // This assumes that the IV is a hex encoded 16 byte number
 
@@ -129,7 +129,7 @@ std::string SymEncDec_API GenerateKey256(const std::string& crKey, const std::st
     return hexBuilder;
 }
 
-std::string SymEncDec_API GenerateNounce(uint64_t blocksize)
+std::string GenerateNounce(uint64_t blocksize)
 {
     std::unique_ptr<unsigned char[]> nounce;
     try{

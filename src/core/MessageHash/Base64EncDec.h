@@ -29,8 +29,8 @@ class MessageHash_API Base64EncDec
         std::unique_ptr<Base64EncDecImpl> m_pImpl ; 
 };
 
-std::string MessageHash_API EncodeBase64 (const std::unique_ptr<unsigned char[]>& msgPtrApi, int msgSize);
+MessageHash_API std::string EncodeBase64 (const std::unique_ptr<unsigned char[]>& msgPtrApi, int msgSize);
 
-std::unique_ptr<unsigned char[]> MessageHash_API DecodeBase64 (const std::string& msgPtrApi, int& msgSize );
+MessageHash_API std::unique_ptr<unsigned char[]> DecodeBase64 (const std::string& msgPtrApi, int& msgSize );
 
 #endif //ifndef __BASE64ENCDEC_H__
