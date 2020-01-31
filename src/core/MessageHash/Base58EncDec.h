@@ -35,12 +35,12 @@ class MessageHash_API Base58EncDec
         std::unique_ptr<Base58EncDecImpl> m_pImpl ; 
 };
 
-std::string MessageHash_API EncodeBase58(const std::string& msg);
+MessageHash_API std::string EncodeBase58(const std::string& msg);
 
-std::string MessageHash_API DecodeBase58(const std::string& msg);
+MessageHash_API std::string DecodeBase58(const std::string& msg);
 
-std::string MessageHash_API EncodeBase58Checked(const std::string& msg);
+MessageHash_API std::string EncodeBase58Checked(const std::string& msg);
 
-std::string MessageHash_API DecodeBase58Checked(const std::string& msg);
+MessageHash_API std::string DecodeBase58Checked(const std::string& msg);
 
 #endif //#ifndef __BASE58ENCDEC_H__

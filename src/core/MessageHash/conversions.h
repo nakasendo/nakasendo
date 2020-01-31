@@ -11,12 +11,11 @@
 #include <vector>
 
 
-std::unique_ptr<unsigned char[]> MessageHash_API HexToBin(const std::unique_ptr<char[]>& input, size_t *l);
+MessageHash_API std::unique_ptr<unsigned char[]> HexToBin(const std::unique_ptr<char[]>& input, size_t *l);
 
-std::unique_ptr<unsigned char[]> MessageHash_API HexStrToBin(const std::string& input, size_t *l);
-std::string MessageHash_API binTohexStr(const std::unique_ptr<unsigned char[]>& data, int len);
+MessageHash_API std::unique_ptr<unsigned char[]> HexStrToBin(const std::string& input, size_t *l);
+MessageHash_API std::string binTohexStr(const std::unique_ptr<unsigned char[]>& data, int len);
 
-
-std::vector<uint8_t> MessageHash_API HexToUInt (const std::string&);
-std::string MessageHash_API UintToHex(const std::vector<uint8_t>&);
+MessageHash_API std::vector<uint8_t> HexToUInt (const std::string&);
+MessageHash_API std::string UintToHex(const std::vector<uint8_t>&);
 #endif 
