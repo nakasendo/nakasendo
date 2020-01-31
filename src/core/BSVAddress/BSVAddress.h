@@ -39,7 +39,7 @@ class BSVAddress_API BSVAddress
         std::string decode( ) const  ;
 
         // output operator
-        friend BSVAddress_API std::ostream&  operator<< ( std::ostream&, const BSVAddress& ) ;
+        BSVAddress_API friend std::ostream&  operator<< ( std::ostream&, const BSVAddress& ) ;
 
 
     private:

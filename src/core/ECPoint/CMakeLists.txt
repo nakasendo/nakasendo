@@ -7,6 +7,7 @@
 
 set(ECPoint_HPP_FILES_PUBLIC # Keep alphabet order
     ${CMAKE_CURRENT_SOURCE_DIR}/ECPoint.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/ECPointConfig.h
 )
 set(ECPoint_HPP_FILES_PRIVATE # Keep alphabet order
     ${CMAKE_CURRENT_SOURCE_DIR}/ECPointImpl.h
