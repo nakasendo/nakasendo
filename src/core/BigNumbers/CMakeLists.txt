@@ -7,6 +7,7 @@
 
 set(BigNumbers_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbers.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersConfig.h
 )
 set(BigNumbers_HPP_FILES_PRIVATE # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersImpl.h

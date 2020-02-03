@@ -42,8 +42,8 @@ MessageHash_API std::vector<uint8_t>  Hash
         const std::string& 
     ) ;    
 
-std::string MessageHash_API HashMsgSHA256(const std::string& crMsg);
+MessageHash_API std::string HashMsgSHA256(const std::string& crMsg);
 
-std::unique_ptr<unsigned char[]> HashSha256 ( const std::string& );
+MessageHash_API std::unique_ptr<unsigned char[]> HashSha256 ( const std::string& );
 
 #endif //ifndef __MESSAGE_HASH_H__
