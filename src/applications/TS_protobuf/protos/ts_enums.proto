@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package thresholdsignature;
+
+enum  CalcType {
+    PRIVATEKEYSHARE = 0 ;
+    LITTLEK         = 1 ;
+    ALPHA           = 2 ;
+    UNSET           = 3 ;
+  } 

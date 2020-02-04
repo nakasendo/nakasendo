@@ -151,14 +151,16 @@ macro(sdkInitCMake)
   include(FindPythonHelper)
   HelpFindPython()
   #sdkPrintPythonInfo()#Debug Log
-
-  include(FindEmsdkHelper)
-  sdkHelpFindEMSDK()
-  #sdkPrintEmsdkInfo()#Debug Log
-
-  include(FindBoostHelper)
-  HelpFindBoost()
-  #sdkPrintProperties(Boost::random)
+  if(BUILD_WEBASSEMBLY)
+  	include(FindEmsdkHelper)
+  	sdkHelpFindEMSDK()
+  	sdkPrintEmsdkInfo()#Debug Log
+  endif(BUILD_WEBASSEMBLY)
+  if(BUILD_TESTS OR INCLUDE_SECP256K1_LIB)
+  	include(FindBoostHelper)
+  	HelpFindBoost()
+  	sdkPrintProperties(Boost::random)
+  endif(BUILD_TESTS OR INCLUDE_SECP256K1_LIB)
 
   include(FindProtobufHelper)
   sdkHelpFindProtobuf()
