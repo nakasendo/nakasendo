@@ -16,7 +16,7 @@ set(FindProtobufHelper_Include TRUE)
 ## On Windows with Visual Studio
 ##    cmake -G"Visual Studio 15 2017" -A x64 C:\path\to\source\protobuf_src\cmake -DCMAKE_INSTALL_PREFIX=C:\path\to\install\directory\protobuf -Dprotobuf_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF -Dprotobuf_MSVC_STATIC_RUNTIME=OFF && cmake --build . --target ALL_BUILD --config Debug && cmake --build . --target ALL_BUILD --config Release && cmake --build . --target INSTALL --config Debug && cmake --build . --target INSTALL --config Release
 ## On Linux
-##    cmake /path/to/source/protobuf_src/cmake -DCMAKE_INSTALL_PREFIX=/path/to/install/directory/protobuf -Dprotobuf_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF ; make -j4 ; make install
+##    cmake /path/to/source/protobuf_src/cmake -DCMAKE_INSTALL_PREFIX=/path/to/install/directory/protobuf -Dprotobuf_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON; make -j4 ; make install
 ## Name the environment variable Protobuf_ROOT pointing to the directory where protobuf is installed
 ##
 ## To use wiht cmake, use the predefined function from module FindProtobuf.cmake::protobuf_generate
