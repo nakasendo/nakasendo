@@ -1,0 +1,451 @@
+syntax = "proto3";
+
+package thresholdsignature;
+
+import "ts_enums.proto";
+
+service TSService {
+  rpc CallRegister            (RegisterRequest)       returns (RegisterReply)       {}
+  rpc CallCreateGroup         (CreateGroupRequest)    returns (CreateGroupReply)    {}
+  rpc CallInvite              (InviteRequest)         returns (InviteReply)         {}
+  rpc CallGroupIsSet          (GroupIsSetRequest)     returns (GroupIsSetReply)     {}
+  rpc CallShareSecret         (ShareSecretRequest)    returns (ShareSecretReply)    {}
+  rpc CallShareSecretData     (ShareSecretDataRequest)returns (ShareSecretDataReply){}
+  rpc CallInitShareEvals      (InitShareEvalsRequest) returns (InitShareEvalsReply) {}
+  rpc CallDistributeEvals     (DistributeEvalsRequest)returns (DistributeEvalsReply){}
+  rpc CallReceivedAllEvals    (RxAllEvalsRequest)     returns (RxAllEvalsReply)     {}
+  rpc CallCollatedSecretShare (CollatedSecretRequest) returns (CollatedSecretReply) {}
+  rpc CallGroupIsVerified     (GroupIsVerifiedRequest)returns (GroupIsVerifiedReply){}
+  rpc CallInitiatePresign     (InitPresignRequest)    returns (InitPresignReply)    {}
+  rpc CallPresigning          (PresigningRequest)     returns (PresigningReply)     {}
+  rpc CallShareVW             (ShareVWDataMessage)    returns (ShareVWDataMessageReply) {}
+  rpc CallCollatedVWShare     (CollatedVWShareRequest)returns (CollatedVWShareReply){}
+  rpc CallInitSignature       (InitSignatureRequest)  returns (InitSignatureReply)  {}
+  rpc CallShareOfSignature    (ShareOfSigRequest)     returns (ShareOfSigReply)     {}
+  rpc CallSignMessage         (SignDataMessage)       returns (SignMessageReply)    {}
+  rpc CallEphemKeyComplete    (IdentityMessage)       returns (GenericReply)        {}
+  rpc CallPubKeyComplete      (IdentityMessage)       returns (GenericReply)        {}
+  rpc CallPresignComplete     (IdentityMessage)       returns (GenericReply)        {}
+  rpc CallCompleted           (IdentityMessage)       returns (GenericReply)        {}
+  }
+
+// Player
+message Player {
+  string name = 1 ;
+  string uri  = 2 ;
+  string addr = 3 ;
+  string port = 4 ;
+}
+
+// Identification Message 
+message IdentityMessage {
+  string   userId   = 1 ;   // username or user Id
+  string   groupId  = 2 ;   // ID of group
+}
+
+
+// Register Player Request
+message RegisterRequest {
+  Player  playerId  = 1 ;
+}
+
+// Register Player Reply
+message RegisterReply {
+  bool    success   = 1 ;
+}
+
+// Create Group message
+message CreateGroupRequest {
+  string  userId = 1;  // username or userId
+  int32   m      = 2;  // recombination number
+  int32   n      = 3;  // total number players in group
+}
+
+// Create Group Reply
+message CreateGroupReply {
+  IdentityMessage   id = 1 ; 
+}
+
+// Invitation Request
+message InviteRequest {
+  IdentityMessage   id = 1 ;
+}
+
+// Invitation Reply to joining group
+message InviteReply {
+  IdentityMessage   id          = 1 ;
+  bool              acceptance  = 2 ; // True to be part of group, False otherwise
+}
+
+// Group Is Set Request
+// Sent by Server to each Player in Group. 
+// Distribute the groupId, the degree, 
+// and PlayerInfo of each player, with assigned ordinal (label)
+message GroupIsSetRequest {
+  string  groupId     = 1 ;       // ID of group
+  int32   degree      = 2 ;       // degree of the polynomial
+
+  message Participant {
+      int32   ordinal     = 1 ;
+      Player  playerId    = 2 ;        
+  }
+
+  repeated Participant participants = 3 ;     // Group participants
+}
+
+
+// Group Is Set Reply
+message GroupIsSetReply {
+  IdentityMessage   id        = 1 ; 
+  bool              success   = 2 ;  
+}
+
+
+// Share a Secret Request
+message ShareSecretRequest {
+  IdentityMessage   id          = 1 ; 
+  CalcType          calculation = 2 ;  // type of calculation
+}
+
+// Share a Secret Reply
+message ShareSecretReply {
+  IdentityMessage   id            = 1 ; 
+  CalcType          calculation   = 2 ; 
+  bool              success       = 3 ; 
+}
+
+
+// Share Secret Data Request 
+message ShareSecretDataRequest {
+  IdentityMessage   id           = 1 ; // user id and group
+  CalcType          calculation  = 2 ; // type of calculation   
+}
+
+message evaluatedPoly {
+  int32   ordinal = 1 ;   // ordinal
+  string  f_x     = 2 ;   // polynomial evaluated wrt ordinal
+}
+
+// Share Secret Data Reply - respond with the shared data
+message ShareSecretDataReply {
+  IdentityMessage         id          = 1 ;   // user id and group
+  int32                   ordinal     = 2 ;   // own ordinal
+  CalcType                calculation = 3 ;   // calculation type
+  repeated string         hiddenPoly  = 4 ;   // polynomial coefficients multiplied by Generator Point  
+  repeated evaluatedPoly  hiddenEvals = 5 ;   // evals (above) multiplied by Generator Point
+}
+
+// Initialise Sharing of Evals Request
+message InitShareEvalsRequest {
+  IdentityMessage         id          = 1 ;   // user id and group
+  CalcType                calculation = 2 ;   // calculation type
+}
+
+// Initialise Sharing of Evals Response
+message InitShareEvalsReply {
+  IdentityMessage         id          = 1 ;   // user id and group
+  CalcType                calculation = 2 ;   // calculation type
+  bool                    success     = 3 ; 
+}
+
+// Distribute Evaluated Data Request
+message DistributeEvalsRequest {
+  IdentityMessage         id          = 1 ;   // user id and group
+  int32                   toOrdinal   = 2 ;   // ordinal of data point
+  int32                   fromOrdinal = 3 ;   // ordinal of data point
+  string                  f_x         = 4 ;   // polynomial evaluated wrt ordinal
+}
+
+// Distribute Evaluated Data Response
+message DistributeEvalsReply {
+  IdentityMessage         id      = 1 ;   // user id and group
+  bool                    success = 2 ;
+}
+
+
+// Received All Evaluated Data (sent from Player to Orchestrator)
+message RxAllEvalsRequest {
+  IdentityMessage         id      = 1 ;   // user id and group
+  int32                   ordinal = 2 ;   // ordinal 
+}
+
+// Received All Evaluated Data reply
+message RxAllEvalsReply {
+  IdentityMessage         id      = 1 ;   // user id and group
+  bool                    success = 2 ;
+}
+
+
+message listOfPolynomials {
+  int32                   ordinal   = 1 ;   // ordinal
+  repeated evaluatedPoly  ep        = 2 ;   // 
+}
+
+message hiddenPolynomial {
+  int32             ordinal         = 1 ;   // ordinal
+  repeated string   coefficients    = 2 ;   // list of coefficiencts (hidden by Generator point)
+}
+
+
+// Share Collated Secret Data to Players
+message CollatedSecretRequest {
+  IdentityMessage                 id            = 1 ; // user id and group
+  CalcType                        calculation   = 2 ; // type of calculation   
+  repeated hiddenPolynomial       hiddenPolys   = 3 ; // collated polynomial coefficients hidden by Generator Point  
+  repeated listOfPolynomials      hiddenEvals   = 4 ; // collated hidden evaluated polynomials
+}
+
+// Collated Secret Reply
+message CollatedSecretReply {
+  IdentityMessage         id          = 1 ;   // user id and group
+  CalcType                calculation = 2 ;   // calculation type
+  bool                    success     = 3 ; 
+}
+
+// Group Is Verified request 
+message GroupIsVerifiedRequest {
+  IdentityMessage         id          = 1 ;  // user id and group
+  CalcType                calculation  = 2;  // type of calculation   
+}
+
+// Group Is Verified reply
+message GroupIsVerifiedReply {
+  IdentityMessage         id      = 1 ;   // user id and group
+  bool                    success = 2 ;  
+}
+
+// Initiate presigning process request 
+message InitPresignRequest {
+  IdentityMessage         id      = 1 ;   // user id and group
+  int32                   number  = 2 ;   // number of presignatures
+}
+
+// Initiate presigning process reply
+message InitPresignReply {
+  IdentityMessage         id      = 1 ;   // user id and group
+  int32                   number  = 2 ;   // number of presignatures
+  bool                    success = 3 ;   
+}
+
+// Presign request
+message PresigningRequest {
+  IdentityMessage   id          = 1 ; 
+  CalcType          calculation = 2 ;  // type of calculation
+}
+
+// Presign reply
+message PresigningReply {
+  bool    success  = 1 ;
+}
+
+// VW Data
+message VWData {
+  int32   ordinal   = 1 ;   // ordinal
+  string  v         = 2 ;   // v
+  string  w         = 3 ;   // w
+}
+
+// Share VW Data Request
+message ShareVWDataMessageRequest {
+  IdentityMessage   id        = 1 ;   // user id and group    
+}
+
+// Share VW Data message ( Player -> Orchestrator)
+message ShareVWDataMessage {
+  IdentityMessage   id        = 1 ;   // user id and group
+  VWData            data      = 2 ;   // contains the VW data
+}
+
+// Share VW Data Reply
+message ShareVWDataMessageReply {
+  IdentityMessage   id        = 1 ;   // user id and group
+  bool              success   = 2 ;  
+}
+
+// Share Collated VW Data (Orchestrator -> Player)
+message CollatedVWShareRequest {
+            IdentityMessage   id        = 1 ;   // user id and group
+  repeated  VWData            data      = 2 ;   // contains the VW data
+}
+
+// Collated VW Share Reply 
+message CollatedVWShareReply {
+  IdentityMessage   id        = 1 ;   // user id and group
+  int32             ordinal   = 2 ;   // ordinal
+  bool              success   = 3 ;  
+}
+
+
+// Initiate Signature Request
+message InitSignatureRequest {
+  IdentityMessage   id        = 1 ;   // user id and group
+  string            message   = 2 ;   // message to sign
+  int32             keyindex  = 3 ;   // ephemeral key index
+}
+
+// Initiate Signature Reply 
+message InitSignatureReply {
+  bool    success  = 1 ;
+}
+
+// Share of Signature Request 
+message ShareOfSigRequest {
+  string  groupId       = 1 ;   // ID of group  
+  string  message       = 2 ;   // message to sign
+  int32   keyindex      = 3 ;   // ephemeral key index  
+}
+
+// Share of Signature Reply   
+message ShareOfSigReply {
+  IdentityMessage   id          = 1 ;   // user id and group  
+  int32             ordinal     = 2 ;   // own ordinal
+  string            signature   = 3 ;   // signature data
+  string            message     = 4 ;   // message to be signed
+  int32             keyindex    = 5 ;   // ephemeral key index  
+}
+
+message SigData {
+  int32   ordinal    = 1 ; // ordinal
+  string  signature  = 2 ; // signature
+}
+
+// Sign Data Message - signature ready for signing
+message SignDataMessage {
+            IdentityMessage   id            = 1 ;   // user id and group  
+            string            message       = 2 ;   // message to sign
+            int32             keyindex      = 3 ;   // ephemeral key index            
+  repeated  SigData           signatures    = 4 ;   // signature
+}
+
+// Sign Message Reply
+message SignMessageReply {
+  IdentityMessage   id = 1 ;
+}
+
+// Used in GRPC for default reply
+message GenericReply {
+  bool    success  = 1 ;
+}
+
+
+message GenerateGroupPrivateKeyRequest{
+                IdentityMessage     id          = 1 ;   // user id and group  
+    repeated    string              players     = 2 ; 
+}
+
+message GenerateGroupPrivateKeyResponse{
+    IdentityMessage     id                  = 1 ;   // user id and group  
+    bool                privatedatashared   = 2 ;
+}
+
+message PlayerPrivateShareExchangeRequest{
+    IdentityMessage     id                  = 1 ;   // user id and group  
+}
+
+message PlayerPrivateShareExchangeResponse{
+    IdentityMessage     id                  = 1 ;   // user id and group  
+    bool                privatedatashared   = 2 ;
+}
+
+message PlayerPrivateKeyShareRequest{
+    IdentityMessage     id                  = 1 ;   // user id and group  
+    int32               ordinal             = 2 ;
+    string              privatekeyshare     = 3 ;
+}
+
+message PlayerPrivateKeyShareResponse{
+    IdentityMessage     id                      = 1 ;   // user id and group  
+    bool                sharedprivatekeyshare   = 2 ;
+}
+
+
+message GetPlayerListRequest{ 
+    string name=1;
+}
+
+message GetPlayerListResponse{
+    repeated Player playerID=1;
+}
+
+message DeleteGroupRequest{
+    string userid=1;
+    string groupid=2;
+}
+
+message DeleteGroupResonse{
+    string userid=1;
+    string groupid=2;
+    bool groupdeleted=3;
+}
+
+message DeleteGroupPlayerRequest{
+    string userid=1;
+    string groupid=2;
+}
+
+message DeleteGroupPlayerResponse{
+    string userid=1;
+    string groupid=2;
+    bool deleted=3;
+}
+
+message GroupMetaDataState{
+    string groupid=1;
+    string proposer=2;
+    int32 groupsize=3;
+    int32 groupthreshold=4;
+    int32 grouppolydegree=5;
+    repeated Player players=6;
+    CalcType calculation =7;
+    bool groupset=8;
+    int32 groupinvitereplies=9;
+    int32 groupsignaturereplies=10;
+    repeated hiddenPolynomial collatedhiddenpolys=11;
+    repeated listOfPolynomials collatedhiddenevals=12;
+    repeated VWData collatedvw=13;
+    repeated SigData collatedpartialsignatures=14;
+    bool grouplocked=15;
+}
+
+
+message JVRSSState{
+    string fx=1;
+    repeated evaluatedPoly evals=2;
+    repeated evaluatedPoly publicevals=3;
+    repeated listOfPolynomials hiddenevals=4;
+    repeated string hiddenpoly=5;
+    repeated hiddenPolynomial allhiddenpolys=6;
+    repeated VWData allvwshares=7;
+}
+
+
+message ordinalAndPlayer{
+    int32 ordinal=1;
+    Player p=2;
+}
+message ephemeralkeylist{
+    string k=1;
+    string r=2;
+}
+
+message privatekeyshares{
+    int32 ordinal=1;
+    string keyshare=2;
+}
+message PlayerGroupState{
+    string groupid=1;
+    int32 ordinal=2;
+    repeated int32 ordinallist=3;
+    repeated ordinalAndPlayer ordinalandplayerlist=4;
+    int32 degree=5;
+    repeated string privatekeypoly=6;
+    string privatekeyshare=7;
+    string grouppublickey=8;
+    repeated ephemeralkeylist ephemeralkeys=9;
+    string k=10;
+    string alpha=11;
+    repeated privatekeyshares keyshares=12;
+    string mod=13;
+    JVRSSState jvrss=14;
+}
+

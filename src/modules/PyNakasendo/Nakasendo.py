@@ -370,6 +370,14 @@ class ECKey256K1:
 def verify(msg, pubkey, rval, sval):
     return PyAsymKey.Verify(msg, pubkey, rval,sval)
 
+def verifyPubKeyHex(msg,pubkey,rval,sval):
+    pt = ECPoint()
+    pt.value = pubkey
+    coords = pt.GetAffineCoOrdinates()
+    pempubkey = pubKeyHexPtasPem(coords[0],coords[1])
+    return PyAsymKey.Verify(msg,pempubkey,rval,sval)
+    
+
 def verifyDER(msg, pubkey, DERSig,isDec=False):
     return PyAsymKey.VerifyDER(msg, pubkey,DERSig,isDec )
     

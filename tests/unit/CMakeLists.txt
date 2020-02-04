@@ -79,6 +79,17 @@ set_target_properties(test_BSVAddress PROPERTIES  FOLDER "tests/unit" DEBUG_POST
 target_link_libraries(test_BSVAddress AsymKey BSVAddress)
 sdk_add_unit_test(test_BSVAddress)
 
+if (WIN32)
+	message("Testing TS Protobuf disabled for Windows")
+	return()
+endif()
+
+add_executable(test_TS_playerAndGroup test_TS_playerAndGroup.cpp)
+set_target_properties(test_TS_playerAndGroup PROPERTIES  FOLDER "tests/unit" DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+target_link_libraries(test_TS_playerAndGroup TSCore BigNumbers ECPoint)
+sdk_add_unit_test(test_TS_playerAndGroup)
+
+
 #########################################################################
 ## Test case for Protobuf
 add_subdirectory(proto)
