@@ -114,15 +114,15 @@ namespace bindings_TS_Orchestrator{
         if(info.Length() != 1 || !info[0].IsString()){
             Napi::TypeError::New(env,"A single parameter of type string expected in call to DeleteGrpSignatureContainers").ThrowAsJavaScriptException();
         }
-        return Napi::Boolean::New(info.Env(),deleteGrpSignatureSharingContainsers(info[0].As<Napi::String>()));
+        return Napi::Boolean::New(info.Env(),deleteGrpSigSharingContainers(info[0].As<Napi::String>()));
     }
 
     Napi::Value DeleteGrpPreSignatureContainers(const Napi::CallbackInfo& info){
         Napi::Env env = info.Env();
         if(info.Length() != 1 || !info[0].IsString()){
-            Napi::TypeError::New(env,"A single parameter of type string expected in call to DeleteGrpPreSignatureContainers").ThrowAsJavaScriptException();
+            Napi::TypeError::New(env,"A single parameter of type string expected in call to deleteGrpPreSigContainers").ThrowAsJavaScriptException();
         }
-        return Napi::Boolean::New(info.Env(),deleteGrpPreSignatureContainers(info[0].As<Napi::String>()));
+        return Napi::Boolean::New(info.Env(),deleteGrpPreSigContainers(info[0].As<Napi::String>()));
     }
 
     Napi::Value lockGroup(const Napi::CallbackInfo& info){

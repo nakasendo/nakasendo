@@ -3,6 +3,7 @@
         "target_name": "nakasendo",
         'cflags!': [ '-fno-exceptions' ],
         'cflags_cc!': [ '-fno-exceptions' ],
+        'cflags_cc' : ['-std=c++14'],
         "sources": [
             "cppsrc/main.cpp",
 	        "cppsrc/Nakasendo_Bindings/ecpointBindings.cpp",
@@ -18,15 +19,15 @@
         ],
         'include_dirs': [
             "<!@(node -p \"require('node-addon-api').include\")",
-            "/usr/local/include",
-	    "/Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/NapiBinding/cppsrc/Nakasendo_Bindings",
-	    "/Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/NapiBinding/cppsrc/Nakasendo_TS_Bindings",
-            "/Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/src/core",
-	    "/Users/j.murphy/nChain/SDK-CLEAN/build/generated/hpp",
-	    "/Users/j.murphy/nChain/SDK-CLEAN/sdklibraries-john/src/applications/TS_protobuf/cpp",
-	    "/Users/j.murphy/nChain/SDK-CLEAN/build/generated/protobuf"
+            "<openssl>/include",
+	    "<sdklibraries_root>/NapiBinding/cppsrc/Nakasendo_Bindings",
+	    "<sdklibraries_root>/NapiBinding/cppsrc/Nakasendo_TS_Bindings",
+            "<sdklibraries_root>/src/core",
+	    "<installation_root>/generated/hpp",
+	    "<sdklibraries_root>/src/applications/TS_protobuf/cpp",
+	    "<installation_root>/generated/protobuf"
         ],  
-        'libraries': ['-Wl,/usr/local/lib/libcrypto.a -L /Users/j.murphy/nChain/SDK-CLEAN/build/x64/release -lBigNumbers -lPolynomial -lECPoint -lMessageHash -lSymEncDec -lAsymKey -lBSVAddress -lTSCore'],
+        'libraries': ['-Wl,<openssl>/lib/libcrypto.a -L <installation_root>/x64/release -lBigNumbers -lPolynomial -lECPoint -lMessageHash -lSymEncDec -lAsymKey -lBSVAddress -lTSCore'],
         'dependencies': [
             "<!(node -p \"require('node-addon-api').gyp\")"
         ],
