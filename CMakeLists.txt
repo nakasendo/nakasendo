@@ -34,7 +34,7 @@ set(SDK_VERSION_MINOR "2" CACHE INTERNAL "framework minor version")
 set(SDK_VERSION_PATCH "0" CACHE INTERNAL "framework patch version")
 
 option(BUILD_WEBASSEMBLY "Build the web assembly components" OFF)
-option(INCLUDE_CPACK "Include the CPACK components" OFF) 
+option(INCLUDE_CPACK "Include the CPACK components" ON) 
 option(INCLUDE_SECP256K1_LIB "Include a build of bitcoin specific scep256k1 library" OFF)
 option(BUILD_TESTS "Build the unit tests (needs boost)" ON)
 
