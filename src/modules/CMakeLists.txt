@@ -25,7 +25,7 @@ add_subdirectory(PyPolynomial)
 add_subdirectory(PyBSVAddress)
 add_subdirectory(PyNakasendo)
 
-
+if(BUILD_WEBASSEMBLY)
 ## mocha test_Module.js -r path/to/moduleloader.js
 if(CMAKE_CONFIGURATION_TYPES)
   set(SDK_JS_MODULE_LOADER_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/JsModuleLoader.js" CACHE PATH "Path to javascript module loader for Debug")
@@ -50,3 +50,4 @@ add_subdirectory(JsMessageHash)
 #add_subdirectory(JsSymEncDec)
 add_subdirectory(JsECPoint)
 add_subdirectory(JsPolynomial)
+endif(BUILD_WEBASSEMBLY)
