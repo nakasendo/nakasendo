@@ -242,7 +242,8 @@ class ClientProtocol:
             for sig in request.signatures :
                 sigDict[sig.ordinal] = sig.signature
 
-            self.cp.Player.sign( request.id.groupId, request.message, sigDict )
+            
+            sig = self.cp.Player.sign( request.id.groupId, request.message, sigDict )
             idMsg = stub.IdentityMessage( userId=self.user, groupId=request.id.groupId )
 
             return stub.SignMessageReply(  id=idMsg )  
@@ -398,7 +399,7 @@ class ClientProtocol:
         self.Player.setPresignInitiator(res.id.groupId, res.number)
       
         idMsg = stub.IdentityMessage( userId=self.user, groupId=res.id.groupId )      
-        response = self.conn.CallPresigning( stub.ShareSecretRequest \
+        response = self.conn.CallPresigning( stub.PresigningRequest \
             ( id=idMsg, calculation=enums.LITTLEK) )
 
 
