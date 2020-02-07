@@ -128,8 +128,15 @@ class ClientProtocol( pb.Referenceable ):
 
     def remote_groupIsSet(self, gid, ordinal, ordinalList, degree) :
         gid = gid.decode()
+
+        # Player.addGroup expect the ordinalList to be a list of tuples
+        tmpList = []
+        for ord in ordinalList :
+            tmpList.append( (ord, '0' ) )
         
-        if not self.Player.addGroup ( gid, ordinal, ordinalList, degree ) :
+        self.myPrint(tmpList)
+        
+        if not self.Player.addGroup ( gid, ordinal, tmpList, degree ) :
             raise  ClientError( "Group already exists")
         
         return
@@ -195,7 +202,8 @@ class ClientProtocol( pb.Referenceable ):
 
 
     def remote_readyToSign( self, gid, message, signatureData ) :
-        self.Player.sign( gid, message, signatureData )
+        
+        sig = self.Player.sign( gid, message, signatureData )
         return gid
 
     def remote_distributeEvals( self, gid, toOrdinal, fromOrdinal, f_x ) :
