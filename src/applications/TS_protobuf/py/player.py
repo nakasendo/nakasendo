@@ -556,7 +556,7 @@ class Player :
 
         self.ptw("DER formatted signature = {0}, signature = {1}"\
             .format(DerFormatSig,mySignature ))
-        return 
+        return mySignature
 
 
 
