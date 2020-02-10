@@ -40,6 +40,12 @@ target_link_libraries(RecoverMessage BigNumbers MessageHash Polynomial SecretSpl
 set_property(TARGET RecoverMessage PROPERTY FOLDER "examples")
 list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/RecoverSecret.cpp")
 
+add_executable(TSExample TSExample.cpp)
+target_link_libraries(TSExample BigNumbers MessageHash ECPoint Polynomial AsymKey TSCore protobuf::libprotobuf)
+target_include_directories(TSExample PUBLIC ${protobuf_generate_PROTOC_OUT_DIR})
+set_property(TARGET TSExample PROPERTY FOLDER "examples")
+list(APPEND cpp_example_files "${CMAKE_CURRENT_SOURCE_DIR}/TSExample.cpp")
+
 #sdkPrintList("cpp_example_files" "${cpp_example_files}")
 foreach(_cpp_file ${cpp_example_files})
   install(FILES ${_cpp_file} DESTINATION "example/cpp" COMPONENT "Examples")
