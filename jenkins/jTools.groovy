@@ -100,7 +100,7 @@ def dump_buildenv_windows(win_env_groovy_file) {
 def build_on_windows() {
     bat label : "Compile Release and Debug on Windows", script : '''
         mkdir %WINDOWS_BUILD_DIR%'
-        cmake -B%WINDOWS_BUILD_DIR% -H%WORKSPACE% -G"Visual Studio 15 2017" -A x64
+        cmake -B%WINDOWS_BUILD_DIR% -H%WORKSPACE% -G"Visual Studio 15 2017" -A x64 -DBUILD_WEBASSEMBLY=ON
         cmake --build %WINDOWS_BUILD_DIR% --target ALL_BUILD --config Debug --parallel 4
         cmake --build %WINDOWS_BUILD_DIR% --target ALL_BUILD --config Release --parallel 4
     '''
@@ -173,9 +173,9 @@ def build_on_linux() {
     sh label : "Compile Release and Debug on Linux", script : '''
         mkdir $LINUX_BUILD_DIR_RELEASE
         mkdir $LINUX_BUILD_DIR_DEBUG
-        cmake -B$LINUX_BUILD_DIR_RELEASE -H$WORKSPACE -DCUSTOM_SYSTEM_OS_NAME=Ubuntu
+        cmake -B$LINUX_BUILD_DIR_RELEASE -H$WORKSPACE -DBUILD_WEBASSEMBLY=ON -DCUSTOM_SYSTEM_OS_NAME=Ubuntu
         cmake --build $LINUX_BUILD_DIR_RELEASE --target all --parallel 4
-        cmake -B$LINUX_BUILD_DIR_DEBUG -H$WORKSPACE -DCUSTOM_SYSTEM_OS_NAME=Ubuntu -DCMAKE_BUILD_TYPE=Debug
+        cmake -B$LINUX_BUILD_DIR_DEBUG -H$WORKSPACE -DBUILD_WEBASSEMBLY=ON -DCUSTOM_SYSTEM_OS_NAME=Ubuntu -DCMAKE_BUILD_TYPE=Debug
         cmake --build $LINUX_BUILD_DIR_DEBUG --target all --parallel 4
     '''
 }

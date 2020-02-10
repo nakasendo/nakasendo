@@ -275,11 +275,8 @@ class Player :
         return 1
 
     #-------------------------------------------------               
-    def createPolynomial(self, degree, decimal=False) :
-        if (decimal) :
-            return Nakasendo.Polynomial.initRandomDec(degree, Player.modulo)
-        else:
-            return Nakasendo.Polynomial.initRandomHex(degree, Player.modulo)
+    def createPolynomial(self, degree) :
+        return Nakasendo.Polynomial.initRandomHex(degree, Player.modulo)
 
     #------------------------------------------------- 
     # 1st time through JVRSS don't need to generate new polynomial
@@ -556,7 +553,7 @@ class Player :
 
         self.ptw("DER formatted signature = {0}, signature = {1}"\
             .format(DerFormatSig,mySignature ))
-        return 
+        return mySignature
 
 
 
