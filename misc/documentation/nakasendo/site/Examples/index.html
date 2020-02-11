@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Examples - Nakasendo SDK</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Examples";
+    var mkdocs_page_input_path = "Examples.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Nakasendo SDK</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Nakasendo SDK</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../QuickStart/">QuickStart</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Guides/">Guides</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Examples</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#examples-in-c">Examples in C++</a></li>
+    
+
+    <li class="toctree-l2"><a href="#examples-in-python">Examples in Python</a></li>
+    
+
+    <li class="toctree-l2"><a href="#examples-in-javascript">Examples in Javascript</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../DeveloperSetup/">Developer setup</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Nakasendo SDK</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Examples</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="examples-in-c">Examples in C++</h2>
+<p><strong>BigNumber</strong></p>
+<pre><code class="c++">    BigNumber val;
+
+    std::string SumA(&quot;&quot;);
+    std::string AVal = &quot;c590e57ee64fced18aff6e2f0c6ac05625b1e94f394f42470cae14d12cadea4f5ab6b9d77225fe3b4903825966c78752ae51b6a0a2caca555fd0ffcbd9704b01&quot;;
+    std::string BVal(&quot;219639ed8afc21e052422fff0ae5583231ebca2999404b099628093e6540b1dbc20b9c495aa7229b5965b19a5fcd653b3fa0eccab567c5b5e8&quot;);
+
+    BigNumber BNValA, BNValB;
+    BNValA.FromHex(AVal);
+    BNValB.FromHex(BVal);
+
+
+    std::cout &lt;&lt; BNValA.ToHex() &lt;&lt; &quot;\n&quot; &lt;&lt; BNValB.ToHex() &lt;&lt; std::endl;
+
+    BigNumber Sum = BNValA + BNValB;
+    std::cout &lt;&lt; Sum.ToHex() &lt;&lt; std::endl;
+</code></pre>
+
+<p>TODO : pick examaples in examples/cpp, quote here and explain them</p>
+<h2 id="examples-in-python">Examples in Python</h2>
+<p><strong>Key split and recover</strong></p>
+<pre><code class="python">    mykey = Nakasendo.ECKey256K1();
+    print (mykey)
+
+    shares = mykey.SplitKey(5,15);
+
+    print(shares)
+
+    #At some point later....
+    print (&quot;a random collection of shares&quot;)
+
+    secure_random = random.SystemRandom()
+
+    subset = []
+    sharesCopy = shares
+    random.shuffle (sharesCopy)
+    for i in range(5):
+        subset.append(sharesCopy[i])
+
+    print(subset)
+
+    recoveredKey = Nakasendo.ECKey256K1()
+    recoveredKey.RecoverKey(subset)
+
+    print(recoveredKey)
+</code></pre>
+
+<p>TODO : pick examaples in examples/python, quote here and explain them</p>
+<h2 id="examples-in-javascript">Examples in Javascript</h2>
+<p><strong>Random big number generator</strong></p>
+<pre><code class="javascript">    const rand_hex_str = JSBigNumbers.RandHex(128);
+</code></pre>
+
+<p>TODO : pick examaples in NapiBinding/test, quote here and explain them</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../DeveloperSetup/" class="btn btn-neutral float-right" title="Developer setup">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../Guides/" class="btn btn-neutral" title="Guides"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../Guides/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../DeveloperSetup/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
