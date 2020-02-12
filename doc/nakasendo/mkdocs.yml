@@ -14,8 +14,8 @@ site_name: Nakasendo
 #site_name: 'https://nakasendoproject.org/assets/nakasendo_logo_white.svg'
 
 nav:
-    - Nakasendo SDK : index.md
-    - QuickStart : QuickStart.md
+    - QuickStart : index.md
+    - High-level Functions : HighLevelFunctions.md
     - Primitives : Primitives.md
     - Developer setup : DeveloperSetup.md
 

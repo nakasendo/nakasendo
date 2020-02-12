@@ -1,63 +1,29 @@
-In order to develop/contribute to Nakasendo, it is required to install and prepare some dev environments. It consist of installing tools/libraries for C++/Python/Javascript. It is recommended to
+In order to develop/ contribute to Nakasendo <sup>TM</sup>, it is required to install and prepare some dev environments. It consists of installing tools/libraries for C++/Python/Javascript. It is recommended to:
 
-- Build from source when it is Linux environment
-- Download prebuilt binaries when it is Windows environment
-- Install everything in the same location and define environment variables poiting to the installed location. The build system will find them appropriately
+- Build from source when using a Linux environment
+- Download prebuilt binaries when using a Windows environment
+- Install everything in the same location and define environment variables pointing to the installed location. The build system will find them appropriately
+
+---
 
 ## Prerequisite Tools
 - [Python 3.7.3 (64-bit)](https://www.python.org/downloads/release/python-374/) - 
 As part of the Python Windows installer, ensure to check the installation options for the "Download debugging symbols" and the "Download debug binaries (requires VS 2015 or later)" checkboxes.
 - [CMake 3.14.7](https://cmake.org/download/)
 - C++ Compiler: Visual Studio Community Edition 2017 on windows, g++7 on Linux
-- OpenSSL 1.1.b : It needs two versions: one for native C++, the other for emcripten. The prebuilt openssl for Emscripten can be downloaded from https://bitbucket.org/nch-atlassian/sdklibraries/downloads/
+- OpenSSL 1.1.b : It needs two versions: one for native C++, the other for emcripten. The prebuilt openssl for Emscripten can be downloaded from our [GitHub](https://github.com/nakasendo/nakasendo/releases)
 - Protobuf 3.11.0 : either on Windows or Linux, compile it from source and install it. Then name the system variable Protobuf_ROOT pointing to its installation location. See detail in $SDK_SOURCE/cmake/modules/FindProtobufHelper.cmake
 
-***Optional***
+---
 
-- If you want to compile our tests you need [Boost 1.69.0](https://www.boost.org/) to build CPP unit tests ([download prebuild binaries for windows](https://sourceforge.net/projects/boost/files/boost-binaries/1.69.0/))
-- If you want to perform a Web Assembly compilation please install [EMSDK: 1.38.0](https://emscripten.org/docs/getting_started/downloads.html)
-    1. Clone the EMSDK Git repository
-    2. Pull latest changes
-    3. From the newly created EMSDK repository's root directory, perform "emsdk list" to see the installable versions
-    4. Choose the latest minor version of 1.38 e.g. "emsdk install 1.38.48"
-    5. On Windows, run "emsdk" instead of "./emsdk", and "emsdk_env.bat" instead of "source ./emsdk_env.sh".
-    6. Install the following tools, using "emsdk list"
-    7. **clang**  e.g. emsdk install clang-e1.38.30-64bit
-    8. **emscripten**  e.g. emsdk install emscripten-1.38.30
-    9. **node** (need to install modules **mocha**, **mocha-junit-reporter** using NPM command: "npm install --global mocha mocha-junit-reporter")
-    10. **binaryen** (not required  but useful tools)  e.g. emsdk install binaryen-tag-1.38.30-64bit
-- Napi - To create a Napi build for Nakasendo please follow these steps
-    1. Ensure that your installation of Node, node-gyp and NPM are up to date and that you have a working version of gcc/llvm/MSVC installed. 
-    2. Refer to the [Prerequisite Tools](DeveloperSetup.md#'Prerequisite Tools') section for a comprehensive list of tools required to build the Nakasendo API.
-    3. Update the 'include_dirs' and ‘libraries’ sections of the binding.gyp as shown in the code section at the foot of this numbered list of steps.
-    4. The ***sdklibraries_root*** value should be replaced with the path to the source-code download from github or the location of the extracted tar ball. 
-    5. The ***installation_root*** value should be replaced with the path to the extracted tar ball or to the build location of the tar ball.
-    6. The ***openssl*** value should be replaced with the location of your local installation of the openssl development tools. Please not these values are also in the libraries portion of the make file. For sourcing the Nakasendo components, either the ***installation_root*** or the location of the local build of the library can be used. 
-    7. Run **npm run build** or **npm -i** in the NapiBindings directory.
-    8. Set your LD_LIBRARY_PATH (unix/macosx) or PATH (Windows) to include the location of the installed Nakasendo libraries and then run node index.js
-```console
-  'include_dirs': [
-  "<!@(node -p \"require('node-addon-api').include\")","<openssl>/include",
-  "<sdklibraries_root>/NapiBinding/cppsrc/Nakasendo_Bindings",
-  "<sdklibraries_root>/NapiBinding/cppsrc/Nakasendo_TS_Bindings",
-      "<sdklibraries_root>/src/core",
-  "<installation_root>/generated/hpp",
-  "<sdklibraries_root>/src/applications/TS_protobuf/cpp",
-  "<installation_root>/generated/protobuf"
-  ],  
-  'libraries': ['-Wl,<openssl>/lib/libcrypto.a -L <installation_root>/x64/release 
-  -lBigNumbers -lPolynomial -lECPoint -lMessageHash 
-  -lSymEncDec -lAsymKey -lBSVAddress -lTSCore'],
-```
+## Dependencies
+Dependencies marked optional apply if you wish to run the unit tests. See [Tests](#Tests) for more details.
 
-  - **pathlib**       useful
-  - **pytest**        to run Python tests
-  - **ecdsa**         to study elliptic curves
+---
 
-## Build
+## Build Environments
 
 **On Windows**
-
 ```console
 C:\development\build> cmake -G"Visual Studio 15 2017" -A x64 ..\SDKLibraries && cmake --build . --target ALL_BUILD --config Debug && cmake --build . --target ALL_BUILD --config Release
 ```
@@ -87,7 +53,21 @@ If you wish to create a Linux distribution
 nchain@sdk:~$ cpack -G TGZ
 ```
 
-## Tests (optional)
+---
+
+## Tests <a name="Tests"></a>
+
+Once the build tools and libraries are prepared, some post installation steps are required to let the Nakasendo<sup>TM</sup> build system know how to find everything:
+
+**To build only the library**
+
+- Add the directory of CMake executable to the environment variable PATH
+- Add the directory of Python3 executable to the environment variable PATH
+- Set environment variable OPENSSL_ROOT_DIR pointing to the root of the OpenSSL for C++ installation
+
+**To build the tests**
+
+- Set environment variable BOOST_ROOT pointing to the root of the Boost installation
 
 **To run all tests**
 ```console
@@ -97,20 +77,43 @@ C:\nchain\sdk> ctest -C Release # On Windows
 C:\nchain\sdk> ctest -C Debug   # On Windows
 ```
 
-## Environment setup
+**To build Webassembly**
 
-Once the build tools and libraries are prepared, some post installation steps are required to let the SDKLibraries build system know how to find everything:
-
-- Add C:\Development\repos\emsdk\clang\e1.38.30_64bit to the path too
-- Add emscripten path to path as well
-- Add the directory of CMake executable to the environment variable PATH
-- Add the directory of Python3 executable to the environment variable PATH
+- Add C:\Development\repos\emsdk\clang\e1.38.30_64bit to the environment variable PATH
+- Add emscripten path to environment variable PATH
 - Add the directory of Emscripten executable to the environment variable PATH
-- Set environment variable BOOST_ROOT pointing to the root of the Boost installation
-- Set environment variable OPENSSL_ROOT_DIR pointing to the root of the OpenSSL for C++ installation
-- Set environment variable OPENSSL_WASM_ROOT_DIR pointing to the root of the OpenSSL for Emscripten installation
+- Set environment variable **OPENSSL_WASM_ROOT_DIR** pointing to the root of the OpenSSL for Emscripten installation
 
-The SDKLibraries can be built on any system, as long as all libraries and required tools are manually compiled to ensure absolute compatibility. Users can choose the appropriate [CMake generator](https://cmake.org/cmake/help/v3.14/manual/cmake-generators.7.html) to make the build.
+Nakasendo<sup>TM</sup> can be built on any system, as long as all libraries and required tools are manually compiled to ensure absolute compatibility. Users can choose the appropriate [CMake generator](https://cmake.org/cmake/help/v3.14/manual/cmake-generators.7.html) to make the build.
 The CMake build allows everything to be built separately from the source to keep the source repository clean. After cloning the source code to "SDKLibraries" directory, create a "build" directory alongside this, then run the cmake/make command to build
 
+**C++ examples**
+On Windows, you'll need Visual Studio Community Edition 2017 and CMake 3.14.7. On Linux, you'll need gcc7, cmake 3.12 or newer.
+On Windows, run the following command e.g:
+```console
+C:\nchain\sdk> cmake -G"Visual Studio 15 2017" -A x64 "%SDKLIBRARIES_ROOT%\example\cpp"
+```
+This will create the Visual Studio solution (.sln) file. 
+Add %SDKLIBRARIES_ROOT%\lib to your %PATH%
+Open the .sln file in Visual Studio and you can start to Build and Run the C++ examples.
+[You may also have to install Twisted, Python 3, pip3, ecdsa, nodejs and npm]
 
+On Linux (Ubuntu 18.04), run the command :
+```console
+nchain@sdk:~$ cmake -DCMAKE_BUILD_TYPE=Debug "$SDKLIBRARIES_ROOT/example/cpp" ; make -j4
+```
+It will create a Makefile project and build it. You can start to compile/run the c++ examples
+
+**Python examples**
+Python examples need to know where to find all the python modules.
+If you have defined the variable **SDKLIBRARIES_ROOT** correctly, just open python files and run it normally.
+Another way is to define the **PYTHONPATH** variable pointing to the installation of Nakasendo<sup>TM</sup> (where it has all module files) and run it
+Note that on windows, if you have a debug version of Nakasendo <sup>TM</sup> installation, you should use the python_d interpreter instead of python
+
+**Javascript examples**
+To run javascript example, you need a http server. The simplest way is to use python to run the http server.
+Open the terminal, go to $SDKLIBRARIES_ROOT/example/javascript, run the comnmand :
+```console
+nchain@sdk:~$ python -m http.server
+```
+Then from the browser, open **localhost:8000**

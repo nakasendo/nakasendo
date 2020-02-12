@@ -1,4 +1,4 @@
-## BigNumbers
+## BigNumbers <a name="BigNumbers"></a>
 **Description**
 
 BigNumbers are integers of arbitrary size, that require more than 4 bytes to store in memory. Our BigNumbers interface performs operations on numbers of arbitrary precision in decimal and hex-decimal number, including addition, subtraction, multiplication, division, modulo, inverse modulo and rightshift and leftshift bitwise operations.
@@ -53,7 +53,7 @@ BigNumber operators in Python:
 ```
 ___
 
-## AsymKey
+## AsymKey <a name="AsymKey"></a>
 **Description**
 
 Asymmetric keys form the foundations of Public Key Infrastructure (PKI). They are a cryptographic scheme requiring two different keys, one to encrypt the text, and one to decrypt.
@@ -98,7 +98,7 @@ Splitting a key in Python:
 
 ___
 
-## BSVAddress
+## BSVAddress <a name="BSVAddress"></a>
 **Description**
 
 Most Bitcoin addresses are 34 characters. They consist of random digits and uppercase and lowercase letters, with the exception that the uppercase letter "O", uppercase letter "I", lowercase letter "l", and the number "0" are never used - to prevent visual ambiguity.
@@ -146,7 +146,7 @@ Creating BSVAddresses in Python:
 
 ___
 
-## ECPoint
+## ECPoint <a name="ECPoint"></a>
 **Description**
 
 ECPoints represent points on an elliptic curve. Below, please find details of Elliptic Curves, how they are used in Bitcoin via Digital Signatures and finally a method of exchanging them between 2 parties.
@@ -277,7 +277,7 @@ Note that the Diffie-Hellman protocol that is used in practice contains some ste
 
 ___
 
-## MessageHash
+## MessageHash <a name="MessageHash"></a>
 **Description**
 
 Cryptographic hash functions are mathematical operations run on digital data. By comparing the computed "hash" (the output from execution of the algorithm) to a known and expected hash value, the data's integrity can be assured. A one-way hash can be generated from any piece of data, but the data cannot be generated from the hash.
@@ -315,7 +315,7 @@ Call the default SHA256 message hash function in Python:
 
 ___
 
-## Polynomial
+## Polynomial <a name="Polynomial"></a>
 **Description**
 
 Polynomial means _many terms_. Polynomials can have constants, variables and exponents, but never division by a variable.
@@ -384,7 +384,7 @@ where $interpolate(y_1,\ldots, y_{t+1})$ denotes the interpolation at 0 with the
 
 ___
 
-## SecretSplit
+## SecretSplit <a name="SecretSplit"></a>
 **Description**
 
 Secret key sharing may refer to the concept of splitting a private key into multiple shares which can be stored independently such that a single entity doesn't know the full key, or it may refer to the process of two parties establishing a secret in a secure way so both parties know a common secret key. Each of these methods are used in this implementation and so are described below. 
@@ -512,7 +512,7 @@ We saw that in step 2, each pair of participants needs to establish a secure com
 
 ___
 
-## SymEncDec
+## SymEncDec <a name="SymEncDec"></a>
 **Description**
 
 Symmetric encryption refers to a type of encryption where the same secret key is used to encrypt and decrypt a message. Therefore, if two parties can create a shared secret such as using Diffie-Hellman described above, they can use symmetric encryption and share ciphertexts over unsecure communication channels securely. Some common symmetric encryption schemes include the Data Encryption Standard (DES), Rivest Cipher 4 (RC4), or Advanced Encryption Standard (AES). In practice, DES and RC4 are no longer used.  
@@ -523,6 +523,15 @@ The most secure symmetric encryption standard is the authenticated encrpytion wi
 
 Encrypt and Decrypt a message in JavaScript:
 ```javascript
+    var myRootKey = 'joebloggs@some-email.com'
+    var myIV = nakesendoBindings.GenerateNounce();
+    var myKey = nakesendoBindings.GenerateKey(myRootKey, myIV);
+
+    console.log('my key and iv %s %s', myKey, myIV); 
+
+    var encryptedData = nakesendoBindings.encodeAES(valToHash, myKey, myIV);
+    console.log(encryptedData);
+    console.log(nakesendoBindings.decodeAES(encryptedData,myKey, myIV));
 ```
 
 Encrypt and Decrypt a message in C++:
