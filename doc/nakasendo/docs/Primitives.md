@@ -98,10 +98,12 @@ Splitting a key in Python:
 
 ___
 
-## BSVAddress <a name="BSVAddress"></a>
+## BSV Addressing <a name="BSVAddress"></a>
 **Description**
 
 Most Bitcoin addresses are 34 characters. They consist of random digits and uppercase and lowercase letters, with the exception that the uppercase letter "O", uppercase letter "I", lowercase letter "l", and the number "0" are never used - to prevent visual ambiguity.
+
+Using BSV addresses are not encouraged and are referenced here for legacy support purposes. BIP-276 is the future direction of addressing in Bitcoin - PayMail address resolution.
 
 **Code Examples**
 
@@ -210,7 +212,7 @@ y^2 = x^3 + ax + b \bmod p
 
 where $a, b \in \mathbb{Z}_p$, satisfying $4a^3 + 27b^2 \neq 0$. The group over this elliptic curve is defined to be $E(\mathbb{Z}_p) := E \cup \{ {\mathcal{O}} \}$ where $\{ {\mathcal{O}} \}$ is the identity element called the point at infinity, and the elements of $E$ are of the form $(x,y)$ satisfying the equation above. The group operation is point addition $'+'$ and the group has order $n$. 
 
-For a point $G\in E(\mathbb{Z}_p)$ and a scalar $d \in \mathbb{Z}_n$, point scalar multiplicaion denoted $d\cdot G$ is defined to be the point $G$ added to itself $d$ times. In Bitcoin, private keys are chosen to be this value $d$, and the public keys are then $d\cdot G$. The elliptic curve is chosen to be the secp256k1 curve, which has the following parameters in hexadecimal:
+For a point $G\in E(\mathbb{Z}_p)$ and a scalar $d \in \mathbb{Z}_n$, point scalar multiplication denoted $d\cdot G$ is defined to be the point $G$ added to itself $d$ times. In Bitcoin, private keys are chosen to be this value $d$, and the public keys are then $d\cdot G$. The elliptic curve is chosen to be the secp256k1 curve, which has the following parameters in hexadecimal:
 
 $$a=00$$
 
@@ -233,7 +235,7 @@ In order to create a signature on a message $msg$, with the private key $d$, the
 3. Calculate the ephemeral public key corresponding to this ephemeral private key 
 $$ k \cdot G = (R_x,R_y) \; . $$
 4. Calculate $r=R_x \bmod n$. If $r=0$, return to step 2.
-5. Calculate the multiplicative inverse of the ephemeral key $k^{-1} \bmod $n$.
+5. Calculate the multiplicative inverse of the ephemeral key $k^{-1}$ $\bmod$ $n$.
 6. Calculate $s=k^{-1}(e+dr) \bmod n$. If $s=0$, return to step 2.
 7. The signature on the message $msg$ is $(r,s)$.
 
@@ -273,7 +275,7 @@ Assume that Alice and Bob want to share a secret across an unsecure communicatio
 	
 They now both know the value $D_{AB}$ and no one else can calculate this, hence it is a common secret. This method can be shown in the diagram below.
 
-Note that the Diffie-Hellman protocol that is used in practice contains some steps where each participant provides a certicate of a public key proving their identity, and signs a message with this certified public key, preventing man-in-the-middle attacks. Additionally, the common secret is changed for each communication round so that if a common secret is compromised, the other communication rounds are still encrypted. This method is called ephemeral Diffie-Hellman key exchange.
+Note that the Diffie-Hellman protocol that is used in practice contains some steps where each participant provides a certificate of a public key proving their identity, and signs a message with this certified public key, preventing man-in-the-middle attacks. Additionally, the common secret is changed for each communication round so that if a common secret is compromised, the other communication rounds are still encrypted. This method is called ephemeral Diffie-Hellman key exchange.
 
 ___
 
@@ -318,7 +320,7 @@ ___
 ## Polynomial <a name="Polynomial"></a>
 **Description**
 
-Polynomial means _many terms_. Polynomials can have constants, variables and exponents, but never division by a variable.
+A Polynomial is a mathematical expression consisting of many terms where each term contains a constant multiplied by a variable to an exponent.
 
 **Code Examples**
 
@@ -343,13 +345,13 @@ Create a Polynomial in Python:
 
 **Definition**
 
-A polynomial of order $t$ has the form 
+A polynomial of order $t$ over the field $\mathbb{Z}_n$ has the form 
 
 \begin{equation}
-f(x) = a_0 + a_1x + \ldots + a_{t-1}x^{t-1} + a_t x^t \bmod n 
+f(x) = a_0 + a_1x + \ldots + a_{t-1}x^{t-1} + a_t x^t
 \end{equation}
 
-where $a_0, a_1, \ldots, a_t \in \mathbb{Z}_n$, and points on this polynomial will be denoted by 
+where $a_0, a_1, \ldots, a_t \in_R \mathbb{Z}_n$, and points on this polynomial will be denoted by 
 
 \begin{equation}
 (x_i, y_i) 
@@ -357,7 +359,7 @@ where $a_0, a_1, \ldots, a_t \in \mathbb{Z}_n$, and points on this polynomial wi
 
 where $y_i = f(x_i)$. Given $t+1$ of these points, there is a unique polynomial of order $t$ that passes through these points, which is necessarily the $f(x)$ given above. In the following, we will assume that all arithmetic operations on integers are done modulo $n$ unless otherwise stated. 
 
-The zeroth order of the polynomial will correspond to a shared secret $d$ in the cases below. Each participant's secret share is a point on this polynomial $(x_i,y_i)$ where $i=1,\ldots ,M$, and $M$ is the number of participants.
+The zeroth order of the polynomial will correspond to a shared secret $d$ in the cases below. Each participant's secret share is a point on this polynomial $(x_i,y_i)$ where $i=1,\ldots ,N$, and $N$ is the number of participants.
 It is possible to use $(t+1)$ of these points to recalculate the polynomial. This is done using Lagrange interpolation.
 
 **Lagrange Interpolation**
@@ -387,7 +389,7 @@ ___
 ## SecretSplit <a name="SecretSplit"></a>
 **Description**
 
-Secret key sharing may refer to the concept of splitting a private key into multiple shares which can be stored independently such that a single entity doesn't know the full key, or it may refer to the process of two parties establishing a secret in a secure way so both parties know a common secret key. Each of these methods are used in this implementation and so are described below. 
+SecretSplit is the splitting of a private key into multiple shares which can be stored independently such that a single entity doesn't know the full key. 
 
 **Code Examples**
 
@@ -458,8 +460,6 @@ Split a secret in Python:
 
 **Definition**
 
-The first is achieved using Joint Verifiable Random Secret Sharing, and the second is Diffie-Hellman key exchange. 
-
 _Joint Verifiable Random Secret Sharing_
 
 A group of $N$ participants can create a shared secret using the concepts described above, such that $(t+1)$ of the group are required to calculate the shared secret. The shares of this shared secret can be calculated without ever calculating the shared secret itself, and this can be doing in a verifiable way. This method is called 'Joint Verifiable Random Secret Sharing', commonly referred to as JVRSS.
@@ -468,12 +468,12 @@ This method JVRSS is split into two parts: creating the shares of the shared sec
 
 _Creating the shares_
 
-In order to create shared secret $d$ between $N$ participants, without any single party knowing the secret,  and where $(t+1)$ of the participants are required to calculate the secret, the following steps are taken. Note that each participant has a unique label $i=1,\ldots N$ that they all agree on. 
+In order to create a shared secret $d$ between $N$ participants, without any single party knowing the secret,  and where $(t+1)$ of the participants are required to calculate the secret, the following steps are taken. Note that each participant has a unique label $i=1,\ldots,N$ that they all agree on. 
 
 1. Each participant $i$ randomly generates $(t+1)$ integers $d_{i0},\ldots, d_{it} \in_R \mathbb{Z}_n$, where the notation $\in_R$ means randomly generated elements of $\mathbb{Z}_n$. These integers are used to define a private polynomial for each participant $i$ 
 $$ f_i(x) = d_{i0}+ d_{i1}x+\ldots + d_{it} x^t $$
-These $N$ polynomials will be used to create shares on a shared polynomial which itself is never calculated explicitly, and in turn will define a shared secret, which similarly is never calculated explicitly. Note that since the aim is to establish a shared private key which is in the group $\mathbb{Z}_n$ where $n$ is the order of the elliptic curve group, the polynomials are calculated modulo $n$. 
-2. Each participant $i$ sends the value $f_i(j)$ to participant $j$ only using a secure communication channel with participant $j$. It is crucial that this is shared only betweeen $i$ and $j$ or there may be enough information shared between participants for any of them to calculate the shared secret, contradicting the aim of the JVRSS process. 
+These $N$ polynomials will be used to create shares on a shared polynomial which itself is never calculated explicitly, and in turn will define a shared secret, which similarly is never calculated explicitly. Note that since the aim is to establish a shared private key which is in $\mathbb{Z}_n$ where $n$ is the order of the elliptic curve group, the polynomials are calculated modulo $n$. 
+2. Each participant $i$ sends the value $f_i(j)$ to participant $j$ only using a secure communication channel with participant $j$. It is crucial that this is shared only between $i$ and $j$ or there may be enough information shared between participants for any of them to calculate the shared secret, contradicting the aim of the JVRSS process. 
 3. Each participant $i$ calculates their own secret share of the shared secret by calculating 
 $$ d_i = \sum_{j=1}^N f_j(i) \; .$$
 
@@ -483,30 +483,30 @@ although this will never be calculated itself.
 These $d_i$ calculated in the final step along with a participants label $i$ are the secret shares, that is, a participant $i$ has a secret share $d_i$, and $(t+1)$ of these shares can be used to calculate the shared secret.
 The formula for Langrange interpolation to calculate the shared secret $d$ using the secret shares $(i,d_i)$ for $i=1,\ldots, (t+1)$ is
 \begin{equation}
-interpolate(d_1,\ldots d_{t+1}) = \sum_{i=1}^{t+1} d_i \prod_{\substack{ 1\leq j \leq (t+1), \\ j \neq i}}(-j)(i-j)^{-1} \; .
+interpolate(d_1,\ldots,d_{t+1}) = \sum_{i=1}^{t+1} d_i \prod_{\substack{ 1\leq j \leq (t+1), \\ j \neq i}}(-j)(i-j)^{-1} \; .
 \end{equation}
-As mentioned, this interpolation will never be calculated, and is given for completeness. 
+As mentioned, this interpolation will be calculated only if the group wants to create the private key, but should not be done otherwise. 
 
 _Verifying the shares_
 
 The participants can now verify that the other participants have sent the correct point on their own private polynomials by following the steps below. 
 
-1. Each participant $i$ broadcasts the following information 
-$$ d_{ik}\cdot G $$
-for $k=0,\ldots t$. Here 'broadcast' means that each participant knows that all other participants received the same information.
+1. Each participant $j$ broadcasts the following information 
+$$ d_{jk}\cdot G $$
+for $k=0,\ldots,t$. Here 'broadcast' means that each participant knows that all other participants received the same information.
 2. Each participant $i$ can check that each participant $j$ has calculated this polynomial point $f_j(i)$ from the coefficients $d_{j0}, \ldots, d_{jt}$ using the values $$ d_{jk}\cdot G $$ that are shared in step 1 of the verification. This is done by participant $i$ calculating 
 $$ f_j(i) \cdot G \stackrel{?}{=} \sum_{k=0}^t i^k(d_{jk}\cdot G) $$
 for $j=1,\ldots, N$, where $f_j(i) \cdot G$ is calculated from the value shared in the second step of the setup. If these checks hold, then participant $i$ knows that participant $j$ has shared the correct private polynomial point. If all participants find this equation holds, then the group collectively knows that they share the same secret. 
 
 _Calculating the shared public key_
 
-Finally, all pariticpants can calculate the shared public key. Each participant calculates 
+Finally, all participants can calculate the shared public key. Each participant calculates 
 
 $$ D := d\cdot G = \sum_{i=0}^{N} (d_{i0}\cdot G) $$
 
 where the right-hand side can be calculated from the values $(d_{i0}\cdot G)$ shared in step 1 of the verification, and the public key is now calculated without ever knowing $d$ explicitly. 
 
-In the following, the calculation and verification of a secret share $d_i$ for a particpant labelled by $i$ will be referred to as $d_i=JVRSS(i)$.
+In the following, the calculation and verification of a secret share $d_i$ for a participant labelled by $i$ will be referred to as $d_i=JVRSS(i)$.
 
 We saw that in step 2, each pair of participants needs to establish a secure communication channel to share the points on the private polynomials. This requires a method for each pair to set up a common secret, which can be used to encrypt the points on the private polynomials, and then they can be shared with the other party securely. This is the second interpretation of the phrase 'secret key sharing', and one method for this which has been implemented is Elliptic Curve Diffie-Hellman key exchange.
 
@@ -517,7 +517,7 @@ ___
 
 Symmetric encryption refers to a type of encryption where the same secret key is used to encrypt and decrypt a message. Therefore, if two parties can create a shared secret such as using Diffie-Hellman described above, they can use symmetric encryption and share ciphertexts over unsecure communication channels securely. Some common symmetric encryption schemes include the Data Encryption Standard (DES), Rivest Cipher 4 (RC4), or Advanced Encryption Standard (AES). In practice, DES and RC4 are no longer used.  
 
-The most secure symmetric encryption standard is the authenticated encrpytion with AES 256-bit and HMAC and been chosen as the standard in the SDK software for this reason. This encryption includes the HMAC of the plaintext message in the encryption of the plaintext, such that after decryption, the reciever can verify that the message was not compromised in transmission.
+The most secure symmetric encryption standard is the authenticated encryption with AES 256-bit and HMAC and been chosen as the standard in the SDK software for this reason. This encryption includes the HMAC of the plaintext message in the encryption of the plaintext, such that after decryption, the receiver can verify that the message was not compromised in transmission.
 
 **Code Examples**
 
