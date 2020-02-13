@@ -293,3 +293,4 @@ var pty = coords['y'];
 var pemPt = pubKeyHexPtstoPEM(ptx,pty);
 console.log(pemPt);
 
+module.exports = nakesendoBindings;

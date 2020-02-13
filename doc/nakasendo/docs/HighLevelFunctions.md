@@ -10,7 +10,7 @@ Here you will find a generic code example of how to set up a Threshold Signature
 
 *Step 1 - Registering a Group of users*
 
-A single set of classes model registration of users and management of groups.   When   a   TS   client   starts   up   for   the   first   time   it   could   send   itsdetails to a central point that uses the GlobalGroup classes to maintain a list of users. 
+A single set of classes model registration of users and management of groups. When a TS client starts up for the first time it could send its details to a central point that uses the GlobalGroup classes to maintain a list of users. 
 
 ```c++
 createRegisterRequest(SinglePlayer::Instance() -> publicInfo(), os);
@@ -19,9 +19,9 @@ createRegisterRequest(SinglePlayer::Instance() -> publicInfo(), os);
 
 *Step 2 - Creating a Threshold Signature group*
 
-When a transaction needs made one of the registered Users/ Players willpropose   a   Group   with   various   parameters.   The   parameters   under   theProposer's control are the total size of the Group and the **recombination threshold** to construct a private key. This parameter is referred to as m.The signature threshold is a function of this number. Specifically, it’s 2(m-1)+1.   Please   refer   to   the   more   detailed   documentation   on   ThresholdSignatures for further details. 
+When a transaction needs made one of the registered Users/ Players will propose a Group with various parameters. The parameters under the Proposer's control are the total size of the Group and the **recombination threshold** to construct a private key. This parameter is referred to as m. The signature threshold is a function of this number. Specifically, it’s $2(m-1)+1$. Please refer to the more detailed documentation on ThresholdSignatures for further details. 
 
-Once a Client proposes a Group, the Orchestrator class will send an inviteto every registered user. The first ‘m’ users to respond positively is addedto the Group. Once the Group is constructed completely, the **Orchestrator broadcasts** the Group details to all Players in the Group. 
+Once a Client proposes a Group, the Orchestrator class will send an invite to every registered user. The first $m$ users to respond positively are added to the Group. Once the Group is constructed completely, the **Orchestrator broadcasts** the Group details to all Players in the Group. 
 
 ```c++
 createGroupRequest(SinglePlayer::Instance() -> publicInfo(), n, m, os);
@@ -30,13 +30,13 @@ createGroupRequest(SinglePlayer::Instance() -> publicInfo(), n, m, os);
 
 *3. Secret Sharing*
 
-This secret sharing process can now be initiated by one of the group members. It doesn’t have to be the proposer.  The first round of secret sharing is to compute the share of private key and group public key. The code required to do this is: 
+This secret sharing process can now be initiated by one of the group members. It doesn’t have to be the proposer. The first round of secret sharing is to compute the share of the private key and group public key. The code required to do this is: 
 
 ```C++
 createSecretSharingRequest (SinglePlayer::Instance() -> publicInfo(), grpid, std::string("PRIVATEKEYSHARE"), os);
 ```
 
-Below is a code example showing how to set up the secret sharing. This isa contrived situation with limited practical use as all the players are in thesame process. However it is useful to visualise what is involved in secretsharing   and   verification   for   the   data.   This   example   is   using   the   datastructures in Nakasendo<sup>TM</sup> but from within a single process. In a real worldapplication   this   data   would   have   to   be   transmitted   between   playerprocesses and orchestrator process. 
+Below is a code example showing how to set up the secret sharing. This is a contrived situation with limited practical use as all the players are in the same process. However, it is useful to visualise what is involved in secret sharing and verification for the data. This example is using the data structures in Nakasendo<sup>TM</sup> but from within a single process. In a real world application this data would have to be transmitted between player processes and orchestrator process. 
 
 ```c++
 void ShareSecret(GroupMetadata &glbgrp, std::vector<ExtendedPlayer> &players, const std::string &calctype, const int &t, const BigNumber &mod)
@@ -230,9 +230,9 @@ GetGroup(grpID).clearPreSignatureContainers();
 
 *5. Collaborative Signature Generation*
 
-The Group is now able to collaborate for signature generation. One of Players will broadcast a message/ document/ content to be signed. The information broadcast by the Player requesting the signature is the content to be signed plus an index indicating which key to use. 
+The Group is now able to collaborate for signature generation. One of the Players will broadcast a message/ document/ content to be signed. The information broadcast by the Player requesting the signature is the content to be signed plus an index indicating which key to use. 
 
-The number of Players this information is sent to is application specific, but it can be all of the Group or a Sub-Group which must be of a size greater than 2(m-1) where m is the private key generation threshold. 
+The number of Players this information is sent to is application specific, but it can be all of the Group or a Sub-Group which must be of a size greater than $2(m-1)$ where m is the private key generation threshold. 
 
 The example code below shows how to pick a sub-group of players, make a request to them for a partial signature and then computes a full signature.
 
@@ -345,7 +345,7 @@ if (distributedplayers[playerIndexCompleteKeyGen].PlayerGroup().find(grpID)->sec
 
 **Definition**
 
-Threshold Signatures are backed by pure maths. To truly understand Threshold Signatures, please register your interest and receive a wonderfully crafted nChain Limited whitepaper via the [Nakasendo<sup>TM</sup> homepage](https://nakasendoproject.org/).
+Threshold Signatures are backed by pure maths. To truly understand Threshold Signatures, please download a wonderfully crafted nChain Limited whitepaper via the [Nakasendo<sup>TM</sup> homepage](https://nakasendoproject.org/) website.
 
 **Use Cases**
 
@@ -361,10 +361,10 @@ There is a myriad of applications for Threshold Signatures. For some inspiration
 
 *_Personal Wealth Management_*
 
-- An individual could protect her wealth by including them self, their lawyer, sibling, friend and accountant into a scheme. 3 of 5 shares could be required before funds can be spend.
+- An individual could protect their wealth by including them self, their lawyer, sibling, friend and accountant into a scheme. 3 of 5 shares could be required before funds can be spend.
 
 *_Voting records_*
 
  - Where a Board of Directors wish to vote on making a specific acquisition, such an acquisition could only be triggered once the true majority is reached.
 
- There are many many more applications of Threshold Signatures....
+ There are many more applications of Threshold Signatures....
