@@ -27,4 +27,4 @@ In depth [mathematical definitions](Primitives.md) are given, along with [code s
 - [Message Hash](Primitives.md#MessageHash)
 - [Polynomials](Primitives.md#Polynomial)
 - [Secret Split](Primitives.md#SecretSplit)
-- [Symmetric Eencryption and Decryption](Primitives.md#SymEncDec)
+- [Symmetric Encryption and Decryption](Primitives.md#SymEncDec)
