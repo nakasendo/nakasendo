@@ -1,8 +1,8 @@
-## Installation and setting SDK
+## Installation
 
-Download the appropriate [nakasendo installer](https://nakasendoproject.org/download) and install to your system.
+Download the [Nakasendo installer<sup>TM</sup>](https://github.com/nakasendo/nakasendo) for your preferred platform.
 
-The best way to make the examples work is to define the environment variable SDKLIBRARIES_ROOT pointing to the location where SDKLibraries is installed.
+The best way to run the example code is to define the environment variable **SDKLIBRARIES_ROOT** pointing to the location where Nakasendo<sup>TM</sup> is installed.
 
 ## C++ examples
 On Windows, you'll need Visual Studio Community Edition 2017 and CMake 3.14.7. On Linux, you'll need gcc7, cmake 3.12 or newer.
@@ -23,8 +23,8 @@ It will create a Makefile project and build it. You can start to compile/run the
 
 ## Python examples
 Python examples need to know where to find all the python modules.
-If you have defined the variable SDKLIBRARIES_ROOT correctly, just open python files and run it normally.
-Otherway is to define the PYTHONPATH variable pointing to the installation of SDKLibraries (where it have all module files) and run it
+If you have defined the variable **SDKLIBRARIES_ROOT** correctly, just open python files and run it normally.
+Another way is to define the **PYTHONPATH** variable pointing to the installation of Nakasendo installer<sup>TM</sup> (where it have all module files) and run it
 Note that on windows, if you have a debug version of SDK installation, you should use the python_d interpreter instead of python
 
 ## Javascript examples
@@ -33,4 +33,4 @@ Open the terminal, go to $SDKLIBRARIES_ROOT/example/javascript, run the comnmand
 ```console
 nchain@sdk:~$ python -m http.server
 ```
-Then from the browser, open localhost:8000
+Then from the browser, open **localhost:8000**
