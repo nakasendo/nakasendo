@@ -107,8 +107,9 @@ It will create a Makefile project and build it. You can start to compile/run the
 **Python examples**
 Python examples need to know where to find all the python modules.
 If you have defined the variable **SDKLIBRARIES_ROOT** correctly, just open python files and run it normally.
-Another way is to define the **PYTHONPATH** variable pointing to the installation of Nakasendo<sup>TM</sup> (where it has all module files) and run it
-Note that on windows, if you have a debug version of Nakasendo <sup>TM</sup> installation, you should use the python_d interpreter instead of python
+Another way is to define the **PYTHONPATH** variable pointing to the installation of Nakasendo<sup>TM</sup> (where it has all module files) and run it.
+
+_Note that on windows, if you have a debug version of Nakasendo <sup>TM</sup> installation, you should use the python_d interpreter instead of python._
 
 **Javascript examples**
 To run javascript example, you need a http server. The simplest way is to use python to run the http server.
