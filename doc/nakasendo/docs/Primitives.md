@@ -37,19 +37,13 @@ BigNumber operators in C++:
 
 BigNumber operators in Python:
 ```python
-    # Add 2 big numbers of arbitrary precision in decimal
-    for x in collectionOfBigNumbersInDecimal:
-        decNumber = x.split()
-        actual_Value = PyBigNumbers.addFromDec(decNumber[0], decNumber[1])
-        # Verify the actual value with expected value
-        assert actual_Value == decNumber[2], "Test failed"
-        
-    # Subtract 2 big numbers of arbitrary precision in hex
-    for x in collectionOfBigNumbersInHex:
-        hexNumber = x.split()
-        actual_Value = PyBigNumbers.subFromHex(hexNumber[0], hexNumber[1])
-        # Verify the actual value with expected value
-        assert actual_Value.upper() == hexNumber[2].upper(), "Test failed"
+    import PyBigNumbers
+    bigNumA = Nakasendo.BigNum()
+    bigNumB = Nakasendo.BigNum()
+    
+    c = bigNumA + bigNumB
+    print ("operator A ->  %s, ..... operator B-> %s" % (bigNumA, bigNumB))
+    print("...result of addition %s", c)
 ```
 ___
 
@@ -169,35 +163,122 @@ Create an ECPoint in JavaScript:
 
 Create an ECPoint in C++:
 ```c++
-    namespace PY_ECPOINT
-    {
-        // make an ECPoint according to curveID
-        std::unique_ptr< ECPoint > makeECPoint( int curveID )
-        {
-            std::unique_ptr< ECPoint > pointPtr ;
-            if ( curveID == 0 ) 
-            {
-                // use defualt constructor
-                pointPtr =  std::unique_ptr< ECPoint> ( new ECPoint( ) ) ;
-            }
-            else
-            {
-                pointPtr =  std::unique_ptr< ECPoint> ( new ECPoint( curveID ) ) ; 
-            }
-            return pointPtr ;
-        }
+    ECPoint ecPt;
+    ECPoint ecPt2;
+    ECPoint ecPt3;
+    ecPt.SetRandom();
+    ecPt2.SetRandom();
+    ecPt3.SetRandom();
+    std::pair<std::string, std::string> coord = ecPt.GetAffineCoords_GFp();
+    std::cout << "x = " << coord.first << "\n" << "y = " << coord.second << std::endl;
+
+    ECPoint ecPtRes = ecPt + ecPt2 ;
+    
+    std::cout << "Try doubling..." << std::endl;
+    ECPoint doublePtrRes = ecPtRes.Double () ;
+
+    std::cout <<  doublePtrRes.ToHex () << std::endl ;
+
+    std::cout << "Try inverting..." << std::endl;
+    doublePtrRes.Invert () ;
+    std::cout << doublePtrRes.ToHex () << std::endl;
+
+    bool isOnCurve = doublePtrRes.CheckOnCurve() ;
+    if (isOnCurve){
+        std::cout << "Inverted Point on curve" << std::endl ;
+    }else{
+        std::cout << "Inverted Point NOT on curve" << std::endl ;
     }
+    BigNumber bnValm ;
+    bnValm.generateRandHex(256) ;
+
+    BigNumber bnValn ;
+    bnValn.generateRandHex(256) ;
+
+
+    ECPoint mulres = doublePtrRes.MulHex (bnValm.ToHex (), bnValn.ToHex () );
+    std::cout << "Multiply result: " << mulres.ToHex () << std::endl;
+
+    bool isMulResOnCurve = doublePtrRes.CheckOnCurve () ;
+    if (isMulResOnCurve){
+        std::cout << "Result of multiplication on the curve " << std::endl ;
+    }else{
+        std::cout << "Result of multiplication  NOT on curve" << std::endl ;
+    }
+
+    std::string ecPointasHexStr = ecPt3.ToHex() ;
+    ECPoint newValFromStr  ;
+    std::cout << "Constructing a new ECPoint from ECPoint 3 above ... the x & y coordinates should match" << std::endl;
+    newValFromStr.FromHex (ecPointasHexStr) ;
+
+    std::pair<std::string, std::string> coord3 = ecPt3.GetAffineCoords_GFp();
+    std::cout << "x = " << coord3.first << "\n" << "y = " << coord3.second << std::endl;
+    std::pair<std::string, std::string> coordNewVal = newValFromStr.GetAffineCoords_GFp();
+    std::cout << "x = " << coordNewVal.first << "\n" << "y = " << coordNewVal.second << std::endl;
+
+    // testing out the compare fucntion
+
+    if ( ecPt3 == newValFromStr ) {
+        std::cout << "Points are equal " << std::endl ;
+    }
+
+    if ( ecPt3 != newValFromStr ){
+        std::cout << "These points are definately the same...shoud never see this" << std::endl ;
+    }
+
+    if (ecPt3 != ecPt2){
+        std::cout << "Randomly generated points should not be equal ..." << std::endl;
+    }
+    ECPoint nonDefaultCurvePt(704);
 ```
 
 Create an ECPoint in Python:
 ```python
-    # Generate Random EC Points
-    for x in range(100):
-        # Generate a Random EC Point with default NID ==> NID_secp256k1
-        actual_value = PyECPoint.GenerateRandomEC( 0, hex, True )
+    ECPointA  = Nakasendo.ECPoint ()
+    print ("ECPointA output %s" % ECPointA )
 
-        # Verify the the length of actual value as 66
-        assert len(actual_value) == 66, "Test failed"
+    ECPointB = Nakasendo.ECPoint ()
+    print ("ECPointB output %s " % ECPointB)
+
+    ECPointC = ECPointA + ECPointB
+    print ("ECPointC (ECPointA + ECPointB) output %s " % ECPointC)
+
+
+    print ("Testing multiplication (2 parameters)... ")
+    BigNumScalerA = Nakasendo.BigNum()
+    ECPointG = Nakasendo.ECPoint();
+
+    ECPointRes = ECPointG.multipleScalar(BigNumScalerA)
+    print("Multiplication res: %s " % ECPointRes)
+
+    print ("Testing multiplication (3 parameters)... ")
+    BigNumScalerB = Nakasendo.BigNum()
+    ECPointRes1 = ECPointG.multipltScalarEx(BigNumScalerA,BigNumScalerB)
+    print ( "3 param Multiplication res: %s " % ECPointRes1)
+
+    ECPointFromRes1 =Nakasendo.ECPoint()
+    if (ECPointFromRes1.IsPointOnCurve() == True):
+        print( "Point validated on curve...")
+
+
+    print ("Testing Affine co-ordinates call" )
+    coords = ECPointRes1.GetAffineCoOrdinates()
+    print ("Random Elliptic Curve Point P:\n x = %s \ny= %s" % (coords[0], coords[1]))
+
+    print ("Testing comparison...")
+    if ( ECPointA == ECPointB):
+        print ("ECPtA == ECPtB")
+    else:
+        print ("ECPtA != ECPtB")
+
+
+    print ("Creating a point on a curve with ID - 704 ... I don;t like this as it requires users to know the ID of the curve")
+    ECPointOnScep112r1_a = Nakasendo.ECPoint(704)
+    ECPointOnScep112r1_b = Nakasendo.ECPoint(704)
+
+    print ( "ECPointOnScep112r1_a: %s\nECPointOnScep112r1_b %s\n" % (ECPointOnScep112r1_a, ECPointOnScep112r1_b))
+    ECPointOnScep112r1_sum = ECPointOnScep112r1_a + ECPointOnScep112r1_b
+    print ("Result of addtion on a curve with ID - 704: %s " % ECPointOnScep112r1_sum)
 ```
 
 **Definition**
