@@ -56,7 +56,7 @@ def do_linux_build():
     here  = os.getcwd()
     os.chdir('releasebuild')
     os.environ['LIBS'] = '-ldl'
-    rawargs = '/usr/bin/cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCUSTOM_SYSTEM_OS_NAME=Ubuntu'
+    rawargs = '/usr/bin/cmake .. -G "Unix Makefiles" -DSDK_IS_BETA=ON -DBUILD_WEBASSEMBLY=ON -DCMAKE_BUILD_TYPE=Release -DCUSTOM_SYSTEM_OS_NAME=Ubuntu'
     args = shlex.split(rawargs)
     subprocess.call(args)
 
@@ -65,6 +65,10 @@ def do_linux_build():
         subprocess.call(args)
     except:
         exit(-1)
+
+    rawargs = 'cpack -G TGZ'
+    args = shlex.split(rawargs)
+    subprocess.call(args)
 
     os.chdir(here)
 
@@ -77,7 +81,7 @@ def do_linux_build():
 
     os.chdir('debugbuild')
 
-    rawargs = '/usr/bin/cmake .. -G "Unix Makefiles"  -DCMAKE_BUILD_TYPE=Debug -DCUSTOM_SYSTEM_OS_NAME=Ubuntu'
+    rawargs = '/usr/bin/cmake .. -G "Unix Makefiles" -DBUILD_WEBASSEMBLY=ON -DSDK_IS_BETA=ON -DCMAKE_BUILD_TYPE=Debug -DCUSTOM_SYSTEM_OS_NAME=Ubuntu'
     args = shlex.split(rawargs)
     subprocess.call(args)
 
@@ -86,6 +90,10 @@ def do_linux_build():
         return subprocess.call(args)
     except:
         exit(-1)
+
+    rawargs = 'cpack -G TGZ'
+    args = shlex.split(rawargs)
+    subprocess.call(args)
 
 def main():
     # do the release notes
