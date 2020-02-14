@@ -13,6 +13,6 @@ add_subdirectory(unit)
 add_subdirectory(functional)
 
 ## Tests for javascriopt
-if(BUILD_WEBASSEMBLY)
-add_subdirectory(javascript)
-endif(BUILD_WEBASSEMBLY)
+##if(BUILD_WEBASSEMBLY)
+##add_subdirectory(javascript)
+##endif(BUILD_WEBASSEMBLY)
