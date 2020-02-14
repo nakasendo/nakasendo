@@ -63,7 +63,7 @@ pipeline {
                   }
         success { 
                   bitbucketStatusNotify(buildState: 'SUCCESSFUL')
-                  archiveArtifacts '**/SDKLibraries*, **/release-notes.txt'
+                  archiveArtifacts '**/SDKLibraries-*-Release.tar.gz, **/release-notes.txt'
                   }
         failure {
                   bitbucketStatusNotify(buildState: 'FAILED')
