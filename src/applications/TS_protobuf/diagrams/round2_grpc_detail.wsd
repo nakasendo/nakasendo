@@ -1,0 +1,116 @@
+@startuml
+@startuml
+!pragma teoz true
+
+header TS Messaging Framework
+title Round 2 Communications - GRPC
+hide footbox
+actor Player_1
+participant PlayerClient
+control Orchestrator
+participant PlayerClient2
+actor Player_2
+
+activate Orchestrator
+
+
+Player_1 -> PlayerClient : presign <groupId>
+activate PlayerClient
+PlayerClient -> Orchestrator : CallInitiatePresign \n<InitPresignRequest>
+Orchestrator --> PlayerClient : <InitPresignReply>
+
+note right PlayerClient #LightGreen
+    initiatePresignCallback
+end note
+
+group JVRSS
+loop "k", "alpha"
+PlayerClient -> Orchestrator : CallPresigning \n<PresigningRequest>
+Orchestrator -> PlayerClient : CallShareSecretData \n<ShareSecretDataRequest>
+& Orchestrator -> PlayerClient2 : CallShareSecretData \n<ShareSecretDataRequest>
+
+Orchestrator --> PlayerClient : <PresigningReply>
+activate PlayerClient2
+
+note right PlayerClient
+    - create new polynomial
+    - evaluate labels 
+end note
+
+
+
+
+PlayerClient --> Orchestrator : <ShareSecretDataReply>
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : <ShareSecretDataReply>
+note right Orchestrator #LightGreen
+    collateDataCallback
+end note
+deactivate PlayerClient2
+
+... wait for number of responses (n) ...
+
+note right Orchestrator 
+    - combine public information
+end note
+
+Orchestrator -> PlayerClient : CallInitShareEvals \n<InitShareEvalsRequest>
+& Orchestrator -> PlayerClient2 : CallInitShareEvals \n<InitShareEvalsRequest>
+activate PlayerClient
+activate PlayerClient2
+
+... reusing code from Round 1: \nCallDistributeEvals \nCallReceivedAllEvals \nCallCollatedSecretShare\nCallGroupIsVerified...
+
+
+PlayerClient --> Orchestrator : <GroupIsVerifiedReply>
+PlayerClient2 --> Orchestrator : <GroupIsVerifiedReply>
+
+end
+end
+
+PlayerClient -> Orchestrator : CallShareVW \n<ShareVWDataMessage>
+PlayerClient2 -> Orchestrator : CallShareVW \n<ShareVWDataMessage>
+deactivate PlayerClient
+deactivate PlayerClient2
+
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : CallCollatedVWShare \n<CollatedVWShareRequest>
+& Orchestrator -> PlayerClient2 : CallCollatedVWShare \n<CollatedVWShareRequest>
+activate PlayerClient
+activate PlayerClient2
+Orchestrator --> PlayerClient   : <ShareVWDataMessageReply>
+Orchestrator --> PlayerClient2    : <ShareVWDataMessageReply>
+
+note right PlayerClient 
+    - create ephemeral key
+end note 
+
+PlayerClient -> Orchestrator : CallEphemKeyComplete \n<IdentityMessage>
+PlayerClient --> Orchestrator : <CollatedVWShareReply>
+
+PlayerClient2 -> Orchestrator :CallEphemKeyComplete \n<IdentityMessage>
+
+
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : CallCompleted \n<IdentityMessage>
+& Orchestrator -> PlayerClient2 :  CallCompleted \n<IdentityMessage>
+Orchestrator --> PlayerClient : CallEphemKeyComplete \n<GenericReply>
+
+PlayerClient2 --> Orchestrator : <CollatedVWShareReply>
+Orchestrator --> PlayerClient2 : CallEphemKeyComplete \n<GenericReply>
+
+deactivate PlayerClient2
+
+PlayerClient -> Orchestrator : CallPresigning (repeat x number times )
+PlayerClient -> Orchestrator : CallPresignComplete \n<IdentityMessage>
+PlayerClient --> Orchestrator : CallCompleted \n<GenericReply>
+Orchestrator --> PlayerClient : CallPresignComplete \n<GenericReply>
+deactivate PlayerClient
+note right Player_1 #Orange
+    - go to round3 sequence diagram
+end note
+
+
+@enduml

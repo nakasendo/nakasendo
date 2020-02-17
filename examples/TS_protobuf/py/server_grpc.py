@@ -436,6 +436,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
     def signingCompletedCallback (self, call_future ) :
         res = call_future.result()    
         print(res)
+        self.orchestrator.clearSignatureSetFlag(res.id.groupId)
         self.orchestrator.unLock(res.id.groupId)
 
 

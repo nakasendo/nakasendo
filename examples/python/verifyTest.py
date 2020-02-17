@@ -65,18 +65,25 @@ if __name__ == "__main__":
     
     coords = pt.GetAffineCoOrdinates()
     
-    #pempubkey = Nakasendo.pubKeyHexPtasPem(coords[0],coords[1])
-    #print(pempubkey)
+    pempubkey = Nakasendo.pubKeyHexPtasPem(coords[0],coords[1])
+    print(pempubkey)
     print('verify the pem format')
-    #pubKeyStrValidate = Nakasendo.pubKeyPEMasHex(pempubkey, True);
+    pubKeyStrValidate = Nakasendo.pubKeyPEMasHex(pempubkey, True);
     #print(pubKeyStrValidate)
     # get the affine co-ordinates
     # get pem format
     
-    #val = Nakasendo.verify(message, pempubkey, sigRStr, sigSStr)
+    valPem = Nakasendo.verify(message, pempubkey, sigRStr, sigSStr)
+    if(valPem == True):
+        print('Calculated signature verified with calculated PEM & call to verify')
+    else:
+        print ('Failed to verify with calculated PEM')
+    
     val = Nakasendo.verifyPubKeyHex(message,pubKeyStr,sigRStr, sigSStr)
     if(val == True):
         print('Calculated signature verified via Nakasendo verify')
+    else:
+        print('Failed to verify with Nakasendo verify')
         
     hmMessage = Nakasendo.hash256(message=message,modulo="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
     #create an ecdsa public key from the program parameter

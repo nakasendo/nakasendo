@@ -1,0 +1,178 @@
+@startuml
+!pragma teoz true
+
+
+header TS Messaging Framework
+title Round 1 Communications - GRPC
+hide footbox
+actor Player_1
+participant PlayerClient
+control Orchestrator
+participant PlayerClient2
+actor Player_2
+
+activate Orchestrator
+Player_1->PlayerClient : register
+& PlayerClient->Orchestrator : CallRegister \n<RegisterReply>
+Orchestrator-->PlayerClient : <RegisterResponse>
+Player_2->PlayerClient2 : register
+& PlayerClient2->Orchestrator : CallRegister \n<RegisterReply>
+Orchestrator-->PlayerClient2 : <RegisterResponse>
+
+
+Player_1 -> PlayerClient : create n m
+activate PlayerClient
+PlayerClient -> Orchestrator : CallCreateGroup \n<CreateGroupRequest> 
+
+
+
+Orchestrator -> PlayerClient : CallInvite \n<InviteRequest>
+& Orchestrator -> PlayerClient2 : CallInvite \n<InviteRequest>
+Orchestrator --> PlayerClient : <CreateGroupReply>
+activate PlayerClient2
+
+PlayerClient --> Orchestrator : <InviteReply>
+deactivate PlayerClient
+
+PlayerClient2 --> Orchestrator :< InviteReply>
+
+note right Orchestrator #LightGreen
+acceptInviteCallback
+end note
+
+deactivate PlayerClient2
+
+... wait for number of players (n - 1) ...
+
+Orchestrator -> PlayerClient : CallGroupIsSet \n<GroupIsSetRequest> 
+& Orchestrator -> PlayerClient2 :  CallGroupIsSet \n<GroupIsSetRequest>
+activate PlayerClient
+activate PlayerClient2
+
+note left Orchestrator
+- allocated ordinal (label)
+- polynomial creation (P)
+- evaluation of P wrt ordinal
+end note
+
+PlayerClient --> Orchestrator : <CreateGroupReply>
+PlayerClient2 --> Orchestrator : <CreateGroupReply>
+
+deactivate PlayerClient
+deactivate PlayerClient2
+
+... wait until Player_x triggers next part ...
+
+Player_1 -> PlayerClient : share <groupId>
+
+
+activate PlayerClient
+
+PlayerClient -> Orchestrator : CallShareSecret \n<ShareSecretRequest>
+deactivate PlayerClient
+
+Orchestrator -> PlayerClient : CallShareSecretData \n<ShareSecretDataRequest>
+& Orchestrator -> PlayerClient2 : CallShareSecretData \n<ShareSecretDataRequest>
+activate PlayerClient
+activate PlayerClient2
+
+
+Orchestrator --> PlayerClient :  <ShareSecretReply>
+
+note right PlayerClient2
+    - JVRSS (part 1)
+end note
+
+
+PlayerClient --> Orchestrator : <ShareSecretDataReply>
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : <ShareSecretDataReply>
+deactivate PlayerClient2
+
+note right Orchestrator #GreenYellow
+collateDataCallback
+end note
+
+... wait for number of responses (n) ...
+
+note right Orchestrator
+- combine public information
+end note
+
+Orchestrator -> PlayerClient : CallInitShareEvals \n<InitShareEvalsRequest>
+& Orchestrator -> PlayerClient2 : CallInitShareEvals \n<InitShareEvalsRequest>
+activate PlayerClient
+activate PlayerClient2
+PlayerClient -> PlayerClient2 : CallDistributeEvals \n<DistributeEvalsRequest>
+PlayerClient --> Orchestrator : <InitShareEvalsReply>
+PlayerClient2 --> PlayerClient : <DistributeEvalsReply>
+
+
+note left PlayerClient
+share f(1)_2
+end note
+
+PlayerClient2 -> Orchestrator : CallReceivedAllEvals \n<RxAllEvalsRequest>
+Orchestrator --> PlayerClient2 : <RxAllEvalsReply>
+
+PlayerClient2 ->PlayerClient : CallDistributeEvals \n<DistributeEvalsRequest>
+PlayerClient2 --> Orchestrator : <InitShareEvalsReply>
+PlayerClient --> PlayerClient2 : <DistributeEvalsReply>
+
+
+note right PlayerClient2
+share f(2)_1
+end note
+
+PlayerClient -> Orchestrator : CallReceivedAllEvals \n<RxAllEvalsRequest>
+
+
+... wait for number of responses (n) ...
+Orchestrator -> PlayerClient : CallCollatedSecretShare \n<CollatedSecretRequest>
+& Orchestrator -> PlayerClient2 : CallCollatedSecretShare \n<CollatedSecretRequest>
+
+
+Orchestrator --> PlayerClient : <RxAllEvalsReply>
+
+note right PlayerClient2
+    - JVRSS (part 2)
+end note
+
+note right PlayerClient
+    - calculate private key share 
+    - verification of honesty
+    - verify correctness
+end note
+
+PlayerClient --> Orchestrator : <CollatedSecretReply>
+PlayerClient2 --> Orchestrator : <CollatedSecretReply>
+
+note right Orchestrator  #LightGreen
+    secretVerificationCallback
+end note    
+
+deactivate PlayerClient
+deactivate PlayerClient2
+
+
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : CallGroupIsVerified \n< GroupIsVerifiedRequest >
+& Orchestrator -> PlayerClient2 : CallGroupIsVerified \n< GroupIsVerifiedRequest > 
+
+PlayerClient -> Orchestrator : CallPubKeyComplete \n<IdentityMessage>
+Orchestrator --> PlayerClient : CallPubKeyComplete \n<GenericReply>
+PlayerClient2 -> Orchestrator : CallPubKeyComplete \n<IdentityMessage>
+Orchestrator --> PlayerClient2 : CallPubKeyComplete \n<GenericReply>
+
+PlayerClient --> Orchestrator : <GroupIsVerifiedReply>
+PlayerClient2 --> Orchestrator : <GroupIsVerifiedReply>
+
+note right Player_1 #Orange
+    - go to round2 sequence diagram -
+end note
+
+deactivate Orchestrator
+
+
+@enduml

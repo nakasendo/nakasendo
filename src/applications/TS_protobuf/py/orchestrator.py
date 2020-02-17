@@ -363,7 +363,10 @@ class Orchestrator( ) :
         self.groups[groupId].numReplies = 0     
         self.groups[groupId].evalsCounter = 0     
         
-    
+    def clearSignatureSetFlag(self, groupid):
+        print ("Signature is complete ... reset the flag signatureIsSet")
+        self.groups[groupid].signatureIsSet = False
+
         
     def setSigner( self, groupId, signer ) :
         self.groups[groupId].signer = signer 
