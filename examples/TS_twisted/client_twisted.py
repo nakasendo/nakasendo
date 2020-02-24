@@ -86,18 +86,23 @@ class ClientProtocol( pb.Referenceable ):
 
 
     #--------------------------------------------------
-    def sign ( self, gid, msg ) :
+    def sign ( self, gid, index, msg ) :
         self.myPrint("in sign, gid = {0}, msg={1}".format(gid, msg))
         
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
             self.myPrint(msg)
-            raise ClientError( msg )     
+            raise ClientError( msg )    
+
+        elif not self.Player.checkIndex( gid, index ) :
+            msg = "No ephemeral key available for use at index {0}".format(index)   
+            self.myPrint(msg)   
+            raise ClientError( msg )        
 
         self.Player.setSigningInitiator( gid )
         msg = self.Player.hashMessage( msg )
         d = self.orchestratorRef.callRemote \
-            ( "sign", self.user, gid.encode(), msg.encode() )  
+            ( "sign", self.user, gid.encode(), index, msg.encode() )  
 
     #--------------------------------------------------
     def printPublicKey( self, gid ) :
@@ -197,8 +202,8 @@ class ClientProtocol( pb.Referenceable ):
                     ( "presigningCompleted", gid.encode() )
 
 
-    def remote_requestSignatureData( self, gid, message ) :
-        return self.Player.requestSignatureData( gid, message )
+    def remote_requestSignatureData( self, gid, index, message ) :
+        return self.Player.requestSignatureData( gid, index, message )
 
 
     def remote_readyToSign( self, gid, message, signatureData ) :
@@ -290,7 +295,8 @@ class StdioClientProtocol(basic.LineReceiver):
             else :
                 args.append( commandParts[1] )
                 if command == 'sign' :
-                    strval = ' '.join(commandParts[2:])
+                    args.append( commandParts[2] )
+                    strval = ' '.join(commandParts[3:])
                     args.append(strval.strip('\''))
                 else :
                     for item in commandParts[ 2: ] :
@@ -346,8 +352,8 @@ class StdioClientProtocol(basic.LineReceiver):
     def do_groupids(self):
         self.sendLine(self.client.Player.GroupIDs().encode())
     
-    def do_sign( self, gid, msg ) :
-        self.client.sign( gid, msg )
+    def do_sign( self, gid, index, msg ) :
+        self.client.sign( gid, int( index ), msg )
 
     def do_printpubkey( self, gid ) :
         self.client.printPublicKey( gid )

@@ -180,7 +180,7 @@ class OrchestratorProtocol( pb.Root ) :
     
     #-------------------------------------------------
     # This sends a request for data to all participants of group
-    def remote_sign( self, user, groupId, msg ) :
+    def remote_sign( self, user, groupId, index, msg ) :
         log.msg("remote_sign")
         groupId = groupId.decode()
         msg = msg.decode()
@@ -207,7 +207,7 @@ class OrchestratorProtocol( pb.Root ) :
 
         userRefs = self.orchestrator.getUserReferences(groupId)
         for ref in userRefs :
-            ref.callRemote("requestSignatureData", groupId, msg).addCallback \
+            ref.callRemote("requestSignatureData", groupId, index, msg).addCallback \
                 (self.signingCallback)        
         return
 
@@ -356,7 +356,7 @@ class OrchestratorProtocol( pb.Root ) :
     #-------------------------------------------------- 
     def signingCompletedCallback ( self, groupId ) :
         log.msg("signingCompletedCallback: groupId = {0}".format(groupId))
-
+        self.orchestrator.clearSignatureSetFlag(groupId)
         self.orchestrator.unLock(groupId)
 
     #-------------------------------------------------- 
