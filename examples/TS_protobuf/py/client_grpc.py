@@ -88,7 +88,7 @@ class ClientProtocol:
             elif calcType == enums.ALPHA :
                 calculation = 'ALPHA'
 
-            self.cp.myPrint(calculation)
+            self.cp.myPrint('calculation type = {0}, {1}'.format(calcType, calculation))
 
             ret = self.cp.Player.requestData( request.id.groupId, calculation ) 
             gid  = ret[0]
