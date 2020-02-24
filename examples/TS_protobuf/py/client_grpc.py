@@ -228,7 +228,7 @@ class ClientProtocol:
 
         #----------------------------------------------------------------------
         def CallShareOfSignature( self, request, context ) :
-            ret = self.cp.Player.requestSignatureData( request.groupId, request.message )
+            ret = self.cp.Player.requestSignatureData( request.groupId, request.keyindex, request.message )
 
             idMsg = stub.IdentityMessage( userId=self.user, groupId=ret[0] )
             return stub.ShareOfSigReply \
@@ -362,21 +362,28 @@ class ClientProtocol:
 
 
     #--------------------------------------------------
-    def sign( self, gid, msg ) :     
-        self.myPrint("in sign, gid = {0}, msg={1}".format(gid, msg))
+    def sign( self, gid, index, msg ) :     
+        self.myPrint("in sign, gid = {0}, ephemeral key index={1}, msg={2}".format \
+            (gid, index, msg))
         
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
             self.myPrint(msg)
-            #raise ClientError( msg )     
+            #raise ClientError( msg )  
+            # 
+        elif not self.Player.checkIndex( gid, index ) :
+            msg = "No ephemeral key available for use at index {0}".format(index)   
+            self.myPrint(msg)
+        
+        else :
 
-        self.Player.setSigningInitiator( gid )
-        msg     = self.Player.hashMessage( msg )
-        idMsg   = stub.IdentityMessage( userId=self.user, groupId=gid )
-        response = self.conn.CallInitSignature( stub.InitSignatureRequest \
-            ( id=idMsg, message=msg ) )
+            self.Player.setSigningInitiator( gid )
+            msg     = self.Player.hashMessage( msg )
+            idMsg   = stub.IdentityMessage( userId=self.user, groupId=gid )
+            response = self.conn.CallInitSignature( stub.InitSignatureRequest \
+                ( id=idMsg, message=msg, keyindex=index ) )
 
-        self.myPrint( 'initiated signing ') 
+            self.myPrint( 'initiated signing ') 
 
     #--------------------------------------------------
     def printPublicKey( self, gid ) :
@@ -493,9 +500,10 @@ class StdioClientProtocol(  ) :
                     command = 'help'
                     return
                 else :
-                    args.append( commandParts[1] )
+                    args.append( commandParts[1] )                    
                     if command == 'sign' :
-                        strval = ' '.join(commandParts[2:])
+                        args.append( commandParts[2] )
+                        strval = ' '.join(commandParts[3:])
                         args.append(strval.strip('\''))
                     else :
                         for item in commandParts[ 2: ] :
@@ -547,9 +555,9 @@ class StdioClientProtocol(  ) :
         self.chat_list.insert(END, '>>> groupids ') 
         self.chat_list.insert(END, self.client.Player.GroupIDs() ) 
     
-    def do_sign( self, gid, msg ) :
-        self.client.sign( gid, msg )
-        self.chat_list.insert(END, '>>> sign ' + gid + ' ' + msg + '\n') 
+    def do_sign( self, gid, index, msg ) :
+        self.client.sign( gid, int( index ), msg )
+        self.chat_list.insert(END, '>>> sign ' + gid + ' ' + index + ' ' + msg + '\n') 
 
     def do_printpubkey( self, gid ) :  
         self.client.printPublicKey( gid )

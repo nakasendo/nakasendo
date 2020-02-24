@@ -271,9 +271,10 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
 
         gid         = request.id.groupId
         msg         = request.message
+        index       = request.keyindex
         userId      = request.id.userId
        
-        print("sign: user={0}, groupId={1}, msg={2}".format(userId, gid, msg))
+        print("sign: user={0}, groupId={1}, key={2}, msg={3}".format(userId, gid, index, msg))
 
         if not self.orchestrator.validGroup(gid) :
             errMsg = 'Group Id is not valid: {0}'.format(gid)
@@ -299,7 +300,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
         userRefs = self.orchestrator.getUserReferences(gid)
         for ref in userRefs :
             call_future = ref[0].CallShareOfSignature.future( stub.ShareOfSigRequest \
-                ( groupId=gid, message=msg ) )
+                ( groupId=gid, keyindex=index, message=msg ) )
            
             call_future.add_done_callback( self.signingCallback )      
 
