@@ -195,6 +195,15 @@ class Player :
         else :
             return 0
 
+    def checkIndex(self, groupId, index) :
+        # implemented same as in cpp code, ie:
+        # size is one greater than an index i.e index =0 => size = 1
+        # so if a user requests index =1 when size =1 that will return an error.
+        if len( self.groups[ groupId ].ephemeralKeyList ) <= index :
+            return 0
+        else :
+            return 1
+
     def deleteGroup(self, groupId ) :
         if groupId in self.groups: 
             self.ptw("Verification failed. Deleting group: {0}".format(groupId) )
@@ -502,10 +511,16 @@ class Player :
         return Hm.value
 
     #-------------------------------------------------
-    def requestSignatureData( self, groupId, message ) :
+    def requestSignatureData( self, groupId, index, message ) :
         group = self.groups[groupId]
 
-        ephemeralKey = group.ephemeralKeyList.pop( ) 
+        # check the index
+        if not self.checkIndex( groupId, index ) :
+            msg = "No ephemeral key available for use at index {0}".format(index)   
+            self.ptw(msg)
+            return [ groupId, group.ordinal, 0, message ]
+
+        ephemeralKey = group.ephemeralKeyList.pop( index ) 
         littleK = ephemeralKey[ 0 ]
         r_bn    = ephemeralKey[ 1 ]
         pks     = group.privateKeyShare
