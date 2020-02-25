@@ -213,9 +213,20 @@ class Player :
 
     def setPresignInitiator( self, groupId, number ) :
         group = self.groups[groupId]
+        defaultVal = 1
         
         group.presignInitiator = True 
-        group.numberPresigns = int(number)
+        try :
+            val = int(number)
+            if val <= 0 :
+                self.ptw("defaulting number of presigns to: 1")
+                val = defaultVal
+            group.numberPresigns = val
+        except ValueError :
+            group.numberPresigns = defaultVal
+            self.ptw("defaulting number of presigns to: {0}".format \
+                (group.numberPresigns) )
+
         self.ptw("setting presignInitiator to: {0}, number of ephemeral keys left to do: {1}".format \
             (group.presignInitiator, group.numberPresigns))            
 
