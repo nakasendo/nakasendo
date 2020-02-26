@@ -36,12 +36,12 @@ class SymEncDec_API SymEncDec
 };
 
 // free function interface
-std::string SymEncDec_API Encode(const std::string& crMsg, const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
-std::string SymEncDec_API Decode(const std::string& crMsg, const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
+SymEncDec_API std::string Encode(const std::string& crMsg, const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
+SymEncDec_API std::string Decode(const std::string& crMsg, const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
 
-std::string SymEncDec_API GenerateKey256(const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
-std::string SymEncDec_API GenerateNounce(uint64_t blocksize=16);
+SymEncDec_API std::string GenerateKey256(const std::string& crKey, const std::string& crIV, uint64_t keylen=32, uint64_t blocksize=16);
+SymEncDec_API std::string GenerateNounce(uint64_t blocksize=16);
 
-std::unique_ptr<unsigned char[]> SymEncDec_API KeyGen(std::unique_ptr<unsigned char[]>&, const unsigned int&, const std::unique_ptr<unsigned char[]>& , const uint64_t& , const unsigned int& , uint64_t&) ;
-void SymEncDec_API NounceGen(std::unique_ptr<unsigned char[]>&, const int blocksize=16);
+SymEncDec_API std::unique_ptr<unsigned char[]> KeyGen(std::unique_ptr<unsigned char[]>&, const unsigned int&, const std::unique_ptr<unsigned char[]>& , const uint64_t& , const unsigned int& , uint64_t&) ;
+SymEncDec_API void NounceGen(std::unique_ptr<unsigned char[]>&, const int blocksize=16);
 #endif /* SYM_ENC_DEC_H */

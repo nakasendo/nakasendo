@@ -1,13 +1,7 @@
 #ifndef __BIG_NUMBERS_H__
 #define __BIG_NUMBERS_H__
 
-#include <DYNAMIC_LIBRARY_API.hpp>
-
-#ifdef EXPORT_BigNumbers
-#    define BigNumbers_API EXPORT_DYNAMIC_LIBRARY
-#else
-#    define BigNumbers_API IMPORT_DYNAMIC_LIBRARY
-#endif
+#include <BigNumbers/BigNumbersConfig.h>
 
 #include <memory>
 #include <string>
@@ -17,30 +11,30 @@ class BigNumberImpl;
 
 class BigNumbers_API BigNumber
 {
-    friend BigNumber BigNumbers_API operator+ ( const BigNumber&, const BigNumber&);
-    friend BigNumber BigNumbers_API operator+ ( const BigNumber&, const int&);
-    friend BigNumber BigNumbers_API operator- (const BigNumber&, const BigNumber&);
-    friend BigNumber BigNumbers_API operator- (const BigNumber&, const int&);
+    BigNumbers_API friend BigNumber operator+ ( const BigNumber&, const BigNumber&);
+    BigNumbers_API friend BigNumber operator+ ( const BigNumber&, const int&);
+    BigNumbers_API friend BigNumber operator- (const BigNumber&, const BigNumber&);
+    BigNumbers_API friend BigNumber operator- (const BigNumber&, const int&);
 
-    friend BigNumber BigNumbers_API operator* (const BigNumber&, const BigNumber&);
-    friend BigNumber BigNumbers_API operator/ (const BigNumber&, const BigNumber&);
+    BigNumbers_API friend BigNumber operator* (const BigNumber&, const BigNumber&);
+    BigNumbers_API friend BigNumber operator/ (const BigNumber&, const BigNumber&);
 
-    friend BigNumber BigNumbers_API operator% (const BigNumber&, const BigNumber&);
+    BigNumbers_API friend BigNumber operator% (const BigNumber&, const BigNumber&);
     friend bool BigNumbers_API operator> (const BigNumber&, const BigNumber& );
     friend bool BigNumbers_API operator< (const BigNumber&, const BigNumber& );
     friend bool BigNumbers_API operator== (const BigNumber&, const BigNumber& );
 
-    friend BigNumber BigNumbers_API  operator>> (const BigNumber&, const BigNumber& );
-    friend BigNumber BigNumbers_API  operator>> (const BigNumber&, const int& );
-    friend BigNumber BigNumbers_API  operator<< (const BigNumber&, const BigNumber& );
-    friend BigNumber BigNumbers_API  operator<< (const BigNumber&, const int& );
+    BigNumbers_API friend BigNumber  operator>> (const BigNumber&, const BigNumber& );
+    BigNumbers_API friend BigNumber  operator>> (const BigNumber&, const int& );
+    BigNumbers_API friend BigNumber  operator<< (const BigNumber&, const BigNumber& );
+    BigNumbers_API friend BigNumber  operator<< (const BigNumber&, const int& );
 
     // TODO implement operators with template expression allowing to write BigNumber r = (a+b)%n
-    friend BigNumber BigNumbers_API Inv_mod (const BigNumber&  crARG, const BigNumber&  crMod);
-    friend BigNumber BigNumbers_API Add_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
-    friend BigNumber BigNumbers_API Sub_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
-    friend BigNumber BigNumbers_API Mul_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
-    friend BigNumber BigNumbers_API Div_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
+    BigNumbers_API friend BigNumber Inv_mod (const BigNumber&  crARG, const BigNumber&  crMod);
+    BigNumbers_API friend BigNumber Add_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
+    BigNumbers_API friend BigNumber Sub_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
+    BigNumbers_API friend BigNumber Mul_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
+    BigNumbers_API friend BigNumber Div_mod (const BigNumber&  crLHS, const BigNumber&  crRHS, const BigNumber&  crMod);
 
     public:
         explicit BigNumber();
@@ -108,15 +102,15 @@ class BigNumbers_API BigNumber
         std::unique_ptr<BigNumberImpl> m_pImpl ; 
 };
 
-BigNumber BigNumbers_API GenerateOne ();
-BigNumber BigNumbers_API GenerateZero () ;
+BigNumbers_API BigNumber GenerateOne ();
+BigNumbers_API BigNumber GenerateZero () ;
 
-BigNumber BigNumbers_API GenerateRand ( const int& )  ;
-BigNumber BigNumbers_API GenerateRandNegative (const int&);
-BigNumber BigNumbers_API GenerateRandWithSeed(const std::string&, const int&);
-BigNumber BigNumbers_API GenerateRandRange(const BigNumber& min, const BigNumber& max,const int& nsize=512);
+BigNumbers_API BigNumber GenerateRand ( const int& )  ;
+BigNumbers_API BigNumber GenerateRandNegative (const int&);
+BigNumbers_API BigNumber GenerateRandWithSeed(const std::string&, const int&);
+BigNumbers_API BigNumber GenerateRandRange(const BigNumber& min, const BigNumber& max,const int& nsize=512);
 
-BigNumber BigNumbers_API GenerateRandPrime(const int& nsize = 512);
+BigNumbers_API BigNumber GenerateRandPrime(const int& nsize = 512);
 
 #endif //ifndef __BIG_NUMBERS_H__
 

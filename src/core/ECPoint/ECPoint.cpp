@@ -182,7 +182,7 @@ std::vector<std::tuple<int, std::string, std::string>> getCurveList()
 }
 
 
-int ECPoint_API getNidForString(const std::string& NIDstr)
+int getNidForString(const std::string& NIDstr)
 {
     // get the curve vec list
     std::vector<std::tuple<int, std::string, std::string>> nidVec = getCurveList();
@@ -198,7 +198,7 @@ int ECPoint_API getNidForString(const std::string& NIDstr)
     return -1;
 }
 
-ECPoint ECPoint_API MultiplyByGeneratorPt(const BigNumber& value, int curveID){
+ECPoint MultiplyByGeneratorPt(const BigNumber& value, int curveID){
    // create new EC point defaulted to NID_secp256k1
     ECPoint point( curveID ) ;
 

@@ -1,0 +1,145 @@
+This is a guide on how to build the nChain Nakasendo suite of libraries. It also includes some instructions on how to switch on/off the test suite generation, the WebAssembly component and the cpack functionality.
+
+Linux / MacOSX /Windows
+
+This is a minimum set of tools required to build the library
+
+Toolset/Library	                            Version	                   
+gcc/g++/llvm/Visual Studio                  8.3.0 / clang-1100.0.33.17 / 2017 (or newer)
+git	                                        2.22.0
+cmake                                       3.14 or newer	
+python3                                     3.7.4
+openssl                                     1.1.1b
+
+Should you wish to enable our test suite or run the simple Threshold Signature example you will also need.
+
+Boost                       1.69.0 (or newer)
+pytest
+
+Should you wish to cross-compile for a WebAssembly target then you will need:
+
+python2.7                   2.7.16
+emsdk                       Please refer to the notes below.
+
+Should you wish to build the NodeJS native extensions for the core library and the Threshold Signatures you will need:
+
+Node                        12.4.0
+npm-gyp                     (https://github.com/nodejs/node-gyp)
+
+
+EMSDK.                      1.38 (linux/MaOSX) and 1.38.42 (Windows)
+
+The emsdk is an open source LLVM to JavaScript compiler. It allows C/C++ code to be compiled into Javascript which can then be embedded in a webpage. Please refer to the instructions at the following address (https://emscripten.org/docs/getting_started/index.html)
+
+
+Post tooling installation steps: 
+
+Please install in location that is close to your home directory. For the purposes of this example the HOME environment variable is set assumed to be /user/<NAME>. If you are working with Microsoft then the environment variables will have to be set via the  Environment Variables tab in System settings.
+
+#----------------------------------------------------------------------#
+# personal setup
+export TOOLS=$HOME/tools
+export SDK_HOME=$HOME/workspace/sdklibraries
+export SDK_BUILD=$HOME/workspace/build
+
+#----------------------------------------------------------------------#
+# set environment variables
+export BOOST_ROOT=$TOOLS/boost
+export OPENSSL_ROOT_DIR=$TOOLS/openssl
+export OPENSSL_WASM_ROOT_DIR=$TOOLS/openssl_wasm
+
+#----------------------------------------------------------------------#
+# update PATH
+export PATH=$PATH:/$TOOLS/cmake/bin
+export PATH=$PATH:$TOOLS/emsdk/fastcomp/emscripten
+
+#----------------------------------------------------------------------#
+# update LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TOOLS/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BOOST_ROOT/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OPENSSL_ROOT_DIR/lib
+
+#----------------------------------------------------------------------#
+# optional - convenience steps, not as part of standard release
+
+# source the emsdk setup
+source $TOOLS/emsdk/emsdk_env.sh
+
+
+# added for running python3 <test>
+export PYTHONPATH=$SDK_BUILD/x64/release 
+export PYTHONPATH=$PYTHONPATH:$SDK_HOME/src/modules/PyNakasendo
+
+
+Building and Running:
+
+The build of the libraries is driven by cmake. Create a directory at the same level in your directory tree as the cloned repo. The example below shows what it could look like.
+
+    ../sdklibraries
+    ../build
+    
+Switch into the directory created (following the example above, change directory into build)
+
+
+To build just the library (Release mode)
+
+Linux / MacOSX
+    cmake ../sdklibraries -DINCLUDE_CPACK=OFF -DBUILD_TESTS=OFF
+    make
+
+Windows
+    cmake -G"Visual Studio 15 2017" -A x64 ..\sdklibraries -DINCLUDE_CPACK=OFF -DBUILD_TESTS=OFF && cmake --build . --target ALL_BUILD --config Release
+
+
+To build the library (Debug mode)
+
+Linux / MacOSX
+    cmake ../sdklibraries -DINCLUDE_CPACK=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Debug
+    make
+    
+Windows
+    cmake -G"Visual Studio 15 2017" -A x64 ..\sdklibraries -DINCLUDE_CPACK=OFF -DBUILD_TESTS=OFF && cmake --build . --target ALL_BUILD --config Debug
+    
+Simply changing the word OFF to ON will enable features to be built. Please note that INCLUDE_CPACK and BUILD_TESTS are enabled by default so should you omit them the cmake system will assume you have the required software installed to support those options (CPACK & Boost). 
+
+TO include the Webassembly build:
+
+Linux / MacOSX
+
+    cmake ../sdklibraries -DINCLUDE_CPACK=OFF -DBUILD_TESTS=OFF -DBUILD_WEBASSEMBLY=ON
+    make
+
+Windows
+    cmake -G"Visual Studio 15 2017" -A x64 ..\sdklibraries -DINCLUDE_CPACK=OFF -DBUILD_TESTS=OFF -DBUILD_WEBASSEMBLY=ON && cmake --build . --target ALL_BUILD --config Release
+    
+
+If you have chosen to install boost and build our test suite, they can be executed by
+
+Linux / MacOSX
+
+    cmake test or ctest
+
+Windows
+
+     ctest -C Release
+
+
+In all cases the build libraries and test programs can be located in 
+    
+    ../build/x64/Release
+or
+    ../build/x64/Debug
+    
+Please refer to the README file for setting up library paths to execute the examples with these libraries or with the pre-built images. 
+
+Good luck and thank you for choosing Nakasendo SDK. 
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,65 @@
+@startuml
+@startuml
+!pragma teoz true
+
+header TS Messaging Framework
+title Round 3 Communications - GRPC
+hide footbox
+actor Player_1
+participant PlayerClient
+control Orchestrator
+participant PlayerClient2
+actor Player_2
+
+activate Orchestrator
+
+
+Player_1 -> PlayerClient : sign <msg> 
+activate PlayerClient
+PlayerClient -> Orchestrator : CallInitSignature \n<InitSignatureRequest> 
+deactivate PlayerClient
+
+
+Orchestrator -> PlayerClient : CallShareOfSignature \n<ShareOfSigRequest>
+& Orchestrator -> PlayerClient2 : CallShareOfSignature \n<ShareOfSigRequest>
+Orchestrator --> PlayerClient : <InitSignatureReply>
+activate PlayerClient
+activate PlayerClient2
+
+
+note right PlayerClient
+    - pop ephemeral key from list
+    - calculate share of signature
+end note
+
+
+PlayerClient --> Orchestrator : <ShareOfSigReply> 
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : <ShareOfSigReply> 
+deactivate PlayerClient2
+
+note right Orchestrator #LightGreen
+    signingCallback
+end note
+
+... wait for number of responses (2t+1) ...
+
+note right Orchestrator 
+    combine shares of signatures
+end note
+
+Orchestrator -> PlayerClient : CallSignMessage \n<SignDataMessage> 
+activate PlayerClient
+
+note right PlayerClient 
+    interpolate to create signature
+end note    
+
+
+PlayerClient --> Orchestrator : <SignMessageReply>
+note right Orchestrator #LightGreen
+    signingCompletedCallback
+end note 
+
+deactivate PlayerClient
+@enduml

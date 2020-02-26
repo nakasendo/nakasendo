@@ -1,7 +1,6 @@
 //index.js
 
 const nakesendoBindings = require('./build/Release/nakasendo.node');
-//var {BigNumber,} = require('./src/NakasendoBigNumber.js')
 
 var {   
     BigNumber,
@@ -48,6 +47,14 @@ var {
 var {
     BSVAddress
 } = require ('./src/Nakasendo/BSVAddress.js');
+
+var {
+    player,
+    EmphemeralKeyPair,
+    GetEmphemeralKeyList,
+    GetPlayerList,
+    AddPlayerToGroup
+} = require ('./src/Nakasendo/TS.js');
 
 
 var mod = 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141'

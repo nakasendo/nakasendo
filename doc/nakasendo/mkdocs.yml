@@ -10,13 +10,13 @@
 ##    # Open the browsers http://localhost:8000
 ##
 ##
-site_name: Nakasendo SDK
+site_name: Nakasendo
+#site_name: 'https://nakasendoproject.org/assets/nakasendo_logo_white.svg'
 
 nav:
-    - Nakasendo SDK : index.md
-    - QuickStart : QuickStart.md
-    - Guides : Guides.md
-    - Examples : Examples.md
+    - QuickStart : index.md
+    - High-level Functions : HighLevelFunctions.md
+    - Primitives : Primitives.md
     - Developer setup : DeveloperSetup.md
 
 markdown_extensions:
@@ -27,7 +27,7 @@ markdown_extensions:
 extra_javascript:
     - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML' # mathjax
 
-extra_css:
-#    - 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css'
-
 theme: readthedocs
+
+extra_css:
+    - css/theme_extra.css

@@ -7,6 +7,7 @@
 
 set(BigNumbers_HPP_FILES_PUBLIC # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbers.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersConfig.h
 )
 set(BigNumbers_HPP_FILES_PRIVATE # Keep alphabet order
   ${CMAKE_CURRENT_SOURCE_DIR}/BigNumbersImpl.h
@@ -33,7 +34,7 @@ install(TARGETS BigNumbers DESTINATION "lib" COMPONENT core)
 ###################################################################################
 ##                     WASM build for BigNumbers library                         ##
 ###################################################################################
-
+if(BUILD_WEBASSEMBLY)
 set(_WASM_LIBRARY_TARGET_NAME WASMBigNumbers)
 
 wasm_get_debug_postfix(WASM_DEBUG_POSTFIX)
@@ -60,3 +61,4 @@ add_custom_command(TARGET ${_WASM_LIBRARY_TARGET_NAME} POST_BUILD
 )
 
 install(FILES "${LIBRARY_OUTPUT_FILE}" DESTINATION "lib" COMPONENT WASMModules)
+endif(BUILD_WEBASSEMBLY)

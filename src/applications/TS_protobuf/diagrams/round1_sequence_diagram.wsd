@@ -1,0 +1,116 @@
+@startuml
+!pragma teoz true
+
+header TS Messaging Framework
+title Round 1 Communications
+hide footbox
+actor Player_1
+participant PlayerClient
+control Orchestrator
+participant PlayerClient2
+actor Player_2
+
+activate Orchestrator
+Player_1->PlayerClient : register
+& PlayerClient->Orchestrator : register
+Player_2->PlayerClient2 : register
+& PlayerClient2->Orchestrator : register
+
+
+Player_1 -> PlayerClient : createGroup
+activate PlayerClient
+PlayerClient -> Orchestrator : createGroup 
+deactivate PlayerClient
+
+
+Orchestrator -> PlayerClient : << invite >>
+& Orchestrator -> PlayerClient2 : << invite >>
+activate PlayerClient
+activate PlayerClient2
+
+PlayerClient --> Orchestrator : response
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : response
+deactivate PlayerClient2
+
+... wait for number of players (n - 1) ...
+
+Orchestrator -> PlayerClient : << groupIsSet >> (distribute all ordinals)
+& Orchestrator -> PlayerClient2 :  << groupIsSet >>
+activate PlayerClient
+activate PlayerClient2
+PlayerClient -> PlayerClient : label polynomial calculation \n evaluate labels
+PlayerClient2 -> PlayerClient2 : label polynomial calculation \n evaluate labels
+deactivate PlayerClient
+deactivate PlayerClient2
+
+... wait until Actor triggers next part ...
+
+Player_1 -> PlayerClient : createSharePublicKey
+
+
+activate PlayerClient
+
+PlayerClient -> Orchestrator : createSharePublicKey
+deactivate PlayerClient
+
+Orchestrator -> PlayerClient : << requestData >>
+& Orchestrator -> PlayerClient2 : << requestData >>
+activate PlayerClient
+activate PlayerClient2
+
+
+note right PlayerClient2
+    - JVRSS (part 1)
+end note
+
+
+PlayerClient --> Orchestrator : response <<data>>
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : response <<data>>
+deactivate PlayerClient2
+
+... wait for number of responses (n) ...
+
+Orchestrator -> Orchestrator : combine public information
+
+Orchestrator -> PlayerClient : CallShareEvals
+PlayerClient -> PlayerClient2 : share f(1)_2
+PlayerClient2 ->PlayerClient : share f(2)_1
+... wait for number (n) of Eval data ...
+PlayerClient -> Orchestrator : receivedAllEvals
+PlayerClient2 -> Orchestrator : receivedAllEvals
+
+... wait for number of responses (n) ...
+Orchestrator -> PlayerClient : << CallShareSecret >>
+& Orchestrator -> PlayerClient2 : << CallShareSecret >>
+activate PlayerClient
+activate PlayerClient2
+
+note right PlayerClient2
+    - JVRSS (part 2)
+end note
+
+PlayerClient -> PlayerClient : calculate private key share \n verify key share
+PlayerClient2 -> PlayerClient2 : calculate private key share \n verify key share
+
+PlayerClient --> Orchestrator : verified secret complete
+deactivate PlayerClient
+PlayerClient2 --> Orchestrator : verified secret complete
+deactivate PlayerClient2
+
+
+... wait for number of responses (n) ...
+
+Orchestrator -> PlayerClient : << groupIsVerified >>
+& Orchestrator -> PlayerClient2 : << groupIsVerified >>
+
+
+note right Player_1
+    - go to round2 sequence diagram -
+end note
+
+deactivate Orchestrator
+
+
+@enduml

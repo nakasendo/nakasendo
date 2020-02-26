@@ -144,7 +144,7 @@ bool verify(const std::string& crMsg, const std::string& crPublicKeyPEMStr, cons
     return impl_verify(crMsg,crPublicKeyPEMStr,rs);
 }
 
-bool AsymKey_API verifyDER(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::unique_ptr<unsigned char[]>& derSIG, const size_t& lenDERSig){
+bool verifyDER(const std::string& crMsg, const std::string& crPublicKeyPEMStr, const std::unique_ptr<unsigned char[]>& derSIG, const size_t& lenDERSig){
     return impl_verifyDER(crMsg, crPublicKeyPEMStr, derSIG,lenDERSig);
 }
 
@@ -153,7 +153,7 @@ std::string derive_pubkey(const std::string& crPubPEMkey, const std::string& crR
     return impl_derive_pubkey(crPubPEMkey, crRandomMsg);
 }
 
-std::pair<std::string, std::string> AsymKey_API pubkey_pem2hex(const std::string& crPubPEMkey)
+std::pair<std::string, std::string> pubkey_pem2hex(const std::string& crPubPEMkey)
 {
     return impl_pubkey_pem2hex(crPubPEMkey);
 }
@@ -162,10 +162,10 @@ std::unique_ptr<unsigned char[]> DEREncodedSignature(const BigNumber& r ,const B
     return impl_DEREncodedSignature(r,s,len);
 }
 
-std::string AsymKey_API pubkey_coordinates2pem(const std::string& xval, const std::string& yval, const int nid){
+std::string pubkey_coordinates2pem(const std::string& xval, const std::string& yval, const int nid){
     return impl_pubkey_coordinates2pem(xval, yval,  nid);
 }
 
-std::string AsymKey_API pubkey_pem2Hex_point(const std::string& crPubPEMkey, const bool& compressed){
+std::string pubkey_pem2Hex_point(const std::string& crPubPEMkey, const bool& compressed){
     return impl_pubkey_pem2Hex_point(crPubPEMkey,compressed);
 }
