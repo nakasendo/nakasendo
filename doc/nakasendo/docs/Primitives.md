@@ -151,7 +151,7 @@ ECPoints represent points on an elliptic curve. Below, please find details of El
 
 Create an ECPoint in JavaScript:
 ```javascript
-    ar ecptA = new ECPoint();
+    var ecptA = new ECPoint();
     var ecptB = new ECPoint();
 
     console.log(ecptA.toString());

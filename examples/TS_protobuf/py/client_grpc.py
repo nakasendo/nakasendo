@@ -352,6 +352,7 @@ class ClientProtocol:
             msg = "GroupID not found: {0}".format(gid)
             self.myPrint('ERROR: presigning')
             self.myPrint( msg )
+            return
 
         idMsg = stub.IdentityMessage( userId=self.user, groupId=gid )
         call_future = self.conn.CallInitiatePresign.future( stub.InitPresignRequest \
