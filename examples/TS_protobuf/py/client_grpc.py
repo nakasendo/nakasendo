@@ -370,11 +370,9 @@ class ClientProtocol:
         if not self.Player.checkGroup( gid ) :
             msg = "GroupID not found: {0}".format(gid)
             self.myPrint(msg)
-            #raise ClientError( msg )  
-            # 
-        elif not self.Player.checkIndex( gid, index ) :
-            msg = "No ephemeral key available for use at index {0}".format(index)   
-            self.myPrint(msg)
+
+        elif not self.Player.validIndex( gid, index ) :
+           return
         
         else :
 
@@ -547,7 +545,7 @@ class StdioClientProtocol(  ) :
     
     def do_presign(self, gid, number=1) :        
         self.client.presigning( gid, int(number) )        
-        self.chat_list.insert(END, '>>> presign ' + gid + ' ' + number) 
+        self.chat_list.insert(END, '>>> presign ' + gid + ' ' + str(number) ) 
 
     def do_print(self, gid) :
         self.chat_list.insert(END, str(self.client.Player) ) 

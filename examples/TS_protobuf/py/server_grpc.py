@@ -303,10 +303,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
                 ( groupId=gid, keyindex=index, message=msg ) )
            
             call_future.add_done_callback( self.signingCallback )      
-
-            #ref.callRemote("requestSignatureData", groupId, msg).addCallback \
-            #    (self.signingCallback)       
-            #  
+ 
         return stub.InitSignatureReply( success=True ) 
 
 
