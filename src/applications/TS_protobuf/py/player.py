@@ -247,6 +247,10 @@ class Player :
         group = self.groups[groupId]
         group.numberPresigns = group.numberPresigns - 1
 
+        if group.numberPresigns < 0 :
+            self.ptw("numberPresignsLeftToDo: numberPresigns has become -ve ({0}), setting it to zero".format(group.numberPresigns))
+            group.numberPresigns = 0
+
         # unset the presign initiator to allow another set of keys to be generated
         if group.numberPresigns == 0 :    
             group.presignInitiator = False
