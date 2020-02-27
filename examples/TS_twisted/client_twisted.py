@@ -94,9 +94,8 @@ class ClientProtocol( pb.Referenceable ):
             self.myPrint(msg)
             raise ClientError( msg )    
 
-        elif not self.Player.checkIndex( gid, index ) :
-            msg = "No ephemeral key available for use at index {0}".format(index)   
-            self.myPrint(msg)   
+        elif not self.Player.validIndex( gid, index ) :
+            msg = "No ephemeral key available for use at index {0}".format(index)  
             raise ClientError( msg )        
 
         self.Player.setSigningInitiator( gid )
