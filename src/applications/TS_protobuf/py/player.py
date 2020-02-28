@@ -195,14 +195,25 @@ class Player :
         else :
             return 0
 
-    def checkIndex(self, groupId, index) :
+    def validIndex(self, groupId, index) :
         # implemented same as in cpp code, ie:
         # size is one greater than an index i.e index =0 => size = 1
         # so if a user requests index =1 when size =1 that will return an error.
-        if len( self.groups[ groupId ].ephemeralKeyList ) <= index :
-            return 0
+        
+        msg = ''
+        result = False
+        if not self.groups[ groupId].ephemeralKeyList :
+            msg = "Ephemeral key list is empty, generate more keys using presign"   
+        elif len( self.groups[ groupId ].ephemeralKeyList ) <= index :
+            msg = "No ephemeral key available for use at index {0}. ".format(index)   
+            msg = "Choose a key in the range 0..{0}".format \
+                (len(self.groups[ groupId].ephemeralKeyList)-1)   
         else :
-            return 1
+            result = True
+
+        if not result :
+            self.ptw(msg)
+        return result
 
     def deleteGroup(self, groupId ) :
         if groupId in self.groups: 
@@ -246,6 +257,10 @@ class Player :
     def numberPresignsLeftToDo( self, groupId ) :
         group = self.groups[groupId]
         group.numberPresigns = group.numberPresigns - 1
+
+        if group.numberPresigns < 0 :
+            self.ptw("numberPresignsLeftToDo: numberPresigns has become -ve ({0}), setting it to zero".format(group.numberPresigns))
+            group.numberPresigns = 0
 
         # unset the presign initiator to allow another set of keys to be generated
         if group.numberPresigns == 0 :    
@@ -526,10 +541,8 @@ class Player :
         group = self.groups[groupId]
 
         # check the index
-        if not self.checkIndex( groupId, index ) :
-            msg = "No ephemeral key available for use at index {0}".format(index)   
-            self.ptw(msg)
-            return [ groupId, group.ordinal, 0, message ]
+        if not self.validIndex( groupId, index ) :            
+            return [ groupId, group.ordinal, '', message ]
 
         ephemeralKey = group.ephemeralKeyList.pop( index ) 
         littleK = ephemeralKey[ 0 ]
@@ -543,8 +556,6 @@ class Player :
         Hm = Nakasendo.BigNum( message, Player.modulo )
 
         s = littleK * (Hm + (pks * r_bn))
-
-        #self.ptw("s = {0}".format(s))
 
         return [ groupId, group.ordinal, s.value, message ]
 
