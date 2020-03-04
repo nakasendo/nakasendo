@@ -1,4 +1,46 @@
 String cron_string = BRANCH_NAME == "master" ? "@daily" : ""
+properties([
+  pipelineTriggers([
+    [
+      $class: 'BitBucketPPRTrigger',
+      triggers : [
+        [
+          $class: 'BitBucketPPRPullRequestTriggerFilter',
+          actionFilter: [
+            $class: 'BitBucketPPRPullRequestCreatedActionFilter',
+          ]
+        ],
+        [
+          $class: 'BitBucketPPRPullRequestTriggerFilter',
+          actionFilter: [
+            $class: 'BitBucketPPRPullRequestApprovedActionFilter',
+          ]
+        ],
+        [
+          $class: 'BitBucketPPRPullRequestTriggerFilter',
+          actionFilter: [
+            $class: 'BitBucketPPRPullRequestUpdatedActionFilter',
+          ]
+        ],
+        [
+          $class: 'BitBucketPPRPullRequestTriggerFilter',
+          actionFilter: [
+            $class: 'BitBucketPPRPullRequestMergedActionFilter',
+          ]
+        ],
+        [
+          $class: 'BitBucketPPRRepositoryTriggerFilter',
+          actionFilter: [
+            $class: 'BitBucketPPRRepositoryPushActionFilter',
+            triggerAlsoIfNothingChanged: true,
+            triggerAlsoIfTagPush: false,
+            allowedBranches: ""
+          ]
+        ]
+      ]
+    ]
+  ])
+])
 
 pipeline {
     agent { 
@@ -6,24 +48,6 @@ pipeline {
     }
 
     triggers {
-        bitBucketTrigger(     
-               [
-               [$class: 'BitBucketPPRRepositoryTriggerFilter'
-                , actionFilter: [$class: 'BitBucketPPRRepositoryPushActionFilter'
-                , allowedBranches: ''
-                , triggerAlsoIfTagPush: false]]
-            
-                , [$class: 'BitBucketPPRPullRequestTriggerFilter'
-                , actionFilter: [$class: 'BitBucketPPRPullRequestApprovedActionFilter'
-                , triggerOnlyIfAllReviewersApproved: false]]
-                    
-                , [$class: 'BitBucketPPRPullRequestTriggerFilter'
-                , actionFilter: [$class: 'BitBucketPPRPullRequestCreatedActionFilter']]
-                
-                , [$class: 'BitBucketPPRPullRequestTriggerFilter'
-                , actionFilter: [$class: 'BitBucketPPRPullRequestUpdatedActionFilter']] 
-                ]
-        )
         cron(cron_string)    
     }
 
