@@ -143,7 +143,8 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
         for ref in userRefs :
             print('calling request data...')
 
-            call_future = ref[0].CallShareSecretData.future( stub.ShareSecretDataRequest( id=idMsg ))
+            call_future = ref[0].CallShareSecretData.future( stub.ShareSecretDataRequest \
+                ( id=idMsg, calculation=request.calculation ))
             call_future.add_done_callback( self.collateDataCallback )      
 
         
@@ -194,7 +195,7 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
             print('calling request data...')
             idMsg = stub.IdentityMessage( userId=user, groupId=gid )            
             call_future = ref[0].CallShareSecretData.future \
-                ( stub.ShareSecretDataRequest( id=idMsg ))
+                ( stub.ShareSecretDataRequest( id=idMsg, calculation=calcType ))
             call_future.add_done_callback( self.collateDataCallback )      
             
         return stub.PresigningReply( success=True )      
@@ -270,9 +271,10 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
 
         gid         = request.id.groupId
         msg         = request.message
+        index       = request.keyindex
         userId      = request.id.userId
        
-        print("sign: user={0}, groupId={1}, msg={2}".format(userId, gid, msg))
+        print("sign: user={0}, groupId={1}, key={2}, msg={3}".format(userId, gid, index, msg))
 
         if not self.orchestrator.validGroup(gid) :
             errMsg = 'Group Id is not valid: {0}'.format(gid)
@@ -298,13 +300,10 @@ class OrchestratorProtocol( rpc.TSServiceServicer ) :
         userRefs = self.orchestrator.getUserReferences(gid)
         for ref in userRefs :
             call_future = ref[0].CallShareOfSignature.future( stub.ShareOfSigRequest \
-                ( groupId=gid, message=msg ) )
+                ( groupId=gid, keyindex=index, message=msg ) )
            
             call_future.add_done_callback( self.signingCallback )      
-
-            #ref.callRemote("requestSignatureData", groupId, msg).addCallback \
-            #    (self.signingCallback)       
-            #  
+ 
         return stub.InitSignatureReply( success=True ) 
 
 
