@@ -10,12 +10,6 @@ message("SDK INFO : To run a single functional test :")
 message("SDK INFO :    python test_MyTestName.py --data_dir=/absolute/path/to/data/dir --module_dir=/absolute/path/to/PyModules/dir1,/absolute/path/to/PyModules/dir2")
 message("SDK INFO : To run with debug build on windows, remember to use python_d instead of python")
 
-message("##########################################")
-message("${CMAKE_BINARY_DIR}/generated/protobuf")
-message("##########################################")
-message("${CMAKE_SOURCE_DIR}/src/applications/TS_protobuf/py")
-message("##########################################")
-
 set(FTEST_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/test_data")
 ## Get all test scripts
 file(GLOB _FUNCTIONAL_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_*.py")
