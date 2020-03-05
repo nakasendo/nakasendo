@@ -3,9 +3,9 @@ import random
 import orchestrator
 import player
 import Nakasendo
-import ecdsa
+#import ecdsa
 
-G= ecdsa.SECP256k1.generator
+#G= ecdsa.SECP256k1.generator
 
 def myPrintFunction(text):
     print(text)
@@ -1272,31 +1272,31 @@ def test_SignatureData():
     val = Nakasendo.verifyPubKeyHex(messageDataNegativeTest, publicKeyStr, sigRStr, sigSStr)
     assert val == 0 , " Test failed verification of signature failed"
 
-    #Verify the calculated threshold signature via ECDSA library
-    #positive test use the same messageData used in getSignatureData
-    hmMessage = Nakasendo.hash256(message=messageData,
-                                  modulo="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
-    # create an ecdsa public key from the program parameter
-    ecdsaPubKeyPoint = ecdsa.ellipticcurve.Point(ecdsa.SECP256k1.generator.curve(), int(coords[0], 16),
-                                                 int(coords[1], 16))
-    pubkeytestB = ecdsa.ecdsa.Public_key(G, ecdsaPubKeyPoint)
+    # #Verify the calculated threshold signature via ECDSA library
+    # #positive test use the same messageData used in getSignatureData
+    # hmMessage = Nakasendo.hash256(message=messageData,
+    #                               modulo="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
+    # # create an ecdsa public key from the program parameter
+    # ecdsaPubKeyPoint = ecdsa.ellipticcurve.Point(ecdsa.SECP256k1.generator.curve(), int(coords[0], 16),
+    #                                              int(coords[1], 16))
+    # pubkeytestB = ecdsa.ecdsa.Public_key(G, ecdsaPubKeyPoint)
+    #
+    # thresHoldSigLocalCal = ecdsa.ecdsa.Signature(int(sigRStr, 16), int(sigSStr, 16))
+    #
+    # assert (pubkeytestB.verifies(int(hmMessage.value, 16), thresHoldSigLocalCal)), " Test Failed to verify threshold signature via ECDSA library"
 
-    thresHoldSigLocalCal = ecdsa.ecdsa.Signature(int(sigRStr, 16), int(sigSStr, 16))
-
-    assert (pubkeytestB.verifies(int(hmMessage.value, 16), thresHoldSigLocalCal)), " Test Failed to verify threshold signature via ECDSA library"
-
-    # Negative test use the messageData different from the one used in getSignatureData
-    hmMessage = Nakasendo.hash256(message=messageDataNegativeTest,
-                                  modulo="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
-    # create an ecdsa public key from the program parameter
-    ecdsaPubKeyPoint = ecdsa.ellipticcurve.Point(ecdsa.SECP256k1.generator.curve(), int(coords[0], 16),
-                                                 int(coords[1], 16))
-    pubkeytestB = ecdsa.ecdsa.Public_key(G, ecdsaPubKeyPoint)
-
-    thresHoldSigLocalCal = ecdsa.ecdsa.Signature(int(sigRStr, 16), int(sigSStr, 16))
-
-    assert (pubkeytestB.verifies(int(hmMessage.value, 16),
-                                 thresHoldSigLocalCal)) == 0 , " Test Failed to verify threshold signature via ECDSA library"
+    # # Negative test use the messageData different from the one used in getSignatureData
+    # hmMessage = Nakasendo.hash256(message=messageDataNegativeTest,
+    #                               modulo="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
+    # # create an ecdsa public key from the program parameter
+    # ecdsaPubKeyPoint = ecdsa.ellipticcurve.Point(ecdsa.SECP256k1.generator.curve(), int(coords[0], 16),
+    #                                              int(coords[1], 16))
+    # pubkeytestB = ecdsa.ecdsa.Public_key(G, ecdsaPubKeyPoint)
+    #
+    # thresHoldSigLocalCal = ecdsa.ecdsa.Signature(int(sigRStr, 16), int(sigSStr, 16))
+    #
+    # assert (pubkeytestB.verifies(int(hmMessage.value, 16),
+    #                              thresHoldSigLocalCal)) == 0 , " Test Failed to verify threshold signature via ECDSA library"
 
 
 # # #test signature data
@@ -1506,18 +1506,18 @@ def test_SignatureDataNegativeScenario():
     val = Nakasendo.verifyPubKeyHex(messageData, publicKeyStr,sigRStr, sigSStr)
     assert val == 0, " Negative Test failed for signature verification "
 
-    #Verify the calculated threshold signature via ECDSA library
-    #positive test use the same messageData used in getSignatureData
-    hmMessage = Nakasendo.hash256(message=messageData,
-                                  modulo="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
-    # create an ecdsa public key from the program parameter
-    ecdsaPubKeyPoint = ecdsa.ellipticcurve.Point(ecdsa.SECP256k1.generator.curve(), int(coords[0], 16),
-                                                 int(coords[1], 16))
-    pubkeytestB = ecdsa.ecdsa.Public_key(G, ecdsaPubKeyPoint)
-
-    thresHoldSigLocalCal = ecdsa.ecdsa.Signature(int(sigRStr, 16), int(sigSStr, 16))
-
-    assert (pubkeytestB.verifies(int(hmMessage.value, 16), thresHoldSigLocalCal)) == False, " Negative Test Failed to verify threshold signature via ECDSA library"
+    # #Verify the calculated threshold signature via ECDSA library
+    # #positive test use the same messageData used in getSignatureData
+    # hmMessage = Nakasendo.hash256(message=messageData,
+    #                               modulo="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
+    # # create an ecdsa public key from the program parameter
+    # ecdsaPubKeyPoint = ecdsa.ellipticcurve.Point(ecdsa.SECP256k1.generator.curve(), int(coords[0], 16),
+    #                                              int(coords[1], 16))
+    # pubkeytestB = ecdsa.ecdsa.Public_key(G, ecdsaPubKeyPoint)
+    #
+    # thresHoldSigLocalCal = ecdsa.ecdsa.Signature(int(sigRStr, 16), int(sigSStr, 16))
+    #
+    # assert (pubkeytestB.verifies(int(hmMessage.value, 16), thresHoldSigLocalCal)) == False, " Negative Test Failed to verify threshold signature via ECDSA library"
 
 
 #Verify same signarture r and s values are generated when the polynomials are fixed
