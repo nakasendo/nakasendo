@@ -31,7 +31,7 @@ project(SDKLibraries)
 
 set(SDK_VERSION_MAJOR "0" CACHE INTERNAL "framework major version")
 set(SDK_VERSION_MINOR "3" CACHE INTERNAL "framework minor version")
-set(SDK_VERSION_PATCH "0" CACHE INTERNAL "framework patch version")
+set(SDK_VERSION_PATCH "1" CACHE INTERNAL "framework patch version")
 
 option(BUILD_WEBASSEMBLY "Build the web assembly components" OFF)
 option(INCLUDE_CPACK "Include the CPACK components" ON) 
