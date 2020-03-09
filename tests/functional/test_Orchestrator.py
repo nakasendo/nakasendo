@@ -447,7 +447,6 @@ def test_setSigner():
                 # Verify the created Public keys
                 assert groupId == gpId, "Test failed"
                 assert len(str(result)) == 64 or len(str(result)) == 62, "Test failed"
-                assert len(str(priKey)) == 64 or len(str(result)) == 62, "Test failed"
                 assert len(str(pubKey)) == 66, "Test failed"
 
             # Verify all Players have received their evaluation values
