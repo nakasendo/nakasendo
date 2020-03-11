@@ -195,6 +195,26 @@ class Player :
         else :
             return 0
 
+    def validIndex(self, groupId, index) :
+        # implemented same as in cpp code, ie:
+        # size is one greater than an index i.e index =0 => size = 1
+        # so if a user requests index =1 when size =1 that will return an error.
+        
+        msg = ''
+        result = False
+        if not self.groups[ groupId].ephemeralKeyList :
+            msg = "Ephemeral key list is empty, generate more keys using presign"   
+        elif len( self.groups[ groupId ].ephemeralKeyList ) <= index :
+            msg = "No ephemeral key available for use at index {0}. ".format(index)   
+            msg = "Choose a key in the range 0..{0}".format \
+                (len(self.groups[ groupId].ephemeralKeyList)-1)   
+        else :
+            result = True
+
+        if not result :
+            self.ptw(msg)
+        return result
+
     def deleteGroup(self, groupId ) :
         if groupId in self.groups: 
             self.ptw("Verification failed. Deleting group: {0}".format(groupId) )
@@ -213,9 +233,20 @@ class Player :
 
     def setPresignInitiator( self, groupId, number ) :
         group = self.groups[groupId]
+        defaultVal = 1
         
         group.presignInitiator = True 
-        group.numberPresigns = int(number)
+        try :
+            val = int(number)
+            if val <= 0 :
+                self.ptw("defaulting number of presigns to: 1")
+                val = defaultVal
+            group.numberPresigns = val
+        except ValueError :
+            group.numberPresigns = defaultVal
+            self.ptw("defaulting number of presigns to: {0}".format \
+                (group.numberPresigns) )
+
         self.ptw("setting presignInitiator to: {0}, number of ephemeral keys left to do: {1}".format \
             (group.presignInitiator, group.numberPresigns))            
 
@@ -226,6 +257,10 @@ class Player :
     def numberPresignsLeftToDo( self, groupId ) :
         group = self.groups[groupId]
         group.numberPresigns = group.numberPresigns - 1
+
+        if group.numberPresigns < 0 :
+            self.ptw("numberPresignsLeftToDo: numberPresigns has become -ve ({0}), setting it to zero".format(group.numberPresigns))
+            group.numberPresigns = 0
 
         # unset the presign initiator to allow another set of keys to be generated
         if group.numberPresigns == 0 :    
@@ -502,10 +537,14 @@ class Player :
         return Hm.value
 
     #-------------------------------------------------
-    def requestSignatureData( self, groupId, message ) :
+    def requestSignatureData( self, groupId, index, message ) :
         group = self.groups[groupId]
 
-        ephemeralKey = group.ephemeralKeyList.pop( ) 
+        # check the index
+        if not self.validIndex( groupId, index ) :            
+            return [ groupId, group.ordinal, '', message ]
+
+        ephemeralKey = group.ephemeralKeyList.pop( index ) 
         littleK = ephemeralKey[ 0 ]
         r_bn    = ephemeralKey[ 1 ]
         pks     = group.privateKeyShare
@@ -517,8 +556,6 @@ class Player :
         Hm = Nakasendo.BigNum( message, Player.modulo )
 
         s = littleK * (Hm + (pks * r_bn))
-
-        #self.ptw("s = {0}".format(s))
 
         return [ groupId, group.ordinal, s.value, message ]
 

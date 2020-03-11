@@ -25,7 +25,7 @@ def pytest_configure(config):
     arg_module_dir_str = config.getoption("--module_dir")
     arg_module_dir_list = arg_module_dir_str.split(',')
     sys.path = arg_module_dir_list + sys.path
-    import PyBigNumbers, PyMessageHash, PySymEncDec, PyECPoint, PyAsymKey
+    import PyBigNumbers, PyMessageHash, PySymEncDec, PyECPoint, PyAsymKey, orchestrator, player
     print('conftest.py successfully load all Py Modules')
     #print(sys.path)
     ## actual_Value = PyBigNumbers.GenerateRandHex(20) ## Try to test using PyBigNumbers
