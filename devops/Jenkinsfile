@@ -13,18 +13,6 @@ properties([
         [
           $class: 'BitBucketPPRPullRequestTriggerFilter',
           actionFilter: [
-            $class: 'BitBucketPPRPullRequestApprovedActionFilter',
-          ]
-        ],
-        [
-          $class: 'BitBucketPPRPullRequestTriggerFilter',
-          actionFilter: [
-            $class: 'BitBucketPPRPullRequestUpdatedActionFilter',
-          ]
-        ],
-        [
-          $class: 'BitBucketPPRPullRequestTriggerFilter',
-          actionFilter: [
             $class: 'BitBucketPPRPullRequestMergedActionFilter',
           ]
         ],
